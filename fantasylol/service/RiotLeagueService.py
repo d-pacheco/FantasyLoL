@@ -1,6 +1,7 @@
 from db.database import DatabaseConnection
-from util.RiotApiRequester import RiotApiRequester
 from db.models import League
+from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from util.RiotApiRequester import RiotApiRequester
 
 class RiotLeagueService:
     def __init__(self):
@@ -14,18 +15,23 @@ class RiotLeagueService:
             returned_leagues = []
 
             for league in res_json['data']['leagues']:
-                new_league = League()
-                new_league.id = int(league['id'])
-                new_league.slug = league['slug']
-                new_league.name = league['name']
-                new_league.region = league['region']
-                new_league.image = league['image']
-                new_league.priority = league['priority']
+                league_attrs = {
+                    "id": int(league['id']),
+                    "slug": league['slug'],
+                    "name": league['name'],
+                    "region": league['region'],
+                    "image": league['image'],
+                    "priority": league['priority']
+                }
+                new_league = League(**league_attrs)
                 returned_leagues.append(new_league)
             
             for new_league in returned_leagues:
                 with DatabaseConnection() as db:
                     db.merge(new_league)
                     db.commit()
+        except RiotApiStatusCodeAssertException as e:
+            print(f"Error: {str(e)}")
+            raise e
         except Exception as e:
-            random = 3
+            print(f"Error: {str(e)}")

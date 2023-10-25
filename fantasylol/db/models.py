@@ -16,6 +16,18 @@ class League(Base):
     image = Column(String)
     priority = Column(Integer)
 
+    def __eq__(self, other):
+        if not isinstance(other, League):
+            return False
+        return (
+            self.id == other.id and
+            self.slug == other.slug and
+            self.name == other.name and
+            self.region == other.region and
+            self.image == other.image and
+            self.priority == other.priority
+        )
+
 class Tournament(Base):
     __tablename__ = "tournaments"
 
