@@ -2,7 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
-from db.database import Base
+from .database import Base
 
 # Riot Data models:
 
@@ -38,6 +38,22 @@ class Game(Base):
     tournament_id = Column(Integer, ForeignKey("tournaments.id"))
     team_1_id = Column(Integer)
     team_2_id = Column(Integer)
+
+    def __eq__(self, other):
+        if not isinstance(other, Game):
+            return False
+        return (
+            self.id == other.id and
+            self.start_time == other.start_time and
+            self.block_name == other.block_name and
+            self.strategy_type == other.strategy_type and
+            self.strategy_count == other.strategy_count and
+            self.state == other.state and
+            self.number == other.number and
+            self.tournament_id == other.tournament_id and
+            self.team_1_id == other.team_1_id and
+            self.team_2_id == other.team_2_id
+        )
 
 class ProfessionalTeam(Base):
     __tablename__ = "professional_teams"

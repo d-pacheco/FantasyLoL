@@ -2,7 +2,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./fantasy-league-of-legends.db"
+PRODUCTION_DATABASE_URL = "sqlite:///./fantasy-league-of-legends.db"
+TEST_DATABASE_URL = "sqlite:///./fantasy-league-of-legends-test.db"
+# OR CAN DO: Test database URL (in-memory SQLite)
+#TEST_DATABASE_URL = "sqlite:///:memory:"
+TESTING = True
+
+SQLALCHEMY_DATABASE_URL = TEST_DATABASE_URL if TESTING else PRODUCTION_DATABASE_URL
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}

@@ -1,5 +1,8 @@
 import cloudscraper
+from http import HTTPStatus
 from typing import Dict
+
+from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 
 
 class RiotApiRequester:
@@ -22,7 +25,10 @@ class RiotApiRequester:
     def make_request(self, url, headers=None) -> Dict:
         if headers is None:
             headers = self.default_headers
-        res = self.client.get(url, headers=headers)
-        res_json = res.json()
-        res.close()
+        response = self.client.get(url, headers=headers)
+        if response.status_code != HTTPStatus.OK:
+            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+
+        res_json = response.json()
+        response.close()
         return res_json

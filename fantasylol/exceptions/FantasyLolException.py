@@ -1,0 +1,2 @@
+class FantasyLolException(Exception):
+    pass

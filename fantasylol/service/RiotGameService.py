@@ -1,6 +1,7 @@
 from db.database import DatabaseConnection
-from util.RiotApiRequester import RiotApiRequester
 from db.models import Game
+from util.RiotApiRequester import RiotApiRequester
+from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 
 class RiotGameService:
     def __init__(self):
@@ -21,22 +22,27 @@ class RiotGameService:
                 for game in games:
                     if game['state'] != 'inProgress':
                         continue
-                    new_game = Game()
-                    new_game.id = game['id']
-                    new_game.start_time = event['startTime']
-                    new_game.block_name = event['blockName']
-                    new_game.strategy_type = event['match']['strategy']['type']
-                    new_game.strategy_count = event['match']['strategy']['count']
-                    new_game.state = game['state']
-                    new_game.number = game['number']
-                    new_game.tournament_id = tournament_id
-                    new_game.team_1_id = game['teams'][0]['id']
-                    new_game.team_2_id = game['teams'][1]['id']
+                    new_game_attrs = {
+                        "id": game['id'],
+                        "start_time": event['startTime'],
+                        "block_name": event['blockName'],
+                        "strategy_type": event['match']['strategy']['type'],
+                        "strategy_count": event['match']['strategy']['count'],
+                        "state": game['state'],
+                        "number": game['number'],
+                        "tournament_id": tournament_id,
+                        "team_1_id": game['teams'][0]['id'],
+                        "team_2_id": game['teams'][1]['id'],
+                    }
+                    new_game = Game(**new_game_attrs)
                     returned_games.append(new_game)
                     
             for new_game in returned_games:
                 with DatabaseConnection() as db:
                     db.merge(new_game)
                     db.commit()
+        except RiotApiStatusCodeAssertException as e:
+            print(f"Error: {str(e)}")
+            raise e
         except Exception as e:
-            random = 3
+            print(f"Error: {str(e)}")
