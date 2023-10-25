@@ -25,6 +25,17 @@ class Tournament(Base):
     end_date = Column(String)
     league_id = Column(Integer, ForeignKey("leagues.id"))
 
+    def __eq__(self, other):
+        if not isinstance(other, Tournament):
+            return False
+        return (
+                self.id == other.id and
+                self.slug == other.slug and
+                self.start_date == other.start_date and
+                self.end_date == other.end_date and
+                self.league_id == other.league_id
+            )
+
 class Game(Base):
     __tablename__ = "games"
 
@@ -68,6 +79,21 @@ class ProfessionalTeam(Base):
     status = Column(String)
     home_league = Column(String)
 
+    def __eq__(self, other):
+        if not isinstance(other, ProfessionalTeam):
+            return False
+        return (
+            self.id == other.id and
+            self.slug == other.slug and
+            self.name == other.name and
+            self.code == other.code and
+            self.image == other.image and
+            self.alternative_image == other.alternative_image and
+            self.background_image == other.background_image and
+            self.status == other.status and
+            self.home_league == other.home_league
+        )
+
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"
 
@@ -77,6 +103,18 @@ class ProfessionalPlayer(Base):
     image = Column(String)
     role = Column(String)
     team_id = Column(Integer, ForeignKey("professional_teams.id"))
+
+    def __eq__(self, other):
+        if not isinstance(other, ProfessionalPlayer):
+            return False
+        return (
+            self.id == other.id and
+            self.esports_id == other.esports_id and
+            self.summoner_name == other.summoner_name and
+            self.image == other.image and
+            self.role == other.role and
+            self.team_id == other.team_id
+        )
 
 class PlayerGameMetadata(Base):
     __tablename__ = "player_game_metadata"
@@ -90,3 +128,18 @@ class PlayerGameMetadata(Base):
     deaths = Column(Integer)
     assists = Column(Integer)
     creep_score = Column(Integer)
+
+    def __eq__(self, other):
+        if not isinstance(other, PlayerGameMetadata):
+            return False
+        return (
+            self.id == other.id and
+            self.game_id == other.game_id and
+            self.player_id == other.player_id and
+            self.participant_id == other.participant_id and
+            self.champion_id == other.champion_id and
+            self.kills == other.kills and
+            self.deaths == other.deaths and
+            self.assists == other.assists and
+            self.creep_score == other.creep_score
+        )

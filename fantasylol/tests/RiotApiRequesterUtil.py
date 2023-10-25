@@ -54,19 +54,18 @@ class RiotApiRequestUtil:
 
     def create_mock_game(self):
         mock_game_attrs = {
-        "id": int(self.mock_game_2_id),
-        "start_time": "2023-08-07T05:00:00Z",
-        "block_name": "Playoffs - Round 1",
-        "strategy_type": "bestOf",
-        "strategy_count": 5,
-        "state": "inProgress",
-        "number": 2,
-        "tournament_id": int(self.mock_tournament_id),
-        "team_1_id": int(self.mock_team_1_id),
-        "team_2_id": int(self.mock_team_2_id),
+            "id": int(self.mock_game_2_id),
+            "start_time": "2023-08-07T05:00:00Z",
+            "block_name": "Playoffs - Round 1",
+            "strategy_type": "bestOf",
+            "strategy_count": 5,
+            "state": "inProgress",
+            "number": 2,
+            "tournament_id": int(self.mock_tournament_id),
+            "team_1_id": int(self.mock_team_1_id),
+            "team_2_id": int(self.mock_team_2_id),
         }
-        mock_game = Game(**mock_game_attrs)
-        return mock_game
+        return Game(**mock_game_attrs)
 
     def create_mock_live_game_response(self):
         response = {
@@ -277,18 +276,18 @@ class RiotApiRequestUtil:
         return response
 
     def create_mock_team(self):
-        team = ProfessionalTeam(
-            int(self.mock_team_1_id),
-            self.mock_team_1_slug,
-            self.mock_team_1_name,
-            self.mock_team_1_code,
-            self.mock_team_1_image,
-            self.mock_team_1_alt_image,
-            self.mock_team_1_background_image,
-            self.mock_team_1_status,
-            self.mock_league_name
-        )
-        return team
+        mock_team_attrs = {
+            "id": int(self.mock_team_1_id),
+            "slug": self.mock_team_1_slug,
+            "name": self.mock_team_1_name,
+            "code": self.mock_team_1_code,
+            "image": self.mock_team_1_image,
+            "alternative_image": self.mock_team_1_alt_image,
+            "background_image": self.mock_team_1_background_image,
+            "status": self.mock_team_1_status,
+            "home_league": self.mock_league_name
+        }
+        return ProfessionalTeam(**mock_team_attrs)
 
     def create_mock_team_response(self):
         response = {
@@ -356,15 +355,15 @@ class RiotApiRequestUtil:
         return response
 
     def create_mock_league(self) -> League:
-        league = League(
-            int(self.mock_league_id),
-            self.mock_league_slug,
-            self.mock_league_name,
-            self.mock_league_region,
-            self.mock_league_image,
-            1
-        )
-        return league
+        mock_league_attrs = {
+            "id": int(self.mock_league_id),
+            "slug": self.mock_league_slug,
+            "name": self.mock_league_name,
+            "region": self.mock_league_region,
+            "image": self.mock_league_image,
+            "priority": 1  # Adjust the attribute name if needed
+        }
+        return League(**mock_league_attrs)
 
     def create_mock_league_response(self):
         response = {
@@ -388,14 +387,14 @@ class RiotApiRequestUtil:
         return response
 
     def create_mock_tournament(self):
-        tournament = Tournament(
-            int(self.mock_tournament_id),
-            self.mock_tournament_slug,
-            self.mock_tournament_start_date,
-            self.mock_tournament_end_date,
-            int(self.mock_league_id)
-        )
-        return tournament
+        mock_tournament_attrs = {
+            "id": int(self.mock_tournament_id),
+            "slug": self.mock_tournament_slug,
+            "start_date": self.mock_tournament_start_date,
+            "end_date": self.mock_tournament_end_date,
+            "league_id": int(self.mock_league_id)
+        }
+        return Tournament(**mock_tournament_attrs)
 
     def create_mock_tournament_response(self):
         response = {
