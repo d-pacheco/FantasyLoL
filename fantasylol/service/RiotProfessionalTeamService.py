@@ -1,6 +1,7 @@
 from db.database import DatabaseConnection
-from util.RiotApiRequester import RiotApiRequester
 from db.models import ProfessionalTeam
+from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from util.RiotApiRequester import RiotApiRequester
 
 class RiotProfessionalTeamService:
     def __init__(self):
@@ -21,21 +22,27 @@ class RiotProfessionalTeamService:
                 if team['homeLeague'] != 'None':
                     team['homeLeague'] = team['homeLeague']['name']
 
-                new_professional_team = ProfessionalTeam()
-                new_professional_team.id = int(team['id']),
-                new_professional_team.slug = team['slug'],
-                new_professional_team.name = team['name'],
-                new_professional_team.code = team['code'],
-                new_professional_team.image = team['image'],
-                new_professional_team.alternative_image = team['alternativeImage'],
-                new_professional_team.background_image = team['backgroundImage'],
-                new_professional_team.status = team['status'],
-                new_professional_team.home_league = team['homeLeague']
+                team_attrs = {
+                    "id": int(team['id']),
+                    "slug": team['slug'],
+                    "name": team['name'],
+                    "code": team['code'],
+                    "image": team['image'],
+                    "alternative_image": team['alternativeImage'],
+                    "background_image": team['backgroundImage'],
+                    "status": team['status'],
+                    "home_league": team['homeLeague']
+                }
+                new_professional_team = ProfessionalTeam(**team_attrs)
                 returned_teams.append(new_professional_team)
         
             for new_professional_team in returned_teams:
                 with DatabaseConnection() as db:
                     db.merge(new_professional_team)
                     db.commit()
+        except RiotApiStatusCodeAssertException as e:
+            print(f"Error: {str(e)}")
+            raise e
         except Exception as e:
-            random = 3
+            print(f"Error: {str(e)}")
+
