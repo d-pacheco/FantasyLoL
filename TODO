@@ -1,0 +1,2 @@
+- Have data validation when adding a new entry or updating an existing entry into the database
+- After riot api is done, need to write tests for the entire suite
