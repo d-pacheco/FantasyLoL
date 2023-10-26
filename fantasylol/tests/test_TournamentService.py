@@ -10,7 +10,6 @@ from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from service.RiotTournamentService import RiotTournamentService
 
 
-
 class TournamentServiceTest(FantasyLolTestBase):
     def setUp(self):
         self.riot_api_util = RiotApiRequestUtil()

@@ -9,7 +9,6 @@ from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from service.RiotGameService import RiotGameService
 
 
-
 class GameServiceTest(FantasyLolTestBase):
     def setUp(self):
         self.riot_api_util = RiotApiRequestUtil()

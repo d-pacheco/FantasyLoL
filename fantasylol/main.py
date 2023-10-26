@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy.orm import Session
 
 from api import router as api_router
 from db.database import engine
