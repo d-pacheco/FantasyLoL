@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from db.database import DatabaseConnection
 from db.models import League
 from db.models import Tournament
 from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from exceptions.TournamentNotFoundException import TournamentNotFoundException
 from util.RiotApiRequester import RiotApiRequester
+from util.tournament_status import TournamentStatus
 
 class RiotTournamentService:
     def __init__(self):
@@ -42,3 +46,25 @@ class RiotTournamentService:
             raise e
         except Exception as e:
             print(f"Error: {str(e)}")
+
+    def get_tournaments(self, status: str = None):
+        current_date = datetime.now()
+
+        with DatabaseConnection() as db:
+            if status == TournamentStatus.ACTIVE:
+                tournaments = db.query(Tournament).filter(Tournament.start_date <= current_date, Tournament.end_date >= current_date).all()
+            elif status == TournamentStatus.COMPLETED:
+                tournaments = db.query(Tournament).filter(Tournament.end_date < current_date).all()
+            elif status ==  TournamentStatus.UPCOMING:
+                tournaments = db.query(Tournament).filter(Tournament.start_date > current_date).all()
+            else:
+                tournaments = db.query(Tournament).all()
+        return tournaments
+    
+    def get_tournament_by_id(sself, tournament_id: int):
+        with DatabaseConnection() as db:
+            tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()
+        if tournament is None:
+            raise TournamentNotFoundException()
+        return tournament
+        

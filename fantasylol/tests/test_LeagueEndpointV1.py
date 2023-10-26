@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 from http import HTTPStatus
 
-from .FantasyLolTestBase import FantasyLolTestBase
-from .RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.FantasyLolTestBase import FantasyLolTestBase
+from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from db.database import DatabaseConnection
 from db.models import League
 from main import app

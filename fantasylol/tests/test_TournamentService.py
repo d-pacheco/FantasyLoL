@@ -1,13 +1,17 @@
+import datetime
 from http import HTTPStatus
 from unittest.mock import Mock, patch
+import random
 
-from .FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
-from .RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.test_util.tournament_test_util import TournamentTestUtil
 from db.database import DatabaseConnection
 from db.models import Tournament
-from db.models import League
 from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from exceptions.TournamentNotFoundException import TournamentNotFoundException
 from service.RiotTournamentService import RiotTournamentService
+from util.tournament_status import TournamentStatus
 
 
 class TournamentServiceTest(FantasyLolTestBase):
@@ -53,3 +57,80 @@ class TournamentServiceTest(FantasyLolTestBase):
         tournament_service = self.create_tournament_service()
         with self.assertRaises(RiotApiStatusCodeAssertException):
             tournament_service.fetch_and_store_tournaments()
+
+    def test_get_active_tournaments(self):
+        TournamentTestUtil.create_completed_tournament()
+        TournamentTestUtil.create_upcoming_tournament()
+        expected_tournament = TournamentTestUtil.create_active_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.ACTIVE)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 1)
+        self.assertEqual(tournament_from_db[0], expected_tournament)
+
+    def test_get_active_tournaments_with_no_active_tournaments(self):
+        TournamentTestUtil.create_completed_tournament()
+        TournamentTestUtil.create_upcoming_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.ACTIVE)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 0)
+
+    def test_get_completed_tournaments(self):
+        TournamentTestUtil.create_active_tournament()
+        TournamentTestUtil.create_upcoming_tournament()
+        expected_tournament = TournamentTestUtil.create_completed_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.COMPLETED)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 1)
+        self.assertEqual(tournament_from_db[0], expected_tournament)
+
+    def test_get_completed_tournaments_with_no_completed_tournaments(self):
+        TournamentTestUtil.create_active_tournament()
+        TournamentTestUtil.create_upcoming_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.COMPLETED)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 0)
+
+    def test_get_upcoming_tournaments(self):
+        TournamentTestUtil.create_active_tournament()
+        TournamentTestUtil.create_completed_tournament()
+        expected_tournament = TournamentTestUtil.create_upcoming_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.UPCOMING)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 1)
+        self.assertEqual(tournament_from_db[0], expected_tournament)
+
+    def test_get_upcoming_tournaments_with_no_upcoming_tournaments(self):
+        TournamentTestUtil.create_active_tournament()
+        TournamentTestUtil.create_completed_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.UPCOMING)
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 0)
+
+    def test_get_all_tournaments(self):
+        TournamentTestUtil.create_active_tournament()
+        TournamentTestUtil.create_upcoming_tournament()
+        TournamentTestUtil.create_completed_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournaments()
+        self.assertIsInstance(tournament_from_db, list)
+        self.assertEqual(len(tournament_from_db), 3)
+
+    def test_get_tournament_by_id(self):
+        TournamentTestUtil.create_upcoming_tournament()
+        TournamentTestUtil.create_completed_tournament()
+        expected_tournament = TournamentTestUtil.create_active_tournament()
+        tournament_service = self.create_tournament_service()
+        tournament_from_db = tournament_service.get_tournament_by_id(expected_tournament.id)
+        self.assertEqual(tournament_from_db, expected_tournament)
+
+    def test_get_tournament_by_id_invalid_id(self):
+        TournamentTestUtil.create_active_tournament()
+        tournament_service = self.create_tournament_service()
+        with self.assertRaises(TournamentNotFoundException):
+            tournament_service.get_tournament_by_id(777)

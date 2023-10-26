@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
-from .FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
-from .RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from db.database import DatabaseConnection
 from db.models import League
 from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
