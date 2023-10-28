@@ -2,10 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import Query
 
-from sqlalchemy.orm import Session
 from util.database_fetcher import get_db
-from db.models import ProfessionalTeam
-from exceptions.ProfessionalTeamNotFoundException import ProfessisonalTeamNotFoundException
 from service.RiotProfessionalTeamService import RiotProfessionalTeamService
 
 VERSION = "v1"

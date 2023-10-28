@@ -4,7 +4,6 @@ from http import HTTPStatus
 from tests.FantasyLolTestBase import FantasyLolTestBase
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
-from db.database import DatabaseConnection
 from db.models import Tournament
 from util.tournament_status import TournamentStatus
 from main import app

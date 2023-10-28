@@ -1,7 +1,5 @@
-from datetime import datetime
 from fastapi import APIRouter, Depends
 from fastapi import Query
-from sqlalchemy.orm import Session
 
 from exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
 from service.RiotTournamentService import RiotTournamentService
