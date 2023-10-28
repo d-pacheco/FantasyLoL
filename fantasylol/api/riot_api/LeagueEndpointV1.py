@@ -3,9 +3,9 @@ from fastapi import Depends
 from fastapi import Query
 
 from sqlalchemy.orm import Session
-from util.database_fetcher import get_db
-from db.models import League
-from exceptions.LeagueNotFoundException import LeagueNotFoundException
+from fantasylol.util.database_fetcher import get_db
+from fantasylol.db.models import League
+from fantasylol.exceptions.LeagueNotFoundException import LeagueNotFoundException
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

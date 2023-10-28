@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from fastapi import Query
 
-from exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
-from service.RiotTournamentService import RiotTournamentService
-from util.tournament_status import TournamentStatus
+from fantasylol.exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
+from fantasylol.service.RiotTournamentService import RiotTournamentService
+from fantasylol.util.tournament_status import TournamentStatus
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

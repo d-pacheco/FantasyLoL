@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from db.database import DatabaseConnection
-from db.models import League
-from db.models import Tournament
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from exceptions.TournamentNotFoundException import TournamentNotFoundException
-from util.RiotApiRequester import RiotApiRequester
-from util.tournament_status import TournamentStatus
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import League
+from fantasylol.db.models import Tournament
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
+from fantasylol.util.RiotApiRequester import RiotApiRequester
+from fantasylol.util.tournament_status import TournamentStatus
 
 class RiotTournamentService:
     def __init__(self):

@@ -1,8 +1,8 @@
-from db.database import DatabaseConnection
-from db.models import ProfessionalTeam
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
-from util.RiotApiRequester import RiotApiRequester
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import ProfessionalTeam
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
+from fantasylol.util.RiotApiRequester import RiotApiRequester
 
 class RiotProfessionalTeamService:
     def __init__(self):

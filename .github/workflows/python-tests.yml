@@ -24,5 +24,4 @@ jobs:
 
       - name: Run unittest
         run: |
-          cd fantasylol
           python -m unittest discover -s tests -p "test*.py"

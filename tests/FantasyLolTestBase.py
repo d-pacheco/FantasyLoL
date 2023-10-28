@@ -1,10 +1,11 @@
 import unittest
 from sqlalchemy import inspect
-from db.database import engine
-from db import models
+
+from fantasylol.db.database import engine
+from fantasylol.db import models
 
 
-RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = 'util.RiotApiRequester.cloudscraper.create_scraper'
+RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = 'fantasylol.util.RiotApiRequester.cloudscraper.create_scraper'
 
 class FantasyLolTestBase(unittest.TestCase):
     @classmethod

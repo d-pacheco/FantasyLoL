@@ -1,7 +1,7 @@
-from db.database import DatabaseConnection
-from db.models import Game
-from util.RiotApiRequester import RiotApiRequester
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import Game
+from fantasylol.util.RiotApiRequester import RiotApiRequester
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 
 class RiotGameService:
     def __init__(self):

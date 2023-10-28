@@ -3,11 +3,11 @@ from unittest.mock import Mock, patch
 
 from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
-from db.database import DatabaseConnection
-from db.models import ProfessionalTeam
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
-from service.RiotProfessionalTeamService import RiotProfessionalTeamService
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import ProfessionalTeam
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
+from fantasylol.service.RiotProfessionalTeamService import RiotProfessionalTeamService
 
 
 class ProfessionalTeamServiceTest(FantasyLolTestBase):

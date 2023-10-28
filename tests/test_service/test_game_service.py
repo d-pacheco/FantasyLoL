@@ -3,10 +3,10 @@ from unittest.mock import Mock, patch
 
 from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
-from db.database import DatabaseConnection
-from db.models import Game
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from service.RiotGameService import RiotGameService
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import Game
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.service.RiotGameService import RiotGameService
 
 
 class GameServiceTest(FantasyLolTestBase):
