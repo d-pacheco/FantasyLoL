@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
 
-from api import router as api_router
-from db.database import engine
-from db import models
-from util.JobScheduler import JobScheduler
+from fantasylol.api import router as api_router
+from fantasylol.db.database import engine
+from fantasylol.db import models
+from fantasylol.util.JobScheduler import JobScheduler
 
 app = FastAPI()
 app.include_router(api_router)

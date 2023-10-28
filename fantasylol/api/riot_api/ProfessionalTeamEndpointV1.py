@@ -1,9 +1,7 @@
 from fastapi import APIRouter
-from fastapi import Depends
 from fastapi import Query
 
-from util.database_fetcher import get_db
-from service.RiotProfessionalTeamService import RiotProfessionalTeamService
+from fantasylol.service.RiotProfessionalTeamService import RiotProfessionalTeamService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

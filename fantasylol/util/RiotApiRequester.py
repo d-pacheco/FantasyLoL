@@ -2,7 +2,7 @@ import cloudscraper
 from http import HTTPStatus
 from typing import Dict
 
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 
 
 class RiotApiRequester:

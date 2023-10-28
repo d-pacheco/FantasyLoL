@@ -2,7 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
-from .database import Base
+from fantasylol.db.database import Base
 
 # Riot Data models:
 

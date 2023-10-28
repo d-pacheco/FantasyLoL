@@ -1,4 +1,4 @@
-from db.database import SessionLocal
+from fantasylol.db.database import SessionLocal
 
 def get_db():
     try:
