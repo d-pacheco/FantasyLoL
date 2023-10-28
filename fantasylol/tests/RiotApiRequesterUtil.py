@@ -24,18 +24,18 @@ class RiotApiRequestUtil:
     mock_team_1_name = "Mock Team 1"
     mock_team_1_slug = "mock-team-1"
     mock_team_1_code = "TEST1"
-    mock_team_1_image = "http://test-team-1-image"
-    mock_team_1_alt_image = ""
-    mock_team_1_background_image = "http://mocked-team-1-background.png"
+    mock_team_1_image = "http://mock-team-1-image.png"
+    mock_team_1_alt_image = "http://mock-team-1-alternative-image.png"
+    mock_team_1_background_image = "http://mock-team-1-background.png"
     mock_team_1_status = "active"
 
     mock_team_2_id = str(random.randint(100000, 999999))
     mock_team_2_name = "Mock Team 2"
     mock_team_2_slug = "mock-team-2"
     mock_team_2_code = "TEST2"
-    mock_team_2_image = "http://test-team-2-image"
-    mock_team_2_alt_image = "http://mocked-team-2-alternative.png"
-    mock_team_2_background_image = "http://mocked-team-2-background.png"
+    mock_team_2_image = "http://mock-team-2-image.png"
+    mock_team_2_alt_image = "http://mock-team-2-alternative-image.png"
+    mock_team_2_background_image = "http://mock-team-2-background.png"
     mock_team_2_status = "archived"
 
     mock_match_id = str(random.randint(100000, 999999))

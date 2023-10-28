@@ -51,14 +51,15 @@ class RiotTournamentService:
         current_date = datetime.now()
 
         with DatabaseConnection() as db:
+            query = db.query(Tournament)
             if status == TournamentStatus.ACTIVE:
-                tournaments = db.query(Tournament).filter(Tournament.start_date <= current_date, Tournament.end_date >= current_date).all()
+                tournaments = query.filter(Tournament.start_date <= current_date, Tournament.end_date >= current_date).all()
             elif status == TournamentStatus.COMPLETED:
-                tournaments = db.query(Tournament).filter(Tournament.end_date < current_date).all()
+                tournaments = query.filter(Tournament.end_date < current_date).all()
             elif status ==  TournamentStatus.UPCOMING:
-                tournaments = db.query(Tournament).filter(Tournament.start_date > current_date).all()
+                tournaments = query.filter(Tournament.start_date > current_date).all()
             else:
-                tournaments = db.query(Tournament).all()
+                tournaments = query.all()
         return tournaments
     
     def get_tournament_by_id(sself, tournament_id: int):
@@ -67,4 +68,3 @@ class RiotTournamentService:
         if tournament is None:
             raise TournamentNotFoundException()
         return tournament
-        

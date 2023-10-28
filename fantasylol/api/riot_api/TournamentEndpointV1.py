@@ -3,11 +3,8 @@ from fastapi import APIRouter, Depends
 from fastapi import Query
 from sqlalchemy.orm import Session
 
-from db.models import Tournament
-from exceptions.TournamentNotFoundException import TournamentNotFoundException
 from exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
 from service.RiotTournamentService import RiotTournamentService
-from util.database_fetcher import get_db
 from util.tournament_status import TournamentStatus
 
 VERSION = "v1"

@@ -1,6 +1,7 @@
 from db.database import DatabaseConnection
 from db.models import ProfessionalTeam
 from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
 from util.RiotApiRequester import RiotApiRequester
 
 class RiotProfessionalTeamService:
@@ -46,3 +47,26 @@ class RiotProfessionalTeamService:
         except Exception as e:
             print(f"Error: {str(e)}")
 
+    def get_teams(self, query_params: dict = None):
+        with DatabaseConnection() as db:
+            query = db.query(ProfessionalTeam)
+
+            if query_params is None:
+                return query.all()
+
+            for param_key in query_params:
+                param = query_params[param_key]
+                if param is None:
+                    continue
+                column = getattr(ProfessionalTeam, param_key, None)
+                if column is not None:
+                    query = query.filter(column == param)
+            professional_teams = query.all()
+        return professional_teams
+    
+    def get_team_by_id(self, professional_team_id: int):
+        with DatabaseConnection() as db:
+            professional_team = db.query(ProfessionalTeam).filter(ProfessionalTeam.id == professional_team_id).first()
+        if professional_team is None:
+            raise ProfessionalTeamNotFoundException()
+        return professional_team
