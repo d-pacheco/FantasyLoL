@@ -6,12 +6,12 @@ import random
 from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
-from db.database import DatabaseConnection
-from db.models import Tournament
-from exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from exceptions.TournamentNotFoundException import TournamentNotFoundException
-from service.RiotTournamentService import RiotTournamentService
-from util.tournament_status import TournamentStatus
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import Tournament
+from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
+from fantasylol.service.RiotTournamentService import RiotTournamentService
+from fantasylol.util.tournament_status import TournamentStatus
 
 
 class TournamentServiceTest(FantasyLolTestBase):

@@ -1,8 +1,8 @@
 import datetime
 import random
 
-from db.database import DatabaseConnection
-from db.models import Tournament
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import Tournament
 
 class TournamentTestUtil:
     def create_active_tournament():

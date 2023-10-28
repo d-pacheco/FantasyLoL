@@ -3,9 +3,9 @@ from http import HTTPStatus
 
 from tests.FantasyLolTestBase import FantasyLolTestBase
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
-from db.database import DatabaseConnection
-from db.models import League
-from main import app
+from fantasylol.db.database import DatabaseConnection
+from fantasylol.db.models import League
+from fantasylol.main import app
 
 class LeagueEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
