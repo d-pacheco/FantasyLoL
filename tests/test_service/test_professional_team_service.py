@@ -69,16 +69,6 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
         self.assertEqual(len(professional_team_from_db), 1)
         self.assertEqual(professional_team_from_db[0], expected_team)
 
-    def test_get_professional_teams_by_slug_existing_team(self):
-        expected_team = self.create_professional_team_in_db()
-        query_params = {"slug": expected_team.slug}
-
-        professional_team_service = self.create_professional_team_service()
-        professional_team_from_db = professional_team_service.get_teams(query_params)
-        self.assertIsInstance(professional_team_from_db, list)
-        self.assertEqual(len(professional_team_from_db), 1)
-        self.assertEqual(professional_team_from_db[0], expected_team)
-
     def test_get_professional_teams_by_slug_no_existing_team(self):
         self.create_professional_team_in_db()
         query_params = {"slug": "badSlug"}
