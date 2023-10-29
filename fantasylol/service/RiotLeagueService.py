@@ -1,6 +1,7 @@
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
 from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.LeagueNotFoundException import LeagueNotFoundException
 from fantasylol.util.RiotApiRequester import RiotApiRequester
 
 class RiotLeagueService:
@@ -35,3 +36,27 @@ class RiotLeagueService:
             raise e
         except Exception as e:
             print(f"Error: {str(e)}")
+
+    def get_leagues(self, query_params: dict = None):
+        with DatabaseConnection() as db:
+            query = db.query(League)
+
+            if query_params is None:
+                return query.all()
+            
+            for param_key in query_params:
+                param = query_params[param_key]
+                if param is None:
+                    continue
+                column = getattr(League, param_key, None)
+                if column is not None:
+                    query = query.filter(column == param)
+            leagues = query.all()
+        return leagues
+    
+    def get_league_by_id(self, league_id: int):
+        with DatabaseConnection() as db:
+            league = db.query(League).filter(League.id == league_id).first()
+        if league is None:
+            raise LeagueNotFoundException()
+        return league
