@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 from http import HTTPStatus
 
 from tests.FantasyLolTestBase import FantasyLolTestBase
-from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.db.models import Tournament
 from fantasylol.util.tournament_status import TournamentStatus
@@ -14,7 +13,6 @@ TOURNAMENT_BASE_URL = "/riot/v1/tournament"
 class TournamentEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
-        self.riot_api_util = RiotApiRequestUtil()
 
     def test_get_tournaments_endpoint_active(self):
         expected_tournament = TournamentTestUtil.create_active_tournament()
@@ -74,8 +72,8 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
         tournament_from_request = Tournament(**tournament)
         self.assertEqual(tournament_from_request, expected_tournament)
 
-    def test_get_tournament_by_id_with_invalid_id(self):
-        tournament_id = 123123123
+    def test_get_tournament_by_id_with_not_found(self):
+        tournament_id = 777
         response = self.client.get(f"{TOURNAMENT_BASE_URL}/{tournament_id}")
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         response_msg = response.json()
