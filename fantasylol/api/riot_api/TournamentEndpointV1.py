@@ -26,3 +26,7 @@ def get_riot_games(status: str = Depends(validate_status_parameter)):
 @router.get("/tournament/{tournament_id}")
 def get_riot_games(tournament_id: int):
     return tournament_service.get_tournament_by_id(tournament_id)
+
+@router.get("/fetch-tournaments")
+def get_tournaments_from_riot():
+    return tournament_service.fetch_and_store_tournaments()

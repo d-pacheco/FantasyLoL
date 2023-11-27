@@ -1,6 +1,6 @@
+from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import ProfessionalTeam
-from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from fantasylol.exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
 from fantasylol.util.RiotApiRequester import RiotApiRequester
 
@@ -8,12 +8,12 @@ class RiotProfessionalTeamService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_professional_teams(self):
+    def fetch_and_store_professional_teams(self) -> List[ProfessionalTeam]:
         print("Fetching and storing professional teams from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
-            returned_teams = []
+            fetched_teams = []
 
             for team in res_json['data']['teams']:
                 # Validate the team data
@@ -35,19 +35,18 @@ class RiotProfessionalTeamService:
                     "home_league": team['homeLeague']
                 }
                 new_professional_team = ProfessionalTeam(**team_attrs)
-                returned_teams.append(new_professional_team)
+                fetched_teams.append(new_professional_team)
         
-            for new_professional_team in returned_teams:
+            for new_professional_team in fetched_teams:
                 with DatabaseConnection() as db:
                     db.merge(new_professional_team)
                     db.commit()
-        except RiotApiStatusCodeAssertException as e:
-            print(f"Error: {str(e)}")
-            raise e
+            return fetched_teams
         except Exception as e:
             print(f"Error: {str(e)}")
+            raise e
 
-    def get_teams(self, query_params: dict = None):
+    def get_teams(self, query_params: dict = None) -> List[ProfessionalTeam]:
         with DatabaseConnection() as db:
             query = db.query(ProfessionalTeam)
 
@@ -64,7 +63,7 @@ class RiotProfessionalTeamService:
             professional_teams = query.all()
         return professional_teams
     
-    def get_team_by_id(self, professional_team_id: int):
+    def get_team_by_id(self, professional_team_id: int) -> ProfessionalTeam:
         with DatabaseConnection() as db:
             professional_team = db.query(ProfessionalTeam).filter(ProfessionalTeam.id == professional_team_id).first()
         if professional_team is None:

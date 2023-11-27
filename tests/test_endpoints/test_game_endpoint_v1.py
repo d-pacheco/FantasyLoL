@@ -7,7 +7,7 @@ from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
 from fantasylol.util.game_state import GameState
-from fantasylol.main import app
+from fantasylol.app import app
 
 GAME_BASE_URL = "/riot/v1/game"
 

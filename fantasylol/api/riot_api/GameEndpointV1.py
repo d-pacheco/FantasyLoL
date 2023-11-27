@@ -34,3 +34,7 @@ def get_riot_games(
 @router.get("/game/{game_id}")
 def get_riot_game_by_id(game_id: int):
     return game_service.get_game_by_id(game_id)
+
+@router.get("/fetch-games")
+def fetch_live_games_from_riot():
+    return game_service.fetch_and_store_live_games()
