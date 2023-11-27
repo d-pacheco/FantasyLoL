@@ -1,6 +1,6 @@
+from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
-from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from fantasylol.exceptions.LeagueNotFoundException import LeagueNotFoundException
 from fantasylol.util.RiotApiRequester import RiotApiRequester
 
@@ -8,12 +8,12 @@ class RiotLeagueService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_leagues(self):
+    def fetch_and_store_leagues(self) -> List[League]:
         print("Fetching and storing leagues from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
-            returned_leagues = []
+            fetched_leagues = []
 
             for league in res_json['data']['leagues']:
                 league_attrs = {
@@ -25,19 +25,18 @@ class RiotLeagueService:
                     "priority": league['priority']
                 }
                 new_league = League(**league_attrs)
-                returned_leagues.append(new_league)
+                fetched_leagues.append(new_league)
             
-            for new_league in returned_leagues:
+            for new_league in fetched_leagues:
                 with DatabaseConnection() as db:
                     db.merge(new_league)
                     db.commit()
-        except RiotApiStatusCodeAssertException as e:
-            print(f"Error: {str(e)}")
-            raise e
+            return fetched_leagues
         except Exception as e:
             print(f"Error: {str(e)}")
+            raise e
 
-    def get_leagues(self, query_params: dict = None):
+    def get_leagues(self, query_params: dict = None) -> List[League]:
         with DatabaseConnection() as db:
             query = db.query(League)
 
@@ -54,7 +53,7 @@ class RiotLeagueService:
             leagues = query.all()
         return leagues
     
-    def get_league_by_id(self, league_id: int):
+    def get_league_by_id(self, league_id: int) -> League:
         with DatabaseConnection() as db:
             league = db.query(League).filter(League.id == league_id).first()
         if league is None:

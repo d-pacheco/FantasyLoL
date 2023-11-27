@@ -1,7 +1,7 @@
+from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
 from fantasylol.util.RiotApiRequester import RiotApiRequester
-from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from fantasylol.exceptions.GameNotFoundException import GameNotFoundException
 
 
@@ -9,12 +9,12 @@ class RiotGameService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_live_games(self):
+    def fetch_and_store_live_games(self) -> List[Game]:
         print("Fetching and storing live games from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLive?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
-            returned_games = []
+            fetched_games = []
             events = res_json["data"]["schedule"].get("events", [])
             for event in events:
                 if event['type'] != 'match':
@@ -37,19 +37,18 @@ class RiotGameService:
                         "team_2_id": game['teams'][1]['id'],
                     }
                     new_game = Game(**new_game_attrs)
-                    returned_games.append(new_game)
+                    fetched_games.append(new_game)
 
-            for new_game in returned_games:
+            for new_game in fetched_games:
                 with DatabaseConnection() as db:
                     db.merge(new_game)
                     db.commit()
-        except RiotApiStatusCodeAssertException as e:
-            print(f"Error: {str(e)}")
-            raise e
+            return fetched_games
         except Exception as e:
             print(f"Error: {str(e)}")
+            raise e
 
-    def get_games(self, query_params: dict = None):
+    def get_games(self, query_params: dict = None) -> List[Game]:
         with DatabaseConnection() as db:
             query = db.query(Game)
 
@@ -66,7 +65,7 @@ class RiotGameService:
             games = query.all()
         return games
 
-    def get_game_by_id(self, game_id: int):
+    def get_game_by_id(self, game_id: int) -> Game:
         with DatabaseConnection() as db:
             game = db.query(Game).filter(Game.id == game_id).first()
         if game is None:

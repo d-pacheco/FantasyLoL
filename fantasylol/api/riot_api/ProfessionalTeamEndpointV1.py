@@ -26,3 +26,7 @@ def get_riot_professional_teams(
 @router.get("/professional-team/{professional_team_id}")
 def get_riot_league_by_id(professional_team_id: int):
     return professional_team_service.get_team_by_id(professional_team_id)
+
+@router.get("/fetch-professional-teams")
+def fetch_profressional_teams_from_riot():
+    return professional_team_service.fetch_and_store_professional_teams()
