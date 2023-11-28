@@ -98,6 +98,21 @@ class Game(Base):
             self.team_1_id == other.team_1_id and
             self.team_2_id == other.team_2_id
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "start_time": self.start_time,
+            "block_name": self.block_name,
+            "strategy_type": self.strategy_type,
+            "strategy_count": self.strategy_count,
+            "state": self.state,
+            "number": self.number,
+            "tournament_id": self.tournament_id,
+            "team_1_id": self.team_1_id,
+            "team_2_id": self.team_2_id
+        }
+
 
 class ProfessionalTeam(Base):
     __tablename__ = "professional_teams"

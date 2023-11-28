@@ -59,9 +59,9 @@ class GameEndpointV1Test(FantasyLolTestBase):
         status = "invalid"
         response = self.client.get(f"{GAME_BASE_URL}?status={status}")
 
-        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
         response_msg = response.json()
-        self.assertIn("Invalid status value", response_msg['detail'])
+        self.assertIn("value is not a valid", response_msg['detail'][0]['msg'])
 
     def test_get_game_by_block_filter_existing_game(self):
         expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
