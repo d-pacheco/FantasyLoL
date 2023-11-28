@@ -8,4 +8,4 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - D:/dev/FantasyLoL:/app
+      - .:/app
