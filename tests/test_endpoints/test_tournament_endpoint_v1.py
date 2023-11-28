@@ -16,7 +16,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
     def test_get_tournaments_endpoint_active(self):
         expected_tournament = TournamentTestUtil.create_active_tournament()
-        status = TournamentStatus.ACTIVE
+        status = TournamentStatus.ACTIVE.value
         response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -29,7 +29,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
     def test_get_tournaments_endpoint_completed(self):
         expected_tournament = TournamentTestUtil.create_completed_tournament()
-        status = TournamentStatus.COMPLETED
+        status = TournamentStatus.COMPLETED.value
         response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -42,7 +42,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
     def test_get_tournaments_endpoint_upcoming(self):
         expected_tournament = TournamentTestUtil.create_upcoming_tournament()
-        status = TournamentStatus.UPCOMING
+        status = TournamentStatus.UPCOMING.value
         response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -56,9 +56,9 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
     def test_get_tournaments_endpoint_invalid(self):
         status = "invalid"
         response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
-        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
         response_msg = response.json()
-        self.assertIn("Invalid status value", response_msg['detail'])
+        self.assertIn("value is not a valid", response_msg['detail'][0]['msg'])
 
     def test_get_tournament_by_id_success(self):
         expected_tournament = TournamentTestUtil.create_completed_tournament()

@@ -27,6 +27,17 @@ class League(Base):
             self.image == other.image and
             self.priority == other.priority
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "name": self.name,
+            "region": self.region,
+            "image": self.image,
+            "priority": self.priority
+        }
+
 
 class Tournament(Base):
     __tablename__ = "tournaments"
@@ -47,6 +58,16 @@ class Tournament(Base):
                 self.end_date == other.end_date and
                 self.league_id == other.league_id
             )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "league_id": self.league_id
+        }
+
 
 class Game(Base):
     __tablename__ = "games"
@@ -77,6 +98,21 @@ class Game(Base):
             self.team_1_id == other.team_1_id and
             self.team_2_id == other.team_2_id
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "start_time": self.start_time,
+            "block_name": self.block_name,
+            "strategy_type": self.strategy_type,
+            "strategy_count": self.strategy_count,
+            "state": self.state,
+            "number": self.number,
+            "tournament_id": self.tournament_id,
+            "team_1_id": self.team_1_id,
+            "team_2_id": self.team_2_id
+        }
+
 
 class ProfessionalTeam(Base):
     __tablename__ = "professional_teams"
@@ -105,6 +141,20 @@ class ProfessionalTeam(Base):
             self.status == other.status and
             self.home_league == other.home_league
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "name": self.name,
+            "code": self.code,
+            "image": self.image,
+            "alternative_image": self.alternative_image,
+            "background_image": self.background_image,
+            "status": self.status,
+            "home_league": self.home_league
+        }
+
 
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"
