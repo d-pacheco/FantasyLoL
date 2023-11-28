@@ -4,8 +4,8 @@ from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
 from fantasylol.db.models import Tournament
-from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
-from fantasylol.util.RiotApiRequester import RiotApiRequester
+from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
+from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
 
 class RiotTournamentService:

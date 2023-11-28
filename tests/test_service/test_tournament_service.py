@@ -3,14 +3,14 @@ from http import HTTPStatus
 from unittest.mock import Mock, patch
 import random
 
-from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
-from tests.RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.fantasy_lol_test_base import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.riot_api_requester_util import RiotApiRequestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Tournament
-from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
-from fantasylol.service.RiotTournamentService import RiotTournamentService
+from fantasylol.exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
+from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.tournament_status import TournamentStatus
 
 

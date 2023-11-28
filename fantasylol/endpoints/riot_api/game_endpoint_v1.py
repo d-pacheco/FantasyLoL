@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi import Query
 from typing import List
 
-from fantasylol.exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
-from fantasylol.service.RiotGameService import RiotGameService
+from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.riot_data_schemas import GameSchema
 from fantasylol.schemas.game_state import GameState
 

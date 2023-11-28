@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi import Query
 from typing import List
 
-from fantasylol.exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
-from fantasylol.service.RiotTournamentService import RiotTournamentService
+from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.riot_data_schemas import TournamentSchema
 from fantasylol.schemas.tournament_status import TournamentStatus
 

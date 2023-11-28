@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from fantasylol.service.RiotLeagueService import RiotLeagueService
-from fantasylol.service.RiotTournamentService import RiotTournamentService
+from fantasylol.service.riot_league_service import RiotLeagueService
+from fantasylol.service.riot_tournament_service import RiotTournamentService
 
 class JobScheduler:
     def __init__(self):
