@@ -141,6 +141,20 @@ class ProfessionalTeam(Base):
             self.status == other.status and
             self.home_league == other.home_league
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "name": self.name,
+            "code": self.code,
+            "image": self.image,
+            "alternative_image": self.alternative_image,
+            "background_image": self.background_image,
+            "status": self.status,
+            "home_league": self.home_league
+        }
+
 
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"

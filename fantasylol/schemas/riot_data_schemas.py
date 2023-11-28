@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from fantasylol.util.game_state import GameState
+
 class LeagueSchema(BaseModel):
     id: int = Field(
         default=None, 
@@ -88,7 +90,7 @@ class GameSchema(BaseModel):
         default=None, 
         description="The strategy count for the game"
     )
-    state: str = Field(
+    state: GameState = Field(
         default=None, 
         description="The state of the game"
     )
@@ -120,4 +122,55 @@ class GameSchema(BaseModel):
             "tournament_id": 777777,
             "team_1_id": 333,
             "team_2_id": 222,
+        }
+
+
+class ProfessionalTeamSchema(BaseModel):
+    id: int = Field(
+        default=None, 
+        description="The ID of the team",
+    )
+    slug: str = Field(
+        default=None, 
+        description="The SLUG of the team"
+    )
+    name: str = Field(
+        default=None, 
+        description="The name of the team"
+    )
+    code: str = Field(
+        default=None, 
+        description="The code of the team"
+    )
+    image: str = Field(
+        default=None, 
+        description="The image url of the team"
+    )
+    alternative_image: str = Field(
+        default=None, 
+        description="The alternatice image url of the team"
+    )
+    background_image: str = Field(
+        default=None, 
+        description="The background image url of the team"
+    )
+    status: str = Field(
+        default=None, 
+        description="The status of the team"
+    )
+    home_league: str = Field(
+        default=None, 
+        description="The home league name of the team"
+    )
+    class ExampleResponse:
+        example = {
+            "id": 123456789,
+            "slug": "team_name",
+            "name": "Team Name",
+            "code": "TEST1",
+            "image": "http://team-image.png",
+            "alternative_image": "http://team-alternative-image.png",
+            "background_image": "http://team-background-image.png",
+            "status": "active",
+            "home_league": "Challengers"
         }
