@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.10-alpine
 
 # Set the working directory to /app
 WORKDIR /app
@@ -15,7 +15,6 @@ EXPOSE 80
 
 # Define environment variable for SQLite database path (modify as needed)
 ENV DATABASE_URL="sqlite:///./fantasy-league-of-legends.db"
-ENV HOST_PATH="/app"
 
 # Run main.py when the container launches
 CMD ["python", "./main.py"]
