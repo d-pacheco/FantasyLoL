@@ -6,7 +6,7 @@ PRODUCTION_DATABASE_URL = "sqlite:///./fantasy-league-of-legends.db"
 TEST_DATABASE_URL = "sqlite:///./fantasy-league-of-legends-test.db"
 # OR CAN DO: Test database URL (in-memory SQLite)
 #TEST_DATABASE_URL = "sqlite:///:memory:"
-TESTING = True
+TESTING = False
 
 SQLALCHEMY_DATABASE_URL = TEST_DATABASE_URL if TESTING else PRODUCTION_DATABASE_URL
 
