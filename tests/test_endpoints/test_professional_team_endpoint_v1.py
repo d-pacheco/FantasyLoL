@@ -5,7 +5,7 @@ from tests.FantasyLolTestBase import FantasyLolTestBase
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import ProfessionalTeam
-from fantasylol.app import app
+from fantasylol import app
 
 
 PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"

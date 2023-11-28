@@ -1,5 +1,5 @@
 import uvicorn
-from fantasylol.app import app
+from fantasylol import app
 from fantasylol.util.JobScheduler import JobScheduler
 
 

@@ -11,7 +11,7 @@ from fantasylol.db.models import Tournament
 from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
 from fantasylol.service.RiotTournamentService import RiotTournamentService
-from fantasylol.util.tournament_status import TournamentStatus
+from fantasylol.schemas.tournament_status import TournamentStatus
 
 
 class TournamentServiceTest(FantasyLolTestBase):

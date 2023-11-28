@@ -5,7 +5,7 @@ from typing import List
 from fantasylol.exceptions.InvalidQueryStringParameterException import InvalidQueryStringParamterException
 from fantasylol.service.RiotTournamentService import RiotTournamentService
 from fantasylol.schemas.riot_data_schemas import TournamentSchema
-from fantasylol.util.tournament_status import TournamentStatus
+from fantasylol.schemas.tournament_status import TournamentStatus
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

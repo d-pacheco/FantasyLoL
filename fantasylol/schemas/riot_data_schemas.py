@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from fantasylol.util.game_state import GameState
+from fantasylol.schemas.game_state import GameState
 
 class LeagueSchema(BaseModel):
     id: int = Field(

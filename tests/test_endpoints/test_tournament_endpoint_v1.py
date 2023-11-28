@@ -4,8 +4,8 @@ from http import HTTPStatus
 from tests.FantasyLolTestBase import FantasyLolTestBase
 from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.db.models import Tournament
-from fantasylol.util.tournament_status import TournamentStatus
-from fantasylol.app import app
+from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol import app
 
 
 TOURNAMENT_BASE_URL = "/riot/v1/tournament"
