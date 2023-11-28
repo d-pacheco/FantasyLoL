@@ -1,8 +1,8 @@
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import ProfessionalTeam
-from fantasylol.exceptions.ProfessionalTeamNotFoundException import ProfessionalTeamNotFoundException
-from fantasylol.util.RiotApiRequester import RiotApiRequester
+from fantasylol.exceptions.professional_team_not_found_exception import ProfessionalTeamNotFoundException
+from fantasylol.util.riot_api_requester import RiotApiRequester
 
 class RiotProfessionalTeamService:
     def __init__(self):

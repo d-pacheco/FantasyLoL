@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Query
 from typing import List
 
-from fantasylol.service.RiotLeagueService import RiotLeagueService
+from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.schemas.riot_data_schemas import LeagueSchema
 
 

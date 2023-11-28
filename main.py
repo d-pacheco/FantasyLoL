@@ -1,6 +1,6 @@
 import uvicorn
 from fantasylol import app
-from fantasylol.util.JobScheduler import JobScheduler
+from fantasylol.util.job_scheduler import JobScheduler
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from http import HTTPStatus
 
-from tests.FantasyLolTestBase import FantasyLolTestBase
+from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util.game_test_util import GameTestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.db.database import DatabaseConnection

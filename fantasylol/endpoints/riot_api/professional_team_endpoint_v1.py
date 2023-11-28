@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Query
 from typing import List
 
-from fantasylol.service.RiotProfessionalTeamService import RiotProfessionalTeamService
+from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
 from fantasylol.schemas.riot_data_schemas import ProfessionalTeamSchema
 
 VERSION = "v1"

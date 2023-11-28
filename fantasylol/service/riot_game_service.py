@@ -1,8 +1,8 @@
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
-from fantasylol.util.RiotApiRequester import RiotApiRequester
-from fantasylol.exceptions.GameNotFoundException import GameNotFoundException
+from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 
 
 class RiotGameService:

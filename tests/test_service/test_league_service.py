@@ -1,13 +1,13 @@
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
-from tests.FantasyLolTestBase import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
-from tests.RiotApiRequesterUtil import RiotApiRequestUtil
+from tests.fantasy_lol_test_base import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
-from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
-from fantasylol.exceptions.LeagueNotFoundException import LeagueNotFoundException
-from fantasylol.service.RiotLeagueService import RiotLeagueService
+from fantasylol.exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
+from fantasylol.service.riot_league_service import RiotLeagueService
 
 
 class LeagueServiceTest(FantasyLolTestBase):
