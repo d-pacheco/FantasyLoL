@@ -53,7 +53,7 @@ def get_riot_professional_teams(
             "description": "OK",
             "content": {
                 "application/json": {
-                    "example": [ProfessionalTeamSchema.ExampleResponse.example]
+                    "example": ProfessionalTeamSchema.ExampleResponse.example
                 }
             }
         },
