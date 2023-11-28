@@ -10,7 +10,7 @@ from fantasylol.db.models import Game
 from fantasylol.exceptions.RiotApiStatusException import RiotApiStatusCodeAssertException
 from fantasylol.exceptions.GameNotFoundException import GameNotFoundException
 from fantasylol.service.RiotGameService import RiotGameService
-from fantasylol.util.game_state import GameState
+from fantasylol.schemas.game_state import GameState
 
 
 class GameServiceTest(FantasyLolTestBase):

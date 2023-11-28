@@ -5,7 +5,7 @@ from tests.FantasyLolTestBase import FantasyLolTestBase
 from tests.RiotApiRequesterUtil import RiotApiRequestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
-from fantasylol.app import app
+from fantasylol import app
 
 class LeagueEndpointV1Test(FantasyLolTestBase):
     def setUp(self):

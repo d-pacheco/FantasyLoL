@@ -6,7 +6,7 @@ from fantasylol.db.models import League
 from fantasylol.db.models import Tournament
 from fantasylol.exceptions.TournamentNotFoundException import TournamentNotFoundException
 from fantasylol.util.RiotApiRequester import RiotApiRequester
-from fantasylol.util.tournament_status import TournamentStatus
+from fantasylol.schemas.tournament_status import TournamentStatus
 
 class RiotTournamentService:
     def __init__(self):
