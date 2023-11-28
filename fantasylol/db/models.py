@@ -27,6 +27,17 @@ class League(Base):
             self.image == other.image and
             self.priority == other.priority
         )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "name": self.name,
+            "region": self.region,
+            "image": self.image,
+            "priority": self.priority
+        }
+
 
 class Tournament(Base):
     __tablename__ = "tournaments"
@@ -47,6 +58,16 @@ class Tournament(Base):
                 self.end_date == other.end_date and
                 self.league_id == other.league_id
             )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "league_id": self.league_id
+        }
+
 
 class Game(Base):
     __tablename__ = "games"

@@ -46,7 +46,7 @@ class RiotTournamentService:
             print(f"Error: {str(e)}")
             raise e
 
-    def get_tournaments(self, status: str = None) -> List[Tournament]:
+    def get_tournaments(self, status: TournamentStatus = None) -> List[Tournament]:
         current_date = datetime.now()
 
         with DatabaseConnection() as db:
