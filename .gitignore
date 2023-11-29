@@ -158,3 +158,8 @@ cython_debug/
 #.idea/
 *.db
 .vscode/settings.json
+.idea/FantasyLoL.iml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml

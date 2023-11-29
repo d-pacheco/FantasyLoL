@@ -82,5 +82,5 @@ def get_riot_games(tournament_id: int):
 )
 def get_tournaments_from_riot():
     tournaments = tournament_service.fetch_and_store_tournaments()
-    tournaments_response = [TournamentSchema(**tournament.to_dict) for tournament in tournaments]
+    tournaments_response = [TournamentSchema(**tournament.to_dict()) for tournament in tournaments]
     return tournaments_response
