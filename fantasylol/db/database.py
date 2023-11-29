@@ -2,13 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-PRODUCTION_DATABASE_URL = "sqlite:///./fantasy-league-of-legends.db"
-TEST_DATABASE_URL = "sqlite:///./fantasy-league-of-legends-test.db"
-# OR CAN DO: Test database URL (in-memory SQLite)
-#TEST_DATABASE_URL = "sqlite:///:memory:"
-TESTING = False
+from fantasylol.util.config import Config
 
-SQLALCHEMY_DATABASE_URL = TEST_DATABASE_URL if TESTING else PRODUCTION_DATABASE_URL
+PRODUCTION_DATABASE_URL = Config.DATABASE_URL
+TEST_DATABASE_URL = "sqlite:///./fantasy-league-of-legends-test.db"
+
+SQLALCHEMY_DATABASE_URL = TEST_DATABASE_URL if Config.USE_TEST_DB else PRODUCTION_DATABASE_URL
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
