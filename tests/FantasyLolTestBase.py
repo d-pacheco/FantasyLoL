@@ -4,8 +4,8 @@ from sqlalchemy import inspect
 from fantasylol.db.database import engine
 from fantasylol.db import models
 
-
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = 'fantasylol.util.RiotApiRequester.cloudscraper.create_scraper'
+
 
 class FantasyLolTestBase(unittest.TestCase):
     @classmethod
@@ -16,6 +16,7 @@ class FantasyLolTestBase(unittest.TestCase):
             def setUpOverride(self, *args, **kwargs):
                 FantasyLolTestBase.setUp(self)
                 return orig_setUp(self, *args, **kwargs)
+
             cls.setUp = setUpOverride
 
     def setUp(self):
