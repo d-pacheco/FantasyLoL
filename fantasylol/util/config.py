@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from dotenv import load_dotenv
 
 class Config:
@@ -10,8 +11,7 @@ class Config:
         "sqlite:///./fantasy-league-of-legendsss.db"
     )
             
-    USE_TEST_DB = True if os.getenv('USE_TEST_DB') is None else \
-            os.getenv('USE_TEST_DB').lower() == 'true'
+    USE_TEST_DB = 'tests' in sys.argv
     
     LEAGUE_SERVICE_SCHEDULE = json.loads(
         os.getenv(
