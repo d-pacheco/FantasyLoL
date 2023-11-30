@@ -1,6 +1,7 @@
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Match
+from fantasylol.db.models import Tournament
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
@@ -43,6 +44,20 @@ class RiotMatchService:
             return fetched_matches
         except Exception as e:
             print(f"Error: {str(e)}")
+            raise e
+        
+    def get_all_matches(self) -> List[Match]:
+        print("Fetching matches for all saved tournaments")
+        try:
+            fetched_matches = []
+            with DatabaseConnection() as db:
+                stored_tournaments = db.query(Tournament).all()
+            for tournament in stored_tournaments:
+                matches = self.fetch_and_store_matchs_from_tournament(tournament.id)
+                for match in matches:
+                    fetched_matches.append(match)
+            return fetched_matches
+        except Exception as e:
             raise e
         
     def get_matches(self, query_params: dict = None) -> List[Match]:
