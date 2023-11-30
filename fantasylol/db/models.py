@@ -67,6 +67,48 @@ class Tournament(Base):
             "end_date": self.end_date,
             "league_id": self.league_id
         }
+    
+
+class Match(Base):
+    __tablename__ = "matches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    start_time = Column(String)
+    block_name = Column(String)
+    league_name = Column(String)
+    strategy_type = Column(String)
+    strategy_count = Column(Integer)
+    tournament_id = Column(Integer)
+    team_1_name = Column(String)
+    team_2_name = Column(String)
+
+    def __eq__(self, other):
+        if not isinstance(other, Match):
+            return False
+        return (
+            self.id == other.id and
+            self.start_time == other.start_time and
+            self.block_name == other.block_name and
+            self.league_name == other.league_name and
+            self.strategy_type == other.strategy_type and
+            self.strategy_count == other.strategy_count and
+            self.tournament_id == other.tournament_id and
+            self.team_1_name == other.team_1_name and
+            self.team_2_name == other.team_2_name
+        )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "start_time": self.start_time,
+            "block_name": self.block_name,
+            "league_name": self.league_name,
+            "strategy_type": self.strategy_type,
+            "strategy_count": self.strategy_count,
+            "tournament_id": self.tournament_id,
+            "team_1_name": self.team_1_name,
+            "team_2_name": self.team_2_name
+        }
 
 
 class Game(Base):

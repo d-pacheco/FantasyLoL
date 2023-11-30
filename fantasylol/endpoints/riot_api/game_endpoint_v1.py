@@ -86,7 +86,7 @@ def get_riot_game_by_id(game_id: int):
             }
         }
     }
-    )
+)
 def fetch_live_games_from_riot():
     games = game_service.fetch_and_store_live_games()
     games_response = [GameSchema(**game.to_dict()) for game in games]

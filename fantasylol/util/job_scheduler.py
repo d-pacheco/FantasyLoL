@@ -31,6 +31,3 @@ class JobScheduler:
         )
 
         self.scheduler.start()
-
-    def random_fun(self):
-        random =3
