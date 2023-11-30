@@ -13,7 +13,7 @@ class RiotMatchService:
         print(f"Fetching matches for tournament with id {tournament_id}")
         request_url = (
             "https://esports-api.lolesports.com/persisted/gw"
-            f"/getCompletedEvents?hl=en-GB&tournamentI={tournament_id}"
+            f"/getCompletedEvents?hl=en-GB&tournamentId={tournament_id}"
         )
         try:
             res_json = self.riot_api_requester.make_request(request_url)
