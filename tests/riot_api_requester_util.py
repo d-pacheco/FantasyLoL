@@ -4,6 +4,7 @@ from fantasylol.db.models import Game
 from fantasylol.db.models import ProfessionalTeam
 from fantasylol.db.models import League
 from fantasylol.db.models import Tournament
+from fantasylol.db.models import Match
 
 
 class RiotApiRequestUtil:
@@ -40,6 +41,10 @@ class RiotApiRequestUtil:
     mock_team_2_status = "archived"
 
     mock_match_id = str(random.randint(100000, 999999))
+    mock_match_start_time = "2023-08-07T05:00:00Z"
+    mock_block_name = "MockBlock - Round 1"
+    mock_match_strategy_type = "bestOf"
+    mock_match_strategy_count = 3
 
     mock_game_1_id = str(random.randint(100000, 999999))
     mock_game_2_id = str(random.randint(100000, 999999))
@@ -56,10 +61,10 @@ class RiotApiRequestUtil:
     def create_mock_game(self):
         mock_game_attrs = {
             "id": int(self.mock_game_2_id),
-            "start_time": "2023-08-07T05:00:00Z",
-            "block_name": "Playoffs - Round 1",
-            "strategy_type": "bestOf",
-            "strategy_count": 5,
+            "start_time": self.mock_match_start_time,
+            "block_name": self.mock_block_name,
+            "strategy_type": self.mock_match_strategy_type,
+            "strategy_count": self.mock_match_strategy_count,
             "state": "inProgress",
             "number": 2,
             "tournament_id": int(self.mock_tournament_id),
@@ -75,10 +80,10 @@ class RiotApiRequestUtil:
                     "events": [
                         {
                             "id": self.mock_league_id,
-                            "startTime": "2023-08-07T05:00:00Z",
+                            "startTime": self.mock_match_start_time,
                             "state": "inProgress",
                             "type": "match",
-                            "blockName": "Playoffs - Round 1",
+                            "blockName": self.mock_block_name,
                             "league": {
                                 "id": self.mock_league_id,
                                 "slug": self.mock_league_slug,
@@ -128,8 +133,8 @@ class RiotApiRequestUtil:
                                     }
                                 ],
                                 "strategy": {
-                                    "type": "bestOf",
-                                    "count": 5
+                                    "type": self.mock_match_strategy_type,
+                                    "count": self.mock_match_strategy_count
                                 },
                                 "games": [
                                     {
@@ -179,38 +184,6 @@ class RiotApiRequestUtil:
                                             }
                                         ],
                                         "vods": []
-                                    },
-                                    {
-                                        "number": 4,
-                                        "id": self.mock_game_4_id,
-                                        "state": "unstarted",
-                                        "teams": [
-                                            {
-                                                "id": self.mock_team_1_id,
-                                                "side": "blue"
-                                            },
-                                            {
-                                                "id": self.mock_team_2_id,
-                                                "side": "red"
-                                            }
-                                        ],
-                                        "vods": []
-                                    },
-                                    {
-                                        "number": 5,
-                                        "id": self.mock_game_5_id,
-                                        "state": "unstarted",
-                                        "teams": [
-                                            {
-                                                "id": self.mock_team_2_id,
-                                                "side": "blue"
-                                            },
-                                            {
-                                                "id": self.mock_team_1_id,
-                                                "side": "red"
-                                            }
-                                        ],
-                                        "vods": []
                                     }
                                 ]
                             },
@@ -224,19 +197,6 @@ class RiotApiRequestUtil:
                                         "translatedName": "\ud55c\uad6d\uc5b4"
                                     },
                                     "provider": "twitch",
-                                    "countries": [],
-                                    "offset": -60000,
-                                    "statsStatus": "enabled"
-                                },
-                                {
-                                    "parameter": "afchall",
-                                    "locale": "ko-KR",
-                                    "mediaLocale": {
-                                        "locale": "ko-KR",
-                                        "englishName": "Korean (Korea)",
-                                        "translatedName": "\ud55c\uad6d\uc5b4"
-                                    },
-                                    "provider": "afreecatv",
                                     "countries": [],
                                     "offset": -60000,
                                     "statsStatus": "enabled"
@@ -415,3 +375,82 @@ class RiotApiRequestUtil:
             }
         }
         return response
+    
+    def create_mock_match(self):
+        mock_match_attrs = {
+            "id": int(self.mock_match_id),
+            "start_time": self.mock_match_start_time,
+            "block_name": self.mock_block_name,
+            "league_name": self.mock_league_name,
+            "strategy_type": self.mock_match_strategy_type,
+            "strategy_count": self.mock_match_strategy_count,
+            "tournament_id": int(self.mock_tournament_id),
+            "team_1_name": self.mock_team_1_name,
+            "team_2_name": self.mock_team_2_name
+        }
+        return Match(**mock_match_attrs)
+    
+    def create_mock_match_response(self):
+        return {
+            "data": {
+                "schedule": {
+                    "events": [
+                        {
+                            "startTime": self.mock_match_start_time,
+                            "blockName": self.mock_block_name,
+                            "league": {
+                                "name": self.mock_league_name
+                            },
+                            "match": {
+                                "id": self.mock_match_id,
+                                "type": "normal",
+                                "teams": [
+                                    {
+                                        "name": self.mock_team_1_name,
+                                        "code": self.mock_team_1_code,
+                                        "image": self.mock_team_1_image,
+                                        "result": {
+                                            "gameWins": 2
+                                        }
+                                    },
+                                    {
+                                        "name": self.mock_team_2_name,
+                                        "code": self.mock_team_2_code,
+                                        "image": self.mock_team_2_image,
+                                        "result": {
+                                            "gameWins": 0
+                                        }
+                                    }
+                                ],
+                                "strategy": {
+                                    "type": self.mock_match_strategy_type,
+                                    "count": self.mock_match_strategy_count
+                                }
+                            },
+                            "games": [
+                                {
+                                    "id": self.mock_game_1_id,
+                                    "vods": [
+                                        {
+                                            "parameter": "2j4ZiZpjikY"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": self.mock_game_2_id,
+                                    "vods": [
+                                        {
+                                            "parameter": "NJsEWP60paY"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": self.mock_game_3_id,
+                                    "vods": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }

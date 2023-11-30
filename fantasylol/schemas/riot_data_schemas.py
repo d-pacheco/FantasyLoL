@@ -41,7 +41,7 @@ class LeagueSchema(BaseModel):
 class TournamentSchema(BaseModel):
     id: int = Field(
         default=None, 
-        description="The ID of the tournament",
+        description="The ID of the tournament"
     )
     slug: str = Field(
         default=None, 
@@ -66,6 +66,57 @@ class TournamentSchema(BaseModel):
             "start_date": "2023-01-01",
             "end_date": "2023-02-01",
             "league_id": 98767975604431411
+        }
+
+
+class MatchSchema(BaseModel):
+    id: int = Field(
+        default=None, 
+        description="The ID of the match"
+    )
+    start_time: str = Field(
+        default=None, 
+        description="The start time of the match"
+    )
+    block_name: str = Field(
+        default=None, 
+        description="The block name of the match"
+    )
+    league_name: str = Field(
+        default=None, 
+        description="The name of the league the match is in"
+    )
+    strategy_type: str = Field(
+        default=None, 
+        description="The strategy type of the match"
+    )
+    strategy_count: int = Field(
+        default=None, 
+        description="The number of games for the strategy type"
+    )
+    tournament_id: int = Field(
+        default=None, 
+        description="The id of the tournament the match is taking place in"
+    )
+    team_1_name: str = Field(
+        default=None, 
+        description="The name of the first team participating in the match"
+    )
+    team_2_name: str = Field(
+        default=None, 
+        description="The name of the second team participating in the match"
+    )
+    class ExampleResponse:
+        example = {
+            "id": 110853020184706765,
+            "start_time": "2023-11-19T08:00:00Z",
+            "block_name": "Finals",
+            "league_name": "Worlds",
+            "strategy_type": "bestOf",
+            "strategy_count": 5,
+            "tournament_id": 123456789,
+            "team_1_name": "WeiboGaming FAW AUDI",
+            "team_2_name": "T1"
         }
 
 
