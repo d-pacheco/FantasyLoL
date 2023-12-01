@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Match
 from fantasylol.db.models import Tournament
@@ -51,9 +52,13 @@ class RiotMatchService:
         try:
             fetched_matches = []
             with DatabaseConnection() as db:
-                stored_tournaments = db.query(Tournament).all()
+                stored_tournaments: List[Tournament] = db.query(Tournament).all()
+            min_start_date = datetime(2020, 1, 1)
             for tournament in stored_tournaments:
-                matches = self.fetch_and_store_matchs_from_tournament(tournament.id)
+                if min_start_date < datetime.strptime(tournament.start_date, "%Y-%m-%d"):
+                    matches = self.fetch_and_store_matchs_from_tournament(tournament.id)
+                else:
+                    continue
                 for match in matches:
                     fetched_matches.append(match)
             return fetched_matches
