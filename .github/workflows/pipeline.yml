@@ -27,15 +27,6 @@ jobs:
         run: |
           python -m flake8
 
-      - name: Verify Linting Results
-        run: |
-          if [ $? -eq 0 ]; then
-              echo "Linting passed!"
-          else
-              echo "Linting failed. Fix the issues before pushing or merging"
-              exit 1
-          fi
-
   test:
     name: Run Python tests
     runs-on: ubuntu-latest
