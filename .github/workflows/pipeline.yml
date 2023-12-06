@@ -23,12 +23,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+    outputs:
+      artifacts: setup-artifact
+
   lint:
     name: Lint Python Code
     runs-on: ubuntu-latest
     needs: setup
 
     steps:
+      - name: Download setup artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: setup-artifact
+          path: .
+
       - name: Check code formatting
         run: |
           python -m flake8
@@ -48,6 +57,12 @@ jobs:
     needs: setup
 
     steps:
+      - name: Download setup artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: setup-artifact
+          path: .
+
       - name: Run unittest
         run: |
           python -m unittest discover -s tests -p "test*.py"
