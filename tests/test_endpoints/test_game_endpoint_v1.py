@@ -4,12 +4,12 @@ from http import HTTPStatus
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util.game_test_util import GameTestUtil
 from tests.test_util.tournament_test_util import TournamentTestUtil
-from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
 from fantasylol.schemas.game_state import GameState
 from fantasylol import app
 
 GAME_BASE_URL = "/riot/v1/game"
+
 
 class GameEndpointV1Test(FantasyLolTestBase):
     def setUp(self):

@@ -4,12 +4,12 @@ from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.util.config import Config
 
+
 class JobScheduler:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
         self.riot_league_service = RiotLeagueService()
         self.riot_tournament_service = RiotTournamentService()
-
 
     def schedule_all_jobs(self):
         print("Scheduling jobs")

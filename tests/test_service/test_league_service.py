@@ -5,7 +5,8 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase, RIOT_API_REQUESTER_C
 from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
-from fantasylol.exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.riot_api_status_code_assert_exception import \
+    RiotApiStatusCodeAssertException
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
 from fantasylol.service.riot_league_service import RiotLeagueService
 
@@ -16,7 +17,7 @@ class LeagueServiceTest(FantasyLolTestBase):
 
     def create_league_service(self):
         return RiotLeagueService()
-    
+
     def create_league_in_db(self):
         mock_league = self.riot_api_util.create_mock_league()
         with DatabaseConnection() as db:
@@ -24,7 +25,7 @@ class LeagueServiceTest(FantasyLolTestBase):
             db.commit()
             db.refresh(mock_league)
         return mock_league
-    
+
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_fetch_leagues_successful(self, mock_create_scraper):
         expected_json = self.riot_api_util.create_mock_league_response()

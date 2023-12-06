@@ -10,6 +10,7 @@ VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 league_service = RiotLeagueService()
 
+
 @router.get(
     path="/league",
     description="Get a list of leagues based on a set of search criteria",
@@ -37,6 +38,7 @@ def get_riot_leagues(
     leagues_response = [LeagueSchema(**league.to_dict()) for league in leagues]
 
     return leagues_response
+
 
 @router.get(
     path="/league/{league_id}",
@@ -67,6 +69,7 @@ def get_riot_league_by_id(league_id: int):
     league_response = LeagueSchema(**league.to_dict())
 
     return league_response
+
 
 @router.get(
     path="/fetch-leagues",

@@ -6,6 +6,7 @@ from fantasylol.db.database import Base
 
 # Riot Data models:
 
+
 class League(Base):
     __tablename__ = "leagues"
 
@@ -27,7 +28,7 @@ class League(Base):
             self.image == other.image and
             self.priority == other.priority
         )
-    
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -52,13 +53,13 @@ class Tournament(Base):
         if not isinstance(other, Tournament):
             return False
         return (
-                self.id == other.id and
-                self.slug == other.slug and
-                self.start_date == other.start_date and
-                self.end_date == other.end_date and
-                self.league_id == other.league_id
-            )
-    
+            self.id == other.id and
+            self.slug == other.slug and
+            self.start_date == other.start_date and
+            self.end_date == other.end_date and
+            self.league_id == other.league_id
+        )
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -67,7 +68,7 @@ class Tournament(Base):
             "end_date": self.end_date,
             "league_id": self.league_id
         }
-    
+
 
 class Match(Base):
     __tablename__ = "matches"
@@ -96,7 +97,7 @@ class Match(Base):
             self.team_1_name == other.team_1_name and
             self.team_2_name == other.team_2_name
         )
-    
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -140,7 +141,7 @@ class Game(Base):
             self.team_1_id == other.team_1_id and
             self.team_2_id == other.team_2_id
         )
-    
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -183,7 +184,7 @@ class ProfessionalTeam(Base):
             self.status == other.status and
             self.home_league == other.home_league
         )
-    
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -219,6 +220,7 @@ class ProfessionalPlayer(Base):
             self.role == other.role and
             self.team_id == other.team_id
         )
+
 
 class PlayerGameMetadata(Base):
     __tablename__ = "player_game_metadata"

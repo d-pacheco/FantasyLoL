@@ -9,6 +9,7 @@ VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 professional_team_service = RiotProfessionalTeamService()
 
+
 @router.get(
     path="/professional-team",
     description="Get a list of professional teams based on a set of search criteria",
@@ -39,7 +40,8 @@ def get_riot_professional_teams(
         "home_league": league
     }
     professional_teams = professional_team_service.get_teams(query_params)
-    professional_teams_response = [ProfessionalTeamSchema(**team.to_dict()) for team in professional_teams]
+    professional_teams_response = [ProfessionalTeamSchema(
+        **team.to_dict()) for team in professional_teams]
     return professional_teams_response
 
 
@@ -72,6 +74,7 @@ def get_riot_league_by_id(professional_team_id: int):
     professional_team_response = ProfessionalTeamSchema(**professional_team.to_dict())
     return professional_team_response
 
+
 @router.get(
     path="/fetch-professional-teams",
     description="Fetch professional teams from riots servers",
@@ -89,5 +92,6 @@ def get_riot_league_by_id(professional_team_id: int):
     })
 def fetch_profressional_teams_from_riot():
     professional_teams = professional_team_service.fetch_and_store_professional_teams()
-    professional_teams_response = [ProfessionalTeamSchema(**team.to_dict()) for team in professional_teams]
+    professional_teams_response = [ProfessionalTeamSchema(
+        **team.to_dict()) for team in professional_teams]
     return professional_teams_response

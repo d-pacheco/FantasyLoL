@@ -7,6 +7,7 @@ from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
 from fantasylol import app
 
+
 class LeagueEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
@@ -44,7 +45,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
 
         league_from_request = League(**leagues[0])
         self.assertEqual(league_from_request.id, int(self.riot_api_util.mock_league_id))
-    
+
     def test_get_riot_league_name_filter_no_existing_league(self):
         league_name = "BadLeagueName"
         response = self.client.get(f"/riot/v1/league?name={league_name}")

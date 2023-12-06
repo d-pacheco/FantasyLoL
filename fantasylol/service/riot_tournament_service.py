@@ -8,13 +8,15 @@ from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFo
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
 
+
 class RiotTournamentService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_tournaments(self) -> List[Tournament]:
         print("Fetching and storing tournaments from riot's api")
-        request_url = "https://esports-api.lolesports.com/persisted/gw/getTournamentsForLeague?hl=en-GB&leagueId={id}"
+        request_url = "https://esports-api.lolesports.com/persisted/gw" \
+                      "/getTournamentsForLeague?hl=en-GB&leagueId={id}"
         try:
             league_ids = []
             with DatabaseConnection() as db:
@@ -36,7 +38,7 @@ class RiotTournamentService:
                     }
                     new_tournament = Tournament(**tournament_attrs)
                     fetched_tournaments.append(new_tournament)
-            
+
             for new_tournament in fetched_tournaments:
                 with DatabaseConnection() as db:
                     db.merge(new_tournament)
@@ -52,15 +54,16 @@ class RiotTournamentService:
         with DatabaseConnection() as db:
             query = db.query(Tournament)
             if status == TournamentStatus.ACTIVE:
-                tournaments = query.filter(Tournament.start_date <= current_date, Tournament.end_date >= current_date).all()
+                tournaments = query.filter(Tournament.start_date <=
+                                           current_date, Tournament.end_date >= current_date).all()
             elif status == TournamentStatus.COMPLETED:
                 tournaments = query.filter(Tournament.end_date < current_date).all()
-            elif status ==  TournamentStatus.UPCOMING:
+            elif status == TournamentStatus.UPCOMING:
                 tournaments = query.filter(Tournament.start_date > current_date).all()
             else:
                 tournaments = query.all()
         return tournaments
-    
+
     def get_tournament_by_id(sself, tournament_id: int) -> Tournament:
         with DatabaseConnection() as db:
             tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()

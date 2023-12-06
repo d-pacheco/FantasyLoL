@@ -2,31 +2,33 @@ from pydantic import BaseModel, Field
 
 from fantasylol.schemas.game_state import GameState
 
+
 class LeagueSchema(BaseModel):
     id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the league",
     )
     slug: str = Field(
-        default=None, 
+        default=None,
         description="The SLUG of the league"
     )
     name: str = Field(
-        default=None, 
+        default=None,
         description="The name of the league"
     )
     region: str = Field(
-        default=None, 
+        default=None,
         description="The region of the league"
     )
     image: str = Field(
-        default=None, 
+        default=None,
         description="The image url of the league"
     )
     priority: int = Field(
-        default=None, 
+        default=None,
         description="The priority of league in list ranking order"
     )
+
     class ExampleResponse:
         example = {
             "id": 98767975604431411,
@@ -40,25 +42,26 @@ class LeagueSchema(BaseModel):
 
 class TournamentSchema(BaseModel):
     id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the tournament"
     )
     slug: str = Field(
-        default=None, 
+        default=None,
         description="The SLUG of the tournament"
     )
     start_date: str = Field(
-        default=None, 
+        default=None,
         description="The start date of the tournament"
     )
     end_date: str = Field(
-        default=None, 
+        default=None,
         description="The end date of the tournament"
     )
     league_id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the league the tournament is being held in"
     )
+
     class ExampleResponse:
         example = {
             "id": 123456789,
@@ -71,41 +74,42 @@ class TournamentSchema(BaseModel):
 
 class MatchSchema(BaseModel):
     id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the match"
     )
     start_time: str = Field(
-        default=None, 
+        default=None,
         description="The start time of the match"
     )
     block_name: str = Field(
-        default=None, 
+        default=None,
         description="The block name of the match"
     )
     league_name: str = Field(
-        default=None, 
+        default=None,
         description="The name of the league the match is in"
     )
     strategy_type: str = Field(
-        default=None, 
+        default=None,
         description="The strategy type of the match"
     )
     strategy_count: int = Field(
-        default=None, 
+        default=None,
         description="The number of games for the strategy type"
     )
     tournament_id: int = Field(
-        default=None, 
+        default=None,
         description="The id of the tournament the match is taking place in"
     )
     team_1_name: str = Field(
-        default=None, 
+        default=None,
         description="The name of the first team participating in the match"
     )
     team_2_name: str = Field(
-        default=None, 
+        default=None,
         description="The name of the second team participating in the match"
     )
+
     class ExampleResponse:
         example = {
             "id": 110853020184706765,
@@ -122,45 +126,46 @@ class MatchSchema(BaseModel):
 
 class GameSchema(BaseModel):
     id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the game",
     )
     start_time: str = Field(
-        default=None, 
+        default=None,
         description="The start time of the game"
     )
     block_name: str = Field(
-        default=None, 
+        default=None,
         description="The block name for the game"
     )
     strategy_type: str = Field(
-        default=None, 
+        default=None,
         description="The strategy type for the game"
     )
     strategy_count: int = Field(
-        default=None, 
+        default=None,
         description="The strategy count for the game"
     )
     state: GameState = Field(
-        default=None, 
+        default=None,
         description="The state of the game"
     )
     number: int = Field(
-        default=None, 
+        default=None,
         description="The game number within the strategy type and count"
     )
     tournament_id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the tournament that the game is in"
     )
     team_1_id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of team 1 in the game"
     )
     team_2_id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of team 2 in the game"
     )
+
     class ExampleResponse:
         example = {
             "id": 123456789,
@@ -178,41 +183,42 @@ class GameSchema(BaseModel):
 
 class ProfessionalTeamSchema(BaseModel):
     id: int = Field(
-        default=None, 
+        default=None,
         description="The ID of the team",
     )
     slug: str = Field(
-        default=None, 
+        default=None,
         description="The SLUG of the team"
     )
     name: str = Field(
-        default=None, 
+        default=None,
         description="The name of the team"
     )
     code: str = Field(
-        default=None, 
+        default=None,
         description="The code of the team"
     )
     image: str = Field(
-        default=None, 
+        default=None,
         description="The image url of the team"
     )
     alternative_image: str = Field(
-        default=None, 
+        default=None,
         description="The alternatice image url of the team"
     )
     background_image: str = Field(
-        default=None, 
+        default=None,
         description="The background image url of the team"
     )
     status: str = Field(
-        default=None, 
+        default=None,
         description="The status of the team"
     )
     home_league: str = Field(
-        default=None, 
+        default=None,
         description="The home league name of the team"
     )
+
     class ExampleResponse:
         example = {
             "id": 123456789,

@@ -10,8 +10,10 @@ VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 game_service = RiotGameService()
 
+
 def validate_status_parameter(status: GameState = Query(None, description="Filter by game state")):
     return status
+
 
 @router.get(
     path="/game",
@@ -42,6 +44,7 @@ def get_riot_games(
     games_response = [GameSchema(**game.to_dict()) for game in games]
     return games_response
 
+
 @router.get(
     path="/game/{game_id}",
     description="Get game by its ID",
@@ -70,6 +73,7 @@ def get_riot_game_by_id(game_id: int):
     game = game_service.get_game_by_id(game_id)
     game_response = GameSchema(**game.to_dict())
     return game_response
+
 
 @router.get(
     path="/fetch-games",

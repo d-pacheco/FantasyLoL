@@ -5,13 +5,14 @@ from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
 from fantasylol.schemas.game_state import GameState
 
+
 class GameTestUtil:
     def create_completed_game(tournament_id: int):
         return create_game_in_db(GameState.COMPLETED, tournament_id)
-    
+
     def create_inprogress_game(tournament_id: int):
         return create_game_in_db(GameState.INPROGRESS, tournament_id)
-    
+
     def create_unstarted_game(tournament_id: int):
         return create_game_in_db(GameState.UNSTARTED, tournament_id)
 

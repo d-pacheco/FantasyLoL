@@ -17,6 +17,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+
 class DatabaseConnection:
     def __enter__(self):
         self.db = SessionLocal()
