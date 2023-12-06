@@ -6,6 +6,7 @@ from fantasylol.db.models import Tournament
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
+
 class RiotMatchService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
@@ -36,7 +37,7 @@ class RiotMatchService:
                 }
                 new_match = Match(**new_match_attrs)
                 fetched_matches.append(new_match)
-            
+
             print("Saving fetched matches to db")
             for new_match in fetched_matches:
                 with DatabaseConnection() as db:
@@ -46,7 +47,7 @@ class RiotMatchService:
         except Exception as e:
             print(f"Error: {str(e)}")
             raise e
-        
+
     def get_all_matches(self) -> List[Match]:
         print("Fetching matches for all saved tournaments")
         try:
@@ -64,14 +65,14 @@ class RiotMatchService:
             return fetched_matches
         except Exception as e:
             raise e
-        
+
     def get_matches(self, query_params: dict = None) -> List[Match]:
         with DatabaseConnection() as db:
             query = db.query(Match)
 
             if query_params is None:
                 return query.all()
-            
+
             for param_key in query_params:
                 param = query_params[param_key]
                 if param is None:
@@ -81,7 +82,7 @@ class RiotMatchService:
                     query = query.filter(column == param)
             matches = query.all()
         return matches
-        
+
     def get_match_by_id(self, match_id: int) -> Match:
         with DatabaseConnection() as db:
             match = db.query(Match).filter(Match.id == match_id).first()

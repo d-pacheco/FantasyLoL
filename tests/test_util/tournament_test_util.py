@@ -4,6 +4,7 @@ import random
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Tournament
 
+
 class TournamentTestUtil:
     def create_active_tournament():
         return create_tournament_with_modified_dates(-3, 3)
@@ -13,6 +14,7 @@ class TournamentTestUtil:
 
     def create_upcoming_tournament():
         return create_tournament_with_modified_dates(3, 6)
+
 
 def create_tournament_with_modified_dates(start_date_modifier: int, end_date_modifier: int):
     today = datetime.date.today()

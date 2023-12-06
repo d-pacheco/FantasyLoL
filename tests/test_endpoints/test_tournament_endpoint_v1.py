@@ -10,6 +10,7 @@ from fantasylol import app
 
 TOURNAMENT_BASE_URL = "/riot/v1/tournament"
 
+
 class TournamentEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)

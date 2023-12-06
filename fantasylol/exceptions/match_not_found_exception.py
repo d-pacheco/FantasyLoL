@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from http import HTTPStatus
 
+
 class MatchNotFoundException(HTTPException):
     def __init__(self):
         super().__init__(

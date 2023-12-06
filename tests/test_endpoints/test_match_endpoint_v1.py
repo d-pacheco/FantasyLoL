@@ -6,6 +6,7 @@ from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol import app
 
+
 class MatchEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
@@ -42,7 +43,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(expected_match_json, response_matches[0])
 
     def test_get_riot_matches_filter_by_league_name_returns_empty_list_when_no_matches_match(self):
-        response = self.client.get(f"riot/v1/matches?league_name=badName")
+        response = self.client.get("riot/v1/matches?league_name=badName")
         self.assertEqual(HTTPStatus.OK, response.status_code)
 
         response_matches = response.json()
@@ -60,8 +61,8 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(response_matches))
         self.assertEqual(expected_match_json, response_matches[0])
 
-    def test_get_riot_matches_filter_by_tournament_id_returns_empty_list_when_no_matches_match(self):
-        response = self.client.get(f"riot/v1/matches?tournament_id=777")
+    def test_get_riot_matches_filter_tournament_id_returns_empty_list_when_no_matches_match(self):
+        response = self.client.get("riot/v1/matches?tournament_id=777")
         self.assertEqual(HTTPStatus.OK, response.status_code)
 
         response_matches = response.json()

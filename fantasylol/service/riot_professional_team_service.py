@@ -1,8 +1,10 @@
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import ProfessionalTeam
-from fantasylol.exceptions.professional_team_not_found_exception import ProfessionalTeamNotFoundException
+from fantasylol.exceptions.professional_team_not_found_exception import \
+    ProfessionalTeamNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
+
 
 class RiotProfessionalTeamService:
     def __init__(self):
@@ -36,7 +38,7 @@ class RiotProfessionalTeamService:
                 }
                 new_professional_team = ProfessionalTeam(**team_attrs)
                 fetched_teams.append(new_professional_team)
-        
+
             for new_professional_team in fetched_teams:
                 with DatabaseConnection() as db:
                     db.merge(new_professional_team)
@@ -62,10 +64,11 @@ class RiotProfessionalTeamService:
                     query = query.filter(column == param)
             professional_teams = query.all()
         return professional_teams
-    
+
     def get_team_by_id(self, professional_team_id: int) -> ProfessionalTeam:
         with DatabaseConnection() as db:
-            professional_team = db.query(ProfessionalTeam).filter(ProfessionalTeam.id == professional_team_id).first()
+            professional_team = db.query(ProfessionalTeam).filter(
+                ProfessionalTeam.id == professional_team_id).first()
         if professional_team is None:
             raise ProfessionalTeamNotFoundException()
         return professional_team

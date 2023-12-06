@@ -10,6 +10,7 @@ from fantasylol import app
 
 PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"
 
+
 class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
@@ -22,10 +23,11 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
             db.commit()
             db.refresh(mock_team)
         return mock_team
-    
+
     def test_get_professional_teams_endpoint_slug_query(self):
         expected_professional_team = self.create_professional_team_in_db()
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}?slug={expected_professional_team.slug}")
+        response = self.client.get(
+            f"{PROFESSIONAL_TEAM_BASE_URL}?slug={expected_professional_team.slug}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         professional_teams = response.json()
@@ -37,7 +39,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
     def test_get_professional_teams_endpoint_name_query(self):
         expected_professional_team = self.create_professional_team_in_db()
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}?name={expected_professional_team.name}")
+        response = self.client.get(
+            f"{PROFESSIONAL_TEAM_BASE_URL}?name={expected_professional_team.name}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         professional_teams = response.json()
@@ -49,7 +52,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
     def test_get_professional_teams_endpoint_code_query(self):
         expected_professional_team = self.create_professional_team_in_db()
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}?code={expected_professional_team.code}")
+        response = self.client.get(
+            f"{PROFESSIONAL_TEAM_BASE_URL}?code={expected_professional_team.code}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         professional_teams = response.json()
@@ -61,7 +65,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
     def test_get_professional_teams_endpoint_status_query(self):
         expected_professional_team = self.create_professional_team_in_db()
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}?status={expected_professional_team.status}")
+        response = self.client.get(
+            f"{PROFESSIONAL_TEAM_BASE_URL}?status={expected_professional_team.status}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         professional_teams = response.json()
@@ -73,7 +78,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
     def test_get_professional_teams_endpoint_league_query(self):
         expected_professional_team = self.create_professional_team_in_db()
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}?league={expected_professional_team.home_league}")
+        response = self.client.get(
+            f"{PROFESSIONAL_TEAM_BASE_URL}?league={expected_professional_team.home_league}")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         professional_teams = response.json()
@@ -109,4 +115,3 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         response_msg = response.json()
         self.assertIn("Professional Team not found", response_msg['detail'])
-    

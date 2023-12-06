@@ -4,6 +4,7 @@ from fantasylol.db.models import League
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
+
 class RiotLeagueService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
@@ -26,7 +27,7 @@ class RiotLeagueService:
                 }
                 new_league = League(**league_attrs)
                 fetched_leagues.append(new_league)
-            
+
             for new_league in fetched_leagues:
                 with DatabaseConnection() as db:
                     db.merge(new_league)
@@ -42,7 +43,7 @@ class RiotLeagueService:
 
             if query_params is None:
                 return query.all()
-            
+
             for param_key in query_params:
                 param = query_params[param_key]
                 if param is None:
@@ -52,7 +53,7 @@ class RiotLeagueService:
                     query = query.filter(column == param)
             leagues = query.all()
         return leagues
-    
+
     def get_league_by_id(self, league_id: int) -> League:
         with DatabaseConnection() as db:
             league = db.query(League).filter(League.id == league_id).first()

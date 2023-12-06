@@ -375,7 +375,7 @@ class RiotApiRequestUtil:
             }
         }
         return response
-    
+
     def create_mock_match(self):
         mock_match_attrs = {
             "id": int(self.mock_match_id),
@@ -389,7 +389,7 @@ class RiotApiRequestUtil:
             "team_2_name": self.mock_team_2_name
         }
         return Match(**mock_match_attrs)
-    
+
     def create_mock_match_response(self):
         return {
             "data": {

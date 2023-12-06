@@ -3,12 +3,14 @@ from unittest.mock import Mock, patch
 
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Match
-from fantasylol.exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.riot_api_status_code_assert_exception import \
+    RiotApiStatusCodeAssertException
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.service.riot_match_service import RiotMatchService
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.fantasy_lol_test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.riot_api_requester_util import RiotApiRequestUtil
+
 
 class MatchServiceTest(FantasyLolTestBase):
     def setUp(self):
@@ -16,7 +18,7 @@ class MatchServiceTest(FantasyLolTestBase):
 
     def create_match_service(self):
         return RiotMatchService()
-    
+
     def create_match_in_db(self):
         mock_match = self.riot_api_util.create_mock_match()
         with DatabaseConnection() as db:
@@ -24,7 +26,7 @@ class MatchServiceTest(FantasyLolTestBase):
             db.commit()
             db.refresh(mock_match)
         return mock_match
-    
+
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_fetch_matches_for_tournament_successful(self, mock_cloud_scraper):
         expected_json = self.riot_api_util.create_mock_match_response()

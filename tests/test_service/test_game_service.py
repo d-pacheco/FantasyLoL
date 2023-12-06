@@ -7,7 +7,8 @@ from tests.test_util.tournament_test_util import TournamentTestUtil
 from tests.test_util.game_test_util import GameTestUtil
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import Game
-from fantasylol.exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from fantasylol.exceptions.riot_api_status_code_assert_exception import \
+    RiotApiStatusCodeAssertException
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.game_state import GameState
@@ -20,7 +21,7 @@ class GameServiceTest(FantasyLolTestBase):
 
     def create_game_service(self):
         return RiotGameService()
-    
+
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_fetch_live_games_successful(self, mock_create_scraper):
         expected_json = self.riot_api_util.create_mock_live_game_response()
@@ -167,7 +168,7 @@ class GameServiceTest(FantasyLolTestBase):
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_game_by_id_invalid_id(self):
-        expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
+        GameTestUtil.create_inprogress_game(self.test_tournament.id)
         game_service = self.create_game_service()
         with self.assertRaises(GameNotFoundException):
             game_service.get_game_by_id(777)
