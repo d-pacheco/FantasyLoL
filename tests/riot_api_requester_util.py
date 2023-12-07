@@ -20,8 +20,6 @@ class RiotApiRequestUtil:
     mock_tournament_start_date = "2023-01-01"
     mock_tournament_end_date = "2023-02-03"
 
-    mock_match_id = str(random.randint(100000, 999999))
-
     mock_team_1_id = str(random.randint(100000, 999999))
     mock_team_1_name = "Mock Team 1"
     mock_team_1_slug = "mock-team-1"
@@ -61,10 +59,6 @@ class RiotApiRequestUtil:
     def create_mock_game(self):
         mock_game_attrs = {
             "id": int(self.mock_game_2_id),
-            "start_time": self.mock_match_start_time,
-            "block_name": self.mock_block_name,
-            "strategy_type": self.mock_match_strategy_type,
-            "strategy_count": self.mock_match_strategy_count,
             "state": "inProgress",
             "number": 2,
             "tournament_id": int(self.mock_tournament_id),

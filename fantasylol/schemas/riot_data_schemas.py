@@ -129,22 +129,6 @@ class GameSchema(BaseModel):
         default=None,
         description="The ID of the game",
     )
-    start_time: str = Field(
-        default=None,
-        description="The start time of the game"
-    )
-    block_name: str = Field(
-        default=None,
-        description="The block name for the game"
-    )
-    strategy_type: str = Field(
-        default=None,
-        description="The strategy type for the game"
-    )
-    strategy_count: int = Field(
-        default=None,
-        description="The strategy count for the game"
-    )
     state: GameState = Field(
         default=None,
         description="The state of the game"
@@ -169,10 +153,6 @@ class GameSchema(BaseModel):
     class ExampleResponse:
         example = {
             "id": 123456789,
-            "start_time": "2023-08-07T05:00:00Z",
-            "block_name": "Playoffs - Round 1",
-            "strategy_type": "bestOf",
-            "strategy_count": 5,
             "state": "inProgress",
             "number": 2,
             "tournament_id": 777777,
