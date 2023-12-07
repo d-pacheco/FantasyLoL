@@ -26,10 +26,6 @@ class RiotGameService:
                         continue
                     new_game_attrs = {
                         "id": game['id'],
-                        "start_time": event['startTime'],
-                        "block_name": event['blockName'],
-                        "strategy_type": event['match']['strategy']['type'],
-                        "strategy_count": event['match']['strategy']['count'],
                         "state": game['state'],
                         "number": game['number'],
                         "tournament_id": tournament_id,

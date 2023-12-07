@@ -116,10 +116,6 @@ class Game(Base):
     __tablename__ = "games"
 
     id = Column(Integer, primary_key=True, index=True)
-    start_time = Column(String)
-    block_name = Column(String)
-    strategy_type = Column(String)
-    strategy_count = Column(Integer)
     state = Column(String)
     number = Column(Integer)
     tournament_id = Column(Integer, ForeignKey("tournaments.id"))
@@ -131,10 +127,6 @@ class Game(Base):
             return False
         return (
             self.id == other.id and
-            self.start_time == other.start_time and
-            self.block_name == other.block_name and
-            self.strategy_type == other.strategy_type and
-            self.strategy_count == other.strategy_count and
             self.state == other.state and
             self.number == other.number and
             self.tournament_id == other.tournament_id and
@@ -145,10 +137,6 @@ class Game(Base):
     def to_dict(self):
         return {
             "id": self.id,
-            "start_time": self.start_time,
-            "block_name": self.block_name,
-            "strategy_type": self.strategy_type,
-            "strategy_count": self.strategy_count,
             "state": self.state,
             "number": self.number,
             "tournament_id": self.tournament_id,

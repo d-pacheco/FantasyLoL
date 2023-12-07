@@ -63,33 +63,10 @@ class GameEndpointV1Test(FantasyLolTestBase):
         response_msg = response.json()
         self.assertIn("value is not a valid", response_msg['detail'][0]['msg'])
 
-    def test_get_game_by_block_filter_existing_game(self):
-        expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        block_name = expected_game.block_name
-        response = self.client.get(f"{GAME_BASE_URL}?block={block_name}")
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        games = response.json()
-        self.assertIsInstance(games, list)
-        self.assertEqual(len(games), 1)
-
-        game_from_request = Game(**games[0])
-        self.assertEqual(game_from_request, expected_game)
-
-    def test_get_game_by_block_filter_no_existing_game(self):
-        GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        block_name = "badBlockName"
-        response = self.client.get(f"{GAME_BASE_URL}?block={block_name}")
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        games = response.json()
-        self.assertIsInstance(games, list)
-        self.assertEqual(len(games), 0)
-
     def test_get_game_by_tournament_filter_existing_game(self):
         expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
         tournament_id = expected_game.tournament_id
-        response = self.client.get(f"{GAME_BASE_URL}?tournament={tournament_id}")
+        response = self.client.get(f"{GAME_BASE_URL}?tournamentId={tournament_id}")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         games = response.json()
@@ -102,7 +79,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
     def test_get_game_by_tournament_filter_no_existing_game(self):
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
         tournament_id = 777
-        response = self.client.get(f"{GAME_BASE_URL}?block={tournament_id}")
+        response = self.client.get(f"{GAME_BASE_URL}?tournamentId={tournament_id}")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         games = response.json()

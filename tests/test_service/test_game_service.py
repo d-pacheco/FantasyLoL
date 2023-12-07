@@ -123,25 +123,6 @@ class GameServiceTest(FantasyLolTestBase):
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 0)
 
-    def test_get_games_by_block_name_existing_games(self):
-        expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        query_params = {"block_name": expected_game.block_name}
-
-        game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
-        self.assertIsInstance(games_from_db, list)
-        self.assertEqual(len(games_from_db), 1)
-        self.assertEqual(games_from_db[0], expected_game)
-
-    def test_get_games_by_block_name_no_existing_games(self):
-        GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        query_params = {"block_name": "badBlockName"}
-
-        game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
-        self.assertIsInstance(games_from_db, list)
-        self.assertEqual(len(games_from_db), 0)
-
     def test_get_games_by_tournament_id_existing_games(self):
         expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
         query_params = {"tournament_id": expected_game.tournament_id}
