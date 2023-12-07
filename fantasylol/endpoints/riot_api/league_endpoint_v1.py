@@ -14,7 +14,7 @@ league_service = RiotLeagueService()
 @router.get(
     path="/league",
     description="Get a list of leagues based on a set of search criteria",
-    tags=["leagues"],
+    tags=["Leagues"],
     response_model=List[LeagueSchema],
     responses={
         200: {
@@ -43,7 +43,7 @@ def get_riot_leagues(
 @router.get(
     path="/league/{league_id}",
     description="Get league by its ID",
-    tags=["leagues"],
+    tags=["Leagues"],
     response_model=LeagueSchema,
     responses={
         200: {
@@ -74,7 +74,7 @@ def get_riot_league_by_id(league_id: int):
 @router.get(
     path="/fetch-leagues",
     description="fetch leagues from riots servers",
-    tags=["leagues"],
+    tags=["Leagues"],
     response_model=List[LeagueSchema],
     responses={
         200: {
