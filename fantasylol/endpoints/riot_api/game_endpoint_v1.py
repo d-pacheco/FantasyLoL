@@ -18,7 +18,7 @@ def validate_status_parameter(status: GameState = Query(None, description="Filte
 @router.get(
     path="/game",
     description="Get a list of games based on a set of search criteria",
-    tags=["games"],
+    tags=["Games"],
     response_model=List[GameSchema],
     responses={
         200: {
@@ -48,7 +48,7 @@ def get_riot_games(
 @router.get(
     path="/game/{game_id}",
     description="Get game by its ID",
-    tags=["games"],
+    tags=["Games"],
     response_model=GameSchema,
     responses={
         200: {
@@ -78,7 +78,7 @@ def get_riot_game_by_id(game_id: int):
 @router.get(
     path="/fetch-games",
     description="Fetch live games from riots servers",
-    tags=["games"],
+    tags=["Games"],
     response_model=List[GameSchema],
     responses={
         200: {

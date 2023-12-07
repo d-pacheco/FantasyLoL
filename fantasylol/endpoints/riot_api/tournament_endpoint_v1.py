@@ -19,7 +19,7 @@ def validate_status_parameter(status: TournamentStatus = Query(
 @router.get(
     path="/tournament",
     description="Get a list of tournaments based on a set of search criteria",
-    tags=["tournaments"],
+    tags=["Tournaments"],
     response_model=List[TournamentSchema],
     responses={
         200: {
@@ -41,7 +41,7 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
 @router.get(
     path="/tournament/{tournament_id}",
     description="Get a tournament by its ID",
-    tags=["tournaments"],
+    tags=["Tournaments"],
     response_model=TournamentSchema,
     responses={
         200: {
@@ -62,7 +62,7 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
         }
     }
 )
-def get_riot_games(tournament_id: int):
+def get_riot_tournaments_by_id(tournament_id: int):
     tournament = tournament_service.get_tournament_by_id(tournament_id)
     tournament_response = TournamentSchema(**tournament.to_dict())
     return tournament_response
@@ -71,7 +71,7 @@ def get_riot_games(tournament_id: int):
 @router.get(
     path="/fetch-tournaments",
     description="Fetch tournaments from riots servers",
-    tags=["tournaments"],
+    tags=["Tournaments"],
     response_model=List[TournamentSchema],
     responses={
         200: {
@@ -84,7 +84,7 @@ def get_riot_games(tournament_id: int):
         }
     }
 )
-def get_tournaments_from_riot():
+def fetch_tournaments_from_riot():
     tournaments = tournament_service.fetch_and_store_tournaments()
     tournaments_response = [TournamentSchema(**tournament.to_dict()) for tournament in tournaments]
     return tournaments_response
