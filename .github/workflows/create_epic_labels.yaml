@@ -1,0 +1,25 @@
+name: Create Epic Label
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  create-epic-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if issue is an Epic
+        id: check-epic
+        run: echo ::set-output name=is_epic::$(echo "${{ github.event.issue.title }}" | grep -iE '^Epic:')
+
+      - name: Create Epic Label
+        if: steps.check-epic.outputs.is_epic
+        run: |
+          epic_name=$(echo "${{ github.event.issue.title }}" | sed -n 's/^Epic: //p' | tr -d '[:space:]')
+          label_name="epic:${epic_name}"
+          echo "Creating label: $label_name"
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/${{ github.repository }}/labels \
+               -d "{\"name\":\"$label_name\",\"color\":\"#269196\"}"
