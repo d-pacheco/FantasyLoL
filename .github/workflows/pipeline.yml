@@ -1,8 +1,12 @@
 name: FantasyLoL Pipeline
 
 on:
-  push:
   pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
