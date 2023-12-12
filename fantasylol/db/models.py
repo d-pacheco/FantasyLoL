@@ -1,8 +1,11 @@
 from sqlalchemy import Column
+from sqlalchemy import Enum
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from fantasylol.db.database import Base
+from fantasylol.schemas.game_state import GameState
+
 
 # Riot Data models:
 
@@ -116,7 +119,7 @@ class Game(Base):
     __tablename__ = "games"
 
     id = Column(Integer, primary_key=True, index=True)
-    state = Column(String)
+    state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
     tournament_id = Column(Integer, ForeignKey("tournaments.id"))
     team_1_id = Column(Integer)
