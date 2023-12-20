@@ -1,7 +1,9 @@
 import random
+import uuid
 
 from fantasylol.db.models import Game
 from fantasylol.db.models import ProfessionalTeam
+from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.db.models import League
 from fantasylol.db.models import Tournament
 from fantasylol.db.models import Match
@@ -50,7 +52,14 @@ class RiotApiRequestUtil:
     mock_game_4_id = str(random.randint(100000, 999999))
     mock_game_5_id = str(random.randint(100000, 999999))
 
+    mocked_player_1_db_id = str(uuid.uuid4())
     mocked_player_1_id = str(random.randint(100000, 999999))
+    mocked_player_1_summoner_name = "MockerPlayer1"
+    mocked_player_1_first_name = "mock1first",
+    mocked_player_1_last_name = "mock1last",
+    mocked_player_1_image = "http://mocked-player-1.png"
+    mocked_player_1_role = "top"
+
     mocked_player_2_id = str(random.randint(100000, 999999))
     mocked_player_3_id = str(random.randint(100000, 999999))
     mocked_player_4_id = str(random.randint(100000, 999999))
@@ -230,6 +239,17 @@ class RiotApiRequestUtil:
         }
         return response
 
+    def create_mock_player(self):
+        mock_player_attrs = {
+            'id': self.mocked_player_1_db_id,
+            "esports_id": self.mocked_player_1_id,
+            "summoner_name": self.mocked_player_1_summoner_name,
+            "image": self.mocked_player_1_image,
+            "role": self.mocked_player_1_role,
+            "team_id": int(self.mock_team_1_id)
+        }
+        return ProfessionalPlayer(**mock_player_attrs)
+
     def create_mock_team(self):
         mock_team_attrs = {
             "id": int(self.mock_team_1_id),
@@ -264,11 +284,11 @@ class RiotApiRequestUtil:
                         "players": [
                             {
                                 "id": self.mocked_player_1_id,
-                                "summonerName": "MockerPlayer1",
-                                "firstName": "mock1first",
-                                "lastName": "mock1last",
-                                "image": "http://mocked-player-1.png",
-                                "role": "top"
+                                "summonerName": self.mocked_player_1_summoner_name,
+                                "firstName": self.mocked_player_1_first_name,
+                                "lastName": self.mocked_player_1_last_name,
+                                "image": self.mocked_player_1_image,
+                                "role": self.mocked_player_1_role
                             },
                             {
                                 "id": self.mocked_player_2_id,

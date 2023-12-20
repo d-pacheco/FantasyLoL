@@ -193,7 +193,7 @@ class ProfessionalTeam(Base):
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True)
     esports_id = Column(Integer)
     summoner_name = Column(String)
     image = Column(String)
