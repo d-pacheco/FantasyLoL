@@ -1,12 +1,11 @@
-import uuid
 from unittest.mock import patch
-
 from fastapi.testclient import TestClient
 from http import HTTPStatus
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.riot_api_requester_util import RiotApiRequestUtil
-from fantasylol.exceptions.professional_player_not_found_exception import ProfessionalPlayerNotFoundException
+from fantasylol.exceptions.professional_player_not_found_exception import \
+    ProfessionalPlayerNotFoundException
 from fantasylol.schemas.riot_data_schemas import ProfessionalPlayerSchema
 from fantasylol import app
 
@@ -131,6 +130,3 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         response = self.client.get(f"{PROFESSIONAL_PLAYER_BASE_URL}/{db_fixture.id}")
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
         mock_get_player_by_id.assert_called_once_with(db_fixture.id)
-
-
-
