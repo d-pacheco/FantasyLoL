@@ -90,7 +90,7 @@ def get_professional_team_by_id(professional_team_id: int):
             }
         }
     })
-def fetch_profressional_teams_from_riot():
+def fetch_professional_teams_from_riot():
     professional_teams = professional_team_service.fetch_and_store_professional_teams()
     professional_teams_response = [ProfessionalTeamSchema(
         **team.to_dict()) for team in professional_teams]

@@ -5,6 +5,7 @@ from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from fantasylol.db.database import Base
 from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.player_role import PlayerRole
 
 
 # Riot Data models:
@@ -197,7 +198,7 @@ class ProfessionalPlayer(Base):
     esports_id = Column(Integer)
     summoner_name = Column(String)
     image = Column(String)
-    role = Column(String)
+    role = Column(Enum(PlayerRole), nullable=False)
     team_id = Column(Integer, ForeignKey("professional_teams.id"))
 
     def __eq__(self, other):
@@ -211,6 +212,16 @@ class ProfessionalPlayer(Base):
             self.role == other.role and
             self.team_id == other.team_id
         )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "esports_id": self.esports_id,
+            "summoner_name": self.summoner_name,
+            "image": self.image,
+            "role": self.role,
+            "team_id": self.team_id
+        }
 
 
 class PlayerGameMetadata(Base):

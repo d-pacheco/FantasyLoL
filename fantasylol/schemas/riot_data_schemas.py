@@ -211,3 +211,40 @@ class ProfessionalTeamSchema(BaseModel):
             "status": "active",
             "home_league": "Challengers"
         }
+
+
+class ProfessionalPlayerSchema(BaseModel):
+    id: str = Field(
+        default=None,
+        description="The id of the player and team entry in the fantasy system"
+    )
+    esports_id: int = Field(
+        default=None,
+        description="The esports id of the player given by RIOT"
+    )
+    summoner_name: str = Field(
+        default=None,
+        description="The summoner name of the player"
+    )
+    image: str = Field(
+        default=None,
+        description="The url for the players image"
+    )
+    role: str = Field(
+        default=None,
+        description="The role that the player plays"
+    )
+    team_id: int = Field(
+        default=None,
+        description="The id of the team that the player is on"
+    )
+
+    class ExampleResponse:
+        example = {
+            "id": "b8c4eaf1-a16a-4db3-913b-c4a359595778",
+            "esports_id": 123456789,
+            "summoner_name": "summonerName",
+            "image": "http://player-image.png",
+            "role": "jungle",
+            "team_id": 987654321
+        }
