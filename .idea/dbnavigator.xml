@@ -21,6 +21,9 @@
     <filter-actions connection-id="5feb0bff-856a-4901-bbf4-ac7a3710a485" dataset="main.leagues" active-filter-id="" />
     <filter-actions connection-id="5feb0bff-856a-4901-bbf4-ac7a3710a485" dataset="main.games" active-filter-id="EMPTY_FILTER" />
   </component>
+  <component name="DBNavigator.Project.ExecutionManager">
+    <retain-sticky-names value="false" />
+  </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
     <filters />
