@@ -74,7 +74,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
 
         # Act
         response = self.client.get(
-            f"{MATCH_ENDPOINT_BASE_URL}?league_name={match_db_fixture.league_name}"
+            f"{MATCH_ENDPOINT_BASE_URL}?tournament_id={match_db_fixture.tournament_id}"
         )
 
         # Assert
