@@ -20,8 +20,7 @@ class RiotProfessionalPlayerService:
             for team in res_json['data']['teams']:
                 for player in team['players']:
                     player_attrs = {
-                        'id': str(uuid.uuid4()),
-                        "esports_id": int(player['id']),
+                        "id": int(player['id']),
                         "summoner_name": player['summonerName'],
                         "image": player['image'],
                         "role": player['role'],

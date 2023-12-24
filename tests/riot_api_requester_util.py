@@ -1,5 +1,4 @@
 import random
-import uuid
 
 from fantasylol.db.models import Game
 from fantasylol.db.models import ProfessionalTeam
@@ -52,7 +51,6 @@ class RiotApiRequestUtil:
     mock_game_4_id = str(random.randint(100000, 999999))
     mock_game_5_id = str(random.randint(100000, 999999))
 
-    mocked_player_1_db_id = str(uuid.uuid4())
     mocked_player_1_id = str(random.randint(100000, 999999))
     mocked_player_1_summoner_name = "MockerPlayer1"
     mocked_player_1_first_name = "mock1first",
@@ -241,8 +239,7 @@ class RiotApiRequestUtil:
 
     def create_mock_player(self):
         mock_player_attrs = {
-            'id': self.mocked_player_1_db_id,
-            "esports_id": self.mocked_player_1_id,
+            "id": self.mocked_player_1_id,
             "summoner_name": self.mocked_player_1_summoner_name,
             "image": self.mocked_player_1_image,
             "role": self.mocked_player_1_role,

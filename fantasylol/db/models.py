@@ -3,6 +3,7 @@ from sqlalchemy import Enum
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
+from sqlalchemy import PrimaryKeyConstraint
 from fantasylol.db.database import Base
 from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.player_role import PlayerRole
@@ -194,19 +195,21 @@ class ProfessionalTeam(Base):
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"
 
-    id = Column(String, primary_key=True)
-    esports_id = Column(Integer)
+    id = Column(Integer, primary_key=True)
+    team_id = Column(Integer, ForeignKey("professional_teams.id"), primary_key=True)
     summoner_name = Column(String)
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
-    team_id = Column(Integer, ForeignKey("professional_teams.id"))
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'team_id'),
+    )
 
     def __eq__(self, other):
         if not isinstance(other, ProfessionalPlayer):
             return False
         return (
             self.id == other.id and
-            self.esports_id == other.esports_id and
             self.summoner_name == other.summoner_name and
             self.image == other.image and
             self.role == other.role and
@@ -216,7 +219,6 @@ class ProfessionalPlayer(Base):
     def to_dict(self):
         return {
             "id": self.id,
-            "esports_id": self.esports_id,
             "summoner_name": self.summoner_name,
             "image": self.image,
             "role": self.role,
