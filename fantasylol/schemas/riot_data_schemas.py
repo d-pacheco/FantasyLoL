@@ -214,11 +214,7 @@ class ProfessionalTeamSchema(BaseModel):
 
 
 class ProfessionalPlayerSchema(BaseModel):
-    id: str = Field(
-        default=None,
-        description="The id of the player and team entry in the fantasy system"
-    )
-    esports_id: int = Field(
+    id: int = Field(
         default=None,
         description="The esports id of the player given by RIOT"
     )
@@ -241,8 +237,7 @@ class ProfessionalPlayerSchema(BaseModel):
 
     class ExampleResponse:
         example = {
-            "id": "b8c4eaf1-a16a-4db3-913b-c4a359595778",
-            "esports_id": 123456789,
+            "id": 123456789,
             "summoner_name": "summonerName",
             "image": "http://player-image.png",
             "role": "jungle",
