@@ -1,4 +1,3 @@
-import uuid
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.exceptions.professional_player_not_found_exception import \
