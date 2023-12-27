@@ -229,15 +229,18 @@ class ProfessionalPlayer(Base):
 class PlayerGameMetadata(Base):
     __tablename__ = "player_game_metadata"
 
-    id = Column(Integer, primary_key=True, index=True)
-    game_id = Column(Integer, ForeignKey("games.id"))
-    player_id = Column(Integer, ForeignKey("professional_players.id"))
+    game_id = Column(Integer, ForeignKey("games.id"), primary_key=True)
+    player_id = Column(Integer, ForeignKey("professional_players.id"), primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
     kills = Column(Integer)
     deaths = Column(Integer)
     assists = Column(Integer)
     creep_score = Column(Integer)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('game_id', 'player_id'),
+    )
 
     def __eq__(self, other):
         if not isinstance(other, PlayerGameMetadata):
