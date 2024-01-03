@@ -68,9 +68,7 @@ class RiotApiRequestUtil:
             "id": int(self.mock_game_2_id),
             "state": "inProgress",
             "number": 2,
-            "tournament_id": int(self.mock_tournament_id),
-            "team_1_id": int(self.mock_team_1_id),
-            "team_2_id": int(self.mock_team_2_id),
+            "match_id": int(self.mock_match_id),
         }
         return Game(**mock_game_attrs)
 
@@ -80,7 +78,7 @@ class RiotApiRequestUtil:
                 "schedule": {
                     "events": [
                         {
-                            "id": self.mock_league_id,
+                            "id": self.mock_match_id,
                             "startTime": self.mock_match_start_time,
                             "state": "inProgress",
                             "type": "match",

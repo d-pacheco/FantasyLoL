@@ -1,10 +1,12 @@
 from fastapi import APIRouter
-from .riot_api import league_endpoint_v1
-from .riot_api import tournament_endpoint_v1
-from .riot_api import professional_player_endpoint_v1
-from .riot_api import professional_team_endpoint_v1
-from .riot_api import game_endpoint_v1
-from .riot_api import match_endpoint_v1
+from .riot_api import (
+    league_endpoint_v1,
+    tournament_endpoint_v1,
+    professional_player_endpoint_v1,
+    professional_team_endpoint_v1,
+    game_endpoint_v1,
+    match_endpoint_v1
+)
 
 router = APIRouter()
 

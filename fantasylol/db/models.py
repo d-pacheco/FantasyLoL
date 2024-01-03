@@ -123,9 +123,7 @@ class Game(Base):
     id = Column(Integer, primary_key=True, index=True)
     state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
-    tournament_id = Column(Integer, ForeignKey("tournaments.id"))
-    team_1_id = Column(Integer)
-    team_2_id = Column(Integer)
+    match_id = Column(Integer, ForeignKey("matches.id"))
 
     def __eq__(self, other):
         if not isinstance(other, Game):
@@ -134,9 +132,7 @@ class Game(Base):
             self.id == other.id and
             self.state == other.state and
             self.number == other.number and
-            self.tournament_id == other.tournament_id and
-            self.team_1_id == other.team_1_id and
-            self.team_2_id == other.team_2_id
+            self.match_id == other.match_id
         )
 
     def to_dict(self):
@@ -144,9 +140,7 @@ class Game(Base):
             "id": self.id,
             "state": self.state,
             "number": self.number,
-            "tournament_id": self.tournament_id,
-            "team_1_id": self.team_1_id,
-            "team_2_id": self.team_2_id
+            "match_id": self.match_id,
         }
 
 

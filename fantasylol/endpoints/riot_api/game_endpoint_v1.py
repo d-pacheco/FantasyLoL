@@ -33,10 +33,10 @@ def validate_status_parameter(status: GameState = Query(None, description="Filte
 )
 def get_riot_games(
         status: GameState = Depends(validate_status_parameter),
-        tournament_id: int = Query(None, description="Filter by game tournament id")):
+        match_id: int = Query(None, description="Filter by game match id")):
     query_params = {
         "status": status,
-        "tournament_id": tournament_id
+        "match_id": match_id
     }
     games = game_service.get_games(query_params)
     games_response = [GameSchema(**game.to_dict()) for game in games]

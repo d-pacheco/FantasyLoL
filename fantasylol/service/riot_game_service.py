@@ -19,7 +19,6 @@ class RiotGameService:
             for event in events:
                 if event['type'] != 'match':
                     continue
-                tournament_id = event['tournament']['id']
                 games = event['match']['games']
                 for game in games:
                     if game['state'] != 'inProgress':
@@ -28,9 +27,7 @@ class RiotGameService:
                         "id": game['id'],
                         "state": game['state'],
                         "number": game['number'],
-                        "tournament_id": tournament_id,
-                        "team_1_id": game['teams'][0]['id'],
-                        "team_2_id": game['teams'][1]['id'],
+                        "match_id": event['id']
                     }
                     new_game = Game(**new_game_attrs)
                     fetched_games.append(new_game)
