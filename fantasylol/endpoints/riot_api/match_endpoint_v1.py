@@ -120,7 +120,6 @@ def fetch_new_schedule():
         return "Schedule up to date"
 
 
-
 @router.get(
     path="/fetch-entire-schedule",
     description="Fetch entire schedule from riots servers. "
@@ -136,6 +135,6 @@ def fetch_entire_schedule():
         try:
             match_service.fetch_entire_schedule()
             completed_fetch = True
-        except FantasyLolException as e:
+        except FantasyLolException:
             retry_count += 1
             print(f"An error occurred. Retry attempt: {retry_count}")
