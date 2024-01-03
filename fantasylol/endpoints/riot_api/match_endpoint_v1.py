@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 from fastapi import Query
+from fastapi import status
 from typing import List
 
 from fantasylol.service.riot_match_service import RiotMatchService
 from fantasylol.schemas.riot_data_schemas import MatchSchema
+from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
@@ -83,7 +85,7 @@ def fetch_matches_with_tournament_id_from_riot(tournament_id: int):
 
 
 @router.get(
-    path="fetch-all-matches",
+    path="/fetch-all-matches",
     description="Fetch matches for all tournament from riots servers",
     tags=["Matches"],
     response_model=List[MatchSchema],
@@ -102,3 +104,38 @@ def fetch_all_matches_for_all_tournaments():
     matches = match_service.get_all_matches()
     matches_response = [MatchSchema(**match.to_dict()) for match in matches]
     return matches_response
+
+
+@router.get(
+    path="/fetch-new-schedule",
+    description="Fetch schedule from riots servers",
+    tags=["Matches"],
+    status_code=status.HTTP_200_OK
+)
+def fetch_new_schedule():
+    schedule_updated = match_service.fetch_new_schedule()
+    if schedule_updated:
+        return "Schedule has been updated"
+    else:
+        return "Schedule up to date"
+
+
+
+@router.get(
+    path="/fetch-entire-schedule",
+    description="Fetch entire schedule from riots servers. "
+                "This should only ever be used once for a new deployment. "
+                "This task usually takes 30 to 45 minutes to complete",
+    tags=["Matches"]
+)
+def fetch_entire_schedule():
+    max_retries = 3
+    retry_count = 0
+    completed_fetch = False
+    while retry_count <= max_retries and not completed_fetch:
+        try:
+            match_service.fetch_entire_schedule()
+            completed_fetch = True
+        except FantasyLolException as e:
+            retry_count += 1
+            print(f"An error occurred. Retry attempt: {retry_count}")
