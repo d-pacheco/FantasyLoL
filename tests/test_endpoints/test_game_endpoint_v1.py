@@ -41,7 +41,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(expected_game_response_schema, game_response_schema)
         mock_get_games.assert_called_once_with({
             "status": status,
-            "tournament_id": None
+            "match_id": None
         })
 
     @patch(GET_GAMES_MOCK_PATH)
@@ -64,7 +64,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(expected_game_response_schema, game_response_schema)
         mock_get_games.assert_called_once_with({
             "status": status,
-            "tournament_id": None
+            "match_id": None
         })
 
     @patch(GET_GAMES_MOCK_PATH)
@@ -87,7 +87,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(expected_game_response_schema, game_response_schema)
         mock_get_games.assert_called_once_with({
             "status": status,
-            "tournament_id": None
+            "match_id": None
         })
 
     @patch(GET_GAMES_MOCK_PATH)
@@ -111,7 +111,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Act
         response = self.client.get(
-            f"{GAME_BASE_URL}?tournament_id={game_db_fixture.tournament_id}"
+            f"{GAME_BASE_URL}?match_id={game_db_fixture.match_id}"
         )
 
         # Assert
@@ -123,7 +123,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(expected_game_response_schema, game_response_schema)
         mock_get_games.assert_called_once_with({
             "status": None,
-            "tournament_id": game_db_fixture.tournament_id
+            "match_id": game_db_fixture.match_id
         })
 
     @patch(GET_GAME_BY_ID_MOCK_PATH)

@@ -24,9 +24,7 @@ def create_game_in_db(game_state: str, tournament_id: int):
         "id": random.randint(10000, 99999),
         "state": game_state,
         "number": 2,
-        "tournament_id": tournament_id,
-        "team_1_id": random.randint(10000, 99999),
-        "team_2_id": random.randint(10000, 99999),
+        "match_id": random.randint(10000, 99999),
     }
     game = Game(**mock_game_attrs)
     with DatabaseConnection() as db:

@@ -137,27 +137,17 @@ class GameSchema(BaseModel):
         default=None,
         description="The game number within the strategy type and count"
     )
-    tournament_id: int = Field(
+    match_id: int = Field(
         default=None,
-        description="The ID of the tournament that the game is in"
-    )
-    team_1_id: int = Field(
-        default=None,
-        description="The ID of team 1 in the game"
-    )
-    team_2_id: int = Field(
-        default=None,
-        description="The ID of team 2 in the game"
+        description="The ID of the match that the game is in"
     )
 
     class ExampleResponse:
         example = {
-            "id": 123456789,
-            "state": "inProgress",
-            "number": 2,
-            "tournament_id": 777777,
-            "team_1_id": 333,
-            "team_2_id": 222,
+            "id": 110413246204026236,
+            "state": "completed",
+            "number": 1,
+            "match_id": 110413246204026235,
         }
 
 
