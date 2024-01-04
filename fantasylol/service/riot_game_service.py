@@ -123,4 +123,3 @@ class RiotGameService:
 
         # Extract match IDs from the result
         return [match.id for match in matches_without_games]
-
