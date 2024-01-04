@@ -138,3 +138,13 @@ def fetch_entire_schedule():
         except FantasyLolException:
             retry_count += 1
             print(f"An error occurred. Retry attempt: {retry_count}")
+
+
+@router.get(
+    path="/get-matches-without-games",
+    description="Get matches without a game associated with it",
+    tags=["Matches"],
+    status_code=status.HTTP_200_OK
+)
+def fetch_new_schedule():
+    match_service.get_matches_without_games()
