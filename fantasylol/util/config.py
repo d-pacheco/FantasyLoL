@@ -2,7 +2,7 @@ import os
 import json
 import sys
 from dotenv import load_dotenv
-from typing import get_type_hints, Union
+from typing import get_type_hints
 from fantasylol.exceptions.AppConfigException import AppConfigException
 
 load_dotenv()
