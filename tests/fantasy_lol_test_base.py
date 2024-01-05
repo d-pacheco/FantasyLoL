@@ -31,5 +31,6 @@ class FantasyLolTestBase(unittest.TestCase):
 
         with engine.begin() as connection:
             for table_name in table_names:
+                print(table_name)
                 # Replace "table_name" with the actual table name
                 connection.execute(f'DELETE FROM {table_name}')

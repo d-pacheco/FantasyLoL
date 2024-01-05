@@ -1,25 +1,35 @@
+import logging
+import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.service.riot_tournament_service import RiotTournamentService
+from fantasylol.service.riot_match_service import RiotMatchService
 from fantasylol.util.config import Config
 
 
 class JobScheduler:
     def __init__(self):
-        self.scheduler = BackgroundScheduler()
         self.riot_league_service = RiotLeagueService()
         self.riot_tournament_service = RiotTournamentService()
+        self.riot_match_service = RiotMatchService()
+        job_store = SQLAlchemyJobStore(url=Config.DATABASE_URL)
+        self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
+        self.scheduler.start()
+        atexit.register(self.shutdown_jobs)
 
     def schedule_all_jobs(self):
-        print("Scheduling jobs")
+        logging.info("Scheduling jobs")
 
         league_service_schedule_config = Config.LEAGUE_SERVICE_SCHEDULE
         self.scheduler.add_job(
             self.riot_league_service.fetch_and_store_leagues,
             trigger=league_service_schedule_config["trigger"],
             hour=league_service_schedule_config["hour"],
-            minute=league_service_schedule_config["minute"]
+            minute=league_service_schedule_config["minute"],
+            id='league_service_job',
+            replace_existing=True
         )
 
         tournament_service_schedule_config = Config.TOURNAMENT_SERVICE_SCHEDULE
@@ -27,7 +37,13 @@ class JobScheduler:
             self.riot_tournament_service.fetch_and_store_tournaments,
             trigger=tournament_service_schedule_config["trigger"],
             hour=tournament_service_schedule_config["hour"],
-            minute=tournament_service_schedule_config["minute"]
+            minute=tournament_service_schedule_config["minute"],
+            id='tournament_service_job',
+            replace_existing=True
         )
 
-        self.scheduler.start()
+        self.scheduler.remove_job('fetch_new_schedule')
+
+    def shutdown_jobs(self):
+        logging.info("Shutting down scheduled jobs")
+        self.scheduler.shutdown()
