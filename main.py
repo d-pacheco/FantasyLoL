@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fantasylol import app
 from fantasylol.util.config import Config
+from fantasylol.util.job_scheduler import JobScheduler
 
 
 if __name__ == "__main__":
@@ -19,4 +20,6 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)s: %(message)s",
         encoding='utf-8'
     )
+    job_scheduler = JobScheduler()
+    job_scheduler.schedule_all_jobs()
     uvicorn.run(app, host="0.0.0.0", port=80)

@@ -9,7 +9,7 @@ class Config:
 
     DATABASE_URL: str = os.getenv(
         'DATABASE_URL',
-        "sqlite:///./fantasy-league-of-legendsss.db"
+        "sqlite:///./fantasy-league-of-legends.db"
     )
 
     USE_TEST_DB = 'tests' in sys.argv
@@ -25,7 +25,7 @@ class Config:
 
     TOURNAMENT_SERVICE_SCHEDULE = json.loads(
         os.getenv(
-            'LEAGUE_SERVICE_SCHEDULE',
+            'TOURNAMENT_SERVICE_SCHEDULE',
             '{"trigger": "cron", "hour": "10", "minute": "05"}'
         )
     )

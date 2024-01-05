@@ -220,38 +220,6 @@ class ProfessionalPlayer(Base):
         }
 
 
-class PlayerGameMetadata(Base):
-    __tablename__ = "player_game_metadata"
-
-    game_id = Column(Integer, ForeignKey("games.id"), primary_key=True)
-    player_id = Column(Integer, ForeignKey("professional_players.id"), primary_key=True)
-    participant_id = Column(Integer)
-    champion_id = Column(String)
-    kills = Column(Integer)
-    deaths = Column(Integer)
-    assists = Column(Integer)
-    creep_score = Column(Integer)
-
-    __table_args__ = (
-        PrimaryKeyConstraint('game_id', 'player_id'),
-    )
-
-    def __eq__(self, other):
-        if not isinstance(other, PlayerGameMetadata):
-            return False
-        return (
-            self.id == other.id and
-            self.game_id == other.game_id and
-            self.player_id == other.player_id and
-            self.participant_id == other.participant_id and
-            self.champion_id == other.champion_id and
-            self.kills == other.kills and
-            self.deaths == other.deaths and
-            self.assists == other.assists and
-            self.creep_score == other.creep_score
-        )
-
-
 class Schedule(Base):
     __tablename__ = "schedule"
 
