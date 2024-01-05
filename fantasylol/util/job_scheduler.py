@@ -42,8 +42,6 @@ class JobScheduler:
             replace_existing=True
         )
 
-        self.scheduler.remove_job('fetch_new_schedule')
-
     def shutdown_jobs(self):
         logging.info("Shutting down scheduled jobs")
         self.scheduler.shutdown()

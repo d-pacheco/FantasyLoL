@@ -1,6 +1,6 @@
 import unittest
 import logging
-from sqlalchemy import inspect
+from sqlalchemy import MetaData
 
 from fantasylol.db.database import engine
 from fantasylol.db import models
@@ -26,11 +26,12 @@ class FantasyLolTestBase(unittest.TestCase):
         models.Base.metadata.create_all(bind=engine)
 
     def tearDown(self):
-        inspector = inspect(engine)
-        table_names = inspector.get_table_names()
+        metadata = MetaData()
+
+        # Reflect the existing tables
+        metadata.reflect(bind=engine)
 
         with engine.begin() as connection:
-            for table_name in table_names:
-                print(table_name)
-                # Replace "table_name" with the actual table name
-                connection.execute(f'DELETE FROM {table_name}')
+            for table in reversed(metadata.sorted_tables):
+                # Use the Table object to issue a DELETE statement
+                connection.execute(table.delete())

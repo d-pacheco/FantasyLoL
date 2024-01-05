@@ -1,8 +1,8 @@
+SQLAlchemy
 APScheduler
 cloudscraper==1.2.71
 fastapi==0.104.1
 pydantic==1.10.5
-SQLAlchemy
 uvicorn==0.24.0.post1
 httpx==0.23.2
 python-dotenv==1.0.0
