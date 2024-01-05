@@ -4,6 +4,7 @@ from typing import List
 
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
 from fantasylol.schemas.riot_data_schemas import ProfessionalTeamSchema
+from fantasylol.schemas.search_parameters import TeamSearchParameters
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
@@ -32,14 +33,14 @@ def get_riot_professional_teams(
         code: str = Query(None, description="Filter by professional teams code"),
         status: str = Query(None, description="Filter by professional teams status"),
         league: str = Query(None, description="Filter by professional teams home league")):
-    query_params = {
-        "slug": slug,
-        "name": name,
-        "code": code,
-        "status": status,
-        "home_league": league
-    }
-    professional_teams = professional_team_service.get_teams(query_params)
+    search_parameters = TeamSearchParameters(
+        slug=slug,
+        name=name,
+        code=code,
+        status=status,
+        league=league
+    )
+    professional_teams = professional_team_service.get_teams(search_parameters)
     professional_teams_response = [ProfessionalTeamSchema(
         **team.to_dict()) for team in professional_teams]
     return professional_teams_response

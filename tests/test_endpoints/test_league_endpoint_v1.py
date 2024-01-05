@@ -6,6 +6,7 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
 from fantasylol.schemas.riot_data_schemas import LeagueSchema
+from fantasylol.schemas.search_parameters import LeagueSearchParameters
 from fantasylol import app
 
 LEAGUE_BASE_URL = "/riot/v1/league"
@@ -36,10 +37,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(leagues))
         league_response_schema = LeagueSchema(**leagues[0])
         self.assertEqual(self.expected_league_response_schema, league_response_schema)
-        mock_get_leagues.assert_called_once_with({
-            "name": None,
-            "region": None
-        })
+        mock_get_leagues.assert_called_once_with(LeagueSearchParameters())
 
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_name_filter_existing_league(self, mock_get_leagues):
@@ -58,10 +56,9 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(leagues))
         league_response_schema = LeagueSchema(**leagues[0])
         self.assertEqual(self.expected_league_response_schema, league_response_schema)
-        mock_get_leagues.assert_called_once_with({
-            "name": self.league_db_fixture.name,
-            "region": None
-        })
+        mock_get_leagues.assert_called_once_with(
+            LeagueSearchParameters(name=self.league_db_fixture.name)
+        )
 
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_region_filter_existing_league(self, mock_get_leagues):
@@ -80,10 +77,9 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(leagues))
         league_response_schema = LeagueSchema(**leagues[0])
         self.assertEqual(self.expected_league_response_schema, league_response_schema)
-        mock_get_leagues.assert_called_once_with({
-            "name": None,
-            "region": self.league_db_fixture.region
-        })
+        mock_get_leagues.assert_called_once_with(
+            LeagueSearchParameters(region=self.league_db_fixture.region)
+        )
 
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_successful(self, mock_get_league_by_id):

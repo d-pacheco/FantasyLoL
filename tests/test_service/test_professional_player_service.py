@@ -1,4 +1,4 @@
-import uuid
+import random
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 from tests.fantasy_lol_test_base import FantasyLolTestBase
@@ -12,6 +12,7 @@ from fantasylol.exceptions.riot_api_status_code_assert_exception import \
     RiotApiStatusCodeAssertException
 from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
+from fantasylol.schemas.search_parameters import PlayerSearchParameters
 
 
 def create_professional_player_service():
@@ -69,58 +70,58 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
 
     def test_get_existing_professional_players_by_summoner_name(self):
         expected_player, expected_team = self.create_professional_player_and_team_in_db()
-        query_params = {"summoner_name": expected_player.summoner_name}
+        search_parameters = PlayerSearchParameters(summoner_name=expected_player.summoner_name)
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(1, len(players_from_db))
         self.assertEqual(expected_player, players_from_db[0])
 
     def test_get_no_existing_professional_players_by_summoner_name(self):
         self.create_professional_player_and_team_in_db()
-        query_params = {"summoner_name": "badSummonerName"}
+        search_parameters = PlayerSearchParameters(summoner_name="badSummonerName")
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(0, len(players_from_db))
 
     def test_get_existing_professional_players_by_role(self):
         expected_player, expected_team = self.create_professional_player_and_team_in_db()
-        query_params = {"role": expected_player.role}
+        search_parameters = PlayerSearchParameters(role=expected_player.role)
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(1, len(players_from_db))
         self.assertEqual(expected_player, players_from_db[0])
 
     def test_get_no_existing_professional_players_by_role(self):
         self.create_professional_player_and_team_in_db()
-        query_params = {"role": "badRole"}
+        search_parameters = PlayerSearchParameters(role="badRole")
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(0, len(players_from_db))
 
     def test_get_existing_professional_players_by_team_id(self):
         expected_player, expected_team = self.create_professional_player_and_team_in_db()
-        query_params = {"team_id": expected_player.team_id}
+        search_parameters = PlayerSearchParameters(team_id=expected_player.team_id)
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(1, len(players_from_db))
         self.assertEqual(expected_player, players_from_db[0])
 
     def test_get_no_existing_professional_players_by_team_id(self):
         self.create_professional_player_and_team_in_db()
-        query_params = {"team_id": 777}
+        search_parameters = PlayerSearchParameters(team_id=random.randint(1, 100000))
 
         professional_player_service = create_professional_player_service()
-        players_from_db = professional_player_service.get_players(query_params)
+        players_from_db = professional_player_service.get_players(search_parameters)
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(0, len(players_from_db))
 
@@ -134,4 +135,4 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
         self.create_professional_player_and_team_in_db()
         professional_player_service = create_professional_player_service()
         with self.assertRaises(ProfessionalPlayerNotFoundException):
-            professional_player_service.get_player_by_id(str(uuid.uuid4()))
+            professional_player_service.get_player_by_id(random.randint(1, 100000))

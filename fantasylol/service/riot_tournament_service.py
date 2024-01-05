@@ -2,12 +2,12 @@ import logging
 from datetime import datetime
 from typing import List
 
-from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import League
+from fantasylol.db import crud
 from fantasylol.db.models import Tournament
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 
 class RiotTournamentService:
@@ -20,10 +20,9 @@ class RiotTournamentService:
                       "/getTournamentsForLeague?hl=en-GB&leagueId={id}"
         try:
             league_ids = []
-            with DatabaseConnection() as db:
-                stored_leagues = db.query(League).all()
-                for league in stored_leagues:
-                    league_ids.append(league.id)
+            stored_leagues = crud.get_leagues()
+            for league in stored_leagues:
+                league_ids.append(league.id)
 
             fetched_tournaments = []
             for league_id in league_ids:
@@ -41,33 +40,30 @@ class RiotTournamentService:
                     fetched_tournaments.append(new_tournament)
 
             for new_tournament in fetched_tournaments:
-                with DatabaseConnection() as db:
-                    db.merge(new_tournament)
-                    db.commit()
+                crud.save_tournament(new_tournament)
             return fetched_tournaments
         except Exception as e:
             logging.error(f"{str(e)}")
             raise e
 
-    def get_tournaments(self, status: TournamentStatus = None) -> List[Tournament]:
+    @staticmethod
+    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[Tournament]:
+        filters = []
         current_date = datetime.now()
+        if search_parameters.status == TournamentStatus.ACTIVE:
+            filters.append(Tournament.start_date <= current_date)
+            filters.append(Tournament.end_date >= current_date)
+        if search_parameters.status == TournamentStatus.COMPLETED:
+            filters.append(Tournament.end_date < current_date)
+        if search_parameters.status == TournamentStatus.UPCOMING:
+            filters.append(Tournament.start_date > current_date)
 
-        with DatabaseConnection() as db:
-            query = db.query(Tournament)
-            if status == TournamentStatus.ACTIVE:
-                tournaments = query.filter(Tournament.start_date <=
-                                           current_date, Tournament.end_date >= current_date).all()
-            elif status == TournamentStatus.COMPLETED:
-                tournaments = query.filter(Tournament.end_date < current_date).all()
-            elif status == TournamentStatus.UPCOMING:
-                tournaments = query.filter(Tournament.start_date > current_date).all()
-            else:
-                tournaments = query.all()
+        tournaments = crud.get_tournaments(filters)
         return tournaments
 
-    def get_tournament_by_id(sself, tournament_id: int) -> Tournament:
-        with DatabaseConnection() as db:
-            tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()
+    @staticmethod
+    def get_tournament_by_id(tournament_id: int) -> Tournament:
+        tournament = crud.get_tournament_by_id(tournament_id)
         if tournament is None:
             raise TournamentNotFoundException()
         return tournament

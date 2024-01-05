@@ -11,6 +11,7 @@ from fantasylol.exceptions.riot_api_status_code_assert_exception import \
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 
 class TournamentServiceTest(FantasyLolTestBase):
@@ -62,7 +63,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_upcoming_tournament()
         expected_tournament = TournamentTestUtil.create_active_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.ACTIVE)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.ACTIVE)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 1)
         self.assertEqual(tournament_from_db[0], expected_tournament)
@@ -71,7 +74,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_completed_tournament()
         TournamentTestUtil.create_upcoming_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.ACTIVE)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.ACTIVE)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 0)
 
@@ -80,7 +85,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_upcoming_tournament()
         expected_tournament = TournamentTestUtil.create_completed_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.COMPLETED)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.COMPLETED)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 1)
         self.assertEqual(tournament_from_db[0], expected_tournament)
@@ -89,7 +96,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_active_tournament()
         TournamentTestUtil.create_upcoming_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.COMPLETED)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.COMPLETED)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 0)
 
@@ -98,7 +107,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_completed_tournament()
         expected_tournament = TournamentTestUtil.create_upcoming_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.UPCOMING)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.UPCOMING)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 1)
         self.assertEqual(tournament_from_db[0], expected_tournament)
@@ -107,7 +118,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_active_tournament()
         TournamentTestUtil.create_completed_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments(TournamentStatus.UPCOMING)
+        search_parameters = TournamentSearchParameters(status=TournamentStatus.UPCOMING)
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 0)
 
@@ -116,7 +129,9 @@ class TournamentServiceTest(FantasyLolTestBase):
         TournamentTestUtil.create_upcoming_tournament()
         TournamentTestUtil.create_completed_tournament()
         tournament_service = self.create_tournament_service()
-        tournament_from_db = tournament_service.get_tournaments()
+        search_parameters = TournamentSearchParameters()
+
+        tournament_from_db = tournament_service.get_tournaments(search_parameters)
         self.assertIsInstance(tournament_from_db, list)
         self.assertEqual(len(tournament_from_db), 3)
 

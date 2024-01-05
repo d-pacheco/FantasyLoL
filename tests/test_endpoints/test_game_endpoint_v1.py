@@ -8,6 +8,7 @@ from tests.test_util.tournament_test_util import TournamentTestUtil
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.riot_data_schemas import GameSchema
+from fantasylol.schemas.search_parameters import GameSearchParameters
 from fantasylol import app
 
 GAME_BASE_URL = "/riot/v1/game"
@@ -27,10 +28,10 @@ class GameEndpointV1Test(FantasyLolTestBase):
         game_db_fixture = GameTestUtil.create_completed_game(self.test_tournament.id)
         expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
         mock_get_games.return_value = [game_db_fixture]
-        status = GameState.COMPLETED.value
+        state = GameState.COMPLETED.value
 
         # Act
-        response = self.client.get(f"{GAME_BASE_URL}?status={status}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
@@ -39,10 +40,9 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(games))
         game_response_schema = GameSchema(**games[0])
         self.assertEqual(expected_game_response_schema, game_response_schema)
-        mock_get_games.assert_called_once_with({
-            "status": status,
-            "match_id": None
-        })
+        mock_get_games.assert_called_once_with(
+            GameSearchParameters(state=state)
+        )
 
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_inprogress_status(self, mock_get_games):
@@ -50,10 +50,10 @@ class GameEndpointV1Test(FantasyLolTestBase):
         game_db_fixture = GameTestUtil.create_inprogress_game(self.test_tournament.id)
         expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
         mock_get_games.return_value = [game_db_fixture]
-        status = GameState.INPROGRESS.value
+        state = GameState.INPROGRESS.value
 
         # Act
-        response = self.client.get(f"{GAME_BASE_URL}?status={status}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
@@ -62,10 +62,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(games))
         game_response_schema = GameSchema(**games[0])
         self.assertEqual(expected_game_response_schema, game_response_schema)
-        mock_get_games.assert_called_once_with({
-            "status": status,
-            "match_id": None
-        })
+        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
 
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_unstarted_status(self, mock_get_games):
@@ -73,10 +70,10 @@ class GameEndpointV1Test(FantasyLolTestBase):
         game_db_fixture = GameTestUtil.create_unstarted_game(self.test_tournament.id)
         expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
         mock_get_games.return_value = [game_db_fixture]
-        status = GameState.UNSTARTED.value
+        state = GameState.UNSTARTED.value
 
         # Act
-        response = self.client.get(f"{GAME_BASE_URL}?status={status}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
@@ -85,10 +82,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(games))
         game_response_schema = GameSchema(**games[0])
         self.assertEqual(expected_game_response_schema, game_response_schema)
-        mock_get_games.assert_called_once_with({
-            "status": status,
-            "match_id": None
-        })
+        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
 
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_invalid_status(self, mock_get_games):
@@ -96,7 +90,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         status = "invalid"
 
         # Act
-        response = self.client.get(f"{GAME_BASE_URL}?status={status}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={status}")
 
         # Assert
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
@@ -121,10 +115,9 @@ class GameEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(games))
         game_response_schema = GameSchema(**games[0])
         self.assertEqual(expected_game_response_schema, game_response_schema)
-        mock_get_games.assert_called_once_with({
-            "status": None,
-            "match_id": game_db_fixture.match_id
-        })
+        mock_get_games.assert_called_once_with(
+            GameSearchParameters(match_id=game_db_fixture.match_id)
+        )
 
     @patch(GET_GAME_BY_ID_MOCK_PATH)
     def test_get_game_by_id_endpoint_success(self, mock_get_game_by_id):

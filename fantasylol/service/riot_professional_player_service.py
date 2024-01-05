@@ -1,10 +1,11 @@
 import logging
 from typing import List
-from fantasylol.db.database import DatabaseConnection
+from fantasylol.db import crud
 from fantasylol.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.schemas.search_parameters import PlayerSearchParameters
 
 
 class RiotProfessionalPlayerService:
@@ -29,35 +30,28 @@ class RiotProfessionalPlayerService:
                     new_professional_player = ProfessionalPlayer(**player_attrs)
                     fetched_players.append(new_professional_player)
             for new_professional_player in fetched_players:
-                with DatabaseConnection() as db:
-                    db.merge(new_professional_player)
-                    db.commit()
+                crud.save_player(new_professional_player)
             return fetched_players
         except Exception as e:
             logging.error(f"{str(e)}")
             raise e
 
-    def get_players(self, query_params: dict = None) -> List[ProfessionalPlayer]:
-        with DatabaseConnection() as db:
-            query = db.query(ProfessionalPlayer)
+    @staticmethod
+    def get_players(search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:
+        filters = []
+        if search_parameters.summoner_name is not None:
+            filters.append(ProfessionalPlayer.summoner_name == search_parameters.summoner_name)
+        if search_parameters.team_id is not None:
+            filters.append(ProfessionalPlayer.team_id == search_parameters.team_id)
+        if search_parameters.role is not None:
+            filters.append(ProfessionalPlayer.role == search_parameters.role)
 
-            if query_params is None:
-                return query.all()
-
-            for param_key in query_params:
-                param = query_params[param_key]
-                if param is None:
-                    continue
-                column = getattr(ProfessionalPlayer, param_key, None)
-                if column is not None:
-                    query = query.filter(column == param)
-            professional_players = query.all()
+        professional_players = crud.get_players(filters)
         return professional_players
 
-    def get_player_by_id(self, professional_player_id: str) -> ProfessionalPlayer:
-        with DatabaseConnection() as db:
-            professional_player = db.query(ProfessionalPlayer).filter(
-                ProfessionalPlayer.id == professional_player_id).first()
+    @staticmethod
+    def get_player_by_id(professional_player_id: int) -> ProfessionalPlayer:
+        professional_player = crud.get_player_by_id(professional_player_id)
         if professional_player is None:
             raise ProfessionalPlayerNotFoundException()
         return professional_player

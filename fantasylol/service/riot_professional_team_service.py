@@ -1,10 +1,11 @@
 import logging
 from typing import List
-from fantasylol.db.database import DatabaseConnection
+from fantasylol.db import crud
 from fantasylol.db.models import ProfessionalTeam
 from fantasylol.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.schemas.search_parameters import TeamSearchParameters
 
 
 class RiotProfessionalTeamService:
@@ -41,35 +42,32 @@ class RiotProfessionalTeamService:
                 fetched_teams.append(new_professional_team)
 
             for new_professional_team in fetched_teams:
-                with DatabaseConnection() as db:
-                    db.merge(new_professional_team)
-                    db.commit()
+                crud.save_team(new_professional_team)
             return fetched_teams
         except Exception as e:
             logging.error(f"Error: {str(e)}")
             raise e
 
-    def get_teams(self, query_params: dict = None) -> List[ProfessionalTeam]:
-        with DatabaseConnection() as db:
-            query = db.query(ProfessionalTeam)
+    @staticmethod
+    def get_teams(search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
+        filters = []
+        if search_parameters.slug is not None:
+            filters.append(ProfessionalTeam.slug == search_parameters.slug)
+        if search_parameters.name is not None:
+            filters.append(ProfessionalTeam.name == search_parameters.name)
+        if search_parameters.code is not None:
+            filters.append(ProfessionalTeam.code == search_parameters.code)
+        if search_parameters.status is not None:
+            filters.append(ProfessionalTeam.status == search_parameters.status)
+        if search_parameters.league is not None:
+            filters.append(ProfessionalTeam.home_league == search_parameters.league)
 
-            if query_params is None:
-                return query.all()
-
-            for param_key in query_params:
-                param = query_params[param_key]
-                if param is None:
-                    continue
-                column = getattr(ProfessionalTeam, param_key, None)
-                if column is not None:
-                    query = query.filter(column == param)
-            professional_teams = query.all()
+        professional_teams = crud.get_teams(filters)
         return professional_teams
 
-    def get_team_by_id(self, professional_team_id: int) -> ProfessionalTeam:
-        with DatabaseConnection() as db:
-            professional_team = db.query(ProfessionalTeam).filter(
-                ProfessionalTeam.id == professional_team_id).first()
+    @staticmethod
+    def get_team_by_id(professional_team_id: int) -> ProfessionalTeam:
+        professional_team = crud.get_team_by_id(professional_team_id)
         if professional_team is None:
             raise ProfessionalTeamNotFoundException()
         return professional_team

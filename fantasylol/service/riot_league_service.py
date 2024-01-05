@@ -1,9 +1,10 @@
 import logging
 from typing import List
-from fantasylol.db.database import DatabaseConnection
+from fantasylol.db import crud
 from fantasylol.db.models import League
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.schemas.search_parameters import LeagueSearchParameters
 
 
 class RiotLeagueService:
@@ -30,34 +31,25 @@ class RiotLeagueService:
                 fetched_leagues.append(new_league)
 
             for new_league in fetched_leagues:
-                with DatabaseConnection() as db:
-                    db.merge(new_league)
-                    db.commit()
+                crud.save_league(new_league)
             return fetched_leagues
         except Exception as e:
             logging.error(f"{str(e)}")
             raise e
 
-    def get_leagues(self, query_params: dict = None) -> List[League]:
-        with DatabaseConnection() as db:
-            query = db.query(League)
-
-            if query_params is None:
-                return query.all()
-
-            for param_key in query_params:
-                param = query_params[param_key]
-                if param is None:
-                    continue
-                column = getattr(League, param_key, None)
-                if column is not None:
-                    query = query.filter(column == param)
-            leagues = query.all()
+    @staticmethod
+    def get_leagues(search_parameters: LeagueSearchParameters) -> List[League]:
+        filters = []
+        if search_parameters.name is not None:
+            filters.append(League.name == search_parameters.name)
+        if search_parameters.region is not None:
+            filters.append(League.region == search_parameters.region)
+        leagues = crud.get_leagues(filters)
         return leagues
 
-    def get_league_by_id(self, league_id: int) -> League:
-        with DatabaseConnection() as db:
-            league = db.query(League).filter(League.id == league_id).first()
+    @staticmethod
+    def get_league_by_id(league_id: int) -> League:
+        league = crud.get_league_by_id(league_id)
         if league is None:
             raise LeagueNotFoundException()
         return league

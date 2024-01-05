@@ -6,6 +6,7 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.schemas.riot_data_schemas import MatchSchema
+from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol import app
 
 MATCH_ENDPOINT_BASE_URL = "/riot/v1/matches"
@@ -36,10 +37,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(response_matches))
         match_response_schema = MatchSchema(**response_matches[0])
         self.assertEqual(expected_match_response_schema, match_response_schema)
-        mock_get_matches.assert_called_once_with({
-            "league_name": None,
-            "tournament_id": None
-        })
+        mock_get_matches.assert_called_once_with(MatchSearchParameters())
 
     @patch(GET_MATCHES_MOCK_PATH)
     def test_get_riot_matches_endpoint_filter_by_league_name(self, mock_get_matches):
@@ -60,10 +58,9 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(response_matches))
         match_response_schema = MatchSchema(**response_matches[0])
         self.assertEqual(expected_match_response_schema, match_response_schema)
-        mock_get_matches.assert_called_once_with({
-            "league_name": match_db_fixture.league_name,
-            "tournament_id": None
-        })
+        mock_get_matches.assert_called_once_with(
+            MatchSearchParameters(league_name=match_db_fixture.league_name)
+        )
 
     @patch(GET_MATCHES_MOCK_PATH)
     def test_get_riot_matches_endpoint_filter_by_tournament_id(self, mock_get_matches):
@@ -84,10 +81,9 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(response_matches))
         match_response_schema = MatchSchema(**response_matches[0])
         self.assertEqual(expected_match_response_schema, match_response_schema)
-        mock_get_matches.assert_called_once_with({
-            "league_name": None,
-            "tournament_id": match_db_fixture.tournament_id
-        })
+        mock_get_matches.assert_called_once_with(
+            MatchSearchParameters(tournament_id=match_db_fixture.tournament_id)
+        )
 
     @patch(GET_MATCHES_BY_ID_MOCK_PATH)
     def test_get_matches_by_id_endpoint_for_existing_match(self, mock_get_match_by_id):

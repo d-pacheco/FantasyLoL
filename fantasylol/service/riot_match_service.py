@@ -2,10 +2,12 @@ import logging
 from typing import List
 from datetime import datetime
 from fantasylol.db.database import DatabaseConnection
+from fantasylol.db import crud
 from fantasylol.db.models import Match
 from fantasylol.db.models import Tournament
 from fantasylol.db.models import Schedule
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
+from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
 
@@ -18,10 +20,7 @@ class RiotMatchService:
         # After which fetch new schedule should only be used
 
         # Check if a riot schedule already exists:
-        with DatabaseConnection() as db:
-            riot_schedule = db.query(Schedule)\
-                .filter(Schedule.schedule_name == "riot_schedule").first()
-
+        riot_schedule = crud.get_schedule("riot_schedule")
         if riot_schedule is None:
             # Save the starting schedule into the database
             schedule_res_json = self.get_schedule()
@@ -42,18 +41,14 @@ class RiotMatchService:
                 'current_token_key': None
             }
             entire_schedule_model = Schedule(**entire_schedule_attr)
-            with DatabaseConnection() as db:
-                db.merge(riot_schedule_model)
-                db.merge(entire_schedule_model)
-                db.commit()
+            crud.update_schedule(riot_schedule_model)
+            crud.update_schedule(entire_schedule_model)
 
         self.backprop_older_schedules()
         self.fetch_new_schedule()
 
     def backprop_older_schedules(self):
-        with DatabaseConnection() as db:
-            entire_schedule = db.query(Schedule) \
-                .filter(Schedule.schedule_name == "entire_schedule").first()
+        entire_schedule = crud.get_schedule("entire_schedule")
         older_page_token = entire_schedule.older_token_key
 
         no_more_schedules = False
@@ -72,14 +67,10 @@ class RiotMatchService:
                 'current_token_key': None
             }
             entire_schedule_model = Schedule(**entire_schedule_attr)
-            with DatabaseConnection() as db:
-                db.merge(entire_schedule_model)
-                db.commit()
+            crud.update_schedule(entire_schedule_model)
 
     def fetch_new_schedule(self) -> bool:
-        with DatabaseConnection() as db:
-            riot_schedule = db.query(Schedule)\
-                .filter(Schedule.schedule_name == "riot_schedule").first()
+        riot_schedule = crud.get_schedule("riot_schedule")
         newer_page_token = riot_schedule.current_token_key
 
         schedule_updated = False
@@ -101,9 +92,7 @@ class RiotMatchService:
                 'current_token_key': newer_page_token
             }
             riot_schedule_model = Schedule(**riot_schedule_attr)
-            with DatabaseConnection() as db:
-                db.merge(riot_schedule_model)
-                db.commit()
+            crud.update_schedule(riot_schedule_model)
         return schedule_updated
 
     def get_schedule(self, page_token: str = None):
@@ -139,10 +128,8 @@ class RiotMatchService:
             }
             new_match = Match(**new_match_attrs)
             fetched_matches.append(new_match)
-        with DatabaseConnection() as db:
-            for new_match in fetched_matches:
-                db.merge(new_match)
-                db.commit()
+        for new_match in fetched_matches:
+            crud.save_match(new_match)
 
     def fetch_and_store_matchs_from_tournament(
             self, tournament_id: int) -> List[Match]:
@@ -173,9 +160,7 @@ class RiotMatchService:
 
             logging.info(f"Saving fetched matches to db. Match count: {len(fetched_matches)}")
             for new_match in fetched_matches:
-                with DatabaseConnection() as db:
-                    db.merge(new_match)
-                    db.commit()
+                crud.save_match(new_match)
             return fetched_matches
         except Exception as e:
             logging.error(f"{str(e)}")
@@ -199,26 +184,19 @@ class RiotMatchService:
         except Exception as e:
             raise e
 
-    def get_matches(self, query_params: dict = None) -> List[Match]:
-        with DatabaseConnection() as db:
-            query = db.query(Match)
-
-            if query_params is None:
-                return query.all()
-
-            for param_key in query_params:
-                param = query_params[param_key]
-                if param is None:
-                    continue
-                column = getattr(Match, param_key, None)
-                if column is not None:
-                    query = query.filter(column == param)
-            matches = query.all()
+    @staticmethod
+    def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:
+        filters = []
+        if search_parameters.league_name is not None:
+            filters.append(Match.league_name == search_parameters.league_name)
+        if search_parameters.tournament_id is not None:
+            filters.append(Match.tournament_id == search_parameters.tournament_id)
+        matches = crud.get_matches(filters)
         return matches
 
-    def get_match_by_id(self, match_id: int) -> Match:
-        with DatabaseConnection() as db:
-            match = db.query(Match).filter(Match.id == match_id).first()
+    @staticmethod
+    def get_match_by_id(match_id: int) -> Match:
+        match = crud.get_match_by_id(match_id)
         if match is None:
             raise MatchNotFoundException()
         return match

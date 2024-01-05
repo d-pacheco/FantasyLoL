@@ -8,6 +8,7 @@ from fantasylol.exceptions.tournament_not_found_exception import \
     TournamentNotFoundException
 from fantasylol.schemas.tournament_status import TournamentStatus
 from fantasylol.schemas.riot_data_schemas import TournamentSchema
+from fantasylol.schemas.search_parameters import TournamentSearchParameters
 from fantasylol import app
 
 
@@ -40,7 +41,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(tournaments))
         tournament_response_schema = TournamentSchema(**tournaments[0])
         self.assertEqual(expected_tournament_response_schema, tournament_response_schema)
-        mock_get_tournaments.assert_called_once_with(status)
+        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
 
     @patch(GET_TOURNAMENTS_MOCK_PATH)
     def test_get_tournaments_endpoint_completed(self, mock_get_tournaments):
@@ -60,7 +61,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(tournaments))
         tournament_response_schema = TournamentSchema(**tournaments[0])
         self.assertEqual(expected_tournament_response_schema, tournament_response_schema)
-        mock_get_tournaments.assert_called_once_with(status)
+        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
 
     @patch(GET_TOURNAMENTS_MOCK_PATH)
     def test_get_tournaments_endpoint_upcoming(self, mock_get_tournaments):
@@ -80,7 +81,7 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(tournaments))
         tournament_response_schema = TournamentSchema(**tournaments[0])
         self.assertEqual(expected_tournament_response_schema, tournament_response_schema)
-        mock_get_tournaments.assert_called_once_with(status)
+        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
 
     def test_get_tournaments_endpoint_invalid(self):
         status = "invalid"

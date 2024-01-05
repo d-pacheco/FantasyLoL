@@ -5,6 +5,7 @@ from typing import List
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.riot_data_schemas import TournamentSchema
 from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
@@ -33,7 +34,8 @@ def validate_status_parameter(status: TournamentStatus = Query(
     }
 )
 def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_parameter)):
-    tournaments = tournament_service.get_tournaments(status)
+    search_parameters = TournamentSearchParameters(status=status)
+    tournaments = tournament_service.get_tournaments(search_parameters)
     tournaments_response = [TournamentSchema(**tournament.to_dict()) for tournament in tournaments]
     return tournaments_response
 

@@ -9,6 +9,7 @@ from fantasylol.exceptions.riot_api_status_code_assert_exception import \
     RiotApiStatusCodeAssertException
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
 from fantasylol.service.riot_league_service import RiotLeagueService
+from fantasylol.schemas.search_parameters import LeagueSearchParameters
 
 
 class LeagueServiceTest(FantasyLolTestBase):
@@ -62,57 +63,47 @@ class LeagueServiceTest(FantasyLolTestBase):
 
     def test_get_leagues_by_name_existing_league(self):
         expected_league = self.create_league_in_db()
-        query_params = {"name": expected_league.name}
+        search_parameters = LeagueSearchParameters(name=expected_league.name)
 
         league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues(query_params)
+        league_from_db = league_service.get_leagues(search_parameters)
         self.assertIsInstance(league_from_db, list)
         self.assertEqual(len(league_from_db), 1)
         self.assertEqual(league_from_db[0], expected_league)
 
     def test_get_leagues_by_name_no_existing_league(self):
         self.create_league_in_db()
-        query_params = {"name": "badName"}
+        search_parameters = LeagueSearchParameters(name="badName")
 
         league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues(query_params)
+        league_from_db = league_service.get_leagues(search_parameters)
         self.assertIsInstance(league_from_db, list)
         self.assertEqual(len(league_from_db), 0)
 
     def test_get_leagues_by_region_existing_league(self):
         expected_league = self.create_league_in_db()
-        query_params = {"region": expected_league.region}
+        search_parameters = LeagueSearchParameters(region=expected_league.region)
 
         league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues(query_params)
+        league_from_db = league_service.get_leagues(search_parameters)
         self.assertIsInstance(league_from_db, list)
         self.assertEqual(len(league_from_db), 1)
         self.assertEqual(league_from_db[0], expected_league)
 
     def test_get_leagues_by_region_no_existing_league(self):
         self.create_league_in_db()
-        query_params = {"region": "badRegion"}
+        search_parameters = LeagueSearchParameters(region="badRegion")
 
         league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues(query_params)
+        league_from_db = league_service.get_leagues(search_parameters)
         self.assertIsInstance(league_from_db, list)
         self.assertEqual(len(league_from_db), 0)
 
-    def test_get_leagues_no_query_params(self):
-        expected_league = self.create_league_in_db()
-
-        league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues()
-        self.assertIsInstance(league_from_db, list)
-        self.assertEqual(len(league_from_db), 1)
-        self.assertEqual(league_from_db[0], expected_league)
-
     def test_get_leagues_empty_query_params(self):
         expected_league = self.create_league_in_db()
-        query_params = {}
 
         league_service = self.create_league_service()
-        league_from_db = league_service.get_leagues(query_params)
+        league_from_db = league_service.get_leagues(LeagueSearchParameters())
         self.assertIsInstance(league_from_db, list)
         self.assertEqual(len(league_from_db), 1)
         self.assertEqual(league_from_db[0], expected_league)
