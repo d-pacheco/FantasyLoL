@@ -1,4 +1,5 @@
 import unittest
+import logging
 from sqlalchemy import inspect
 
 from fantasylol.db.database import engine
@@ -21,6 +22,7 @@ class FantasyLolTestBase(unittest.TestCase):
             cls.setUp = setUpOverride
 
     def setUp(self):
+        logging.disable()
         models.Base.metadata.create_all(bind=engine)
 
     def tearDown(self):

@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from datetime import datetime
 from fantasylol.db.database import DatabaseConnection
@@ -145,7 +146,7 @@ class RiotMatchService:
 
     def fetch_and_store_matchs_from_tournament(
             self, tournament_id: int) -> List[Match]:
-        print(f"Fetching matches for tournament with id {tournament_id}")
+        logging.info(f"Fetching matches for tournament with id {tournament_id}")
         request_url = (
             "https://esports-api.lolesports.com/persisted/gw"
             f"/getCompletedEvents?hl=en-GB&tournamentId={tournament_id}"
@@ -170,18 +171,18 @@ class RiotMatchService:
                 new_match = Match(**new_match_attrs)
                 fetched_matches.append(new_match)
 
-            print("Saving fetched matches to db")
+            logging.info(f"Saving fetched matches to db. Match count: {len(fetched_matches)}")
             for new_match in fetched_matches:
                 with DatabaseConnection() as db:
                     db.merge(new_match)
                     db.commit()
             return fetched_matches
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"{str(e)}")
             raise e
 
     def get_all_matches(self) -> List[Match]:
-        print("Fetching matches for all saved tournaments")
+        logging.info("Fetching matches for all saved tournaments")
         try:
             fetched_matches = []
             with DatabaseConnection() as db:

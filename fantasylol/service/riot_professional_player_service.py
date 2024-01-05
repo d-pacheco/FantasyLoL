@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.exceptions.professional_player_not_found_exception import \
@@ -11,7 +12,7 @@ class RiotProfessionalPlayerService:
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_professional_players(self) -> List[ProfessionalPlayer]:
-        print("Fetching and storing professional players from riot's api")
+        logging.info("Fetching and storing professional players from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -33,7 +34,7 @@ class RiotProfessionalPlayerService:
                     db.commit()
             return fetched_players
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"{str(e)}")
             raise e
 
     def get_players(self, query_params: dict = None) -> List[ProfessionalPlayer]:

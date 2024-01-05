@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter
 from fastapi import Query
 from fastapi import status
@@ -115,8 +116,10 @@ def fetch_all_matches_for_all_tournaments():
 def fetch_new_schedule():
     schedule_updated = match_service.fetch_new_schedule()
     if schedule_updated:
+        logging.info("Schedule has been updated")
         return "Schedule has been updated"
     else:
+        logging.info("Schedule up to date")
         return "Schedule up to date"
 
 
@@ -137,4 +140,9 @@ def fetch_entire_schedule():
             completed_fetch = True
         except FantasyLolException:
             retry_count += 1
-            print(f"An error occurred. Retry attempt: {retry_count}")
+            logging.warning(f"An error occurred. Retry attempt: {retry_count}")
+    if completed_fetch:
+        return "Entire schedule fetched and saved"
+    else:
+        logging.error("Failed to fetch the entire schedule")
+        return "Failed to fetch schedule from riot"
