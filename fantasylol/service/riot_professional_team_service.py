@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import ProfessionalTeam
@@ -11,7 +12,7 @@ class RiotProfessionalTeamService:
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_professional_teams(self) -> List[ProfessionalTeam]:
-        print("Fetching and storing professional teams from riot's api")
+        logging.info("Fetching and storing professional teams from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -45,7 +46,7 @@ class RiotProfessionalTeamService:
                     db.commit()
             return fetched_teams
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"Error: {str(e)}")
             raise e
 
     def get_teams(self, query_params: dict = None) -> List[ProfessionalTeam]:

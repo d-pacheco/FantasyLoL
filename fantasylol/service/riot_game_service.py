@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from sqlalchemy import select
@@ -14,7 +15,7 @@ class RiotGameService:
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_live_games(self) -> List[Game]:
-        print("Fetching and storing live games from riot's api")
+        logging.info("Fetching and storing live games from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLive?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -42,7 +43,7 @@ class RiotGameService:
                     db.commit()
             return fetched_games
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"{str(e)}")
             raise e
 
     def fetch_and_store_games_from_match_ids(self, batch_size: int = 25):
@@ -53,7 +54,7 @@ class RiotGameService:
             self.process_batch_match_ids(batch)
 
     def process_batch_match_ids(self, match_ids: List[int]):
-        print("Processes batch of match ids: ", match_ids)
+        logging.info("Processes batch of match ids: ", match_ids)
         fetched_games = []
         for match_id in match_ids:
             event_details_url = (

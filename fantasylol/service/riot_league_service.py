@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import League
@@ -10,7 +11,7 @@ class RiotLeagueService:
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_leagues(self) -> List[League]:
-        print("Fetching and storing leagues from riot's api")
+        logging.info("Fetching and storing leagues from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -34,7 +35,7 @@ class RiotLeagueService:
                     db.commit()
             return fetched_leagues
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"{str(e)}")
             raise e
 
     def get_leagues(self, query_params: dict = None) -> List[League]:

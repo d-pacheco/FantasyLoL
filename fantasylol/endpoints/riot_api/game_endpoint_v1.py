@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends
 from fastapi import Query
 from typing import List
@@ -109,5 +110,9 @@ def fetch_games_from_matches(batch_size: int = Query(None, description="size of 
             completed_fetch = True
         except FantasyLolException:
             retry_count += 1
-            print(f"An error occurred. Retry attempt: {retry_count}")
-    return "Games from matches processed"
+            logging.warning(f"An error occurred. Retry attempt: {retry_count}")
+    if completed_fetch:
+        return "Games from matches processed"
+    else:
+        logging.error("Games failed to fetch from matches")
+        return "Games failed to fetch from matches"

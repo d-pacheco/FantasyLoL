@@ -14,6 +14,8 @@ class Config:
 
     USE_TEST_DB = 'tests' in sys.argv
 
+    DEBUG_LOGGING: bool = os.getenv('DEBUG_LOGGING', False)
+
     LEAGUE_SERVICE_SCHEDULE = json.loads(
         os.getenv(
             'LEAGUE_SERVICE_SCHEDULE',

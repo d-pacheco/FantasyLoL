@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List
 
@@ -14,7 +15,7 @@ class RiotTournamentService:
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_tournaments(self) -> List[Tournament]:
-        print("Fetching and storing tournaments from riot's api")
+        logging.info("Fetching and storing tournaments from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw" \
                       "/getTournamentsForLeague?hl=en-GB&leagueId={id}"
         try:
@@ -45,7 +46,7 @@ class RiotTournamentService:
                     db.commit()
             return fetched_tournaments
         except Exception as e:
-            print(f"Error: {str(e)}")
+            logging.error(f"{str(e)}")
             raise e
 
     def get_tournaments(self, status: TournamentStatus = None) -> List[Tournament]:
