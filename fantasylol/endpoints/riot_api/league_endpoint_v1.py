@@ -4,6 +4,7 @@ from typing import List
 
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.schemas.riot_data_schemas import LeagueSchema
+from fantasylol.schemas.search_parameters import LeagueSearchParameters
 
 
 VERSION = "v1"
@@ -30,11 +31,11 @@ league_service = RiotLeagueService()
 def get_riot_leagues(
         name: str = Query(None, description="Filter by league name"),
         region: str = Query(None, description="Filter by league region")):
-    query_params = {
-        "name": name,
-        "region": region
-    }
-    leagues = league_service.get_leagues(query_params)
+    search_parameters = LeagueSearchParameters(
+        name=name,
+        region=region
+    )
+    leagues = league_service.get_leagues(search_parameters)
     leagues_response = [LeagueSchema(**league.to_dict()) for league in leagues]
 
     return leagues_response

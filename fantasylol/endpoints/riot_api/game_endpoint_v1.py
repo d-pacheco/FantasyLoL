@@ -7,14 +7,15 @@ from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.riot_data_schemas import GameSchema
 from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.search_parameters import GameSearchParameters
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 game_service = RiotGameService()
 
 
-def validate_status_parameter(status: GameState = Query(None, description="Filter by game state")):
-    return status
+def validate_status_parameter(state: GameState = Query(None, description="Filter by game state")):
+    return state
 
 
 @router.get(
@@ -34,13 +35,13 @@ def validate_status_parameter(status: GameState = Query(None, description="Filte
     }
 )
 def get_riot_games(
-        status: GameState = Depends(validate_status_parameter),
+        state: GameState = Depends(validate_status_parameter),
         match_id: int = Query(None, description="Filter by game match id")):
-    query_params = {
-        "status": status,
-        "match_id": match_id
-    }
-    games = game_service.get_games(query_params)
+    search_parameters = GameSearchParameters(
+        state=state,
+        match_id=match_id
+    )
+    games = game_service.get_games(search_parameters)
     games_response = [GameSchema(**game.to_dict()) for game in games]
     return games_response
 

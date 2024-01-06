@@ -7,6 +7,7 @@ from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
 from fantasylol.schemas.riot_data_schemas import ProfessionalTeamSchema
+from fantasylol.schemas.search_parameters import TeamSearchParameters
 from fantasylol import app
 
 PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"
@@ -14,21 +15,6 @@ BASE_TEAM_SERVICE_MOCK_PATH = \
     "fantasylol.service.riot_professional_team_service.RiotProfessionalTeamService"
 TEAM_SERVICE_GET_TEAMS_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_teams"
 TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team_by_id"
-
-
-def create_team_query_params(
-        slug: str = None,
-        name: str = None,
-        code: str = None,
-        status: str = None,
-        league: str = None):
-    return {
-        "slug": slug,
-        "name": name,
-        "code": code,
-        "status": status,
-        "home_league": league
-    }
 
 
 class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
@@ -56,7 +42,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
         mock_get_teams.assert_called_once_with(
-            create_team_query_params(slug=team_db_fixture.slug)
+            TeamSearchParameters(slug=team_db_fixture.slug)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -79,7 +65,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
         mock_get_teams.assert_called_once_with(
-            create_team_query_params(name=team_db_fixture.name)
+            TeamSearchParameters(name=team_db_fixture.name)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -102,7 +88,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
         mock_get_teams.assert_called_once_with(
-            create_team_query_params(code=team_db_fixture.code)
+            TeamSearchParameters(code=team_db_fixture.code)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -125,7 +111,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
         mock_get_teams.assert_called_once_with(
-            create_team_query_params(status=team_db_fixture.status)
+            TeamSearchParameters(status=team_db_fixture.status)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -148,7 +134,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
         mock_get_teams.assert_called_once_with(
-            create_team_query_params(league=team_db_fixture.home_league)
+            TeamSearchParameters(league=team_db_fixture.home_league)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -168,7 +154,7 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(professional_teams))
         team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
         self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
-        mock_get_teams.assert_called_once_with(create_team_query_params())
+        mock_get_teams.assert_called_once_with(TeamSearchParameters())
 
     @patch(TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH)
     def test_get_professional_team_by_id_success(self, mock_get_team_by_id):

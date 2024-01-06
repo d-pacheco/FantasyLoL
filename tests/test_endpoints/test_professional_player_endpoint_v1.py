@@ -7,6 +7,7 @@ from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from fantasylol.schemas.riot_data_schemas import ProfessionalPlayerSchema
+from fantasylol.schemas.search_parameters import PlayerSearchParameters
 from fantasylol import app
 
 PROFESSIONAL_PLAYER_BASE_URL = "/riot/v1/professional-player"
@@ -37,11 +38,9 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(professional_players))
         player_response_schema_from_request = ProfessionalPlayerSchema(**professional_players[0])
         self.assertEqual(expected_player_response_schema, player_response_schema_from_request)
-        mock_get_players.assert_called_once_with({
-            "summoner_name": db_fixture.summoner_name,
-            "role": None,
-            "team_id": None
-        })
+        mock_get_players.assert_called_once_with(
+            PlayerSearchParameters(summoner_name=db_fixture.summoner_name)
+        )
 
     @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
     def test_get_professional_players_endpoint_role_query(self, mock_get_players):
@@ -59,11 +58,9 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(professional_players))
         player_response_schema_from_request = ProfessionalPlayerSchema(**professional_players[0])
         self.assertEqual(expected_player_response_schema, player_response_schema_from_request)
-        mock_get_players.assert_called_once_with({
-            "summoner_name": None,
-            "role": db_fixture.role,
-            "team_id": None
-        })
+        mock_get_players.assert_called_once_with(
+            PlayerSearchParameters(role=db_fixture.role)
+        )
 
     @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
     def test_get_professional_players_endpoint_team_id_query(self, mock_get_players):
@@ -81,11 +78,9 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(professional_players))
         player_response_schema_from_request = ProfessionalPlayerSchema(**professional_players[0])
         self.assertEqual(expected_player_response_schema, player_response_schema_from_request)
-        mock_get_players.assert_called_once_with({
-            "summoner_name": None,
-            "role": None,
-            "team_id": db_fixture.team_id
-        })
+        mock_get_players.assert_called_once_with(
+            PlayerSearchParameters(team_id=db_fixture.team_id)
+        )
 
     @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
     def test_get_professional_players_endpoint_search_all(self, mock_get_players):
@@ -101,11 +96,7 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         self.assertEqual(1, len(professional_players))
         player_response_schema_from_request = ProfessionalPlayerSchema(**professional_players[0])
         self.assertEqual(expected_player_response_schema, player_response_schema_from_request)
-        mock_get_players.assert_called_once_with({
-            "summoner_name": None,
-            "role": None,
-            "team_id": None
-        })
+        mock_get_players.assert_called_once_with(PlayerSearchParameters())
 
     @patch(PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH)
     def test_get_professional_players_endpoint_by_id(self, mock_get_player_by_id):
@@ -120,7 +111,7 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
         self.assertIsInstance(professional_player, dict)
         player_response_schema_from_request = ProfessionalPlayerSchema(**professional_player)
         self.assertEqual(expected_player_response_schema, player_response_schema_from_request)
-        mock_get_player_by_id.assert_called_once_with(db_fixture.id)
+        mock_get_player_by_id.assert_called_once_with(int(db_fixture.id))
 
     @patch(PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH)
     def test_get_professional_players_endpoint_by_id_not_found(self, mock_get_player_by_id):
@@ -129,4 +120,4 @@ class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
 
         response = self.client.get(f"{PROFESSIONAL_PLAYER_BASE_URL}/{db_fixture.id}")
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_player_by_id.assert_called_once_with(db_fixture.id)
+        mock_get_player_by_id.assert_called_once_with(int(db_fixture.id))

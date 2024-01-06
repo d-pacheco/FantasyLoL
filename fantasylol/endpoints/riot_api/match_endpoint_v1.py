@@ -6,6 +6,7 @@ from typing import List
 
 from fantasylol.service.riot_match_service import RiotMatchService
 from fantasylol.schemas.riot_data_schemas import MatchSchema
+from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 
 VERSION = "v1"
@@ -32,11 +33,11 @@ match_service = RiotMatchService()
 def get_riot_matches(
         league_name: str = Query(None, description="Filter by league name"),
         tournament_id: int = Query(None, description="Filter by tournament id")):
-    query_params = {
-        "league_name": league_name,
-        "tournament_id": tournament_id
-    }
-    matches = match_service.get_matches(query_params)
+    search_parameters = MatchSearchParameters(
+        league_name=league_name,
+        tournament_id=tournament_id
+    )
+    matches = match_service.get_matches(search_parameters)
     matches_response = [MatchSchema(**match.to_dict()) for match in matches]
     return matches_response
 

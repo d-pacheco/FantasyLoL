@@ -12,6 +12,7 @@ from fantasylol.exceptions.riot_api_status_code_assert_exception import \
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.search_parameters import GameSearchParameters
 
 
 class GameServiceTest(FantasyLolTestBase):
@@ -61,10 +62,10 @@ class GameServiceTest(FantasyLolTestBase):
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
         GameTestUtil.create_unstarted_game(self.test_tournament.id)
         expected_game = GameTestUtil.create_completed_game(self.test_tournament.id)
-        query_params = {"state": GameState.COMPLETED}
+        search_parameters = GameSearchParameters(state=GameState.COMPLETED)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 1)
         self.assertEqual(games_from_db[0], expected_game)
@@ -72,10 +73,10 @@ class GameServiceTest(FantasyLolTestBase):
     def test_get_completed_games_with_no_completed_games(self):
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
         GameTestUtil.create_unstarted_game(self.test_tournament.id)
-        query_params = {"state": GameState.COMPLETED}
+        search_parameters = GameSearchParameters(state=GameState.COMPLETED)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 0)
 
@@ -83,10 +84,10 @@ class GameServiceTest(FantasyLolTestBase):
         GameTestUtil.create_unstarted_game(self.test_tournament.id)
         GameTestUtil.create_completed_game(self.test_tournament.id)
         expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        query_params = {"state": GameState.INPROGRESS}
+        search_parameters = GameSearchParameters(state=GameState.INPROGRESS)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 1)
         self.assertEqual(games_from_db[0], expected_game)
@@ -94,10 +95,10 @@ class GameServiceTest(FantasyLolTestBase):
     def test_get_inprogress_games_with_no_inprogress_games(self):
         GameTestUtil.create_completed_game(self.test_tournament.id)
         GameTestUtil.create_unstarted_game(self.test_tournament.id)
-        query_params = {"state": GameState.INPROGRESS}
+        search_parameters = GameSearchParameters(state=GameState.INPROGRESS)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 0)
 
@@ -105,10 +106,10 @@ class GameServiceTest(FantasyLolTestBase):
         GameTestUtil.create_completed_game(self.test_tournament.id)
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
         expected_game = GameTestUtil.create_unstarted_game(self.test_tournament.id)
-        query_params = {"state": GameState.UNSTARTED}
+        search_parameters = GameSearchParameters(state=GameState.UNSTARTED)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 1)
         self.assertEqual(games_from_db[0], expected_game)
@@ -116,29 +117,29 @@ class GameServiceTest(FantasyLolTestBase):
     def test_get_unstarted_games_with_no_unstarted_games(self):
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
         GameTestUtil.create_completed_game(self.test_tournament.id)
-        query_params = {"state": GameState.UNSTARTED}
+        search_parameters = GameSearchParameters(state=GameState.UNSTARTED)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 0)
 
     def test_get_games_by_match_id_existing_games(self):
         expected_game = GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        query_params = {"match_id": expected_game.match_id}
+        search_parameters = GameSearchParameters(match_id=expected_game.match_id)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 1)
         self.assertEqual(games_from_db[0], expected_game)
 
     def test_get_games_by_match_id_no_existing_games(self):
         GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        query_params = {"match_id": 777}
+        search_parameters = GameSearchParameters(match_id=777)
 
         game_service = self.create_game_service()
-        games_from_db = game_service.get_games(query_params)
+        games_from_db = game_service.get_games(search_parameters)
         self.assertIsInstance(games_from_db, list)
         self.assertEqual(len(games_from_db), 0)
 

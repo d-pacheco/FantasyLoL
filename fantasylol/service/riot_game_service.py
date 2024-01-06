@@ -1,13 +1,11 @@
 import logging
 from typing import List
 
-from sqlalchemy import select
-from sqlalchemy.orm import aliased
-
-from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import Game, Match
+from fantasylol.db import crud
+from fantasylol.db.models import Game
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
+from fantasylol.schemas.search_parameters import GameSearchParameters
 
 
 class RiotGameService:
@@ -38,16 +36,15 @@ class RiotGameService:
                     fetched_games.append(new_game)
 
             for new_game in fetched_games:
-                with DatabaseConnection() as db:
-                    db.merge(new_game)
-                    db.commit()
+                crud.save_game(new_game)
             return fetched_games
         except Exception as e:
             logging.error(f"{str(e)}")
             raise e
 
     def fetch_and_store_games_from_match_ids(self, batch_size: int = 25):
-        match_ids = self.get_matches_without_games()
+        matches_without_games = crud.get_matches_without_games()
+        match_ids = [match.id for match in matches_without_games]
 
         for i in range(0, len(match_ids), batch_size):
             batch = match_ids[i:i + batch_size]
@@ -73,54 +70,22 @@ class RiotGameService:
                 }
                 new_game = Game(**new_game_attrs)
                 fetched_games.append(new_game)
-        with DatabaseConnection() as db:
-            db.bulk_save_objects(fetched_games)
-            db.commit()
+        crud.bulk_save_games(fetched_games)
 
-    def get_games(self, query_params: dict = None) -> List[Game]:
-        with DatabaseConnection() as db:
-            query = db.query(Game)
+    @staticmethod
+    def get_games(search_parameters: GameSearchParameters) -> List[Game]:
+        filters = []
+        if search_parameters.state is not None:
+            filters.append(Game.state == search_parameters.state)
+        if search_parameters.match_id is not None:
+            filters.append(Game.match_id == search_parameters.match_id)
 
-            if query_params is None:
-                return query.all()
-
-            for param_key in query_params:
-                param = query_params[param_key]
-                if param is None:
-                    continue
-                column = getattr(Game, param_key, None)
-                if column is not None:
-                    query = query.filter(column == param)
-            games = query.all()
+        games = crud.get_games(filters)
         return games
 
-    def get_game_by_id(self, game_id: int) -> Game:
-        with DatabaseConnection() as db:
-            game = db.query(Game).filter(Game.id == game_id).first()
+    @staticmethod
+    def get_game_by_id(game_id: int) -> Game:
+        game = crud.get_game_by_id(game_id)
         if game is None:
             raise GameNotFoundException()
         return game
-
-    @staticmethod
-    def get_matches_without_games() -> List[int]:
-        game_alias = aliased(Game)
-
-        # Query to get match IDs without any associated games
-        with DatabaseConnection() as db:
-            subquery = (
-                select([game_alias.match_id])
-                .where(game_alias.match_id.isnot(None))
-                .distinct()
-                .alias()
-            )
-
-            # Query to get match IDs without associated games
-            matches_without_games = (
-                db.query(Match.id)
-                .outerjoin(subquery, Match.id == subquery.c.match_id)
-                .filter(subquery.c.match_id.is_(None))
-                .all()
-            )
-
-        # Extract match IDs from the result
-        return [match.id for match in matches_without_games]
