@@ -15,6 +15,7 @@ class AppConfig:
     LEAGUE_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "00"}'
     TOURNAMENT_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "05"}'
     TEAM_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "10"}'
+    PLAYER_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "15"}'
     USE_TEST_DB = 'tests' in sys.argv
 
     def __init__(self, env):
