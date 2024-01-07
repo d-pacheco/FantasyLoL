@@ -9,6 +9,7 @@ from fantasylol.exceptions.JobConfigException import JobConfigException
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
+from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
 from fantasylol.service.riot_match_service import RiotMatchService
 from fantasylol.util.config import Config
 
@@ -18,6 +19,7 @@ class JobScheduler:
         self.riot_league_service = RiotLeagueService()
         self.riot_tournament_service = RiotTournamentService()
         self.riot_team_service = RiotProfessionalTeamService()
+        self.riot_player_service = RiotProfessionalPlayerService()
         self.riot_match_service = RiotMatchService()
 
         job_store = SQLAlchemyJobStore(url=Config.DATABASE_URL)
@@ -42,6 +44,11 @@ class JobScheduler:
             job_function=self.riot_team_service.fetch_and_store_professional_teams,
             job_config=Config.TEAM_SERVICE_SCHEDULE,
             job_id='team_service_job'
+        )
+        self.schedule_job(
+            job_function=self.riot_player_service.fetch_and_store_professional_players,
+            job_config=Config.PLAYER_SERVICE_SCHEDULE,
+            job_id='player_service_job'
         )
 
     def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):
