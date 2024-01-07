@@ -50,6 +50,11 @@ class JobScheduler:
             job_config=Config.PLAYER_SERVICE_SCHEDULE,
             job_id='player_service_job'
         )
+        self.schedule_job(
+            job_function=self.riot_match_service.fetch_new_schedule,
+            job_config=Config.MATCH_SERVICE_SCHEDULE,
+            job_id='match_service_job'
+        )
 
     def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):
         trigger = job_config.get('trigger', None)

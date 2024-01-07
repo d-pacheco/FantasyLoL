@@ -15,7 +15,7 @@ class RiotMatchService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_entire_schedule(self):
+    def fetch_entire_schedule(self) -> bool:
         # To only be used on a new deployment to populate the database with the entire schedule
         # After which fetch new schedule should only be used
 
@@ -45,7 +45,7 @@ class RiotMatchService:
             crud.update_schedule(entire_schedule_model)
 
         self.backprop_older_schedules()
-        self.fetch_new_schedule()
+        return self.fetch_new_schedule()
 
     def backprop_older_schedules(self):
         entire_schedule = crud.get_schedule("entire_schedule")
@@ -71,6 +71,10 @@ class RiotMatchService:
 
     def fetch_new_schedule(self) -> bool:
         riot_schedule = crud.get_schedule("riot_schedule")
+        if riot_schedule is None:
+            logging.warning("Riot schedule not found in db. Fetching entire schedule. "
+                            "This should only occur on new deployments")
+            return self.fetch_entire_schedule()
         newer_page_token = riot_schedule.current_token_key
 
         schedule_updated = False
