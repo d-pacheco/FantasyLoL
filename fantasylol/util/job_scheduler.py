@@ -64,7 +64,9 @@ class JobScheduler:
                 seconds=job_config.get('seconds', 0)
             )
         else:
-            raise JobConfigException(f"Invalid trigger ({trigger}) when scheduling job with id: {job_id}")
+            raise JobConfigException(
+                f"Invalid trigger ({trigger}) when scheduling job with id: {job_id}"
+            )
 
         self.scheduler.add_job(
             job_function,
