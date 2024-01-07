@@ -1,0 +1,2 @@
+class JobConfigException(Exception):
+    pass
