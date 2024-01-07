@@ -1,8 +1,11 @@
 import logging
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
+from fantasylol.exceptions.JobConfigException import JobConfigException
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
@@ -25,34 +28,51 @@ class JobScheduler:
     def schedule_all_jobs(self):
         logging.info("Scheduling jobs")
 
-        league_service_schedule_config = Config.LEAGUE_SERVICE_SCHEDULE
-        self.scheduler.add_job(
-            self.riot_league_service.fetch_and_store_leagues,
-            trigger=league_service_schedule_config["trigger"],
-            hour=league_service_schedule_config["hour"],
-            minute=league_service_schedule_config["minute"],
-            id='league_service_job',
-            replace_existing=True
+        self.schedule_job(
+            job_function=self.riot_league_service.fetch_and_store_leagues,
+            job_config=Config.LEAGUE_SERVICE_SCHEDULE,
+            job_id='league_service_job',
+        )
+        self.schedule_job(
+            job_function=self.riot_tournament_service.fetch_and_store_tournaments,
+            job_config=Config.TOURNAMENT_SERVICE_SCHEDULE,
+            job_id='tournament_service_job'
+        )
+        self.schedule_job(
+            job_function=self.riot_team_service.fetch_and_store_professional_teams,
+            job_config=Config.TEAM_SERVICE_SCHEDULE,
+            job_id='team_service_job'
         )
 
-        tournament_service_schedule_config = Config.TOURNAMENT_SERVICE_SCHEDULE
-        self.scheduler.add_job(
-            self.riot_tournament_service.fetch_and_store_tournaments,
-            trigger=tournament_service_schedule_config["trigger"],
-            hour=tournament_service_schedule_config["hour"],
-            minute=tournament_service_schedule_config["minute"],
-            id='tournament_service_job',
-            replace_existing=True
-        )
+    def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):
+        trigger = job_config.get('trigger', None)
 
-        team_service_schedule_config = Config.TEAM_SERVICE_SCHEDULE
+        if trigger == 'cron':
+            job_trigger = CronTrigger(
+                day=job_config.get('day', None),
+                week=job_config.get('week', None),
+                hour=job_config.get('hour', None),
+                minute=job_config.get('minute', None),
+                second=job_config.get('second', None),
+            )
+        elif trigger == 'interval':
+            job_trigger = IntervalTrigger(
+                weeks=job_config.get('weeks', 0),
+                days=job_config.get('days', 0),
+                hours=job_config.get('hours', 0),
+                minutes=job_config.get('minutes', 0),
+                seconds=job_config.get('seconds', 0)
+            )
+        else:
+            raise JobConfigException(
+                f"Invalid trigger ({trigger}) when scheduling job with id: {job_id}"
+            )
+
         self.scheduler.add_job(
-            self.riot_tournament_service.fetch_and_store_tournaments,
-            trigger=team_service_schedule_config["trigger"],
-            hour=team_service_schedule_config["hour"],
-            minute=team_service_schedule_config["minute"],
-            id='team_service_job',
-            replace_existing=True
+            job_function,
+            trigger=job_trigger,
+            id=job_id,
+            replace_existing=replace
         )
 
     def shutdown_jobs(self):
