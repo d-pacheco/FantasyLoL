@@ -14,6 +14,7 @@ class AppConfig:
     DEBUG_LOGGING: bool = False
     LEAGUE_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "00"}'
     TOURNAMENT_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "05"}'
+    TEAM_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "10"}'
     USE_TEST_DB = 'tests' in sys.argv
 
     def __init__(self, env):
