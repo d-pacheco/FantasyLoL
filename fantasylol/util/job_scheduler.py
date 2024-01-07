@@ -44,7 +44,7 @@ class JobScheduler:
             job_id='team_service_job'
         )
 
-    def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = False):
+    def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):
         trigger = job_config.get('trigger', None)
 
         if trigger == 'cron':
