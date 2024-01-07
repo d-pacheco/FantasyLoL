@@ -12,11 +12,14 @@ class AppConfig:
     # Configure config default values
     DATABASE_URL: str = "sqlite:///./fantasy-league-of-legends.db"
     DEBUG_LOGGING: bool = False
+    USE_TEST_DB = 'tests' in sys.argv
+
+    # Job schedules:
     LEAGUE_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "00"}'
     TOURNAMENT_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "05"}'
     TEAM_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "10"}'
     PLAYER_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "15"}'
-    USE_TEST_DB = 'tests' in sys.argv
+    MATCH_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "30"}'
 
     def __init__(self, env):
         for field in self.__annotations__:
