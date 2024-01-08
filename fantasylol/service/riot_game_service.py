@@ -5,6 +5,7 @@ from fantasylol.db import crud
 from fantasylol.db.models import Game
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
+from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 from fantasylol.schemas.search_parameters import GameSearchParameters
 
 logger = logging.getLogger('fantasy-lol')
@@ -45,12 +46,31 @@ class RiotGameService:
             raise e
 
     def fetch_and_store_games_from_match_ids(self, batch_size: int = 25):
-        matches_without_games = crud.get_matches_without_games()
-        match_ids = [match.id for match in matches_without_games]
+        max_retries = 3
+        retry_count = 0
+        error = None
+        job_completed = False
 
-        for i in range(0, len(match_ids), batch_size):
-            batch = match_ids[i:i + batch_size]
-            self.process_batch_match_ids(batch)
+        logger.info("Starting fetch games from match ids job")
+        while retry_count <= max_retries and not job_completed:
+            try:
+                matches_without_games = crud.get_matches_without_games()
+                match_ids = [match.id for match in matches_without_games]
+
+                for i in range(0, len(match_ids), batch_size):
+                    batch = match_ids[i:i + batch_size]
+                    self.process_batch_match_ids(batch)
+
+                job_completed = True
+            except FantasyLolException as e:
+                retry_count += 1
+                error = e
+                logger.warning(f"An error occurred during fetch games from match ids job."
+                               f" Retry attempt: {retry_count}")
+        if job_completed:
+            logger.info("Fetch games from match ids job completed")
+        else:
+            logger.error(f"Fetch games from match ids job failed: {error}")
 
     def process_batch_match_ids(self, match_ids: List[int]):
         logger.info("Processes batch of match ids: ", match_ids)

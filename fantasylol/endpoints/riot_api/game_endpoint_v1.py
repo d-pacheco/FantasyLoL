@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends
 from fastapi import Query
 from typing import List
 
-from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.riot_data_schemas import GameSchema
 from fantasylol.schemas.game_state import GameState
@@ -100,21 +99,9 @@ def fetch_live_games_from_riot():
 
 
 @router.get(
-    path="/fetch-games-from-matches"
+    path="/fetch-games-from-matches",
+    description="Manually trigger fetch games from match ids job",
+    tags=["Manual Job Triggers"]
 )
 def fetch_games_from_matches(batch_size: int = Query(None, description="size of the batches")):
-    max_retries = 3
-    retry_count = 0
-    completed_fetch = False
-    while retry_count <= max_retries and not completed_fetch:
-        try:
-            game_service.fetch_and_store_games_from_match_ids(batch_size)
-            completed_fetch = True
-        except FantasyLolException:
-            retry_count += 1
-            logger.warning(f"An error occurred. Retry attempt: {retry_count}")
-    if completed_fetch:
-        return "Games from matches processed"
-    else:
-        logger.error("Games failed to fetch from matches")
-        return "Games failed to fetch from matches"
+    game_service.fetch_and_store_games_from_match_ids(batch_size)
