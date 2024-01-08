@@ -9,13 +9,15 @@ from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotTournamentService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_tournaments(self) -> List[Tournament]:
-        logging.info("Fetching and storing tournaments from riot's api")
+        logger.info("Fetching and storing tournaments from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw" \
                       "/getTournamentsForLeague?hl=en-GB&leagueId={id}"
         try:
@@ -43,7 +45,7 @@ class RiotTournamentService:
                 crud.save_tournament(new_tournament)
             return fetched_tournaments
         except Exception as e:
-            logging.error(f"{str(e)}")
+            logger.error(f"{str(e)}")
             raise e
 
     @staticmethod

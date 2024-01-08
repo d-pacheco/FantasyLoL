@@ -6,13 +6,15 @@ from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundExcep
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.search_parameters import LeagueSearchParameters
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotLeagueService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_leagues(self) -> List[League]:
-        logging.info("Fetching and storing leagues from riot's api")
+        logger.info("Fetching and storing leagues from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -34,7 +36,7 @@ class RiotLeagueService:
                 crud.save_league(new_league)
             return fetched_leagues
         except Exception as e:
-            logging.error(f"{str(e)}")
+            logger.error(f"{str(e)}")
             raise e
 
     @staticmethod

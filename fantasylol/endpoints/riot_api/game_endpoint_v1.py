@@ -12,6 +12,7 @@ from fantasylol.schemas.search_parameters import GameSearchParameters
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 game_service = RiotGameService()
+logger = logging.getLogger('fantasy-lol')
 
 
 def validate_status_parameter(state: GameState = Query(None, description="Filter by game state")):
@@ -111,9 +112,9 @@ def fetch_games_from_matches(batch_size: int = Query(None, description="size of 
             completed_fetch = True
         except FantasyLolException:
             retry_count += 1
-            logging.warning(f"An error occurred. Retry attempt: {retry_count}")
+            logger.warning(f"An error occurred. Retry attempt: {retry_count}")
     if completed_fetch:
         return "Games from matches processed"
     else:
-        logging.error("Games failed to fetch from matches")
+        logger.error("Games failed to fetch from matches")
         return "Games failed to fetch from matches"

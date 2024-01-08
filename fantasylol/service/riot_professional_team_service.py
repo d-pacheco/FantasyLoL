@@ -7,13 +7,15 @@ from fantasylol.exceptions.professional_team_not_found_exception import \
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.search_parameters import TeamSearchParameters
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotProfessionalTeamService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_professional_teams(self) -> List[ProfessionalTeam]:
-        logging.info("Fetching and storing professional teams from riot's api")
+        logger.info("Fetching and storing professional teams from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -45,7 +47,7 @@ class RiotProfessionalTeamService:
                 crud.save_team(new_professional_team)
             return fetched_teams
         except Exception as e:
-            logging.error(f"Error: {str(e)}")
+            logger.error(f"Error: {str(e)}")
             raise e
 
     @staticmethod
