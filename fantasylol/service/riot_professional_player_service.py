@@ -7,13 +7,15 @@ from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.search_parameters import PlayerSearchParameters
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotProfessionalPlayerService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_professional_players(self) -> List[ProfessionalPlayer]:
-        logging.info("Fetching and storing professional players from riot's api")
+        logger.info("Fetching and storing professional players from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -33,7 +35,7 @@ class RiotProfessionalPlayerService:
                 crud.save_player(new_professional_player)
             return fetched_players
         except Exception as e:
-            logging.error(f"{str(e)}")
+            logger.error(f"{str(e)}")
             raise e
 
     @staticmethod

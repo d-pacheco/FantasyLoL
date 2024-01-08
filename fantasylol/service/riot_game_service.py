@@ -7,13 +7,15 @@ from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.schemas.search_parameters import GameSearchParameters
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotGameService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
     def fetch_and_store_live_games(self) -> List[Game]:
-        logging.info("Fetching and storing live games from riot's api")
+        logger.info("Fetching and storing live games from riot's api")
         request_url = "https://esports-api.lolesports.com/persisted/gw/getLive?hl=en-GB"
         try:
             res_json = self.riot_api_requester.make_request(request_url)
@@ -39,7 +41,7 @@ class RiotGameService:
                 crud.save_game(new_game)
             return fetched_games
         except Exception as e:
-            logging.error(f"{str(e)}")
+            logger.error(f"{str(e)}")
             raise e
 
     def fetch_and_store_games_from_match_ids(self, batch_size: int = 25):
@@ -51,7 +53,7 @@ class RiotGameService:
             self.process_batch_match_ids(batch)
 
     def process_batch_match_ids(self, match_ids: List[int]):
-        logging.info("Processes batch of match ids: ", match_ids)
+        logger.info("Processes batch of match ids: ", match_ids)
         fetched_games = []
         for match_id in match_ids:
             event_details_url = (

@@ -10,6 +10,8 @@ from fantasylol.exceptions.match_not_found_exception import MatchNotFoundExcepti
 from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class RiotMatchService:
     def __init__(self):

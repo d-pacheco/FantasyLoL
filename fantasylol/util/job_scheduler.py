@@ -13,6 +13,8 @@ from fantasylol.service.riot_professional_player_service import RiotProfessional
 from fantasylol.service.riot_match_service import RiotMatchService
 from fantasylol.util.config import Config
 
+logger = logging.getLogger('fantasy-lol')
+
 
 class JobScheduler:
     def __init__(self):
@@ -28,7 +30,7 @@ class JobScheduler:
         atexit.register(self.shutdown_jobs)
 
     def schedule_all_jobs(self):
-        logging.info("Scheduling jobs")
+        logger.info("Scheduling jobs")
 
         self.schedule_job(
             job_function=self.riot_league_service.fetch_and_store_leagues,
@@ -88,5 +90,5 @@ class JobScheduler:
         )
 
     def shutdown_jobs(self):
-        logging.info("Shutting down scheduled jobs")
+        logger.info("Shutting down scheduled jobs")
         self.scheduler.shutdown()
