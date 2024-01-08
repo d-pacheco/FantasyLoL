@@ -8,4 +8,9 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - .:/app
+      - fantasy_sqlitedb:/app/database
+      - fantasy_logs:/app/logs
+
+volumes:
+  fantasy_sqlitedb:
+  fantasy_logs:
