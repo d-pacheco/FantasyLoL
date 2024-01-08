@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from pathlib import Path
 
 from fantasylol.util.config import Config
 
+Path("./database/").mkdir(parents=True, exist_ok=True)
 PRODUCTION_DATABASE_URL = Config.DATABASE_URL
 TEST_DATABASE_URL = "sqlite:///./fantasy-league-of-legends-test.db"
 
