@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 80
 
 # Define environment variable for SQLite database path (modify as needed)
-ENV DATABASE_URL="sqlite:///./fantasy-league-of-legends.db"
+ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
 
 # Run main.py when the container launches
 CMD ["python", "./main.py"]
