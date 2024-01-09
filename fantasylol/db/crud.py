@@ -7,6 +7,8 @@ from fantasylol.db.models import (
     Tournament,
     Match,
     Game,
+    PlayerGameMetadata,
+    PlayerGameStats,
     ProfessionalTeam,
     ProfessionalPlayer,
     Schedule
@@ -177,6 +179,24 @@ def get_players(filters: list = None) -> List[ProfessionalPlayer]:
 def get_player_by_id(player_id: int) -> ProfessionalPlayer:
     with DatabaseConnection() as db:
         return db.query(ProfessionalPlayer).filter(ProfessionalPlayer.id == player_id).first()
+
+
+# --------------------------------------------------
+# ----------- Player Metadata Operations -----------
+# --------------------------------------------------
+def save_player_metadata(player_metadata: PlayerGameMetadata):
+    with DatabaseConnection() as db:
+        db.merge(player_metadata)
+        db.commit()
+
+
+# --------------------------------------------------
+# ------------- Player Stats Operations ------------
+# --------------------------------------------------
+def save_player_stats(player_stats: PlayerGameStats):
+    with DatabaseConnection() as db:
+        db.merge(player_stats)
+        db.commit()
 
 
 # --------------------------------------------------
