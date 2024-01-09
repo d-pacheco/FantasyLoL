@@ -9,7 +9,6 @@ from fantasylol.db.models import Match
 
 
 class RiotApiRequestUtil:
-
     mock_league_id = str(random.randint(100000, 999999))
     mock_league_name = "Mock Challengers"
     mock_league_slug = "mock-challengers-league"
@@ -24,7 +23,7 @@ class RiotApiRequestUtil:
     mock_team_1_id = str(random.randint(100000, 999999))
     mock_team_1_name = "Mock Team 1"
     mock_team_1_slug = "mock-team-1"
-    mock_team_1_code = "TEST1"
+    mock_team_1_code = "T1"
     mock_team_1_image = "http://mock-team-1-image.png"
     mock_team_1_alt_image = "http://mock-team-1-alternative-image.png"
     mock_team_1_background_image = "http://mock-team-1-background.png"
@@ -33,7 +32,7 @@ class RiotApiRequestUtil:
     mock_team_2_id = str(random.randint(100000, 999999))
     mock_team_2_name = "Mock Team 2"
     mock_team_2_slug = "mock-team-2"
-    mock_team_2_code = "TEST2"
+    mock_team_2_code = "T2"
     mock_team_2_image = "http://mock-team-2-image.png"
     mock_team_2_alt_image = "http://mock-team-2-alternative-image.png"
     mock_team_2_background_image = "http://mock-team-2-background.png"
@@ -462,4 +461,94 @@ class RiotApiRequestUtil:
                     ]
                 }
             }
+        }
+
+    def create_mock_window_response(self):
+        return {
+            "esportsGameId": self.mock_game_1_id,
+            "esportsMatchId": self.mock_match_id,
+            "gameMetadata": {
+                "patchVersion": "13.19.535.4316",
+                "blueTeamMetadata": {
+                    "esportsTeamId": self.mock_team_1_id,
+                    "participantMetadata": [
+                        {
+                            "participantId": 1,
+                            "esportsPlayerId": "99566404810113891",
+                            "summonerName": "WBG TheShy",
+                            "championId": "Aatrox",
+                            "role": "top"
+                        },
+                        {
+                            "participantId": 2,
+                            "esportsPlayerId": "102192147302633932",
+                            "summonerName": "WBG Weiwei",
+                            "championId": "Maokai",
+                            "role": "jungle"
+                        },
+                        {
+                            "participantId": 3,
+                            "esportsPlayerId": "98767975914916595",
+                            "summonerName": "WBG Xiaohu",
+                            "championId": "Jayce",
+                            "role": "mid"
+                        },
+                        {
+                            "participantId": 4,
+                            "esportsPlayerId": "100205573983550103",
+                            "summonerName": "WBG Light",
+                            "championId": "Senna",
+                            "role": "bottom"
+                        },
+                        {
+                            "participantId": 5,
+                            "esportsPlayerId": "99566404817393644",
+                            "summonerName": "WBG Crisp",
+                            "championId": "TahmKench",
+                            "role": "support"
+                        }
+                    ]
+                },
+                "redTeamMetadata": {
+                    "esportsTeamId": self.mock_team_2_id,
+                    "participantMetadata": [
+                        {
+                            "participantId": 6,
+                            "esportsPlayerId": "105320680474347057",
+                            "summonerName": "T1 Zeus",
+                            "championId": "Yone",
+                            "role": "top"
+                        },
+                        {
+                            "participantId": 7,
+                            "esportsPlayerId": "105320682452092471",
+                            "summonerName": "T1 Oner",
+                            "championId": "LeeSin",
+                            "role": "jungle"
+                        },
+                        {
+                            "participantId": 8,
+                            "esportsPlayerId": "98767991747728851",
+                            "summonerName": "T1 Faker",
+                            "championId": "Ahri",
+                            "role": "mid"
+                        },
+                        {
+                            "participantId": 9,
+                            "esportsPlayerId": "103495716775975785",
+                            "summonerName": "T1 Gumayusi",
+                            "championId": "Kalista",
+                            "role": "bottom"
+                        },
+                        {
+                            "participantId": 10,
+                            "esportsPlayerId": "103495716561790834",
+                            "summonerName": "T1 Keria",
+                            "championId": "Renata",
+                            "role": "support"
+                        }
+                    ]
+                }
+            },
+            "frames": [{}]
         }
