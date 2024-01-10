@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import aliased
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import (
@@ -190,6 +190,25 @@ def save_player_metadata(player_metadata: PlayerGameMetadata):
         db.commit()
 
 
+def get_game_ids_without_player_metadata():
+    sql_query = """
+        SELECT games.id as game_id
+        FROM games
+        LEFT JOIN player_game_metadata ON games.id = player_game_metadata.game_id
+        WHERE games.state in ('COMPLETED', 'INPROGRESS')
+        GROUP BY games.id
+        HAVING COUNT(player_game_metadata.game_id) <> 10
+        OR COUNT(player_game_metadata.game_id) IS NULL;
+    """
+    with DatabaseConnection() as db:
+        result = db.execute(text(sql_query))
+        rows = result.fetchall()
+    game_ids = []
+    for row in rows:
+        game_ids.append(row[0])
+    return game_ids
+
+
 # --------------------------------------------------
 # ------------- Player Stats Operations ------------
 # --------------------------------------------------
@@ -197,6 +216,25 @@ def save_player_stats(player_stats: PlayerGameStats):
     with DatabaseConnection() as db:
         db.merge(player_stats)
         db.commit()
+
+
+def get_game_ids_to_fetch_player_stats_for():
+    sql_query = """
+        SELECT games.id as game_id
+        FROM games
+        LEFT JOIN player_game_stats ON games.id = player_game_stats.game_id
+        WHERE (games.state = 'COMPLETED'
+                AND (SELECT COUNT(*) FROM player_game_stats WHERE game_id = games.id) < 10)
+           OR games.state = 'INPROGRESS'
+        GROUP BY games.id
+    """
+    with DatabaseConnection() as db:
+        result = db.execute(text(sql_query))
+        rows = result.fetchall()
+    game_ids = []
+    for row in rows:
+        game_ids.append(row[0])
+    return game_ids
 
 
 # --------------------------------------------------

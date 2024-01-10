@@ -11,6 +11,7 @@ from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
 from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
 from fantasylol.service.riot_match_service import RiotMatchService
+from fantasylol.service.riot_game_stats_service import RiotGameStatsService
 from fantasylol.util.config import Config
 
 logger = logging.getLogger('fantasy-lol')
@@ -23,6 +24,7 @@ class JobScheduler:
         self.riot_team_service = RiotProfessionalTeamService()
         self.riot_player_service = RiotProfessionalPlayerService()
         self.riot_match_service = RiotMatchService()
+        self.riot_game_stats_service = RiotGameStatsService()
 
         job_store = SQLAlchemyJobStore(url=Config.DATABASE_URL)
         self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
@@ -56,6 +58,16 @@ class JobScheduler:
             job_function=self.riot_match_service.fetch_new_schedule,
             job_config=Config.MATCH_SERVICE_SCHEDULE,
             job_id='match_service_job'
+        )
+        self.schedule_job(
+            job_function=self.riot_game_stats_service.run_player_metadata_job,
+            job_config=Config.PLAYER_METADATA_JOB_SCHEDULE,
+            job_id='player_metadata_job'
+        )
+        self.schedule_job(
+            job_function=self.riot_game_stats_service.run_player_stats_job,
+            job_config=Config.PLAYER_STATS_JOB_SCHEDULE,
+            job_id='player_stats_job'
         )
 
     def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):

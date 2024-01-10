@@ -20,6 +20,8 @@ class AppConfig:
     TEAM_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "10"}'
     PLAYER_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "15"}'
     MATCH_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "30"}'
+    PLAYER_METADATA_JOB_SCHEDULE: dict = '{"trigger": "cron", "minute": "*/5"}'
+    PLAYER_STATS_JOB_SCHEDULE: dict = '{"trigger": "cron", "minute": "*/5"}'
 
     def __init__(self, env):
         for field in self.__annotations__:
