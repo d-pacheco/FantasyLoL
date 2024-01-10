@@ -7,15 +7,15 @@ from fantasylol.schemas.game_state import GameState
 
 class GameTestUtil:
     @staticmethod
-    def create_completed_game(tournament_id: int):
+    def create_completed_game(tournament_id: int = None):
         return create_game_in_db(GameState.COMPLETED, tournament_id)
 
     @staticmethod
-    def create_inprogress_game(tournament_id: int):
+    def create_inprogress_game(tournament_id: int = None):
         return create_game_in_db(GameState.INPROGRESS, tournament_id)
 
     @staticmethod
-    def create_unstarted_game(tournament_id: int):
+    def create_unstarted_game(tournament_id: int = None):
         return create_game_in_db(GameState.UNSTARTED, tournament_id)
 
 

@@ -26,12 +26,12 @@ class League(Base):
         if not isinstance(other, League):
             return False
         return (
-                self.id == other.id and
-                self.slug == other.slug and
-                self.name == other.name and
-                self.region == other.region and
-                self.image == other.image and
-                self.priority == other.priority
+            self.id == other.id and
+            self.slug == other.slug and
+            self.name == other.name and
+            self.region == other.region and
+            self.image == other.image and
+            self.priority == other.priority
         )
 
     def to_dict(self):
@@ -58,11 +58,11 @@ class Tournament(Base):
         if not isinstance(other, Tournament):
             return False
         return (
-                self.id == other.id and
-                self.slug == other.slug and
-                self.start_date == other.start_date and
-                self.end_date == other.end_date and
-                self.league_id == other.league_id
+            self.id == other.id and
+            self.slug == other.slug and
+            self.start_date == other.start_date and
+            self.end_date == other.end_date and
+            self.league_id == other.league_id
         )
 
     def to_dict(self):
@@ -92,15 +92,15 @@ class Match(Base):
         if not isinstance(other, Match):
             return False
         return (
-                self.id == other.id and
-                self.start_time == other.start_time and
-                self.block_name == other.block_name and
-                self.league_name == other.league_name and
-                self.strategy_type == other.strategy_type and
-                self.strategy_count == other.strategy_count and
-                self.tournament_id == other.tournament_id and
-                self.team_1_name == other.team_1_name and
-                self.team_2_name == other.team_2_name
+            self.id == other.id and
+            self.start_time == other.start_time and
+            self.block_name == other.block_name and
+            self.league_name == other.league_name and
+            self.strategy_type == other.strategy_type and
+            self.strategy_count == other.strategy_count and
+            self.tournament_id == other.tournament_id and
+            self.team_1_name == other.team_1_name and
+            self.team_2_name == other.team_2_name
         )
 
     def to_dict(self):
@@ -129,10 +129,10 @@ class Game(Base):
         if not isinstance(other, Game):
             return False
         return (
-                self.id == other.id and
-                self.state == other.state and
-                self.number == other.number and
-                self.match_id == other.match_id
+            self.id == other.id and
+            self.state == other.state and
+            self.number == other.number and
+            self.match_id == other.match_id
         )
 
     def to_dict(self):
@@ -161,15 +161,15 @@ class ProfessionalTeam(Base):
         if not isinstance(other, ProfessionalTeam):
             return False
         return (
-                self.id == other.id and
-                self.slug == other.slug and
-                self.name == other.name and
-                self.code == other.code and
-                self.image == other.image and
-                self.alternative_image == other.alternative_image and
-                self.background_image == other.background_image and
-                self.status == other.status and
-                self.home_league == other.home_league
+            self.id == other.id and
+            self.slug == other.slug and
+            self.name == other.name and
+            self.code == other.code and
+            self.image == other.image and
+            self.alternative_image == other.alternative_image and
+            self.background_image == other.background_image and
+            self.status == other.status and
+            self.home_league == other.home_league
         )
 
     def to_dict(self):
@@ -203,11 +203,11 @@ class ProfessionalPlayer(Base):
         if not isinstance(other, ProfessionalPlayer):
             return False
         return (
-                self.id == other.id and
-                self.summoner_name == other.summoner_name and
-                self.image == other.image and
-                self.role == other.role and
-                self.team_id == other.team_id
+            self.id == other.id and
+            self.summoner_name == other.summoner_name and
+            self.image == other.image and
+            self.role == other.role and
+            self.team_id == other.team_id
         )
 
     def to_dict(self):
@@ -237,11 +237,11 @@ class PlayerGameMetadata(Base):
         if not isinstance(other, ProfessionalPlayer):
             return False
         return (
-                self.game_id == other.game_id and
-                self.player_id == other.player_id and
-                self.participant_id == other.participant_id and
-                self.champion_id == other.champion_id and
-                self.role == other.role
+            self.game_id == other.game_id and
+            self.player_id == other.player_id and
+            self.participant_id == other.participant_id and
+            self.champion_id == other.champion_id and
+            self.role == other.role
         )
 
     def to_dict(self):
@@ -277,17 +277,17 @@ class PlayerGameStats(Base):
         if not isinstance(other, ProfessionalPlayer):
             return False
         return (
-                self.game_id == other.game_id and
-                self.participant_id == other.participant_id and
-                self.kills == other.kills and
-                self.deaths == other.deaths and
-                self.assists == other.assists and
-                self.total_gold == other.total_gold and
-                self.creep_score == other.creep_score and
-                self.kill_participation == other.kill_participation and
-                self.champion_damage_share == other.champion_damage_share and
-                self.wards_placed == other.wards_placed and
-                self.wards_destroyed == other.wards_destroyed
+            self.game_id == other.game_id and
+            self.participant_id == other.participant_id and
+            self.kills == other.kills and
+            self.deaths == other.deaths and
+            self.assists == other.assists and
+            self.total_gold == other.total_gold and
+            self.creep_score == other.creep_score and
+            self.kill_participation == other.kill_participation and
+            self.champion_damage_share == other.champion_damage_share and
+            self.wards_placed == other.wards_placed and
+            self.wards_destroyed == other.wards_destroyed
         )
 
     def to_dict(self):
