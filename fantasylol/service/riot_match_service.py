@@ -22,21 +22,22 @@ class RiotMatchService:
         riot_schedule = crud.get_schedule("riot_schedule")
         if riot_schedule is None:
             # Save the starting schedule into the database
-            schedule_res_json = self.get_schedule()
-            schedule = schedule_res_json["data"].get("schedule", {})
-            pages = schedule['pages']
-            self.save_schedule(schedule)
+            fetched_matches = self.riot_api_requester.get_matches_from_schedule()
+            for match in fetched_matches:
+                crud.save_match(match)
+
+            schedule_pages = self.riot_api_requester.get_pages_from_schedule()
             riot_schedule_attr = {
                 'schedule_name': "riot_schedule",
                 'older_token_key': None,
-                'current_token_key': pages['newer']
+                'current_token_key': schedule_pages.newer
             }
             riot_schedule_model = Schedule(**riot_schedule_attr)
 
             # Used as a save point if we encounter an error during back prop
             entire_schedule_attr = {
                 'schedule_name': "entire_schedule",
-                'older_token_key': pages['older'],
+                'older_token_key': schedule_pages.older,
                 'current_token_key': None
             }
             entire_schedule_model = Schedule(**entire_schedule_attr)
@@ -55,10 +56,11 @@ class RiotMatchService:
             if older_page_token is None:
                 no_more_schedules = True
                 continue
-            older_schedule_res_json = self.get_schedule(older_page_token)
-            older_schedule = older_schedule_res_json["data"].get("schedule", {})
-            self.save_schedule(older_schedule)
-            older_page_token = older_schedule['pages']['older']
+            fetched_matches = self.riot_api_requester.get_matches_from_schedule(older_page_token)
+            for match in fetched_matches:
+                crud.save_match(match)
+            schedule_pages = self.riot_api_requester.get_pages_from_schedule(older_page_token)
+            older_page_token = schedule_pages.older
 
             entire_schedule_attr = {
                 'schedule_name': "entire_schedule",
@@ -79,60 +81,25 @@ class RiotMatchService:
         schedule_updated = False
         no_new_schedule = False
         while not no_new_schedule:
-            newer_schedule_res_json = self.get_schedule(newer_page_token)
-            newer_schedule = newer_schedule_res_json["data"].get("schedule", {})
-            pages = newer_schedule['pages']
-            newer_page_token = pages['newer']
+            schedule_pages = self.riot_api_requester.get_pages_from_schedule(newer_page_token)
+            newer_page_token = schedule_pages.newer
             if newer_page_token is None:
                 no_new_schedule = True
                 continue
 
-            self.save_schedule(newer_schedule)
+            fetched_matches = self.riot_api_requester.get_matches_from_schedule(newer_page_token)
+            for match in fetched_matches:
+                crud.save_match(match)
+
             schedule_updated = True
             riot_schedule_attr = {
                 'schedule_name': "riot_schedule",
-                'older_token_key': pages['older'],
+                'older_token_key': schedule_pages.older,
                 'current_token_key': newer_page_token
             }
             riot_schedule_model = Schedule(**riot_schedule_attr)
             crud.update_schedule(riot_schedule_model)
         return schedule_updated
-
-    def get_schedule(self, page_token: str = None):
-        if page_token is None:
-            schedule_url = "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
-        else:
-            schedule_url = (
-                "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
-                f"&pageToken={page_token}"
-            )
-        return self.riot_api_requester.make_request(schedule_url)
-
-    def save_schedule(self, schedule: dict):
-        fetched_matches = []
-        events = schedule.get("events", [])
-        for event in events:
-            match = event['match']
-            event_details_url = (
-                f"https://esports-api.lolesports.com/persisted/gw/getEventDetails"
-                f"?hl=en-GB&id={match['id']}"
-            )
-            event_res_json = self.riot_api_requester.make_request(event_details_url)
-            new_match_attrs = {
-                "id": int(match['id']),
-                "start_time": event['startTime'],
-                "block_name": event['blockName'],
-                "league_name": event['league']['name'],
-                "strategy_type": match['strategy']['type'],
-                "strategy_count": match['strategy']['count'],
-                "tournament_id": event_res_json['data']['event']['tournament']['id'],
-                "team_1_name": match['teams'][0]['name'],
-                "team_2_name": match['teams'][1]['name']
-            }
-            new_match = Match(**new_match_attrs)
-            fetched_matches.append(new_match)
-        for new_match in fetched_matches:
-            crud.save_match(new_match)
 
     @staticmethod
     def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:

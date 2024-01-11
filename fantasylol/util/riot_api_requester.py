@@ -186,7 +186,7 @@ class RiotApiRequester:
                 f"No frames fetched for game id {game_id} with time stamp {time_stamp}"
             )
             return player_stats_from_response
-        last_frame = frames[len(frames)-1]
+        last_frame = frames[len(frames) - 1]
         participants = last_frame.get("participants", [])
         for participant in participants:
             new_player_stats = schemas.PlayerGameStatsSchema()
@@ -204,8 +204,62 @@ class RiotApiRequester:
             player_stats_from_response.append(new_player_stats)
         return player_stats_from_response
 
+    def get_pages_from_schedule(self, page_token: str = None) -> schemas.RiotSchedulePages:
+        schedule = self.__get_schedule(page_token)
+        pages = schemas.RiotSchedulePages()
+        pages.older = schedule['pages']['older']
+        pages.newer = schedule['pages']['newer']
+        return pages
 
-def parse_team_metadata(team_metadata: dict, game_id: int):
+    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.MatchSchema]:
+        schedule = self.__get_schedule(page_token)
+        matches_from_response = []
+        events = schedule.get("events", [])
+        for event in events:
+            match = event['match']
+            new_match = schemas.MatchSchema()
+            new_match.id = int(match['id'])
+            new_match.start_time = event['startTime']
+            new_match.block_name = event['blockName']
+            new_match.league_name = event['league']['name']
+            new_match.strategy_type = match['strategy']['type']
+            new_match.strategy_count = match['strategy']['count']
+            new_match.tournament_id = self.get_tournament_id_for_match(new_match.id)
+            new_match.team_1_name = match['teams'][0]['name']
+            new_match.team_2_name = match['teams'][1]['name']
+            matches_from_response.append(new_match)
+        return matches_from_response
+
+    def get_tournament_id_for_match(self, match_id) -> int:
+        url = (
+            "https://esports-api.lolesports.com"
+            f"/persisted/gw/getEventDetails?hl=en-GB&id={match_id}"
+        )
+        response = self.make_request(url)
+        if response.status_code != HTTPStatus.OK:
+            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+
+        res_json = response.json()
+        return int(res_json['data']['event']['tournament']['id'])
+
+    def __get_schedule(self, page_token: str = None) -> dict:
+        if page_token is None:
+            url = "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
+        else:
+            url = (
+                "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
+                f"&pageToken={page_token}"
+            )
+        response = self.make_request(url)
+        if response.status_code != HTTPStatus.OK:
+            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+
+        res_json = response.json()
+        return res_json["data"].get("schedule", {})
+
+
+def parse_team_metadata(team_metadata: dict, game_id: int) \
+        -> List[schemas.PlayerGameMetadataSchema]:
     participant_metadata = team_metadata.get("participantMetadata", [])
     player_metadata_for_team = []
     for participant in participant_metadata:

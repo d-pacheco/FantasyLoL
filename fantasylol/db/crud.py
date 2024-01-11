@@ -66,9 +66,10 @@ def get_tournament_by_id(tournament_id: int) -> Tournament:
 # --------------------------------------------------
 # --------------- Match Operations -----------------
 # --------------------------------------------------
-def save_match(match: Match):
+def save_match(match: schemas.MatchSchema):
+    db_match = Match(**match.model_dump())
     with DatabaseConnection() as db:
-        db.merge(match)
+        db.merge(db_match)
         db.commit()
 
 

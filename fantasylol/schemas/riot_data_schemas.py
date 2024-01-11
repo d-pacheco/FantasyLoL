@@ -304,3 +304,8 @@ class PlayerGameStatsSchema(BaseModel):
         default=None,
         description="The number of enemy wards the player destroyed"
     )
+
+
+class RiotSchedulePages(BaseModel):
+    older: str = Field(default=None)
+    newer: str = Field(default=None)
