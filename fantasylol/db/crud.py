@@ -1,6 +1,5 @@
 from typing import List
-from sqlalchemy import select, text
-from sqlalchemy.orm import aliased
+from sqlalchemy import text
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import (
     League,
