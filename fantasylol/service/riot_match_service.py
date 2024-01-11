@@ -1,10 +1,7 @@
 import logging
 from typing import List
-from datetime import datetime
-from fantasylol.db.database import DatabaseConnection
 from fantasylol.db import crud
 from fantasylol.db.models import Match
-from fantasylol.db.models import Tournament
 from fantasylol.db.models import Schedule
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.schemas.search_parameters import MatchSearchParameters
@@ -136,59 +133,6 @@ class RiotMatchService:
             fetched_matches.append(new_match)
         for new_match in fetched_matches:
             crud.save_match(new_match)
-
-    def fetch_and_store_matchs_from_tournament(
-            self, tournament_id: int) -> List[Match]:
-        logging.info(f"Fetching matches for tournament with id {tournament_id}")
-        request_url = (
-            "https://esports-api.lolesports.com/persisted/gw"
-            f"/getCompletedEvents?hl=en-GB&tournamentId={tournament_id}"
-        )
-        try:
-            res_json = self.riot_api_requester.make_request(request_url)
-            fetched_matches = []
-            events = res_json["data"]["schedule"].get("events", [])
-            for event in events:
-                match = event['match']
-                new_match_attrs = {
-                    "id": int(match['id']),
-                    "start_time": event['startTime'],
-                    "block_name": event['blockName'],
-                    "league_name": event['league']['name'],
-                    "strategy_type": match['strategy']['type'],
-                    "strategy_count": match['strategy']['count'],
-                    "tournament_id": int(tournament_id),
-                    "team_1_name": match['teams'][0]['name'],
-                    "team_2_name": match['teams'][1]['name']
-                }
-                new_match = Match(**new_match_attrs)
-                fetched_matches.append(new_match)
-
-            logging.info(f"Saving fetched matches to db. Match count: {len(fetched_matches)}")
-            for new_match in fetched_matches:
-                crud.save_match(new_match)
-            return fetched_matches
-        except Exception as e:
-            logging.error(f"{str(e)}")
-            raise e
-
-    def get_all_matches(self) -> List[Match]:
-        logging.info("Fetching matches for all saved tournaments")
-        try:
-            fetched_matches = []
-            with DatabaseConnection() as db:
-                stored_tournaments: List[Tournament] = db.query(Tournament).all()
-            min_start_date = datetime(2020, 1, 1)
-            for tournament in stored_tournaments:
-                if min_start_date < datetime.strptime(tournament.start_date, "%Y-%m-%d"):
-                    matches = self.fetch_and_store_matchs_from_tournament(tournament.id)
-                else:
-                    continue
-                for match in matches:
-                    fetched_matches.append(match)
-            return fetched_matches
-        except Exception as e:
-            raise e
 
     @staticmethod
     def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:

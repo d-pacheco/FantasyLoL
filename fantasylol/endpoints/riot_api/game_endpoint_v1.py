@@ -77,28 +77,6 @@ def get_riot_game_by_id(game_id: int):
 
 
 @router.get(
-    path="/fetch-games",
-    description="Fetch live games from riots servers",
-    tags=["Games"],
-    response_model=List[GameSchema],
-    responses={
-        200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [GameSchema.ExampleResponse.example]
-                }
-            }
-        }
-    }
-)
-def fetch_live_games_from_riot():
-    games = game_service.fetch_and_store_live_games()
-    games_response = [GameSchema(**game.to_dict()) for game in games]
-    return games_response
-
-
-@router.get(
     path="/fetch-games-from-matches",
     description="Manually trigger fetch games from match ids job",
     tags=["Manual Job Triggers"]

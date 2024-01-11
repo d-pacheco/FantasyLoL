@@ -89,7 +89,4 @@ def get_riot_league_by_id(league_id: int):
     }
 )
 def fetch_leagues_from_riot():
-    leagues = league_service.fetch_and_store_leagues()
-    leagues_response = [LeagueSchema(**league.to_dict()) for league in leagues]
-
-    return leagues_response
+    return league_service.fetch_and_store_leagues()

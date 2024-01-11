@@ -87,6 +87,4 @@ def get_riot_tournaments_by_id(tournament_id: int):
     }
 )
 def fetch_tournaments_from_riot():
-    tournaments = tournament_service.fetch_and_store_tournaments()
-    tournaments_response = [TournamentSchema(**tournament.to_dict()) for tournament in tournaments]
-    return tournaments_response
+    return tournament_service.fetch_and_store_tournaments()

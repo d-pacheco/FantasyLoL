@@ -12,14 +12,16 @@ from fantasylol.db.models import (
     ProfessionalPlayer,
     Schedule
 )
+from fantasylol.schemas import riot_data_schemas as schemas
 
 
 # --------------------------------------------------
 # --------------- League Operations ----------------
 # --------------------------------------------------
-def save_league(league: League):
+def save_league(league: schemas.LeagueSchema):
+    db_league = League(**league.model_dump())
     with DatabaseConnection() as db:
-        db.merge(league)
+        db.merge(db_league)
         db.commit()
 
 
@@ -40,9 +42,10 @@ def get_league_by_id(league_id: int) -> League:
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------
-def save_tournament(tournament: Tournament):
+def save_tournament(tournament: schemas.TournamentSchema):
+    db_tournament = Tournament(**tournament.model_dump())
     with DatabaseConnection() as db:
-        db.merge(tournament)
+        db.merge(db_tournament)
         db.commit()
 
 
@@ -108,7 +111,7 @@ def save_game(game: Game):
         db.commit()
 
 
-def bulk_save_games(games: List[Game]):
+def bulk_save_games(games: List[schemas.GameSchema]):
     with DatabaseConnection() as db:
         db.bulk_save_objects(games)
         db.commit()
@@ -131,9 +134,10 @@ def get_game_by_id(game_id: int) -> Game:
 # --------------------------------------------------
 # ---------------- Team Operations ----------------
 # --------------------------------------------------
-def save_team(team: ProfessionalTeam):
+def save_team(team: schemas.ProfessionalTeamSchema):
+    db_team = ProfessionalTeam(**team.model_dump())
     with DatabaseConnection() as db:
-        db.merge(team)
+        db.merge(db_team)
         db.commit()
 
 
@@ -154,9 +158,10 @@ def get_team_by_id(team_id: int) -> ProfessionalTeam:
 # --------------------------------------------------
 # --------------- Player Operations --------------
 # --------------------------------------------------
-def save_player(player: ProfessionalPlayer):
+def save_player(player: schemas.ProfessionalPlayerSchema):
+    db_player = ProfessionalPlayer(**player.model_dump())
     with DatabaseConnection() as db:
-        db.merge(player)
+        db.merge(db_player)
         db.commit()
 
 
@@ -177,9 +182,10 @@ def get_player_by_id(player_id: int) -> ProfessionalPlayer:
 # --------------------------------------------------
 # ----------- Player Metadata Operations -----------
 # --------------------------------------------------
-def save_player_metadata(player_metadata: PlayerGameMetadata):
+def save_player_metadata(player_metadata: schemas.PlayerGameMetadataSchema):
+    db_player_metadata = PlayerGameMetadata(**player_metadata.model_dump())
     with DatabaseConnection() as db:
-        db.merge(player_metadata)
+        db.merge(db_player_metadata)
         db.commit()
 
 
@@ -205,9 +211,10 @@ def get_game_ids_without_player_metadata():
 # --------------------------------------------------
 # ------------- Player Stats Operations ------------
 # --------------------------------------------------
-def save_player_stats(player_stats: PlayerGameStats):
+def save_player_stats(player_stats: schemas.PlayerGameStatsSchema):
+    db_player_stats = PlayerGameStats(**player_stats.model_dump())
     with DatabaseConnection() as db:
-        db.merge(player_stats)
+        db.merge(db_player_stats)
         db.commit()
 
 
