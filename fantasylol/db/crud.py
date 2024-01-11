@@ -84,26 +84,20 @@ def get_match_by_id(match_id: int) -> Match:
         return db.query(Match).filter(Match.id == match_id).first()
 
 
-def get_matches_without_games() -> List[Match]:
-    game_alias = aliased(Game)
-
-    # Query to get match IDs without any associated games
+def get_matches_ids_without_games() -> List[int]:
+    sql_query = """
+        SELECT matches.id
+        FROM matches
+        LEFT JOIN games ON matches.id = games.match_id
+        WHERE games.match_id IS NULL;
+    """
     with DatabaseConnection() as db:
-        subquery = (
-            select([game_alias.match_id])
-            .where(game_alias.match_id.isnot(None))
-            .distinct()
-            .alias()
-        )
-
-        # Query to get match IDs without associated games
-        matches_without_games = (
-            db.query(Match.id)
-            .outerjoin(subquery, Match.id == subquery.c.match_id)
-            .filter(subquery.c.match_id.is_(None))
-            .all()
-        )
-    return matches_without_games
+        result = db.execute(text(sql_query))
+        rows = result.fetchall()
+    match_ids = []
+    for row in rows:
+        match_ids.append(row[0])
+    return match_ids
 
 
 # --------------------------------------------------
