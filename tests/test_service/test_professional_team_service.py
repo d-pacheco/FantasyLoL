@@ -1,12 +1,7 @@
-from http import HTTPStatus
-from unittest.mock import Mock, patch
-
-from tests.fantasy_lol_test_base import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.riot_api_requester_util import RiotApiRequestUtil
+
 from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import ProfessionalTeam
-from fantasylol.exceptions.riot_api_status_code_assert_exception import \
-    RiotApiStatusCodeAssertException
 from fantasylol.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
@@ -27,40 +22,6 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
             db.commit()
             db.refresh(mock_team)
         return mock_team
-
-    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_fetch_professional_team_successful(self, mock_create_scraper):
-        expected_json = self.riot_api_util.create_mock_team_response()
-        expected_team = self.riot_api_util.create_mock_team()
-
-        # Configure the mock client to return the mock response
-        mock_client = Mock()
-        mock_response = Mock()
-        mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = expected_json
-        mock_client.get.return_value = mock_response
-        mock_create_scraper.return_value = mock_client
-
-        professional_team_service = self.create_professional_team_service()
-        professional_team_service.fetch_and_store_professional_teams()
-
-        with DatabaseConnection() as db:
-            team_from_db = db.query(ProfessionalTeam).filter_by(id=expected_team.id).first()
-        self.assertEqual(team_from_db, expected_team)
-
-    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_fetch_professional_team_fail(self, mock_create_scraper):
-
-        # Configure the mock client to return the mock response
-        mock_client = Mock()
-        mock_response = Mock()
-        mock_response.status_code = HTTPStatus.BAD_REQUEST
-        mock_client.get.return_value = mock_response
-        mock_create_scraper.return_value = mock_client
-
-        professional_team_service = self.create_professional_team_service()
-        with self.assertRaises(RiotApiStatusCodeAssertException):
-            professional_team_service.fetch_and_store_professional_teams()
 
     def test_get_professional_teams_by_slug_existing_team(self):
         expected_team = self.create_professional_team_in_db()

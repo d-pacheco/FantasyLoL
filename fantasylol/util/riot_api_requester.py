@@ -1,8 +1,8 @@
-from typing import List
 import logging
 import cloudscraper
 from http import HTTPStatus
 from requests import Response
+from typing import List
 
 from fantasylol.schemas import riot_data_schemas as schemas
 
@@ -46,6 +46,9 @@ class RiotApiRequester:
                 response.status_code,
                 event_details_url
             )
+        if response.status_code == HTTPStatus.NO_CONTENT:
+            return []
+
         res_json = response.json()
         event = res_json['data']['event']
         games = event['match']['games']
@@ -53,10 +56,10 @@ class RiotApiRequester:
         games_from_response = []
         for game in games:
             new_game = schemas.GameSchema()
-            new_game.id = game['id']
+            new_game.id = int(game['id'])
             new_game.state = game['state']
-            new_game.number = game['number']
-            new_game.match_id = event['id']
+            new_game.number = int(game['number'])
+            new_game.match_id = int(event['id'])
             games_from_response.append(new_game)
         return games_from_response
 
