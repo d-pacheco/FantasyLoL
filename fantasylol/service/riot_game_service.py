@@ -54,8 +54,7 @@ class RiotGameService:
         logger.info("Starting fetch games from match ids job")
         while retry_count <= max_retries and not job_completed:
             try:
-                matches_without_games = crud.get_matches_without_games()
-                match_ids = [match.id for match in matches_without_games]
+                match_ids = crud.get_matches_ids_without_games()
 
                 for i in range(0, len(match_ids), batch_size):
                     batch = match_ids[i:i + batch_size]
@@ -73,7 +72,7 @@ class RiotGameService:
             logger.error(f"Fetch games from match ids job failed: {error}")
 
     def process_batch_match_ids(self, match_ids: List[int]):
-        logger.info("Processes batch of match ids: ", match_ids)
+        logger.info(f"Processes batch of match ids: {match_ids}")
         fetched_games = []
         for match_id in match_ids:
             event_details_url = (
