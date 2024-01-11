@@ -1,16 +1,10 @@
-from http import HTTPStatus
-from unittest.mock import Mock, patch
-
 from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import Match
-from fantasylol.exceptions.riot_api_status_code_assert_exception import \
-    RiotApiStatusCodeAssertException
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
 from fantasylol.service.riot_match_service import RiotMatchService
-from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.fantasy_lol_test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
-from tests.riot_api_requester_util import RiotApiRequestUtil
 from fantasylol.schemas.search_parameters import MatchSearchParameters
+
+from tests.fantasy_lol_test_base import FantasyLolTestBase
+from tests.riot_api_requester_util import RiotApiRequestUtil
 
 
 class MatchServiceTest(FantasyLolTestBase):
