@@ -4,6 +4,7 @@ from typing import List
 
 from fantasylol.db import crud
 from fantasylol.db.models import Tournament
+from fantasylol.schemas.riot_data_schemas import TournamentSchema
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
@@ -16,33 +17,17 @@ class RiotTournamentService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_tournaments(self) -> List[Tournament]:
+    def fetch_and_store_tournaments(self) -> List[TournamentSchema]:
         logger.info("Fetching and storing tournaments from riot's api")
-        request_url = "https://esports-api.lolesports.com/persisted/gw" \
-                      "/getTournamentsForLeague?hl=en-GB&leagueId={id}"
         try:
-            league_ids = []
             stored_leagues = crud.get_leagues()
-            for league in stored_leagues:
-                league_ids.append(league.id)
 
             fetched_tournaments = []
-            for league_id in league_ids:
-                res_json = self.riot_api_requester.make_request(request_url.format(id=league_id))
-                tournaments = res_json['data']['leagues'][0]['tournaments']
+            for league in stored_leagues:
+                tournaments = self.riot_api_requester.get_tournament_for_league(league.id)
                 for tournament in tournaments:
-                    tournament_attrs = {
-                        "id": int(tournament['id']),
-                        "slug": tournament['slug'],
-                        "start_date": tournament['startDate'],
-                        "end_date": tournament['endDate'],
-                        "league_id": league_id
-                    }
-                    new_tournament = Tournament(**tournament_attrs)
-                    fetched_tournaments.append(new_tournament)
-
-            for new_tournament in fetched_tournaments:
-                crud.save_tournament(new_tournament)
+                    crud.save_tournament(tournament)
+                    fetched_tournaments.append(tournament)
             return fetched_tournaments
         except Exception as e:
             logger.error(f"{str(e)}")

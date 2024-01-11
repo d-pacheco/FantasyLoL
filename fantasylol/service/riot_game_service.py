@@ -15,36 +15,6 @@ class RiotGameService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_live_games(self) -> List[Game]:
-        logger.info("Fetching and storing live games from riot's api")
-        request_url = "https://esports-api.lolesports.com/persisted/gw/getLive?hl=en-GB"
-        try:
-            res_json = self.riot_api_requester.make_request(request_url)
-            fetched_games = []
-            events = res_json["data"]["schedule"].get("events", [])
-            for event in events:
-                if event['type'] != 'match':
-                    continue
-                games = event['match']['games']
-                for game in games:
-                    if game['state'] != 'inProgress':
-                        continue
-                    new_game_attrs = {
-                        "id": game['id'],
-                        "state": game['state'],
-                        "number": game['number'],
-                        "match_id": event['id']
-                    }
-                    new_game = Game(**new_game_attrs)
-                    fetched_games.append(new_game)
-
-            for new_game in fetched_games:
-                crud.save_game(new_game)
-            return fetched_games
-        except Exception as e:
-            logger.error(f"{str(e)}")
-            raise e
-
     def fetch_and_store_games_from_match_ids(self, batch_size: int = 25):
         max_retries = 3
         retry_count = 0
@@ -73,25 +43,12 @@ class RiotGameService:
 
     def process_batch_match_ids(self, match_ids: List[int]):
         logger.info(f"Processes batch of match ids: {match_ids}")
-        fetched_games = []
+        db_games = []
         for match_id in match_ids:
-            event_details_url = (
-                f"https://esports-api.lolesports.com/persisted/gw/getEventDetails"
-                f"?hl=en-GB&id={match_id}"
-            )
-            event_res_json = self.riot_api_requester.make_request(event_details_url)
-            event = event_res_json['data']['event']
-            games = event['match']['games']
-            for game in games:
-                new_game_attrs = {
-                    "id": game['id'],
-                    "state": game['state'],
-                    "number": game['number'],
-                    "match_id": event['id']
-                }
-                new_game = Game(**new_game_attrs)
-                fetched_games.append(new_game)
-        crud.bulk_save_games(fetched_games)
+            fetched_games = self.riot_api_requester.get_games_from_event_details(match_id)
+            for game in fetched_games:
+                db_games.append(Game(**game.dict()))
+        crud.bulk_save_games(db_games)
 
     @staticmethod
     def get_games(search_parameters: GameSearchParameters) -> List[Game]:

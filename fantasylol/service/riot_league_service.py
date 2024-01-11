@@ -1,5 +1,7 @@
 import logging
 from typing import List
+
+from fantasylol.schemas import riot_data_schemas
 from fantasylol.db import crud
 from fantasylol.db.models import League
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
@@ -13,27 +15,12 @@ class RiotLeagueService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_leagues(self) -> List[League]:
+    def fetch_and_store_leagues(self) -> List[riot_data_schemas.LeagueSchema]:
         logger.info("Fetching and storing leagues from riot's api")
-        request_url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         try:
-            res_json = self.riot_api_requester.make_request(request_url)
-            fetched_leagues = []
-
-            for league in res_json['data']['leagues']:
-                league_attrs = {
-                    "id": int(league['id']),
-                    "slug": league['slug'],
-                    "name": league['name'],
-                    "region": league['region'],
-                    "image": league['image'],
-                    "priority": league['priority']
-                }
-                new_league = League(**league_attrs)
-                fetched_leagues.append(new_league)
-
-            for new_league in fetched_leagues:
-                crud.save_league(new_league)
+            fetched_leagues = self.riot_api_requester.get_leagues()
+            for league in fetched_leagues:
+                crud.save_league(league)
             return fetched_leagues
         except Exception as e:
             logger.error(f"{str(e)}")

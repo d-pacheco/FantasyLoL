@@ -32,7 +32,7 @@ class GameStatsServiceTest(FantasyLolTestBase):
 
         game_stats_service = create_game_stats_service()
         game_stats_service.fetch_and_store_player_metadata_for_game(
-            self.riot_api_util.mock_game_1_id
+            int(self.riot_api_util.mock_game_1_id)
         )
 
         with DatabaseConnection() as db:

@@ -92,8 +92,5 @@ def get_professional_team_by_id(professional_player_id: int):
             }
         }
     })
-def fetch_professional_teams_from_riot():
-    professional_players = professional_player_service.fetch_and_store_professional_players()
-    professional_players_response = [ProfessionalPlayerSchema(
-        **player.to_dict()) for player in professional_players]
-    return professional_players_response
+def fetch_professional_players_from_riot():
+    return professional_player_service.fetch_and_store_professional_players()

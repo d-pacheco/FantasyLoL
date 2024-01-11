@@ -6,6 +6,7 @@ from fantasylol.exceptions.professional_player_not_found_exception import \
 from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.search_parameters import PlayerSearchParameters
+from fantasylol.schemas.riot_data_schemas import ProfessionalPlayerSchema
 
 logger = logging.getLogger('fantasy-lol')
 
@@ -14,25 +15,12 @@ class RiotProfessionalPlayerService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_professional_players(self) -> List[ProfessionalPlayer]:
+    def fetch_and_store_professional_players(self) -> List[ProfessionalPlayerSchema]:
         logger.info("Fetching and storing professional players from riot's api")
-        request_url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         try:
-            res_json = self.riot_api_requester.make_request(request_url)
-            fetched_players = []
-            for team in res_json['data']['teams']:
-                for player in team['players']:
-                    player_attrs = {
-                        "id": int(player['id']),
-                        "summoner_name": player['summonerName'],
-                        "image": player['image'],
-                        "role": player['role'],
-                        "team_id": int(team['id'])
-                    }
-                    new_professional_player = ProfessionalPlayer(**player_attrs)
-                    fetched_players.append(new_professional_player)
-            for new_professional_player in fetched_players:
-                crud.save_player(new_professional_player)
+            fetched_players = self.riot_api_requester.get_players()
+            for player in fetched_players:
+                crud.save_player(player)
             return fetched_players
         except Exception as e:
             logger.error(f"{str(e)}")

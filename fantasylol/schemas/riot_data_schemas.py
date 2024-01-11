@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.player_role import PlayerRole
 
 
 class LeagueSchema(BaseModel):
@@ -233,3 +234,78 @@ class ProfessionalPlayerSchema(BaseModel):
             "role": "jungle",
             "team_id": 987654321
         }
+
+
+class PlayerGameMetadataSchema(BaseModel):
+    game_id: int = Field(
+        default=None,
+        description="The id of the game this players metadata is for"
+    )
+    player_id: int = Field(
+        default=None,
+        description="The id of the player given by riot"
+    )
+    participant_id: int = Field(
+        default=None,
+        description="The participant id for the game given by riot"
+    )
+    champion_id: str = Field(
+        default=None,
+        description="The id of the champion the player played in the game"
+    )
+    role: PlayerRole = Field(
+        default=None,
+        description="The role the player played in the game"
+    )
+
+
+class PlayerGameStatsSchema(BaseModel):
+    game_id: int = Field(
+        default=None,
+        description="The id of the game this players metadata is for"
+    )
+    participant_id: int = Field(
+        default=None,
+        description="The participant id for the game given by riot"
+    )
+    kills: int = Field(
+        default=None,
+        description="The number of kills the player got"
+    )
+    deaths: int = Field(
+        default=None,
+        description="The number of deaths for the player"
+    )
+    assists: int = Field(
+        default=None,
+        description="The number of assists for the players"
+    )
+    total_gold: int = Field(
+        default=None,
+        description="The total gold the player had"
+    )
+    creep_score: int = Field(
+        default=None,
+        description="The creep score the player had"
+    )
+    kill_participation: int = Field(
+        default=None,
+        description="The kill participation the player had"
+    )
+    champion_damage_share: int = Field(
+        default=None,
+        description="The damage percentage of the team the player did to champions"
+    )
+    wards_placed: int = Field(
+        default=None,
+        description="The number of wards the player placed"
+    )
+    wards_destroyed: int = Field(
+        default=None,
+        description="The number of enemy wards the player destroyed"
+    )
+
+
+class RiotSchedulePages(BaseModel):
+    older: str = Field(default=None)
+    newer: str = Field(default=None)
