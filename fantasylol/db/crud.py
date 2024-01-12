@@ -113,9 +113,21 @@ def save_game(game: Game):
 
 
 def bulk_save_games(games: List[schemas.GameSchema]):
+    db_games = []
+    for game in games:
+        db_games.append(Game(**game.model_dump()))
     with DatabaseConnection() as db:
-        db.bulk_save_objects(games)
+        db.bulk_save_objects(db_games)
         db.commit()
+
+
+def update_has_game_data(game_id: int, has_game_data: bool):
+    with DatabaseConnection() as db:
+        db_game: Game = db.query(Game).filter(Game.id == game_id).first()
+        if db_game is not None:
+            db_game.has_game_data = has_game_data
+            db.merge(db_game)
+            db.commit()
 
 
 def get_games(filters: list = None) -> List[Game]:
@@ -196,6 +208,7 @@ def get_game_ids_without_player_metadata():
         FROM games
         LEFT JOIN player_game_metadata ON games.id = player_game_metadata.game_id
         WHERE games.state in ('COMPLETED', 'INPROGRESS')
+            AND (games.has_game_data = True)
         GROUP BY games.id
         HAVING COUNT(player_game_metadata.game_id) <> 10
         OR COUNT(player_game_metadata.game_id) IS NULL;
@@ -226,6 +239,7 @@ def get_game_ids_to_fetch_player_stats_for():
         LEFT JOIN player_game_stats ON games.id = player_game_stats.game_id
         WHERE (games.state = 'COMPLETED'
                 AND (SELECT COUNT(*) FROM player_game_stats WHERE game_id = games.id) < 10)
+                AND (games.has_game_data = True)
            OR games.state = 'INPROGRESS'
         GROUP BY games.id
     """

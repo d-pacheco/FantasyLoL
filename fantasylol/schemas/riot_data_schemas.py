@@ -142,6 +142,10 @@ class GameSchema(BaseModel):
         default=None,
         description="The ID of the match that the game is in"
     )
+    has_game_data: bool = Field(
+        default=True,
+        description="If this game has player metadata and stats available"
+    )
 
     class ExampleResponse:
         example = {

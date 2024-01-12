@@ -159,8 +159,14 @@ class RiotApiRequester:
             f"/livestats/v1/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
         )
         response = self.make_request(url)
-        if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+        if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
+            raise RiotApiStatusCodeAssertException(
+                f"{HTTPStatus.OK} or {HTTPStatus.NO_CONTENT}",
+                response.status_code,
+                url
+            )
+        if response.status_code == HTTPStatus.NO_CONTENT:
+            return []
 
         res_json = response.json()
         game_metadata = res_json.get("gameMetadata", {})
@@ -178,8 +184,14 @@ class RiotApiRequester:
             f"/livestats/v1/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
         )
         response = self.make_request(url)
-        if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+        if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
+            raise RiotApiStatusCodeAssertException(
+                f"{HTTPStatus.OK} or {HTTPStatus.NO_CONTENT}",
+                response.status_code,
+                url
+            )
+        if response.status_code == HTTPStatus.NO_CONTENT:
+            return []
 
         res_json = response.json()
         player_stats_from_response = []
