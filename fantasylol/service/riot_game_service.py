@@ -43,12 +43,11 @@ class RiotGameService:
 
     def process_batch_match_ids(self, match_ids: List[int]):
         logger.info(f"Processes batch of match ids: {match_ids}")
-        db_games = []
+        all_fetched_games = []
         for match_id in match_ids:
             fetched_games = self.riot_api_requester.get_games_from_event_details(match_id)
-            for game in fetched_games:
-                db_games.append(Game(**game.dict()))
-        crud.bulk_save_games(db_games)
+            all_fetched_games = all_fetched_games + fetched_games
+        crud.bulk_save_games(all_fetched_games)
 
     @staticmethod
     def get_games(search_parameters: GameSearchParameters) -> List[Game]:

@@ -2,6 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Enum
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
 from fantasylol.db.database import Base
@@ -124,6 +125,7 @@ class Game(Base):
     state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
     match_id = Column(Integer, ForeignKey("matches.id"))
+    has_game_data = Column(Boolean, default=True)
 
     def __eq__(self, other):
         if not isinstance(other, Game):
