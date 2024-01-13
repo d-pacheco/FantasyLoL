@@ -63,6 +63,27 @@ class RiotApiRequester:
             games_from_response.append(new_game)
         return games_from_response
 
+    def get_games(self, game_ids: List[int]) -> List[schemas.GetGamesResponseSchema]:
+        game_ids_str = ','.join(map(str, game_ids))
+        url = (
+            f"https://esports-api.lolesports.com"
+            f"/persisted/gw/getGames?hl=en-GB&id={game_ids_str}"
+        )
+        response = self.make_request(url)
+        if response.status_code != HTTPStatus.OK:
+            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+
+        res_json = response.json()
+        games = res_json['data']['games']
+        games_from_response = []
+        for game in games:
+            game_response = schemas.GetGamesResponseSchema(
+                id=int(game['id']),
+                state=game['state']
+            )
+            games_from_response.append(game_response)
+        return games_from_response
+
     def get_leagues(self) -> List[schemas.LeagueSchema]:
         url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         response = self.make_request(url)

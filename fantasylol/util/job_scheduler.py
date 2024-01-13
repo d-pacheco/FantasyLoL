@@ -67,6 +67,11 @@ class JobScheduler:
             job_id='games_from_match_ids_job'
         )
         self.schedule_job(
+            job_function=self.riot_game_service.update_game_states_job,
+            job_config=Config.GAME_SERVICE_SCHEDULE,
+            job_id='update_game_states_job'
+        )
+        self.schedule_job(
             job_function=self.riot_game_stats_service.run_player_metadata_job,
             job_config=Config.GAME_STATS_SERVICE_SCHEDULE,
             job_id='player_metadata_job'

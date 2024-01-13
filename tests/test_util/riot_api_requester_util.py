@@ -1,6 +1,18 @@
 import random
+from datetime import datetime, timedelta
+import pytz
+
 from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.schemas.game_state import GameState
+
+future_start_date = datetime.now(pytz.utc) + timedelta(days=5)
+formatted_future_start_date = future_start_date.strftime("%Y-%m-%d")
+
+future_end_date = datetime.now(pytz.utc) + timedelta(days=10)
+formatted_future_end_date = future_end_date.strftime("%Y-%m-%d")
+
+future_match_date = datetime.now(pytz.utc) + timedelta(days=7)
+formatted_future_match_datetime = future_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class RiotApiRequesterUtil:
@@ -19,6 +31,14 @@ class RiotApiRequesterUtil:
         slug="mock_slug_2023",
         start_date="2023-01-01",
         end_date="2023-02-03",
+        league_id=league_fixture.id
+    )
+
+    future_tournament_fixture = schemas.TournamentSchema(
+        id=random.randint(100000, 999999),
+        slug="future_slug",
+        start_date=formatted_future_start_date,
+        end_date=formatted_future_end_date,
         league_id=league_fixture.id
     )
 
@@ -58,24 +78,48 @@ class RiotApiRequesterUtil:
         team_2_name=team_2_fixture.name
     )
 
-    game_1_fixture = schemas.GameSchema(
+    future_match_fixture = schemas.MatchSchema(
+        id=random.randint(100000, 999999),
+        start_time=formatted_future_match_datetime,
+        block_name="futureBlockName",
+        league_name=league_fixture.name,
+        strategy_type="bestOf",
+        strategy_count=3,
+        tournament_id=tournament_fixture.id,
+        team_1_name=team_1_fixture.name,
+        team_2_name=team_2_fixture.name
+    )
+
+    game_1_fixture_completed = schemas.GameSchema(
         id=random.randint(100000, 999999),
         state=GameState.COMPLETED,
         number=1,
         match_id=match_fixture.id
     )
 
-    game_2_fixture = schemas.GameSchema(
+    get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
+        id=game_1_fixture_completed.id,
+        state=game_1_fixture_completed.state
+    )
+
+    game_2_fixture_inprogress = schemas.GameSchema(
         id=random.randint(100000, 999999),
-        state=GameState.COMPLETED,
+        state=GameState.INPROGRESS,
         number=2,
         match_id=match_fixture.id
     )
 
-    game_3_fixture = schemas.GameSchema(
+    game_3_fixture_unstarted = schemas.GameSchema(
+        id=random.randint(100000, 999999),
+        state=GameState.UNSTARTED,
+        number=3,
+        match_id=match_fixture.id
+    )
+
+    game_4_fixture_unneeded = schemas.GameSchema(
         id=random.randint(100000, 999999),
         state=GameState.UNNEEDED,
-        number=3,
+        number=4,
         match_id=match_fixture.id
     )
 
@@ -264,9 +308,9 @@ class RiotApiRequesterUtil:
                         ],
                         "games": [
                             {
-                                "number": self.game_1_fixture.number,
-                                "id": str(self.game_1_fixture.id),
-                                "state": self.game_1_fixture.state.value,
+                                "number": self.game_1_fixture_completed.number,
+                                "id": str(self.game_1_fixture_completed.id),
+                                "state": self.game_1_fixture_completed.state.value,
                                 "teams": [
                                     {
                                         "id": str(self.team_1_fixture.id),
@@ -280,9 +324,9 @@ class RiotApiRequesterUtil:
                                 "vods": []
                             },
                             {
-                                "number": self.game_2_fixture.number,
-                                "id": str(self.game_2_fixture.id),
-                                "state": self.game_2_fixture.state.value,
+                                "number": self.game_2_fixture_inprogress.number,
+                                "id": str(self.game_2_fixture_inprogress.id),
+                                "state": self.game_2_fixture_inprogress.state.value,
                                 "teams": [
                                     {
                                         "id": str(self.team_1_fixture.id),
@@ -296,9 +340,9 @@ class RiotApiRequesterUtil:
                                 "vods": []
                             },
                             {
-                                "number": self.game_3_fixture.number,
-                                "id": str(self.game_3_fixture.id),
-                                "state": self.game_3_fixture.state.value,
+                                "number": self.game_3_fixture_unstarted.number,
+                                "id": str(self.game_3_fixture_unstarted.id),
+                                "state": self.game_3_fixture_unstarted.state.value,
                                 "teams": [
                                     {
                                         "id": str(self.team_2_fixture.id),
@@ -315,5 +359,19 @@ class RiotApiRequesterUtil:
                     },
                     "streams": []
                 }
+            }
+        }
+
+    def get_games_response(self):
+        return {
+            "data": {
+                "games": [
+                    {
+                        "id": str(self.game_1_fixture_completed.id),
+                        "state": self.game_1_fixture_completed.state.value,
+                        "number": self.game_1_fixture_completed.number,
+                        "vods": []
+                    }
+                ]
             }
         }

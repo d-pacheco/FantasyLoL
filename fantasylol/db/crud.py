@@ -107,8 +107,9 @@ def get_matches_ids_without_games() -> List[int]:
 # ---------------- Game Operations -----------------
 # --------------------------------------------------
 def save_game(game: Game):
+    db_game = Game(**game.model_dump())
     with DatabaseConnection() as db:
-        db.merge(game)
+        db.merge(db_game)
         db.commit()
 
 
@@ -130,6 +131,15 @@ def update_has_game_data(game_id: int, has_game_data: bool):
             db.commit()
 
 
+def update_game_state(game_id: int, state: str):
+    with DatabaseConnection() as db:
+        db_game: Game = db.query(Game).filter(Game.id == game_id).first()
+        if db_game is not None:
+            db_game.state = state
+            db.merge(db_game)
+            db.commit()
+
+
 def get_games(filters: list = None) -> List[Game]:
     with DatabaseConnection() as db:
         if filters:
@@ -137,6 +147,23 @@ def get_games(filters: list = None) -> List[Game]:
         else:
             query = db.query(Game)
         return query.all()
+
+
+def get_games_to_check_state() -> List[int]:
+    sql_query = """
+        SELECT games.id
+        FROM games
+        JOIN matches ON games.match_id = matches.id
+        WHERE matches.start_time < strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        AND games.state != 'COMPLETED' AND games.state != 'UNNEEDED'
+    """
+    with DatabaseConnection() as db:
+        result = db.execute(text(sql_query))
+        rows = result.fetchall()
+    game_ids = []
+    for row in rows:
+        game_ids.append(row[0])
+    return game_ids
 
 
 def get_game_by_id(game_id: int) -> Game:

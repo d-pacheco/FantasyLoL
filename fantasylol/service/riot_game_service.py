@@ -49,6 +49,31 @@ class RiotGameService:
             all_fetched_games = all_fetched_games + fetched_games
         crud.bulk_save_games(all_fetched_games)
 
+    def update_game_states_job(self):
+        max_retries = 3
+        retry_count = 0
+        error = None
+        job_completed = False
+
+        logger.info("Starting update game states job")
+        while retry_count <= max_retries and not job_completed:
+            try:
+                game_ids = crud.get_games_to_check_state()
+                games = self.riot_api_requester.get_games(game_ids)
+                for game in games:
+                    crud.update_game_state(game.id, game.state)
+
+                job_completed = True
+            except FantasyLolException as e:
+                retry_count += 1
+                error = e
+                logger.warning(f"An error occurred during update game states job."
+                               f" Retry attempt: {retry_count}")
+        if job_completed:
+            logger.info("Update game states job completed")
+        else:
+            logger.error(f"Update game states job failed: {error}")
+
     @staticmethod
     def get_games(search_parameters: GameSearchParameters) -> List[Game]:
         filters = []

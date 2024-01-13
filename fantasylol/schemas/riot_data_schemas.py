@@ -156,6 +156,11 @@ class GameSchema(BaseModel):
         }
 
 
+class GetGamesResponseSchema(BaseModel):
+    id: int = Field()
+    state: GameState = Field()
+
+
 class ProfessionalTeamSchema(BaseModel):
     id: int = Field(
         default=None,
