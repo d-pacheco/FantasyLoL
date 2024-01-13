@@ -19,7 +19,7 @@ get_leagues_mock_response = {
     }
 }
 
-get_tournaments_for_league_response ={
+get_tournaments_for_league_response = {
     "data": {
         "leagues": [
             {

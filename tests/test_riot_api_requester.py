@@ -55,9 +55,10 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         # Arrange
         expected_tournament = test_fixtures.tournament_fixture
 
+        expected_json = riot_api_requester_util.get_tournaments_for_league_response
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = riot_api_requester_util.get_tournaments_for_league_response
+        mock_response.json.return_value = expected_json
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -91,9 +92,10 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         # Arrange
         expected_tournament = test_fixtures.tournament_fixture
 
+        expected_json = riot_api_requester_util.get_tournaments_for_league_response
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = riot_api_requester_util.get_tournaments_for_league_response
+        mock_response.json.return_value = expected_json
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
