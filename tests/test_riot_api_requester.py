@@ -172,9 +172,9 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     def test_get_games_from_event_details_successful(self, mock_cloud_scraper):
         # Arrange
         expected_games = [
-            self.riot_api_util.game_1_fixture,
-            self.riot_api_util.game_2_fixture,
-            self.riot_api_util.game_3_fixture
+            self.riot_api_util.game_1_fixture_completed,
+            self.riot_api_util.game_2_fixture_inprogress,
+            self.riot_api_util.game_3_fixture_unstarted
         ]
 
         mock_response = Mock()
@@ -227,3 +227,41 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         # Assert
         self.assertIsInstance(games, list)
         self.assertEqual(0, len(games))
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_games_successful(self, mock_cloud_scraper):
+        # Arrange
+        expected_get_games_response = self.riot_api_util.get_games_response_game_1_fixture
+        game_ids_to_get = [self.riot_api_util.game_1_fixture_completed.id]
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.json.return_value = self.riot_api_util.get_games_response()
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        get_games_responses = riot_api_requester.get_games(game_ids_to_get)
+
+        # Assert
+        self.assertIsInstance(get_games_responses, list)
+        self.assertEqual(1, len(get_games_responses))
+        self.assertEqual(expected_get_games_response, get_games_responses[0])
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_games_status_code_assertion(self, mock_cloud_scraper):
+        # Arrange
+        game_ids_to_get = [self.riot_api_util.game_1_fixture_completed.id]
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.BAD_REQUEST
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        with self.assertRaises(RiotApiStatusCodeAssertException):
+            riot_api_requester.get_games(game_ids_to_get)

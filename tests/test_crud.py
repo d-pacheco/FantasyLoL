@@ -1,6 +1,9 @@
 from fantasylol.db import crud
+from fantasylol.schemas.game_state import GameState
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
+from tests.test_util import db_util
+from tests.test_util.riot_api_requester_util import RiotApiRequesterUtil
 from tests.test_util.game_test_util import GameTestUtil
 from tests.test_util.game_stats_test_util import GameStatsTestUtil
 
@@ -84,3 +87,151 @@ class CrudTest(FantasyLolTestBase):
         game_ids = crud.get_game_ids_to_fetch_player_stats_for()
         self.assertIsInstance(game_ids, list)
         self.assertEqual(0, len(game_ids))
+
+    # --------------------------------------------------
+    # ---------------- Game Operations -----------------
+    # --------------------------------------------------
+    def test_get_games_to_check_status_inprogress_game(self):
+        # Arrange
+        match_in_past = RiotApiRequesterUtil.match_fixture
+        db_util.save_match(match_in_past)
+        inprogress_game = RiotApiRequesterUtil.game_2_fixture_inprogress
+        db_util.save_game(inprogress_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(1, len(game_ids))
+        self.assertEqual(inprogress_game.id, game_ids[0])
+
+    def test_get_games_to_check_status_unstarted_game(self):
+        # Arrange
+        match_in_past = RiotApiRequesterUtil.match_fixture
+        db_util.save_match(match_in_past)
+        unstarted_game = RiotApiRequesterUtil.game_3_fixture_unstarted
+        db_util.save_game(unstarted_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(1, len(game_ids))
+        self.assertEqual(unstarted_game.id, game_ids[0])
+
+    def test_get_games_to_check_status_completed_game(self):
+        # Arrange
+        match_in_past = RiotApiRequesterUtil.match_fixture
+        db_util.save_match(match_in_past)
+        completed_game = RiotApiRequesterUtil.game_1_fixture_completed
+        db_util.save_game(completed_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_get_games_to_check_status_unneeded_game(self):
+        # Arrange
+        match_in_past = RiotApiRequesterUtil.match_fixture
+        db_util.save_match(match_in_past)
+        unneeded_game = RiotApiRequesterUtil.game_4_fixture_unneeded
+        db_util.save_game(unneeded_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_get_games_to_check_status_inprogress_game_future_match(self):
+        # This shouldn't be possible, but testing the edge case
+        # Arrange
+        future_match = RiotApiRequesterUtil.future_match_fixture
+        db_util.save_match(future_match)
+        inprogress_game = RiotApiRequesterUtil.game_2_fixture_inprogress
+        db_util.save_game(inprogress_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_get_games_to_check_status_unstarted_game_future_match(self):
+        # Arrange
+        future_match = RiotApiRequesterUtil.future_match_fixture
+        db_util.save_match(future_match)
+        unstarted_game = RiotApiRequesterUtil.game_3_fixture_unstarted
+        db_util.save_game(unstarted_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_get_games_to_check_status_completed_game_future_match(self):
+        # This shouldn't be possible, but testing the edge case
+        # Arrange
+        future_match = RiotApiRequesterUtil.future_match_fixture
+        db_util.save_match(future_match)
+        completed_game = RiotApiRequesterUtil.game_1_fixture_completed
+        db_util.save_game(completed_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_get_games_to_check_status_unneeded_game_future_match(self):
+        # This shouldn't be possible, but testing the edge case
+        # Arrange
+        future_match = RiotApiRequesterUtil.future_match_fixture
+        db_util.save_match(future_match)
+        unneeded_game = RiotApiRequesterUtil.game_4_fixture_unneeded
+        db_util.save_game(unneeded_game)
+
+        # Act
+        game_ids = crud.get_games_to_check_state()
+
+        # Assert
+        self.assertIsInstance(game_ids, list)
+        self.assertEqual(0, len(game_ids))
+
+    def test_update_game_state(self):
+        # Arrange
+        unstarted_game = RiotApiRequesterUtil.game_3_fixture_unstarted
+        db_util.save_game(unstarted_game)
+        modified_game = unstarted_game
+        modified_game.state = GameState.UNNEEDED
+
+        # Act
+        crud.update_game_state(unstarted_game.id, GameState.UNNEEDED.value)
+
+        # Assert
+        game_from_db = db_util.get_game(unstarted_game.id)
+        self.assertEqual(modified_game.state, game_from_db.state)
+
+    def test_update_has_game_data(self):
+        # Arrange
+        game = RiotApiRequesterUtil.game_4_fixture_unneeded
+        db_util.save_game(game)
+        modified_game = game
+        modified_game.has_game_data = not game.has_game_data
+
+        # Act
+        crud.update_has_game_data(game.id, modified_game.has_game_data)
+
+        # Assert
+        game_from_db = db_util.get_game(game.id)
+        self.assertEqual(modified_game.has_game_data, game_from_db.has_game_data)

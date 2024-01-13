@@ -1,11 +1,12 @@
 SQLAlchemy
 APScheduler
-cloudscraper==1.2.71
-fastapi==0.104.1
-uvicorn==0.24.0.post1
+cloudscraper
+fastapi
+uvicorn
 httpx==0.23.2
-python-dotenv==1.0.0
+python-dotenv
 flake8==6.1.0
 autopep8==2.0.4
 requests
 pydantic
+pytz
