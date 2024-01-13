@@ -5,10 +5,12 @@ from sqlalchemy import String
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
-from fantasylol.db.database import Base
+from sqlalchemy.ext.declarative import declarative_base
 from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.player_role import PlayerRole
 
+
+Base = declarative_base()
 
 # Riot Data models:
 
