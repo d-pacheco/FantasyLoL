@@ -6,24 +6,23 @@ from fantasylol.exceptions.riot_api_status_code_assert_exception import \
     RiotApiStatusCodeAssertException
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.test_util.riot_api_requester_util import RiotApiRequesterUtil
+from tests.test_util import riot_api_requester_util
+from tests.test_util import test_fixtures
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
     'fantasylol.util.riot_api_requester.cloudscraper.create_scraper'
 
 
 class RiotApiRequesterTest(FantasyLolTestBase):
-    def setUp(self):
-        self.riot_api_util = RiotApiRequesterUtil()
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_leagues_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_league = self.riot_api_util.league_fixture
+        expected_league = test_fixtures.league_fixture
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_leagues_mock_response()
+        mock_response.json.return_value = riot_api_requester_util.get_leagues_mock_response
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -54,11 +53,12 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_tournaments_for_league_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_tournament = self.riot_api_util.tournament_fixture
+        expected_tournament = test_fixtures.tournament_fixture
 
+        expected_json = riot_api_requester_util.get_tournaments_for_league_response
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_tournaments_for_league_response()
+        mock_response.json.return_value = expected_json
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -80,7 +80,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
-        league_fixture = self.riot_api_util.league_fixture
+        league_fixture = test_fixtures.league_fixture
 
         # Act and Assert
         riot_api_requester = RiotApiRequester()
@@ -90,11 +90,12 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_teams_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_tournament = self.riot_api_util.tournament_fixture
+        expected_tournament = test_fixtures.tournament_fixture
 
+        expected_json = riot_api_requester_util.get_tournaments_for_league_response
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_tournaments_for_league_response()
+        mock_response.json.return_value = expected_json
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -126,16 +127,16 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     def test_get_players_successful(self, mock_cloud_scraper):
         # Arrange
         expected_players = [
-            self.riot_api_util.player_1_fixture,
-            self.riot_api_util.player_2_fixture,
-            self.riot_api_util.player_3_fixture,
-            self.riot_api_util.player_4_fixture,
-            self.riot_api_util.player_5_fixture
+            test_fixtures.player_1_fixture,
+            test_fixtures.player_2_fixture,
+            test_fixtures.player_3_fixture,
+            test_fixtures.player_4_fixture,
+            test_fixtures.player_5_fixture
         ]
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_teams_response()
+        mock_response.json.return_value = riot_api_requester_util.get_teams_response
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -172,28 +173,29 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     def test_get_games_from_event_details_successful(self, mock_cloud_scraper):
         # Arrange
         expected_games = [
-            self.riot_api_util.game_1_fixture_completed,
-            self.riot_api_util.game_2_fixture_inprogress,
-            self.riot_api_util.game_3_fixture_unstarted
+            test_fixtures.game_1_fixture_completed,
+            test_fixtures.game_2_fixture_inprogress,
+            test_fixtures.game_3_fixture_unstarted
         ]
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_event_details_response()
+        mock_response.json.return_value = riot_api_requester_util.get_event_details_response
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
 
         # Act
-        match_fixture = self.riot_api_util.match_fixture
+        match_fixture = test_fixtures.match_fixture
         riot_api_requester = RiotApiRequester()
         games = riot_api_requester.get_games_from_event_details(match_fixture.id)
 
         # Assert
         self.assertIsInstance(games, list)
         self.assertEqual(3, len(games))
-        for i in range(len(expected_games)):
-            self.assertEqual(expected_games[i], games[i])
+        self.assertEqual(expected_games[0], games[0])
+        self.assertEqual(expected_games[1], games[1])
+        self.assertEqual(expected_games[2], games[2])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_games_from_event_details_status_code_assertion(self, mock_cloud_scraper):
@@ -205,7 +207,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         mock_cloud_scraper.return_value = mock_client
 
         # Act and Assert
-        match_fixture = self.riot_api_util.match_fixture
+        match_fixture = test_fixtures.match_fixture
         riot_api_requester = RiotApiRequester()
         with self.assertRaises(RiotApiStatusCodeAssertException):
             riot_api_requester.get_games_from_event_details(match_fixture.id)
@@ -220,7 +222,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         mock_cloud_scraper.return_value = mock_client
 
         # Act
-        match_fixture = self.riot_api_util.match_fixture
+        match_fixture = test_fixtures.match_fixture
         riot_api_requester = RiotApiRequester()
         games = riot_api_requester.get_games_from_event_details(match_fixture.id)
 
@@ -231,12 +233,12 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_games_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_get_games_response = self.riot_api_util.get_games_response_game_1_fixture
-        game_ids_to_get = [self.riot_api_util.game_1_fixture_completed.id]
+        expected_get_games_response = test_fixtures.get_games_response_game_1_fixture
+        game_ids_to_get = [test_fixtures.game_1_fixture_completed.id]
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
-        mock_response.json.return_value = self.riot_api_util.get_games_response()
+        mock_response.json.return_value = riot_api_requester_util.get_games_response
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
@@ -253,7 +255,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_games_status_code_assertion(self, mock_cloud_scraper):
         # Arrange
-        game_ids_to_get = [self.riot_api_util.game_1_fixture_completed.id]
+        game_ids_to_get = [test_fixtures.game_1_fixture_completed.id]
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
