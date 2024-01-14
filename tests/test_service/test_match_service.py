@@ -22,9 +22,9 @@ class MatchServiceTest(FantasyLolTestBase):
             db.refresh(mock_match)
         return mock_match
 
-    def test_get_matches_by_league_name_existing_match(self):
+    def test_get_matches_by_league_slug_existing_match(self):
         expected_match = self.create_match_in_db()
-        search_parameters = MatchSearchParameters(league_name=expected_match.league_name)
+        search_parameters = MatchSearchParameters(league_slug=expected_match.league_slug)
 
         match_service = self.create_match_service()
         matches_from_db = match_service.get_matches(search_parameters)
@@ -32,9 +32,9 @@ class MatchServiceTest(FantasyLolTestBase):
         self.assertEqual(1, len(matches_from_db))
         self.assertEqual(expected_match, matches_from_db[0])
 
-    def test_get_matches_by_league_name_no_existing_match(self):
+    def test_get_matches_by_league_slug_no_existing_match(self):
         self.create_match_in_db()
-        search_parameters = MatchSearchParameters(league_name="badName")
+        search_parameters = MatchSearchParameters(league_slug="bad-slug")
 
         match_service = self.create_match_service()
         matches_from_db = match_service.get_matches(search_parameters)

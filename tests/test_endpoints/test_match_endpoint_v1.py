@@ -40,7 +40,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         mock_get_matches.assert_called_once_with(MatchSearchParameters())
 
     @patch(GET_MATCHES_MOCK_PATH)
-    def test_get_riot_matches_endpoint_filter_by_league_name(self, mock_get_matches):
+    def test_get_riot_matches_endpoint_filter_by_league_slug(self, mock_get_matches):
         # Arrange
         match_db_fixture = self.riot_api_util.create_mock_match()
         expected_match_response_schema = MatchSchema(**match_db_fixture.to_dict())
@@ -48,7 +48,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
 
         # Act
         response = self.client.get(
-            f"{MATCH_ENDPOINT_BASE_URL}?league_name={match_db_fixture.league_name}"
+            f"{MATCH_ENDPOINT_BASE_URL}?league_slug={match_db_fixture.league_slug}"
         )
 
         # Assert
@@ -59,7 +59,7 @@ class MatchEndpointV1Test(FantasyLolTestBase):
         match_response_schema = MatchSchema(**response_matches[0])
         self.assertEqual(expected_match_response_schema, match_response_schema)
         mock_get_matches.assert_called_once_with(
-            MatchSearchParameters(league_name=match_db_fixture.league_name)
+            MatchSearchParameters(league_slug=match_db_fixture.league_slug)
         )
 
     @patch(GET_MATCHES_MOCK_PATH)

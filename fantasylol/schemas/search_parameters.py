@@ -16,7 +16,7 @@ class GameSearchParameters:
 
 @dataclass
 class MatchSearchParameters:
-    league_name: str = None
+    league_slug: str = None
     tournament_id: int = None
 
 

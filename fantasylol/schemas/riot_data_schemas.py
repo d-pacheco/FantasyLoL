@@ -86,9 +86,9 @@ class MatchSchema(BaseModel):
         default=None,
         description="The block name of the match"
     )
-    league_name: str = Field(
+    league_slug: str = Field(
         default=None,
-        description="The name of the league the match is in"
+        description="The slug of the league the match is in"
     )
     strategy_type: str = Field(
         default=None,
@@ -116,7 +116,7 @@ class MatchSchema(BaseModel):
             "id": 110853020184706765,
             "start_time": "2023-11-19T08:00:00Z",
             "block_name": "Finals",
-            "league_name": "Worlds",
+            "league_slug": "worlds",
             "strategy_type": "bestOf",
             "strategy_count": 5,
             "tournament_id": 123456789,

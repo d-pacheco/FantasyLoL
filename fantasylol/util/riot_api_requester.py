@@ -257,7 +257,7 @@ class RiotApiRequester:
             new_match.id = int(match['id'])
             new_match.start_time = event['startTime']
             new_match.block_name = event['blockName']
-            new_match.league_name = event['league']['name']
+            new_match.league_slug = event['league']['slug']
             new_match.strategy_type = match['strategy']['type']
             new_match.strategy_count = match['strategy']['count']
             new_match.tournament_id = self.get_tournament_id_for_match(new_match.id)

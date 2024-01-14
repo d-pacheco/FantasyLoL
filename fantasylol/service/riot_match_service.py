@@ -104,8 +104,8 @@ class RiotMatchService:
     @staticmethod
     def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:
         filters = []
-        if search_parameters.league_name is not None:
-            filters.append(Match.league_name == search_parameters.league_name)
+        if search_parameters.league_slug is not None:
+            filters.append(Match.league_slug == search_parameters.league_slug)
         if search_parameters.tournament_id is not None:
             filters.append(Match.tournament_id == search_parameters.tournament_id)
         matches = crud.get_matches(filters)
