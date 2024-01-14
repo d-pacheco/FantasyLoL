@@ -84,7 +84,7 @@ class Match(Base):
     id = Column(Integer, primary_key=True, index=True)
     start_time = Column(String)
     block_name = Column(String)
-    league_name = Column(String)
+    league_slug = Column(String)
     strategy_type = Column(String)
     strategy_count = Column(Integer)
     tournament_id = Column(Integer)
@@ -98,7 +98,7 @@ class Match(Base):
             self.id == other.id and
             self.start_time == other.start_time and
             self.block_name == other.block_name and
-            self.league_name == other.league_name and
+            self.league_slug == other.league_slug and
             self.strategy_type == other.strategy_type and
             self.strategy_count == other.strategy_count and
             self.tournament_id == other.tournament_id and
@@ -111,7 +111,7 @@ class Match(Base):
             "id": self.id,
             "start_time": self.start_time,
             "block_name": self.block_name,
-            "league_name": self.league_name,
+            "league_slug": self.league_slug,
             "strategy_type": self.strategy_type,
             "strategy_count": self.strategy_count,
             "tournament_id": self.tournament_id,

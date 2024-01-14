@@ -389,7 +389,7 @@ class RiotApiRequestUtil:
             "id": int(self.mock_match_id),
             "start_time": self.mock_match_start_time,
             "block_name": self.mock_block_name,
-            "league_name": self.mock_league_name,
+            "league_slug": self.mock_league_slug,
             "strategy_type": self.mock_match_strategy_type,
             "strategy_count": self.mock_match_strategy_count,
             "tournament_id": int(self.mock_tournament_id),
