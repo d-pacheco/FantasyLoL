@@ -173,7 +173,7 @@ class RiotApiRequester:
                 players_from_response.append(new_player)
         return players_from_response
 
-    def get_player_metadata_for_game(self, game_id: int, time_stamp: str) \
+    def get_player_metadata_for_game(self, game_id: str, time_stamp: str) \
             -> List[schemas.PlayerGameMetadataSchema]:
         url = (
             "https://feed.lolesports.com"
@@ -198,7 +198,7 @@ class RiotApiRequester:
         player_metadata_from_response = blue_team_player_metadata + red_team_player_metadata
         return player_metadata_from_response
 
-    def get_player_stats_for_game(self, game_id: int, time_stamp: str) \
+    def get_player_stats_for_game(self, game_id: str, time_stamp: str) \
             -> List[schemas.PlayerGameStatsSchema]:
         url = (
             "https://feed.lolesports.com"
@@ -294,7 +294,7 @@ class RiotApiRequester:
         return res_json["data"].get("schedule", {})
 
 
-def parse_team_metadata(team_metadata: dict, game_id: int) \
+def parse_team_metadata(team_metadata: dict, game_id: str) \
         -> List[schemas.PlayerGameMetadataSchema]:
     participant_metadata = team_metadata.get("participantMetadata", [])
     player_metadata_for_team = []

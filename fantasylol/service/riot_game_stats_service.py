@@ -47,7 +47,7 @@ class RiotGameStatsService:
         else:
             logger.error(f"Player metadata job failed with error: {error}")
 
-    def fetch_and_store_player_metadata_for_game(self, game_id: int):
+    def fetch_and_store_player_metadata_for_game(self, game_id: str):
         logger.info(f"Fetching player metadata for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
@@ -88,7 +88,7 @@ class RiotGameStatsService:
         else:
             logger.error(f"Player stats job failed with error: {error}")
 
-    def fetch_and_store_player_stats_for_game(self, game_id: int):
+    def fetch_and_store_player_stats_for_game(self, game_id: str):
         logger.info(f"Fetching player stats for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
