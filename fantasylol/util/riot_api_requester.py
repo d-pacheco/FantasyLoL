@@ -301,9 +301,11 @@ def parse_team_metadata(team_metadata: dict, game_id: int) \
     for participant in participant_metadata:
         new_player_metadata = schemas.PlayerGameMetadataSchema()
         new_player_metadata.game_id = game_id
-        new_player_metadata.player_id = int(participant['esportsPlayerId'])
         new_player_metadata.participant_id = participant['participantId']
         new_player_metadata.champion_id = participant['championId']
         new_player_metadata.role = participant['role']
+        # Weird edge case where it doesn't exist for some games:
+        new_player_metadata.player_id = int(participant.get(
+            'esportsPlayerId', new_player_metadata.participant_id))
         player_metadata_for_team.append(new_player_metadata)
     return player_metadata_for_team
