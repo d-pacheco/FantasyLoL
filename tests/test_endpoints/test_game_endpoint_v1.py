@@ -3,11 +3,10 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.test_util.game_test_util import GameTestUtil
-from tests.test_util.tournament_test_util import TournamentTestUtil
+from tests.test_util import test_fixtures as fixtures
+
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.schemas.game_state import GameState
-from fantasylol.schemas.riot_data_schemas import GameSchema
 from fantasylol.schemas.search_parameters import GameSearchParameters
 from fantasylol import app
 
@@ -20,14 +19,13 @@ GET_GAME_BY_ID_MOCK_PATH = f"{BASE_GAME_SERVICE_MOCK_PATH}.get_game_by_id"
 class GameEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
-        self.test_tournament = TournamentTestUtil.create_active_tournament()
 
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_completed_status(self, mock_get_games):
         # Arrange
-        game_db_fixture = GameTestUtil.create_completed_game(self.test_tournament.id)
-        expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
-        mock_get_games.return_value = [game_db_fixture]
+        game_fixture = fixtures.game_1_fixture_completed
+        expected_game_response = game_fixture.model_dump()
+        mock_get_games.return_value = [game_fixture]
         state = GameState.COMPLETED.value
 
         # Act
@@ -38,8 +36,7 @@ class GameEndpointV1Test(FantasyLolTestBase):
         games = response.json()
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
-        game_response_schema = GameSchema(**games[0])
-        self.assertEqual(expected_game_response_schema, game_response_schema)
+        self.assertEqual(expected_game_response, games[0])
         mock_get_games.assert_called_once_with(
             GameSearchParameters(state=state)
         )
@@ -47,9 +44,9 @@ class GameEndpointV1Test(FantasyLolTestBase):
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_inprogress_status(self, mock_get_games):
         # Arrange
-        game_db_fixture = GameTestUtil.create_inprogress_game(self.test_tournament.id)
-        expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
-        mock_get_games.return_value = [game_db_fixture]
+        game_fixture = fixtures.game_2_fixture_inprogress
+        expected_game_response = game_fixture.model_dump()
+        mock_get_games.return_value = [game_fixture]
         state = GameState.INPROGRESS.value
 
         # Act
@@ -60,16 +57,15 @@ class GameEndpointV1Test(FantasyLolTestBase):
         games = response.json()
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
-        game_response_schema = GameSchema(**games[0])
-        self.assertEqual(expected_game_response_schema, game_response_schema)
+        self.assertEqual(expected_game_response, games[0])
         mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
 
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_unstarted_status(self, mock_get_games):
         # Arrange
-        game_db_fixture = GameTestUtil.create_unstarted_game(self.test_tournament.id)
-        expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
-        mock_get_games.return_value = [game_db_fixture]
+        game_fixture = fixtures.game_3_fixture_unstarted
+        expected_game_response = game_fixture.model_dump()
+        mock_get_games.return_value = [game_fixture]
         state = GameState.UNSTARTED.value
 
         # Act
@@ -80,8 +76,26 @@ class GameEndpointV1Test(FantasyLolTestBase):
         games = response.json()
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
-        game_response_schema = GameSchema(**games[0])
-        self.assertEqual(expected_game_response_schema, game_response_schema)
+        self.assertEqual(expected_game_response, games[0])
+        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
+
+    @patch(GET_GAMES_MOCK_PATH)
+    def test_get_game_endpoint_unneeded_status(self, mock_get_games):
+        # Arrange
+        game_fixture = fixtures.game_4_fixture_unneeded
+        expected_game_response = game_fixture.model_dump()
+        mock_get_games.return_value = [game_fixture]
+        state = GameState.UNSTARTED.value
+
+        # Act
+        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
+
+        # Assert
+        self.assertEqual(HTTPStatus.OK, response.status_code)
+        games = response.json()
+        self.assertIsInstance(games, list)
+        self.assertEqual(1, len(games))
+        self.assertEqual(expected_game_response, games[0])
         mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
 
     @patch(GET_GAMES_MOCK_PATH)
@@ -99,13 +113,13 @@ class GameEndpointV1Test(FantasyLolTestBase):
     @patch(GET_GAMES_MOCK_PATH)
     def test_get_game_endpoint_by_tournament_filter_existing_game(self, mock_get_games):
         # Arrange
-        game_db_fixture = GameTestUtil.create_completed_game(self.test_tournament.id)
-        expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
-        mock_get_games.return_value = [game_db_fixture]
+        game_fixture = fixtures.game_1_fixture_completed
+        expected_game_response = game_fixture.model_dump()
+        mock_get_games.return_value = [game_fixture]
 
         # Act
         response = self.client.get(
-            f"{GAME_BASE_URL}?match_id={game_db_fixture.match_id}"
+            f"{GAME_BASE_URL}?match_id={game_fixture.match_id}"
         )
 
         # Assert
@@ -113,34 +127,32 @@ class GameEndpointV1Test(FantasyLolTestBase):
         games = response.json()
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
-        game_response_schema = GameSchema(**games[0])
-        self.assertEqual(expected_game_response_schema, game_response_schema)
+        self.assertEqual(expected_game_response, games[0])
         mock_get_games.assert_called_once_with(
-            GameSearchParameters(match_id=game_db_fixture.match_id)
+            GameSearchParameters(match_id=game_fixture.match_id)
         )
 
     @patch(GET_GAME_BY_ID_MOCK_PATH)
     def test_get_game_by_id_endpoint_success(self, mock_get_game_by_id):
         # Arrange
-        game_db_fixture = GameTestUtil.create_completed_game(self.test_tournament.id)
-        expected_game_response_schema = GameSchema(**game_db_fixture.to_dict())
-        mock_get_game_by_id.return_value = game_db_fixture
+        game_fixture = fixtures.game_1_fixture_completed
+        expected_game_response = game_fixture.model_dump()
+        mock_get_game_by_id.return_value = game_fixture
 
         # Act
-        response = self.client.get(f"{GAME_BASE_URL}/{game_db_fixture.id}")
+        response = self.client.get(f"{GAME_BASE_URL}/{game_fixture.id}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
         game = response.json()
         self.assertIsInstance(game, dict)
-        game_response_schema = GameSchema(**game)
-        self.assertEqual(expected_game_response_schema, game_response_schema)
-        mock_get_game_by_id.assert_called_once_with(game_db_fixture.id)
+        self.assertEqual(expected_game_response, game)
+        mock_get_game_by_id.assert_called_once_with(game_fixture.id)
 
     @patch(GET_GAME_BY_ID_MOCK_PATH)
     def test_get_game_by_id_endpoint_not_found(self, mock_get_game_by_id):
         # Arrange
-        game_id = 777
+        game_id = "777"
         mock_get_game_by_id.side_effect = GameNotFoundException
 
         # Act

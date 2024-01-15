@@ -7,7 +7,7 @@ from fantasylol.schemas.player_role import PlayerRole
 
 class GameStatsTestUtil:
     @staticmethod
-    def create_player_metadata(game_id: int, participant_id: int):
+    def create_player_metadata(game_id: str, participant_id: int):
         if participant_id % 5 == 1:
             role = PlayerRole.TOP
         elif participant_id % 5 == 2:
@@ -32,7 +32,7 @@ class GameStatsTestUtil:
             db.commit()
 
     @staticmethod
-    def create_player_stats(game_id: int, participant_id: int):
+    def create_player_stats(game_id: str, participant_id: int):
         player_stats_attr = {
             "game_id": game_id,
             "participant_id": participant_id,

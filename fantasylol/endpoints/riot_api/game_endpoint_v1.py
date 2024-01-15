@@ -36,14 +36,12 @@ def validate_status_parameter(state: GameState = Query(None, description="Filter
 )
 def get_riot_games(
         state: GameState = Depends(validate_status_parameter),
-        match_id: int = Query(None, description="Filter by game match id")):
+        match_id: str = Query(None, description="Filter by game match id")):
     search_parameters = GameSearchParameters(
         state=state,
         match_id=match_id
     )
-    games = game_service.get_games(search_parameters)
-    games_response = [GameSchema(**game.to_dict()) for game in games]
-    return games_response
+    return game_service.get_games(search_parameters)
 
 
 @router.get(
@@ -70,10 +68,8 @@ def get_riot_games(
         }
     }
 )
-def get_riot_game_by_id(game_id: int):
-    game = game_service.get_game_by_id(game_id)
-    game_response = GameSchema(**game.to_dict())
-    return game_response
+def get_riot_game_by_id(game_id: str):
+    return game_service.get_game_by_id(game_id)
 
 
 @router.get(

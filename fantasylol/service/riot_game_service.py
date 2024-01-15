@@ -7,6 +7,7 @@ from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 from fantasylol.schemas.search_parameters import GameSearchParameters
+from fantasylol.schemas.riot_data_schemas import GameSchema
 
 logger = logging.getLogger('fantasy-lol')
 
@@ -41,7 +42,7 @@ class RiotGameService:
         else:
             logger.error(f"Fetch games from match ids job failed: {error}")
 
-    def process_batch_match_ids(self, match_ids: List[int]):
+    def process_batch_match_ids(self, match_ids: List[str]):
         logger.info(f"Processes batch of match ids: {match_ids}")
         all_fetched_games = []
         for match_id in match_ids:
@@ -75,19 +76,20 @@ class RiotGameService:
             logger.error(f"Update game states job failed: {error}")
 
     @staticmethod
-    def get_games(search_parameters: GameSearchParameters) -> List[Game]:
+    def get_games(search_parameters: GameSearchParameters) -> List[GameSchema]:
         filters = []
         if search_parameters.state is not None:
             filters.append(Game.state == search_parameters.state)
         if search_parameters.match_id is not None:
             filters.append(Game.match_id == search_parameters.match_id)
-
-        games = crud.get_games(filters)
+        game_orms = crud.get_games(filters)
+        games = [GameSchema.model_validate(game_orm) for game_orm in game_orms]
         return games
 
     @staticmethod
-    def get_game_by_id(game_id: int) -> Game:
-        game = crud.get_game_by_id(game_id)
-        if game is None:
+    def get_game_by_id(game_id: str) -> GameSchema:
+        game_orm = crud.get_game_by_id(game_id)
+        if game_orm is None:
             raise GameNotFoundException()
+        game = GameSchema.model_validate(game_orm)
         return game
