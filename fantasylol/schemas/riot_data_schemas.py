@@ -1,11 +1,13 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.player_role import PlayerRole
 
 
 class LeagueSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The ID of the league",
     )
@@ -32,7 +34,7 @@ class LeagueSchema(BaseModel):
 
     class ExampleResponse:
         example = {
-            "id": 98767975604431411,
+            "id": "98767975604431411",
             "slug": "worlds",
             "name": "Words",
             "region": "INTERNATIONAL",
@@ -42,7 +44,9 @@ class LeagueSchema(BaseModel):
 
 
 class TournamentSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The ID of the tournament"
     )
@@ -58,14 +62,14 @@ class TournamentSchema(BaseModel):
         default=None,
         description="The end date of the tournament"
     )
-    league_id: int = Field(
+    league_id: str = Field(
         default=None,
         description="The ID of the league the tournament is being held in"
     )
 
     class ExampleResponse:
         example = {
-            "id": 123456789,
+            "id": "111111111111111111",
             "slug": "example_slug",
             "start_date": "2023-01-01",
             "end_date": "2023-02-01",
@@ -74,7 +78,9 @@ class TournamentSchema(BaseModel):
 
 
 class MatchSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The ID of the match"
     )
@@ -98,7 +104,7 @@ class MatchSchema(BaseModel):
         default=None,
         description="The number of games for the strategy type"
     )
-    tournament_id: int = Field(
+    tournament_id: str = Field(
         default=None,
         description="The id of the tournament the match is taking place in"
     )
@@ -113,20 +119,22 @@ class MatchSchema(BaseModel):
 
     class ExampleResponse:
         example = {
-            "id": 110853020184706765,
+            "id": "110853020184706765",
             "start_time": "2023-11-19T08:00:00Z",
             "block_name": "Finals",
             "league_slug": "worlds",
             "strategy_type": "bestOf",
             "strategy_count": 5,
-            "tournament_id": 123456789,
+            "tournament_id": "111111111111111111",
             "team_1_name": "WeiboGaming FAW AUDI",
             "team_2_name": "T1"
         }
 
 
 class GameSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The ID of the game",
     )
@@ -138,7 +146,7 @@ class GameSchema(BaseModel):
         default=None,
         description="The game number within the strategy type and count"
     )
-    match_id: int = Field(
+    match_id: str = Field(
         default=None,
         description="The ID of the match that the game is in"
     )
@@ -149,20 +157,22 @@ class GameSchema(BaseModel):
 
     class ExampleResponse:
         example = {
-            "id": 110413246204026236,
+            "id": "110413246204026236",
             "state": "completed",
             "number": 1,
-            "match_id": 110413246204026235,
+            "match_id": "110413246204026235",
         }
 
 
 class GetGamesResponseSchema(BaseModel):
-    id: int = Field()
+    id: str = Field()
     state: GameState = Field()
 
 
 class ProfessionalTeamSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The ID of the team",
     )
@@ -201,7 +211,7 @@ class ProfessionalTeamSchema(BaseModel):
 
     class ExampleResponse:
         example = {
-            "id": 123456789,
+            "id": "111111111111111111",
             "slug": "team_name",
             "name": "Team Name",
             "code": "TEST1",
@@ -214,7 +224,9 @@ class ProfessionalTeamSchema(BaseModel):
 
 
 class ProfessionalPlayerSchema(BaseModel):
-    id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(
         default=None,
         description="The esports id of the player given by RIOT"
     )
@@ -230,27 +242,29 @@ class ProfessionalPlayerSchema(BaseModel):
         default=None,
         description="The role that the player plays"
     )
-    team_id: int = Field(
+    team_id: str = Field(
         default=None,
         description="The id of the team that the player is on"
     )
 
     class ExampleResponse:
         example = {
-            "id": 123456789,
+            "id": "111111111111111111",
             "summoner_name": "summonerName",
             "image": "http://player-image.png",
             "role": "jungle",
-            "team_id": 987654321
+            "team_id": "111111111111111111"
         }
 
 
 class PlayerGameMetadataSchema(BaseModel):
-    game_id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: str = Field(
         default=None,
         description="The id of the game this players metadata is for"
     )
-    player_id: int = Field(
+    player_id: str = Field(
         default=None,
         description="The id of the player given by riot"
     )
@@ -269,11 +283,13 @@ class PlayerGameMetadataSchema(BaseModel):
 
 
 class PlayerGameStatsSchema(BaseModel):
-    game_id: int = Field(
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: str = Field(
         default=None,
         description="The id of the game this players metadata is for"
     )
-    participant_id: int = Field(
+    participant_id: str = Field(
         default=None,
         description="The participant id for the game given by riot"
     )

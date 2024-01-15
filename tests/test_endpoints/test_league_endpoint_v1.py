@@ -3,9 +3,9 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.riot_api_requester_util import RiotApiRequestUtil
+from tests.test_util import test_fixtures as fixtures
+
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
-from fantasylol.schemas.riot_data_schemas import LeagueSchema
 from fantasylol.schemas.search_parameters import LeagueSearchParameters
 from fantasylol import app
 
@@ -17,15 +17,14 @@ GET_LEAGUE_BY_ID_MOCK_PATH = f"{BASE_LEAGUE_SERVICE_MOCK_PATH}.get_league_by_id"
 
 class LeagueEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
-        riot_api_util = RiotApiRequestUtil()
-        self.league_db_fixture = riot_api_util.create_mock_league()
-        self.expected_league_response_schema = LeagueSchema(**self.league_db_fixture.to_dict())
         self.client = TestClient(app)
 
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_search_all(self, mock_get_leagues):
         # Arrange
-        mock_get_leagues.return_value = [self.league_db_fixture]
+        league_fixture = fixtures.league_fixture
+        expected_league_response = league_fixture.model_dump()
+        mock_get_leagues.return_value = [league_fixture]
 
         # Act
         response = self.client.get(LEAGUE_BASE_URL)
@@ -35,18 +34,19 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         leagues = response.json()
         self.assertIsInstance(leagues, list)
         self.assertEqual(1, len(leagues))
-        league_response_schema = LeagueSchema(**leagues[0])
-        self.assertEqual(self.expected_league_response_schema, league_response_schema)
+        self.assertEqual(expected_league_response, leagues[0])
         mock_get_leagues.assert_called_once_with(LeagueSearchParameters())
 
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_name_filter_existing_league(self, mock_get_leagues):
         # Arrange
-        mock_get_leagues.return_value = [self.league_db_fixture]
+        league_fixture = fixtures.league_fixture
+        expected_league_response = league_fixture.model_dump()
+        mock_get_leagues.return_value = [league_fixture]
 
         # Act
         response = self.client.get(
-            f"{LEAGUE_BASE_URL}?name={self.league_db_fixture.name}"
+            f"{LEAGUE_BASE_URL}?name={league_fixture.name}"
         )
 
         # Assert
@@ -54,20 +54,21 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         leagues = response.json()
         self.assertIsInstance(leagues, list)
         self.assertEqual(1, len(leagues))
-        league_response_schema = LeagueSchema(**leagues[0])
-        self.assertEqual(self.expected_league_response_schema, league_response_schema)
+        self.assertEqual(expected_league_response, leagues[0])
         mock_get_leagues.assert_called_once_with(
-            LeagueSearchParameters(name=self.league_db_fixture.name)
+            LeagueSearchParameters(name=league_fixture.name)
         )
 
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_region_filter_existing_league(self, mock_get_leagues):
         # Arrange
-        mock_get_leagues.return_value = [self.league_db_fixture]
+        league_fixture = fixtures.league_fixture
+        expected_league_response = league_fixture.model_dump()
+        mock_get_leagues.return_value = [league_fixture]
 
         # Act
         response = self.client.get(
-            f"{LEAGUE_BASE_URL}?region={self.league_db_fixture.region}"
+            f"{LEAGUE_BASE_URL}?region={league_fixture.region}"
         )
 
         # Assert
@@ -75,36 +76,37 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
         leagues = response.json()
         self.assertIsInstance(leagues, list)
         self.assertEqual(1, len(leagues))
-        league_response_schema = LeagueSchema(**leagues[0])
-        self.assertEqual(self.expected_league_response_schema, league_response_schema)
+        self.assertEqual(expected_league_response, leagues[0])
         mock_get_leagues.assert_called_once_with(
-            LeagueSearchParameters(region=self.league_db_fixture.region)
+            LeagueSearchParameters(region=league_fixture.region)
         )
 
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_successful(self, mock_get_league_by_id):
         # Arrange
-        mock_get_league_by_id.return_value = self.league_db_fixture
+        league_fixture = fixtures.league_fixture
+        expected_league_response = league_fixture.model_dump()
+        mock_get_league_by_id.return_value = league_fixture
 
         # Act
-        response = self.client.get(f"{LEAGUE_BASE_URL}/{self.league_db_fixture.id}")
+        response = self.client.get(f"{LEAGUE_BASE_URL}/{league_fixture.id}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
         league = response.json()
         self.assertIsInstance(league, dict)
-        league_response_schema = LeagueSchema(**league)
-        self.assertEqual(self.expected_league_response_schema, league_response_schema)
-        mock_get_league_by_id.assert_called_once_with(self.league_db_fixture.id)
+        self.assertEqual(expected_league_response, league)
+        mock_get_league_by_id.assert_called_once_with(league_fixture.id)
 
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_not_found(self, mock_get_league_by_id):
         # Arrange
+        league_fixture = fixtures.league_fixture
         mock_get_league_by_id.side_effect = LeagueNotFoundException
 
         # Act
-        response = self.client.get(f"{LEAGUE_BASE_URL}/{self.league_db_fixture.id}")
+        response = self.client.get(f"{LEAGUE_BASE_URL}/{league_fixture.id}")
 
         # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_league_by_id.assert_called_once_with(self.league_db_fixture.id)
+        mock_get_league_by_id.assert_called_once_with(league_fixture.id)

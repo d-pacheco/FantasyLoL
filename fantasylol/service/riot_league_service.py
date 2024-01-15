@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fantasylol.schemas import riot_data_schemas
+from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.db import crud
 from fantasylol.db.models import League
 from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
@@ -15,7 +15,7 @@ class RiotLeagueService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_leagues(self) -> List[riot_data_schemas.LeagueSchema]:
+    def fetch_and_store_leagues(self) -> List[schemas.LeagueSchema]:
         logger.info("Fetching and storing leagues from riot's api")
         try:
             fetched_leagues = self.riot_api_requester.get_leagues()
@@ -27,18 +27,20 @@ class RiotLeagueService:
             raise e
 
     @staticmethod
-    def get_leagues(search_parameters: LeagueSearchParameters) -> List[League]:
+    def get_leagues(search_parameters: LeagueSearchParameters) -> List[schemas.LeagueSchema]:
         filters = []
         if search_parameters.name is not None:
             filters.append(League.name == search_parameters.name)
         if search_parameters.region is not None:
             filters.append(League.region == search_parameters.region)
-        leagues = crud.get_leagues(filters)
+        orm_leagues = crud.get_leagues(filters)
+        leagues = [schemas.LeagueSchema.model_validate(league_orm) for league_orm in orm_leagues]
         return leagues
 
     @staticmethod
-    def get_league_by_id(league_id: int) -> League:
-        league = crud.get_league_by_id(league_id)
-        if league is None:
+    def get_league_by_id(league_id: str) -> schemas.LeagueSchema:
+        league_orm = crud.get_league_by_id(league_id)
+        if league_orm is None:
             raise LeagueNotFoundException()
+        league = schemas.LeagueSchema.model_validate(league_orm)
         return league

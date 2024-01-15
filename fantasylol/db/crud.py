@@ -34,7 +34,7 @@ def get_leagues(filters: list = None) -> List[Match]:
         return query.all()
 
 
-def get_league_by_id(league_id: int) -> League:
+def get_league_by_id(league_id: str) -> League:
     with DatabaseConnection() as db:
         return db.query(League).filter(League.id == league_id).first()
 

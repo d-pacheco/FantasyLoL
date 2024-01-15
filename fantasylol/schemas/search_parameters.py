@@ -5,19 +5,19 @@ from dataclasses import dataclass
 class PlayerSearchParameters:
     summoner_name: str = None
     role: str = None
-    team_id: int = None
+    team_id: str = None
 
 
 @dataclass
 class GameSearchParameters:
     state: str = None
-    match_id: int = None
+    match_id: str = None
 
 
 @dataclass
 class MatchSearchParameters:
     league_slug: str = None
-    tournament_id: int = None
+    tournament_id: str = None
 
 
 @dataclass
