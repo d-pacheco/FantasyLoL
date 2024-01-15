@@ -27,7 +27,7 @@ class MatchServiceTest(FantasyLolTestBase):
 
     def test_get_matches_by_league_slug_no_existing_match(self):
         # Arrange
-        expected_match = riot_data_util.create_match_in_db()
+        riot_data_util.create_match_in_db()
         match_service = create_match_service()
         search_parameters = MatchSearchParameters(league_slug="bad-slug")
 
@@ -54,7 +54,7 @@ class MatchServiceTest(FantasyLolTestBase):
 
     def test_get_matches_by_tournament_id_no_existing_match(self):
         # Arrange
-        expected_match = riot_data_util.create_match_in_db()
+        riot_data_util.create_match_in_db()
         match_service = create_match_service()
         search_parameters = MatchSearchParameters(tournament_id="777")
 

@@ -1,8 +1,6 @@
-import random
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from fantasylol.db.database import DatabaseConnection
 from fantasylol.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
@@ -31,7 +29,7 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
     def test_get_no_existing_professional_players_by_summoner_name(self):
         # Arrange
         professional_player_service = create_professional_player_service()
-        expected_player = riot_data_util.create_professional_player_in_db()
+        riot_data_util.create_professional_player_in_db()
         search_parameters = PlayerSearchParameters(summoner_name="badSummonerName")
 
         # Act
@@ -58,7 +56,7 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
     def test_get_no_existing_professional_players_by_role(self):
         # Arrange
         professional_player_service = create_professional_player_service()
-        expected_player = riot_data_util.create_professional_player_in_db()
+        riot_data_util.create_professional_player_in_db()
         search_parameters = PlayerSearchParameters(role="badRole")
 
         # Act
@@ -85,7 +83,7 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
     def test_get_no_existing_professional_players_by_team_id(self):
         # Arrange
         professional_player_service = create_professional_player_service()
-        expected_player = riot_data_util.create_professional_player_in_db()
+        riot_data_util.create_professional_player_in_db()
         search_parameters = PlayerSearchParameters(team_id="777")
 
         # Act

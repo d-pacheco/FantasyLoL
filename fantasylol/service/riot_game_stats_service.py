@@ -52,7 +52,7 @@ class RiotGameStatsService:
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_metadata = self.riot_api_requester.get_player_metadata_for_game(
-                                                                    game_id, time_stamp)
+                game_id, time_stamp)
             if len(fetched_player_metadata) == 0:
                 logger.info(f"Game id {game_id} has no player metadata available")
                 crud.update_has_game_data(game_id, False)
@@ -93,7 +93,7 @@ class RiotGameStatsService:
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_stats = self.riot_api_requester.get_player_stats_for_game(
-                                                                game_id, time_stamp)
+                game_id, time_stamp)
 
             if len(fetched_player_stats) == 0:
                 logger.info(f"Game id {game_id} has no player stats available")

@@ -36,7 +36,7 @@ class LeagueServiceTest(FantasyLolTestBase):
 
     def test_get_leagues_by_name_no_existing_league(self):
         # Arrange
-        league_fixture = create_league_in_db()
+        create_league_in_db()
         league_service = create_league_service()
         search_parameters = LeagueSearchParameters(name="badName")
 

@@ -42,6 +42,7 @@ def get_riot_professional_teams(
     )
     return professional_team_service.get_teams(search_parameters)
 
+
 @router.get(
     path="/professional-team/{professional_team_id}",
     description="Get professional team by its ID",

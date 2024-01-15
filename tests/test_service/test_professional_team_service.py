@@ -29,7 +29,7 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
     def test_get_professional_teams_by_slug_no_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()
-        expected_team = riot_data_util.create_professional_team_in_db()
+        riot_data_util.create_professional_team_in_db()
         search_parameters = TeamSearchParameters(slug="badSlug")
 
         # Act
@@ -56,7 +56,7 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
     def test_get_professional_teams_by_name_no_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()
-        expected_team = riot_data_util.create_professional_team_in_db()
+        riot_data_util.create_professional_team_in_db()
         search_parameters = TeamSearchParameters(name="badName")
 
         # Act
@@ -83,7 +83,7 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
     def test_get_professional_teams_by_code_no_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()
-        expected_team = riot_data_util.create_professional_team_in_db()
+        riot_data_util.create_professional_team_in_db()
         search_parameters = TeamSearchParameters(code="badCode")
 
         # Act
@@ -110,7 +110,7 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
     def test_get_professional_teams_by_status_no_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()
-        expected_team = riot_data_util.create_professional_team_in_db()
+        riot_data_util.create_professional_team_in_db()
         search_parameters = TeamSearchParameters(status="badStatus")
 
         # Act
@@ -137,7 +137,7 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
     def test_get_professional_teams_by_home_league_no_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()
-        expected_team = riot_data_util.create_professional_team_in_db()
+        riot_data_util.create_professional_team_in_db()
         search_parameters = TeamSearchParameters(league="badLeague")
 
         # Act

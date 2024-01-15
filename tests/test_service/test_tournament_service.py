@@ -131,7 +131,7 @@ class TournamentServiceTest(FantasyLolTestBase):
     def test_get_tournament_by_id_invalid_id(self):
         # Arrange
         tournament_service = create_tournament_service()
-        expected_tournament = riot_data_util.create_completed_tournament_in_db()
+        riot_data_util.create_completed_tournament_in_db()
 
         # Act and Assert
         with self.assertRaises(TournamentNotFoundException):
