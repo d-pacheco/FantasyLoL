@@ -66,50 +66,6 @@ def get_riot_match_by_id(match_id: int):
 
 
 @router.get(
-    path="/fetch-matches/{tournament_id}",
-    description="Fetch matches for a tournament from riots servers",
-    tags=["Matches"],
-    response_model=List[MatchSchema],
-    responses={
-        200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [MatchSchema.ExampleResponse.example]
-                }
-            }
-        }
-    }
-)
-def fetch_matches_with_tournament_id_from_riot(tournament_id: int):
-    matches = match_service.fetch_and_store_matchs_from_tournament(tournament_id)
-    matches_response = [MatchSchema(**match.to_dict()) for match in matches]
-    return matches_response
-
-
-@router.get(
-    path="/fetch-all-matches",
-    description="Fetch matches for all tournament from riots servers",
-    tags=["Matches"],
-    response_model=List[MatchSchema],
-    responses={
-        200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [MatchSchema.ExampleResponse.example]
-                }
-            }
-        }
-    }
-)
-def fetch_all_matches_for_all_tournaments():
-    matches = match_service.get_all_matches()
-    matches_response = [MatchSchema(**match.to_dict()) for match in matches]
-    return matches_response
-
-
-@router.get(
     path="/fetch-new-schedule",
     description="Fetch schedule from riots servers",
     tags=["Matches"],
