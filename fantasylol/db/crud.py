@@ -214,7 +214,7 @@ def get_players(filters: list = None) -> List[ProfessionalPlayer]:
         return query.all()
 
 
-def get_player_by_id(player_id: int) -> ProfessionalPlayer:
+def get_player_by_id(player_id: str) -> ProfessionalPlayer:
     with DatabaseConnection() as db:
         return db.query(ProfessionalPlayer).filter(ProfessionalPlayer.id == player_id).first()
 

@@ -49,3 +49,9 @@ def create_professional_team_in_db() -> riot_data_schemas.ProfessionalTeamSchema
     team = test_fixtures.team_1_fixture
     db_util.save_team(team)
     return team
+
+
+def create_professional_player_in_db() -> riot_data_schemas.ProfessionalPlayerSchema:
+    player = test_fixtures.player_1_fixture
+    db_util.save_player(player)
+    return player
