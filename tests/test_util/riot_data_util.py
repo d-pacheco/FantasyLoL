@@ -43,3 +43,9 @@ def create_active_tournament_in_db() -> riot_data_schemas.TournamentSchema:
     active_tournament = test_fixtures.active_tournament_fixture
     db_util.save_tournament(active_tournament)
     return active_tournament
+
+
+def create_professional_team_in_db() -> riot_data_schemas.ProfessionalTeamSchema:
+    team = test_fixtures.team_1_fixture
+    db_util.save_team(team)
+    return team

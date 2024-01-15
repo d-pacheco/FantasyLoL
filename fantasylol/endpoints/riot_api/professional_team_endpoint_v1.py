@@ -40,11 +40,7 @@ def get_riot_professional_teams(
         status=status,
         league=league
     )
-    professional_teams = professional_team_service.get_teams(search_parameters)
-    professional_teams_response = [ProfessionalTeamSchema(
-        **team.to_dict()) for team in professional_teams]
-    return professional_teams_response
-
+    return professional_team_service.get_teams(search_parameters)
 
 @router.get(
     path="/professional-team/{professional_team_id}",
@@ -70,10 +66,8 @@ def get_riot_professional_teams(
         }
     }
 )
-def get_professional_team_by_id(professional_team_id: int):
-    professional_team = professional_team_service.get_team_by_id(professional_team_id)
-    professional_team_response = ProfessionalTeamSchema(**professional_team.to_dict())
-    return professional_team_response
+def get_professional_team_by_id(professional_team_id: str):
+    return professional_team_service.get_team_by_id(professional_team_id)
 
 
 @router.get(

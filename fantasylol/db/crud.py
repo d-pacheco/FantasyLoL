@@ -190,7 +190,7 @@ def get_teams(filters: list = None) -> List[ProfessionalTeam]:
         return query.all()
 
 
-def get_team_by_id(team_id: int) -> ProfessionalTeam:
+def get_team_by_id(team_id: str) -> ProfessionalTeam:
     with DatabaseConnection() as db:
         return db.query(ProfessionalTeam).filter(ProfessionalTeam.id == team_id).first()
 

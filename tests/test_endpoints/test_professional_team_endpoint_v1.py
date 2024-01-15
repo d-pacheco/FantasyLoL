@@ -3,10 +3,10 @@ from unittest.mock import patch
 from http import HTTPStatus
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.riot_api_requester_util import RiotApiRequestUtil
+from tests.test_util import test_fixtures as fixtures
+
 from fantasylol.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
-from fantasylol.schemas.riot_data_schemas import ProfessionalTeamSchema
 from fantasylol.schemas.search_parameters import TeamSearchParameters
 from fantasylol import app
 
@@ -20,18 +20,17 @@ TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team
 class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
         self.client = TestClient(app)
-        self.riot_api_util = RiotApiRequestUtil()
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_slug_query(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?slug={team_db_fixture.slug}"
+            f"{PROFESSIONAL_TEAM_BASE_URL}?slug={team_fixture.slug}"
         )
 
         # Assert
@@ -39,22 +38,21 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(slug=team_db_fixture.slug)
+            TeamSearchParameters(slug=team_fixture.slug)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_name_query(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?name={team_db_fixture.name}"
+            f"{PROFESSIONAL_TEAM_BASE_URL}?name={team_fixture.name}"
         )
 
         # Assert
@@ -62,22 +60,21 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(name=team_db_fixture.name)
+            TeamSearchParameters(name=team_fixture.name)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_code_query(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?code={team_db_fixture.code}"
+            f"{PROFESSIONAL_TEAM_BASE_URL}?code={team_fixture.code}"
         )
 
         # Assert
@@ -85,22 +82,21 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(code=team_db_fixture.code)
+            TeamSearchParameters(code=team_fixture.code)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_status_query(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?status={team_db_fixture.status}"
+            f"{PROFESSIONAL_TEAM_BASE_URL}?status={team_fixture.status}"
         )
 
         # Assert
@@ -108,22 +104,21 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(status=team_db_fixture.status)
+            TeamSearchParameters(status=team_fixture.status)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_league_query(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?league={team_db_fixture.home_league}"
+            f"{PROFESSIONAL_TEAM_BASE_URL}?league={team_fixture.home_league}"
         )
 
         # Assert
@@ -131,18 +126,17 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(league=team_db_fixture.home_league)
+            TeamSearchParameters(league=team_fixture.home_league)
         )
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
     def test_get_professional_teams_endpoint_search_all(self, mock_get_teams):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_teams.return_value = [team_db_fixture]
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_teams.return_value = [team_fixture]
 
         # Act
         response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}")
@@ -152,37 +146,35 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
         professional_teams = response.json()
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_teams[0])
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
+        self.assertEqual(expected_team_response, professional_teams[0])
         mock_get_teams.assert_called_once_with(TeamSearchParameters())
 
     @patch(TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH)
     def test_get_professional_team_by_id_success(self, mock_get_team_by_id):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
-        expected_team_response_schema = ProfessionalTeamSchema(**team_db_fixture.to_dict())
-        mock_get_team_by_id.return_value = team_db_fixture
+        team_fixture = fixtures.team_1_fixture
+        expected_team_response = team_fixture.model_dump()
+        mock_get_team_by_id.return_value = team_fixture
 
         # Act
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_db_fixture.id}")
+        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_fixture.id}")
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
         professional_team = response.json()
         self.assertIsInstance(professional_team, dict)
-        team_response_schema_from_request = ProfessionalTeamSchema(**professional_team)
-        self.assertEqual(expected_team_response_schema, team_response_schema_from_request)
-        mock_get_team_by_id.assert_called_once_with(team_db_fixture.id)
+        self.assertEqual(expected_team_response, professional_team)
+        mock_get_team_by_id.assert_called_once_with(team_fixture.id)
 
     @patch(TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH)
     def test_get_professional_team_by_id_not_found(self, mock_get_team_by_id):
         # Arrange
-        team_db_fixture = self.riot_api_util.create_mock_team()
+        team_fixture = fixtures.team_1_fixture
         mock_get_team_by_id.side_effect = ProfessionalTeamNotFoundException
 
         # Act
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_db_fixture.id}")
+        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_fixture.id}")
 
         # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_team_by_id.assert_called_once_with(team_db_fixture.id)
+        mock_get_team_by_id.assert_called_once_with(team_fixture.id)
