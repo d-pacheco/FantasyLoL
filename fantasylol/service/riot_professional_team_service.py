@@ -28,7 +28,7 @@ class RiotProfessionalTeamService:
             raise e
 
     @staticmethod
-    def get_teams(search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
+    def get_teams(search_parameters: TeamSearchParameters) -> List[ProfessionalTeamSchema]:
         filters = []
         if search_parameters.slug is not None:
             filters.append(ProfessionalTeam.slug == search_parameters.slug)
@@ -41,12 +41,15 @@ class RiotProfessionalTeamService:
         if search_parameters.league is not None:
             filters.append(ProfessionalTeam.home_league == search_parameters.league)
 
-        professional_teams = crud.get_teams(filters)
+        professional_teams_orms = crud.get_teams(filters)
+        professional_teams = [ProfessionalTeamSchema.model_validate(team_orm)
+                              for team_orm in professional_teams_orms]
         return professional_teams
 
     @staticmethod
-    def get_team_by_id(professional_team_id: int) -> ProfessionalTeam:
-        professional_team = crud.get_team_by_id(professional_team_id)
-        if professional_team is None:
+    def get_team_by_id(professional_team_id: str) -> ProfessionalTeamSchema:
+        professional_team_orm = crud.get_team_by_id(professional_team_id)
+        if professional_team_orm is None:
             raise ProfessionalTeamNotFoundException()
+        professional_team = ProfessionalTeamSchema.model_validate(professional_team_orm)
         return professional_team

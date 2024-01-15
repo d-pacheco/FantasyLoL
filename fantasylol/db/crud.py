@@ -34,7 +34,7 @@ def get_leagues(filters: list = None) -> List[Match]:
         return query.all()
 
 
-def get_league_by_id(league_id: int) -> League:
+def get_league_by_id(league_id: str) -> League:
     with DatabaseConnection() as db:
         return db.query(League).filter(League.id == league_id).first()
 
@@ -58,7 +58,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
         return query.all()
 
 
-def get_tournament_by_id(tournament_id: int) -> Tournament:
+def get_tournament_by_id(tournament_id: str) -> Tournament:
     with DatabaseConnection() as db:
         return db.query(Tournament).filter(Tournament.id == tournament_id).first()
 
@@ -82,12 +82,12 @@ def get_matches(filters: list = None) -> List[Match]:
         return query.all()
 
 
-def get_match_by_id(match_id: int) -> Match:
+def get_match_by_id(match_id: str) -> Match:
     with DatabaseConnection() as db:
         return db.query(Match).filter(Match.id == match_id).first()
 
 
-def get_matches_ids_without_games() -> List[int]:
+def get_matches_ids_without_games() -> List[str]:
     sql_query = """
         SELECT matches.id
         FROM matches
@@ -122,7 +122,7 @@ def bulk_save_games(games: List[schemas.GameSchema]):
         db.commit()
 
 
-def update_has_game_data(game_id: int, has_game_data: bool):
+def update_has_game_data(game_id: str, has_game_data: bool):
     with DatabaseConnection() as db:
         db_game: Game = db.query(Game).filter(Game.id == game_id).first()
         if db_game is not None:
@@ -131,7 +131,7 @@ def update_has_game_data(game_id: int, has_game_data: bool):
             db.commit()
 
 
-def update_game_state(game_id: int, state: str):
+def update_game_state(game_id: str, state: str):
     with DatabaseConnection() as db:
         db_game: Game = db.query(Game).filter(Game.id == game_id).first()
         if db_game is not None:
@@ -149,7 +149,7 @@ def get_games(filters: list = None) -> List[Game]:
         return query.all()
 
 
-def get_games_to_check_state() -> List[int]:
+def get_games_to_check_state() -> List[str]:
     sql_query = """
         SELECT games.id
         FROM games
@@ -166,7 +166,7 @@ def get_games_to_check_state() -> List[int]:
     return game_ids
 
 
-def get_game_by_id(game_id: int) -> Game:
+def get_game_by_id(game_id: str) -> Game:
     with DatabaseConnection() as db:
         return db.query(Game).filter(Game.id == game_id).first()
 
@@ -190,7 +190,7 @@ def get_teams(filters: list = None) -> List[ProfessionalTeam]:
         return query.all()
 
 
-def get_team_by_id(team_id: int) -> ProfessionalTeam:
+def get_team_by_id(team_id: str) -> ProfessionalTeam:
     with DatabaseConnection() as db:
         return db.query(ProfessionalTeam).filter(ProfessionalTeam.id == team_id).first()
 
@@ -214,7 +214,7 @@ def get_players(filters: list = None) -> List[ProfessionalPlayer]:
         return query.all()
 
 
-def get_player_by_id(player_id: int) -> ProfessionalPlayer:
+def get_player_by_id(player_id: str) -> ProfessionalPlayer:
     with DatabaseConnection() as db:
         return db.query(ProfessionalPlayer).filter(ProfessionalPlayer.id == player_id).first()
 

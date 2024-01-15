@@ -35,10 +35,7 @@ def get_riot_leagues(
         name=name,
         region=region
     )
-    leagues = league_service.get_leagues(search_parameters)
-    leagues_response = [LeagueSchema(**league.to_dict()) for league in leagues]
-
-    return leagues_response
+    return league_service.get_leagues(search_parameters)
 
 
 @router.get(
@@ -65,11 +62,8 @@ def get_riot_leagues(
         }
     }
 )
-def get_riot_league_by_id(league_id: int):
-    league = league_service.get_league_by_id(league_id)
-    league_response = LeagueSchema(**league.to_dict())
-
-    return league_response
+def get_riot_league_by_id(league_id: str):
+    return league_service.get_league_by_id(league_id)
 
 
 @router.get(

@@ -18,7 +18,7 @@ Base = declarative_base()
 class League(Base):
     __tablename__ = "leagues"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     slug = Column(String)
     name = Column(String)
     region = Column(String)
@@ -51,11 +51,11 @@ class League(Base):
 class Tournament(Base):
     __tablename__ = "tournaments"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     slug = Column(String)
     start_date = Column(String)
     end_date = Column(String)
-    league_id = Column(Integer, ForeignKey("leagues.id"))
+    league_id = Column(String, ForeignKey("leagues.id"))
 
     def __eq__(self, other):
         if not isinstance(other, Tournament):
@@ -81,13 +81,13 @@ class Tournament(Base):
 class Match(Base):
     __tablename__ = "matches"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     start_time = Column(String)
     block_name = Column(String)
     league_slug = Column(String)
     strategy_type = Column(String)
     strategy_count = Column(Integer)
-    tournament_id = Column(Integer)
+    tournament_id = Column(String)
     team_1_name = Column(String)
     team_2_name = Column(String)
 
@@ -123,10 +123,10 @@ class Match(Base):
 class Game(Base):
     __tablename__ = "games"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
-    match_id = Column(Integer, ForeignKey("matches.id"))
+    match_id = Column(String, ForeignKey("matches.id"))
     has_game_data = Column(Boolean, default=True)
 
     def __eq__(self, other):
@@ -151,7 +151,7 @@ class Game(Base):
 class ProfessionalTeam(Base):
     __tablename__ = "professional_teams"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     slug = Column(String)
     name = Column(String)
     code = Column(String)
@@ -193,8 +193,8 @@ class ProfessionalTeam(Base):
 class ProfessionalPlayer(Base):
     __tablename__ = "professional_players"
 
-    id = Column(Integer, primary_key=True)
-    team_id = Column(Integer, ForeignKey("professional_teams.id"), primary_key=True)
+    id = Column(String, primary_key=True)
+    team_id = Column(String, ForeignKey("professional_teams.id"), primary_key=True)
     summoner_name = Column(String)
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
@@ -227,8 +227,8 @@ class ProfessionalPlayer(Base):
 class PlayerGameMetadata(Base):
     __tablename__ = "player_game_metadata"
 
-    game_id = Column(Integer, primary_key=True)
-    player_id = Column(Integer, ForeignKey("professional_players.id"), primary_key=True)
+    game_id = Column(String, primary_key=True)
+    player_id = Column(String, ForeignKey("professional_players.id"), primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
@@ -261,8 +261,8 @@ class PlayerGameMetadata(Base):
 class PlayerGameStats(Base):
     __tablename__ = "player_game_stats"
 
-    game_id = Column(Integer, primary_key=True)
-    participant_id = Column(Integer, primary_key=True)
+    game_id = Column(String, primary_key=True)
+    participant_id = Column(String, primary_key=True)
     kills = Column(Integer)
     deaths = Column(Integer)
     assists = Column(Integer)

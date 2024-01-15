@@ -34,7 +34,7 @@ class RiotTournamentService:
             raise e
 
     @staticmethod
-    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[Tournament]:
+    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[TournamentSchema]:
         filters = []
         current_date = datetime.now()
         if search_parameters.status == TournamentStatus.ACTIVE:
@@ -45,12 +45,15 @@ class RiotTournamentService:
         if search_parameters.status == TournamentStatus.UPCOMING:
             filters.append(Tournament.start_date > current_date)
 
-        tournaments = crud.get_tournaments(filters)
+        tournament_orms = crud.get_tournaments(filters)
+        tournaments = [TournamentSchema.model_validate(tournament_orm)
+                       for tournament_orm in tournament_orms]
         return tournaments
 
     @staticmethod
-    def get_tournament_by_id(tournament_id: int) -> Tournament:
-        tournament = crud.get_tournament_by_id(tournament_id)
-        if tournament is None:
+    def get_tournament_by_id(tournament_id: str) -> TournamentSchema:
+        tournament_orm = crud.get_tournament_by_id(tournament_id)
+        if tournament_orm is None:
             raise TournamentNotFoundException()
+        tournament = TournamentSchema.model_validate(tournament_orm)
         return tournament

@@ -47,12 +47,12 @@ class RiotGameStatsService:
         else:
             logger.error(f"Player metadata job failed with error: {error}")
 
-    def fetch_and_store_player_metadata_for_game(self, game_id: int):
+    def fetch_and_store_player_metadata_for_game(self, game_id: str):
         logger.info(f"Fetching player metadata for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_metadata = self.riot_api_requester.get_player_metadata_for_game(
-                                                                    game_id, time_stamp)
+                game_id, time_stamp)
             if len(fetched_player_metadata) == 0:
                 logger.info(f"Game id {game_id} has no player metadata available")
                 crud.update_has_game_data(game_id, False)
@@ -88,12 +88,12 @@ class RiotGameStatsService:
         else:
             logger.error(f"Player stats job failed with error: {error}")
 
-    def fetch_and_store_player_stats_for_game(self, game_id: int):
+    def fetch_and_store_player_stats_for_game(self, game_id: str):
         logger.info(f"Fetching player stats for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_stats = self.riot_api_requester.get_player_stats_for_game(
-                                                                game_id, time_stamp)
+                game_id, time_stamp)
 
             if len(fetched_player_stats) == 0:
                 logger.info(f"Game id {game_id} has no player stats available")

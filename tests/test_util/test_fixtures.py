@@ -5,6 +5,9 @@ import pytz
 from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.schemas.game_state import GameState
 
+past_start_date = datetime.now(pytz.utc) - timedelta(days=5)
+formatted_past_start_date = past_start_date.strftime("%Y-%m-%d")
+
 future_start_date = datetime.now(pytz.utc) + timedelta(days=5)
 formatted_future_start_date = future_start_date.strftime("%Y-%m-%d")
 
@@ -15,8 +18,12 @@ future_match_date = datetime.now(pytz.utc) + timedelta(days=7)
 formatted_future_match_datetime = future_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def generate_random_id():
+    return str(random.randint(100000000000000000, 999999999999999999))
+
+
 league_fixture = schemas.LeagueSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     name="Mock Challengers",
     slug="mock-challengers-league",
     region="MOCKED REGION",
@@ -25,7 +32,7 @@ league_fixture = schemas.LeagueSchema(
 )
 
 tournament_fixture = schemas.TournamentSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     slug="mock_slug_2023",
     start_date="2023-01-01",
     end_date="2023-02-03",
@@ -33,15 +40,23 @@ tournament_fixture = schemas.TournamentSchema(
 )
 
 future_tournament_fixture = schemas.TournamentSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     slug="future_slug",
     start_date=formatted_future_start_date,
     end_date=formatted_future_end_date,
     league_id=league_fixture.id
 )
 
+active_tournament_fixture = schemas.TournamentSchema(
+    id=generate_random_id(),
+    slug="active_slug",
+    start_date=formatted_past_start_date,
+    end_date=formatted_future_end_date,
+    league_id=league_fixture.id
+)
+
 team_1_fixture = schemas.ProfessionalTeamSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     slug="mock-team-1",
     name="Mock Team 1",
     code="T1",
@@ -53,7 +68,7 @@ team_1_fixture = schemas.ProfessionalTeamSchema(
 )
 
 team_2_fixture = schemas.ProfessionalTeamSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     slug="mock-team-2",
     name="Mock Team 2",
     code="T2",
@@ -65,7 +80,7 @@ team_2_fixture = schemas.ProfessionalTeamSchema(
 )
 
 match_fixture = schemas.MatchSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     start_time="2023-01-03T15:00:00Z",
     block_name="mockBlockName",
     league_slug=league_fixture.slug,
@@ -77,7 +92,7 @@ match_fixture = schemas.MatchSchema(
 )
 
 future_match_fixture = schemas.MatchSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     start_time=formatted_future_match_datetime,
     block_name="futureBlockName",
     league_slug=league_fixture.slug,
@@ -89,7 +104,7 @@ future_match_fixture = schemas.MatchSchema(
 )
 
 game_1_fixture_completed = schemas.GameSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     state=GameState.COMPLETED,
     number=1,
     match_id=match_fixture.id
@@ -101,28 +116,28 @@ get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
 )
 
 game_2_fixture_inprogress = schemas.GameSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     state=GameState.INPROGRESS,
     number=2,
     match_id=match_fixture.id
 )
 
 game_3_fixture_unstarted = schemas.GameSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     state=GameState.UNSTARTED,
     number=3,
     match_id=match_fixture.id
 )
 
 game_4_fixture_unneeded = schemas.GameSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     state=GameState.UNNEEDED,
     number=4,
     match_id=match_fixture.id
 )
 
 player_1_fixture = schemas.ProfessionalPlayerSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     summoner_name="MockerPlayer1",
     image="http://mocked-player-1.png",
     role="top",
@@ -130,7 +145,7 @@ player_1_fixture = schemas.ProfessionalPlayerSchema(
 )
 
 player_2_fixture = schemas.ProfessionalPlayerSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     summoner_name="MockerPlayer2",
     image="http://mocked-player-2.png",
     role="jungle",
@@ -138,7 +153,7 @@ player_2_fixture = schemas.ProfessionalPlayerSchema(
 )
 
 player_3_fixture = schemas.ProfessionalPlayerSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     summoner_name="MockerPlayer3",
     image="http://mocked-player-3.png",
     role="mid",
@@ -146,7 +161,7 @@ player_3_fixture = schemas.ProfessionalPlayerSchema(
 )
 
 player_4_fixture = schemas.ProfessionalPlayerSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     summoner_name="MockerPlayer4",
     image="http://mocked-player-4.png",
     role="bottom",
@@ -154,7 +169,7 @@ player_4_fixture = schemas.ProfessionalPlayerSchema(
 )
 
 player_5_fixture = schemas.ProfessionalPlayerSchema(
-    id=random.randint(100000, 999999),
+    id=generate_random_id(),
     summoner_name="MockerPlayer5",
     image="http://mocked-player-5.png",
     role="support",
