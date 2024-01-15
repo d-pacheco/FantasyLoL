@@ -33,14 +33,12 @@ logger = logging.getLogger('fantasy-lol')
 )
 def get_riot_matches(
         league_slug: str = Query(None, description="Filter by league name"),
-        tournament_id: int = Query(None, description="Filter by tournament id")):
+        tournament_id: str = Query(None, description="Filter by tournament id")):
     search_parameters = MatchSearchParameters(
         league_slug=league_slug,
         tournament_id=tournament_id
     )
-    matches = match_service.get_matches(search_parameters)
-    matches_response = [MatchSchema(**match.to_dict()) for match in matches]
-    return matches_response
+    return match_service.get_matches(search_parameters)
 
 
 @router.get(
@@ -59,10 +57,8 @@ def get_riot_matches(
         }
     }
 )
-def get_riot_match_by_id(match_id: int):
-    match = match_service.get_match_by_id(match_id)
-    match_response = MatchSchema(**match.to_dict())
-    return match_response
+def get_riot_match_by_id(match_id: str):
+    return match_service.get_match_by_id(match_id)
 
 
 @router.get(

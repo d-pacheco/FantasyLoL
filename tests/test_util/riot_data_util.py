@@ -55,3 +55,9 @@ def create_professional_player_in_db() -> riot_data_schemas.ProfessionalPlayerSc
     player = test_fixtures.player_1_fixture
     db_util.save_player(player)
     return player
+
+
+def create_match_in_db() -> riot_data_schemas.MatchSchema:
+    match = test_fixtures.match_fixture
+    db_util.save_match(match)
+    return match
