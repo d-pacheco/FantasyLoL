@@ -58,7 +58,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
         return query.all()
 
 
-def get_tournament_by_id(tournament_id: int) -> Tournament:
+def get_tournament_by_id(tournament_id: str) -> Tournament:
     with DatabaseConnection() as db:
         return db.query(Tournament).filter(Tournament.id == tournament_id).first()
 

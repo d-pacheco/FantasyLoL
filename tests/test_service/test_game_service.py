@@ -1,6 +1,4 @@
 from tests.fantasy_lol_test_base import FantasyLolTestBase
-from tests.riot_api_requester_util import RiotApiRequestUtil
-from tests.test_util.tournament_test_util import TournamentTestUtil
 from tests.test_util import riot_data_util
 
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException

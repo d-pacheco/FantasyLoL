@@ -35,9 +35,7 @@ def validate_status_parameter(status: TournamentStatus = Query(
 )
 def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_parameter)):
     search_parameters = TournamentSearchParameters(status=status)
-    tournaments = tournament_service.get_tournaments(search_parameters)
-    tournaments_response = [TournamentSchema(**tournament.to_dict()) for tournament in tournaments]
-    return tournaments_response
+    return tournament_service.get_tournaments(search_parameters)
 
 
 @router.get(
@@ -64,10 +62,8 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
         }
     }
 )
-def get_riot_tournaments_by_id(tournament_id: int):
-    tournament = tournament_service.get_tournament_by_id(tournament_id)
-    tournament_response = TournamentSchema(**tournament.to_dict())
-    return tournament_response
+def get_riot_tournaments_by_id(tournament_id: str):
+    return tournament_service.get_tournament_by_id(tournament_id)
 
 
 @router.get(

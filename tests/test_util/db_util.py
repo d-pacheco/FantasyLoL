@@ -29,6 +29,13 @@ def get_game(game_id: int) -> models.Game:
         return db.query(models.Game).filter(models.Game.id == game_id).first()
 
 
+def save_tournament(tournament: schemas.TournamentSchema):
+    db_tournament = models.Tournament(**tournament.model_dump())
+    with DatabaseConnection() as db:
+        db.merge(db_tournament)
+        db.commit()
+
+
 def save_team(team: schemas.ProfessionalTeamSchema):
     db_team = models.ProfessionalTeam(**team.model_dump())
     with DatabaseConnection() as db:

@@ -5,6 +5,9 @@ import pytz
 from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.schemas.game_state import GameState
 
+past_start_date = datetime.now(pytz.utc) - timedelta(days=5)
+formatted_past_start_date = past_start_date.strftime("%Y-%m-%d")
+
 future_start_date = datetime.now(pytz.utc) + timedelta(days=5)
 formatted_future_start_date = future_start_date.strftime("%Y-%m-%d")
 
@@ -40,6 +43,14 @@ future_tournament_fixture = schemas.TournamentSchema(
     id=generate_random_id(),
     slug="future_slug",
     start_date=formatted_future_start_date,
+    end_date=formatted_future_end_date,
+    league_id=league_fixture.id
+)
+
+active_tournament_fixture = schemas.TournamentSchema(
+    id=generate_random_id(),
+    slug="active_slug",
+    start_date=formatted_past_start_date,
     end_date=formatted_future_end_date,
     league_id=league_fixture.id
 )
