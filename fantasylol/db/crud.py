@@ -264,10 +264,10 @@ def get_game_ids_to_fetch_player_stats_for():
         SELECT games.id as game_id
         FROM games
         LEFT JOIN player_game_stats ON games.id = player_game_stats.game_id
-        WHERE (games.state = 'COMPLETED'
+        WHERE ((games.state = 'COMPLETED'
                 AND (SELECT COUNT(*) FROM player_game_stats WHERE game_id = games.id) < 10)
-                AND (games.has_game_data = True)
-           OR games.state = 'INPROGRESS'
+                OR games.state = 'INPROGRESS')
+            AND (games.has_game_data = True)
         GROUP BY games.id
     """
     with DatabaseConnection() as db:
