@@ -9,7 +9,7 @@ logger = logging.getLogger('fantasy-lol')
 
 def on_game_state_transition(target, value, old_value, initiator):
     if value == GameState.COMPLETED.value and old_value.value == GameState.INPROGRESS.value:
-        print(f"Game {target.id}: State transition from INPROGRESS to COMPLETED")
+        logger.info(f"Game {target.id}: State transition from INPROGRESS to COMPLETED")
         game_stats_service = RiotGameStatsService()
         game_stats_service.fetch_and_store_player_metadata_for_game(target.id)
         game_stats_service.fetch_and_store_player_stats_for_game(target.id)
