@@ -216,7 +216,8 @@ def get_players(filters: list = None) -> List[ProfessionalPlayerModel]:
 
 def get_player_by_id(player_id: str) -> ProfessionalPlayerModel:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalPlayerModel).filter(ProfessionalPlayerModel.id == player_id).first()
+        return db.query(ProfessionalPlayerModel)\
+            .filter(ProfessionalPlayerModel.id == player_id).first()
 
 
 # --------------------------------------------------
