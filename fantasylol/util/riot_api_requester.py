@@ -125,7 +125,7 @@ class RiotApiRequester:
             tournaments_from_response.append(new_tournament)
         return tournaments_from_response
 
-    def get_teams(self) -> List[schemas.ProfessionalTeamSchema]:
+    def get_teams(self) -> List[schemas.ProfessionalTeam]:
         url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
@@ -141,7 +141,7 @@ class RiotApiRequester:
             if team['homeLeague'] != 'None':
                 team['homeLeague'] = team['homeLeague']['name']
 
-            new_team = schemas.ProfessionalTeamSchema()
+            new_team = schemas.ProfessionalTeam()
             new_team.id = team['id']
             new_team.slug = team['slug']
             new_team.name = team['name']

@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from pydantic import BaseModel
+from typing import Optional
 
 
 @dataclass
@@ -26,13 +28,12 @@ class LeagueSearchParameters:
     region: str = None
 
 
-@dataclass
-class TeamSearchParameters:
-    slug: str = None
-    name: str = None
-    code: str = None
-    status: str = None
-    league: str = None
+class TeamSearchParameters(BaseModel):
+    slug: Optional[str] = None
+    name: Optional[str] = None
+    code: Optional[str] = None
+    status: Optional[str] = None
+    league: Optional[str] = None
 
 
 @dataclass

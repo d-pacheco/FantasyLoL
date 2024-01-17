@@ -36,8 +36,8 @@ def save_tournament(tournament: schemas.TournamentSchema):
         db.commit()
 
 
-def save_team(team: schemas.ProfessionalTeamSchema):
-    db_team = models.ProfessionalTeam(**team.model_dump())
+def save_team(team: schemas.ProfessionalTeam):
+    db_team = models.ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
         db.commit()

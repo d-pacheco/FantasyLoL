@@ -169,58 +169,54 @@ class GetGamesResponseSchema(BaseModel):
     state: GameState = Field()
 
 
-class ProfessionalTeamSchema(BaseModel):
+class ProfessionalTeam(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
         description="The ID of the team",
+        examples=["98767991853197861"]
     )
     slug: str = Field(
         default=None,
-        description="The SLUG of the team"
+        description="The SLUG of the team",
+        examples=["t1"]
     )
     name: str = Field(
         default=None,
-        description="The name of the team"
+        description="The name of the team",
+        examples=["T1"]
     )
     code: str = Field(
         default=None,
-        description="The code of the team"
+        description="The code of the team",
+        examples=["T1"]
     )
     image: str = Field(
         default=None,
-        description="The image url of the team"
+        description="The image url of the team",
+        examples=["http://static.lolesports.com/teams/1704375161752_T1_esports.png"]
     )
     alternative_image: str = Field(
         default=None,
-        description="The alternatice image url of the team"
+        description="The alternatice image url of the team",
+        examples=["http://static.lolesports.com/teams/1704375161753_T1_esports.png"]
     )
     background_image: str = Field(
         default=None,
-        description="The background image url of the team"
+        description="The background image url of the team",
+        examples=["http://static.lolesports.com/teams/1596305556675_T1T1.png"]
     )
     status: str = Field(
         default=None,
-        description="The status of the team"
+        description="The status of the team",
+        examples=["active"]
     )
     home_league: str = Field(
         default=None,
-        description="The home league name of the team"
+        description="The home league name of the team",
+        examples=["LCK"]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "111111111111111111",
-            "slug": "team_name",
-            "name": "Team Name",
-            "code": "TEST1",
-            "image": "http://team-image.png",
-            "alternative_image": "http://team-alternative-image.png",
-            "background_image": "http://team-background-image.png",
-            "status": "active",
-            "home_league": "Challengers"
-        }
 
 
 class ProfessionalPlayerSchema(BaseModel):

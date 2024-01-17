@@ -8,7 +8,7 @@ from fantasylol.db.models import (
     Game,
     PlayerGameMetadata,
     PlayerGameStats,
-    ProfessionalTeam,
+    ProfessionalTeamModel,
     ProfessionalPlayer,
     Schedule
 )
@@ -174,25 +174,25 @@ def get_game_by_id(game_id: str) -> Game:
 # --------------------------------------------------
 # ---------------- Team Operations ----------------
 # --------------------------------------------------
-def save_team(team: schemas.ProfessionalTeamSchema):
-    db_team = ProfessionalTeam(**team.model_dump())
+def save_team(team: schemas.ProfessionalTeam):
+    db_team = ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
         db.commit()
 
 
-def get_teams(filters: list = None) -> List[ProfessionalTeam]:
+def get_teams(filters: list = None) -> List[ProfessionalTeamModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(ProfessionalTeam).filter(*filters)
+            query = db.query(ProfessionalTeamModel).filter(*filters)
         else:
-            query = db.query(ProfessionalTeam)
+            query = db.query(ProfessionalTeamModel)
         return query.all()
 
 
-def get_team_by_id(team_id: str) -> ProfessionalTeam:
+def get_team_by_id(team_id: str) -> ProfessionalTeamModel:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalTeam).filter(ProfessionalTeam.id == team_id).first()
+        return db.query(ProfessionalTeamModel).filter(ProfessionalTeamModel.id == team_id).first()
 
 
 # --------------------------------------------------
