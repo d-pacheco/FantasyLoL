@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 
 from fantasylol.db import crud
-from fantasylol.db.models import Tournament
-from fantasylol.schemas.riot_data_schemas import TournamentSchema
+from fantasylol.db.models import TournamentModel
+from fantasylol.schemas.riot_data_schemas import Tournament
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
 from fantasylol.schemas.tournament_status import TournamentStatus
@@ -17,7 +17,7 @@ class RiotTournamentService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
 
-    def fetch_and_store_tournaments(self) -> List[TournamentSchema]:
+    def fetch_and_store_tournaments(self) -> List[Tournament]:
         logger.info("Fetching and storing tournaments from riot's api")
         try:
             stored_leagues = crud.get_leagues()
@@ -34,26 +34,26 @@ class RiotTournamentService:
             raise e
 
     @staticmethod
-    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[TournamentSchema]:
+    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[Tournament]:
         filters = []
         current_date = datetime.now()
         if search_parameters.status == TournamentStatus.ACTIVE:
-            filters.append(Tournament.start_date <= current_date)
-            filters.append(Tournament.end_date >= current_date)
+            filters.append(TournamentModel.start_date <= current_date)
+            filters.append(TournamentModel.end_date >= current_date)
         if search_parameters.status == TournamentStatus.COMPLETED:
-            filters.append(Tournament.end_date < current_date)
+            filters.append(TournamentModel.end_date < current_date)
         if search_parameters.status == TournamentStatus.UPCOMING:
-            filters.append(Tournament.start_date > current_date)
+            filters.append(TournamentModel.start_date > current_date)
 
         tournament_orms = crud.get_tournaments(filters)
-        tournaments = [TournamentSchema.model_validate(tournament_orm)
+        tournaments = [Tournament.model_validate(tournament_orm)
                        for tournament_orm in tournament_orms]
         return tournaments
 
     @staticmethod
-    def get_tournament_by_id(tournament_id: str) -> TournamentSchema:
+    def get_tournament_by_id(tournament_id: str) -> Tournament:
         tournament_orm = crud.get_tournament_by_id(tournament_id)
         if tournament_orm is None:
             raise TournamentNotFoundException()
-        tournament = TournamentSchema.model_validate(tournament_orm)
+        tournament = Tournament.model_validate(tournament_orm)
         return tournament

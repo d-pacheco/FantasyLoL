@@ -24,7 +24,7 @@ class League(Base):
     priority = Column(Integer)
 
 
-class Tournament(Base):
+class TournamentModel(Base):
     __tablename__ = "tournaments"
 
     id = Column(String, primary_key=True, index=True)

@@ -4,7 +4,7 @@ from fantasylol.db.models import Game
 from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.db.models import ProfessionalPlayerModel
 from fantasylol.db.models import League
-from fantasylol.db.models import Tournament
+from fantasylol.db.models import TournamentModel
 from fantasylol.db.models import Match
 
 
@@ -363,7 +363,7 @@ class RiotApiRequestUtil:
             "end_date": self.mock_tournament_end_date,
             "league_id": int(self.mock_league_id)
         }
-        return Tournament(**mock_tournament_attrs)
+        return TournamentModel(**mock_tournament_attrs)
 
     def create_mock_tournament_response(self):
         response = {

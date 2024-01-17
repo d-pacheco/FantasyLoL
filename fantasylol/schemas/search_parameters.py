@@ -35,6 +35,5 @@ class TeamSearchParameters(BaseModel):
     league: Optional[str] = None
 
 
-@dataclass
-class TournamentSearchParameters:
-    status: str = None
+class TournamentSearchParameters(BaseModel):
+    status: Optional[str] = None

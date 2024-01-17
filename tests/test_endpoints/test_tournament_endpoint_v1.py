@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from fastapi_pagination import add_pagination
 from unittest.mock import patch
 from http import HTTPStatus
 
@@ -21,6 +22,7 @@ GET_TOURNAMENTS_BY_ID_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tour
 
 class TournamentEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
+        add_pagination(app)
         self.client = TestClient(app)
 
     @patch(GET_TOURNAMENTS_MOCK_PATH)
@@ -36,7 +38,8 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        tournaments = response.json()
+        response_json: dict = response.json()
+        tournaments = response_json.get('items')
         self.assertIsInstance(tournaments, list)
         self.assertEqual(1, len(tournaments))
         self.assertEqual(expected_tournament_response, tournaments[0])
@@ -55,7 +58,8 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        tournaments = response.json()
+        response_json: dict = response.json()
+        tournaments = response_json.get('items')
         self.assertIsInstance(tournaments, list)
         self.assertEqual(1, len(tournaments))
         self.assertEqual(expected_tournament_response, tournaments[0])
@@ -74,7 +78,8 @@ class TournamentEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        tournaments = response.json()
+        response_json: dict = response.json()
+        tournaments = response_json.get('items')
         self.assertIsInstance(tournaments, list)
         self.assertEqual(1, len(tournaments))
         self.assertEqual(expected_tournament_response, tournaments[0])
