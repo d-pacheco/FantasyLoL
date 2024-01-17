@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pydantic import BaseModel
 from typing import Optional
 
@@ -14,10 +13,9 @@ class GameSearchParameters(BaseModel):
     match_id: Optional[str] = None
 
 
-@dataclass
-class MatchSearchParameters:
-    league_slug: str = None
-    tournament_id: str = None
+class MatchSearchParameters(BaseModel):
+    league_slug: Optional[str] = None
+    tournament_id: Optional[str] = None
 
 
 class LeagueSearchParameters(BaseModel):

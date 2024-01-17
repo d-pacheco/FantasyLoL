@@ -5,7 +5,7 @@ from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.db.models import ProfessionalPlayerModel
 from fantasylol.db.models import LeagueModel
 from fantasylol.db.models import TournamentModel
-from fantasylol.db.models import Match
+from fantasylol.db.models import MatchModel
 
 
 class RiotApiRequestUtil:
@@ -396,7 +396,7 @@ class RiotApiRequestUtil:
             "team_1_name": self.mock_team_1_name,
             "team_2_name": self.mock_team_2_name
         }
-        return Match(**mock_match_attrs)
+        return MatchModel(**mock_match_attrs)
 
     def create_mock_match_response(self):
         return {

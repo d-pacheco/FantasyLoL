@@ -247,13 +247,13 @@ class RiotApiRequester:
         pages.newer = schedule['pages']['newer']
         return pages
 
-    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.MatchSchema]:
+    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.Match]:
         schedule = self.__get_schedule(page_token)
         matches_from_response = []
         events = schedule.get("events", [])
         for event in events:
             match = event['match']
-            new_match = schemas.MatchSchema()
+            new_match = schemas.Match()
             new_match.id = match['id']
             new_match.start_time = event['startTime']
             new_match.block_name = event['blockName']

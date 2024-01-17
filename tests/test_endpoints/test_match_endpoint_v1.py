@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from fastapi_pagination import add_pagination
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -17,6 +18,7 @@ GET_MATCHES_BY_ID_MOCK_PATH = f"{BASE_MATCH_SERVICE_MOCK_PATH}.get_match_by_id"
 
 class MatchEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
+        add_pagination(app)
         self.client = TestClient(app)
 
     @patch(GET_MATCHES_MOCK_PATH)
@@ -31,7 +33,8 @@ class MatchEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_matches = response.json()
+        response_json: dict = response.json()
+        response_matches = response_json.get('items')
         self.assertIsInstance(response_matches, list)
         self.assertEqual(1, len(response_matches))
         self.assertEqual(expected_match_response, response_matches[0])
@@ -51,7 +54,8 @@ class MatchEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_matches = response.json()
+        response_json: dict = response.json()
+        response_matches = response_json.get('items')
         self.assertIsInstance(response_matches, list)
         self.assertEqual(1, len(response_matches))
         self.assertEqual(expected_match_response, response_matches[0])
@@ -73,7 +77,8 @@ class MatchEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_matches = response.json()
+        response_json: dict = response.json()
+        response_matches = response_json.get('items')
         self.assertIsInstance(response_matches, list)
         self.assertEqual(1, len(response_matches))
         self.assertEqual(expected_match_response, response_matches[0])

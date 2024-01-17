@@ -10,8 +10,8 @@ def save_league(league: schemas.League):
         db.commit()
 
 
-def save_match(match: schemas.MatchSchema):
-    db_match = models.Match(**match.model_dump())
+def save_match(match: schemas.Match):
+    db_match = models.MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
         db.commit()
