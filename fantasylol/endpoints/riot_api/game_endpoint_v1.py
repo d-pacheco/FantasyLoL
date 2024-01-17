@@ -1,7 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
-from typing import List
 
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.riot_data_schemas import Game
