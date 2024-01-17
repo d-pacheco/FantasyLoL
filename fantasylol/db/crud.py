@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy import text
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import (
-    League,
+    LeagueModel,
     TournamentModel,
     Match,
     Game,
@@ -18,8 +18,8 @@ from fantasylol.schemas import riot_data_schemas as schemas
 # --------------------------------------------------
 # --------------- League Operations ----------------
 # --------------------------------------------------
-def save_league(league: schemas.LeagueSchema):
-    db_league = League(**league.model_dump())
+def save_league(league: schemas.League):
+    db_league = LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
         db.commit()
@@ -28,15 +28,15 @@ def save_league(league: schemas.LeagueSchema):
 def get_leagues(filters: list = None) -> List[Match]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(League).filter(*filters)
+            query = db.query(LeagueModel).filter(*filters)
         else:
-            query = db.query(League)
+            query = db.query(LeagueModel)
         return query.all()
 
 
-def get_league_by_id(league_id: str) -> League:
+def get_league_by_id(league_id: str) -> LeagueModel:
     with DatabaseConnection() as db:
-        return db.query(League).filter(League.id == league_id).first()
+        return db.query(LeagueModel).filter(LeagueModel.id == league_id).first()
 
 
 # --------------------------------------------------

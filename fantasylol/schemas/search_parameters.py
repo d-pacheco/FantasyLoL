@@ -21,10 +21,9 @@ class MatchSearchParameters:
     tournament_id: str = None
 
 
-@dataclass
-class LeagueSearchParameters:
-    name: str = None
-    region: str = None
+class LeagueSearchParameters(BaseModel):
+    name: Optional[str] = None
+    region: Optional[str] = None
 
 
 class TeamSearchParameters(BaseModel):

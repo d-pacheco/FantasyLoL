@@ -3,8 +3,8 @@ from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.db import models
 
 
-def save_league(league: schemas.LeagueSchema):
-    db_league = models.League(**league.model_dump())
+def save_league(league: schemas.League):
+    db_league = models.LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
         db.commit()

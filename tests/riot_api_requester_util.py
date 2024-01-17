@@ -3,7 +3,7 @@ import random
 from fantasylol.db.models import Game
 from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.db.models import ProfessionalPlayerModel
-from fantasylol.db.models import League
+from fantasylol.db.models import LeagueModel
 from fantasylol.db.models import TournamentModel
 from fantasylol.db.models import Match
 
@@ -323,7 +323,7 @@ class RiotApiRequestUtil:
         }
         return response
 
-    def create_mock_league(self) -> League:
+    def create_mock_league(self) -> LeagueModel:
         mock_league_attrs = {
             "id": int(self.mock_league_id),
             "slug": self.mock_league_slug,
@@ -332,7 +332,7 @@ class RiotApiRequestUtil:
             "image": self.mock_league_image,
             "priority": 1  # Adjust the attribute name if needed
         }
-        return League(**mock_league_attrs)
+        return LeagueModel(**mock_league_attrs)
 
     def create_mock_league_response(self):
         response = {
