@@ -85,7 +85,7 @@ class ProfessionalPlayerModel(Base):
     )
 
 
-class PlayerGameMetadata(Base):
+class PlayerGameMetadataModel(Base):
     __tablename__ = "player_game_metadata"
 
     game_id = Column(String, primary_key=True)

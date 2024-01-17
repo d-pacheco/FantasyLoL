@@ -1,6 +1,6 @@
 import random
 
-from fantasylol.db.models import PlayerGameMetadata, PlayerGameStats
+from fantasylol.db.models import PlayerGameMetadataModel, PlayerGameStats
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.schemas.riot_data_schemas import PlayerRole
 
@@ -26,7 +26,7 @@ class GameStatsTestUtil:
             "champion_id": "championId",
             "role": role
         }
-        player_metadata = PlayerGameMetadata(**player_metadata_attr)
+        player_metadata = PlayerGameMetadataModel(**player_metadata_attr)
         with DatabaseConnection() as db:
             db.add(player_metadata)
             db.commit()

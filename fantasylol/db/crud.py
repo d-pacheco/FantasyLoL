@@ -6,7 +6,7 @@ from fantasylol.db.models import (
     TournamentModel,
     MatchModel,
     GameModel,
-    PlayerGameMetadata,
+    PlayerGameMetadataModel,
     PlayerGameStats,
     ProfessionalTeamModel,
     ProfessionalPlayerModel,
@@ -223,8 +223,8 @@ def get_player_by_id(player_id: str) -> ProfessionalPlayerModel:
 # --------------------------------------------------
 # ----------- Player Metadata Operations -----------
 # --------------------------------------------------
-def save_player_metadata(player_metadata: schemas.PlayerGameMetadataSchema):
-    db_player_metadata = PlayerGameMetadata(**player_metadata.model_dump())
+def save_player_metadata(player_metadata: schemas.PlayerGameMetadata):
+    db_player_metadata = PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_metadata)
         db.commit()

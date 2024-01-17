@@ -267,3 +267,87 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         riot_api_requester = RiotApiRequester()
         with self.assertRaises(RiotApiStatusCodeAssertException):
             riot_api_requester.get_games(game_ids_to_get)
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_player_metadata_for_game(self, mock_cloud_scraper):
+        # Arrange
+        game = test_fixtures.game_1_fixture_completed
+        time_stamp = "randomTimeStamp"
+        expected_player_metadata = [
+            test_fixtures.player_1_game_metadata_fixture,
+            test_fixtures.player_2_game_metadata_fixture,
+            test_fixtures.player_3_game_metadata_fixture,
+            test_fixtures.player_4_game_metadata_fixture,
+            test_fixtures.player_5_game_metadata_fixture,
+            test_fixtures.player_6_game_metadata_fixture,
+            test_fixtures.player_7_game_metadata_fixture,
+            test_fixtures.player_8_game_metadata_fixture,
+            test_fixtures.player_9_game_metadata_fixture,
+            test_fixtures.player_10_game_metadata_fixture
+        ]
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.json.return_value = riot_api_requester_util.get_livestats_window_response
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        get_player_metadata_response = riot_api_requester\
+            .get_player_metadata_for_game(game.id, time_stamp)
+
+        # Assert
+        self.assertIsInstance(get_player_metadata_response, list)
+        self.assertEqual(10, len(get_player_metadata_response))
+        self.assertEqual(expected_player_metadata[0], get_player_metadata_response[0])
+        self.assertEqual(expected_player_metadata[1], get_player_metadata_response[1])
+        self.assertEqual(expected_player_metadata[2], get_player_metadata_response[2])
+        self.assertEqual(expected_player_metadata[3], get_player_metadata_response[3])
+        self.assertEqual(expected_player_metadata[4], get_player_metadata_response[4])
+        self.assertEqual(expected_player_metadata[5], get_player_metadata_response[5])
+        self.assertEqual(expected_player_metadata[6], get_player_metadata_response[6])
+        self.assertEqual(expected_player_metadata[7], get_player_metadata_response[7])
+        self.assertEqual(expected_player_metadata[8], get_player_metadata_response[8])
+        self.assertEqual(expected_player_metadata[9], get_player_metadata_response[9])
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_player_metadata_for_game_status_code_assertion(self, mock_cloud_scraper):
+        # Arrange
+        game = test_fixtures.game_1_fixture_completed
+        time_stamp = "randomTimeStamp"
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.BAD_REQUEST
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        with self.assertRaises(RiotApiStatusCodeAssertException):
+            riot_api_requester.get_player_metadata_for_game(game.id, time_stamp)
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_player_metadata_for_game_no_content_status_code(self, mock_cloud_scraper):
+        # Arrange
+        game = test_fixtures.game_1_fixture_completed
+        time_stamp = "randomTimeStamp"
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.NO_CONTENT
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        get_player_metadata_response = riot_api_requester\
+            .get_player_metadata_for_game(game.id, time_stamp)
+
+        # Assert
+        self.assertIsInstance(get_player_metadata_response, list)
+        self.assertEqual(0, len(get_player_metadata_response))
+
+

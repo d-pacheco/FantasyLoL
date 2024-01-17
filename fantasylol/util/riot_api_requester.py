@@ -174,7 +174,7 @@ class RiotApiRequester:
         return players_from_response
 
     def get_player_metadata_for_game(self, game_id: str, time_stamp: str) \
-            -> List[schemas.PlayerGameMetadataSchema]:
+            -> List[schemas.PlayerGameMetadata]:
         url = (
             "https://feed.lolesports.com"
             f"/livestats/v1/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
@@ -295,11 +295,11 @@ class RiotApiRequester:
 
 
 def parse_team_metadata(team_metadata: dict, game_id: str) \
-        -> List[schemas.PlayerGameMetadataSchema]:
+        -> List[schemas.PlayerGameMetadata]:
     participant_metadata = team_metadata.get("participantMetadata", [])
     player_metadata_for_team = []
     for participant in participant_metadata:
-        new_player_metadata = schemas.PlayerGameMetadataSchema()
+        new_player_metadata = schemas.PlayerGameMetadata()
         new_player_metadata.game_id = game_id
         new_player_metadata.participant_id = participant['participantId']
         new_player_metadata.champion_id = participant['championId']

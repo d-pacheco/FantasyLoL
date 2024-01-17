@@ -255,7 +255,7 @@ class ProfessionalPlayer(BaseModel):
     )
 
 
-class PlayerGameMetadataSchema(BaseModel):
+class PlayerGameMetadata(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     game_id: str = Field(

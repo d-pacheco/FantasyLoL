@@ -6,7 +6,7 @@ from tests.fantasy_lol_test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.riot_api_requester_util import RiotApiRequestUtil
 
 from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import PlayerGameMetadata
+from fantasylol.db.models import PlayerGameMetadataModel
 from fantasylol.service.riot_game_stats_service import RiotGameStatsService
 
 
@@ -36,5 +36,5 @@ class GameStatsServiceTest(FantasyLolTestBase):
         )
 
         with DatabaseConnection() as db:
-            player_metadata_from_db = db.query(PlayerGameMetadata).all()
+            player_metadata_from_db = db.query(PlayerGameMetadataModel).all()
         self.assertEqual(10, len(player_metadata_from_db))

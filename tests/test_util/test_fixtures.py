@@ -175,3 +175,123 @@ player_5_fixture = schemas.ProfessionalPlayer(
     role="support",
     team_id=team_1_fixture.id
 )
+
+player_6_fixture = schemas.ProfessionalPlayer(
+    id=generate_random_id(),
+    summoner_name="MockerPlayer6",
+    image="http://mocked-player-6.png",
+    role="top",
+    team_id=team_2_fixture.id
+)
+
+player_7_fixture = schemas.ProfessionalPlayer(
+    id=generate_random_id(),
+    summoner_name="MockerPlayer7",
+    image="http://mocked-player-7.png",
+    role="jungle",
+    team_id=team_2_fixture.id
+)
+
+player_8_fixture = schemas.ProfessionalPlayer(
+    id=generate_random_id(),
+    summoner_name="MockerPlayer8",
+    image="http://mocked-player-8.png",
+    role="mid",
+    team_id=team_2_fixture.id
+)
+
+player_9_fixture = schemas.ProfessionalPlayer(
+    id=generate_random_id(),
+    summoner_name="MockerPlayer9",
+    image="http://mocked-player-9.png",
+    role="bottom",
+    team_id=team_2_fixture.id
+)
+
+player_10_fixture = schemas.ProfessionalPlayer(
+    id=generate_random_id(),
+    summoner_name="MockerPlayer10",
+    image="http://mocked-player-10.png",
+    role="support",
+    team_id=team_2_fixture.id
+)
+
+player_1_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_1_fixture.id,
+    participant_id=1,
+    champion_id="champion1",
+    role="top"
+)
+
+player_2_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_2_fixture.id,
+    participant_id=2,
+    champion_id="champion2",
+    role="jungle"
+)
+
+player_3_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_3_fixture.id,
+    participant_id=3,
+    champion_id="champion3",
+    role="mid"
+)
+
+player_4_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_4_fixture.id,
+    participant_id=4,
+    champion_id="champion4",
+    role="bottom"
+)
+
+player_5_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_5_fixture.id,
+    participant_id=5,
+    champion_id="champion5",
+    role="support"
+)
+
+player_6_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_6_fixture.id,
+    participant_id=6,
+    champion_id="champion6",
+    role="top"
+)
+
+player_7_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_7_fixture.id,
+    participant_id=7,
+    champion_id="champion7",
+    role="jungle"
+)
+
+player_8_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_8_fixture.id,
+    participant_id=8,
+    champion_id="champion8",
+    role="mid"
+)
+
+player_9_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_9_fixture.id,
+    participant_id=9,
+    champion_id="champion9",
+    role="bottom"
+)
+
+player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
+    game_id=game_1_fixture_completed.id,
+    player_id=player_10_fixture.id,
+    participant_id=10,
+    champion_id="champion10",
+    role="support"
+)
