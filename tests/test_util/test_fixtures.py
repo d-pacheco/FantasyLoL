@@ -295,3 +295,143 @@ player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
     champion_id="champion10",
     role="support"
 )
+
+player_1_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_1_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_2_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_2_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_3_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_3_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_4_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_4_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_5_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_5_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_6_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_6_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_7_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_7_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_8_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_8_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_9_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_9_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)
+
+player_10_game_stats_fixture = schemas.PlayerGameStats(
+    game_id=game_1_fixture_completed.id,
+    participant_id=player_10_game_metadata_fixture.participant_id,
+    kills=random.randint(1, 5),
+    deaths=random.randint(1, 5),
+    assists=random.randint(1, 5),
+    total_gold=random.randint(5000, 20000),
+    creep_score=random.randint(100, 250),
+    kill_participation=20,
+    champion_damage_share=20,
+    wards_placed=random.randint(10, 20),
+    wards_destroyed=random.randint(10, 20)
+)

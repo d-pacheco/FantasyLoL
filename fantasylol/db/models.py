@@ -99,7 +99,7 @@ class PlayerGameMetadataModel(Base):
     )
 
 
-class PlayerGameStats(Base):
+class PlayerGameStatsModel(Base):
     __tablename__ = "player_game_stats"
 
     game_id = Column(String, primary_key=True)

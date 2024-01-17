@@ -199,7 +199,7 @@ class RiotApiRequester:
         return player_metadata_from_response
 
     def get_player_stats_for_game(self, game_id: str, time_stamp: str) \
-            -> List[schemas.PlayerGameStatsSchema]:
+            -> List[schemas.PlayerGameStats]:
         url = (
             "https://feed.lolesports.com"
             f"/livestats/v1/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
@@ -225,18 +225,19 @@ class RiotApiRequester:
         last_frame = frames[len(frames) - 1]
         participants = last_frame.get("participants", [])
         for participant in participants:
-            new_player_stats = schemas.PlayerGameStatsSchema()
-            new_player_stats.game_id = game_id
-            new_player_stats.participant_id = participant['participantId']
-            new_player_stats.kills = participant['kills']
-            new_player_stats.deaths = participant['deaths']
-            new_player_stats.assists = participant['assists']
-            new_player_stats.total_gold = participant['totalGoldEarned']
-            new_player_stats.creep_score = participant['creepScore']
-            new_player_stats.kill_participation = participant['killParticipation']
-            new_player_stats.champion_damage_share = participant['championDamageShare']
-            new_player_stats.wards_placed = participant['wardsPlaced']
-            new_player_stats.wards_destroyed = participant['wardsDestroyed']
+            new_player_stats = schemas.PlayerGameStats(
+                game_id=game_id,
+                participant_id=participant['participantId'],
+                kills=participant['kills'],
+                deaths=participant['deaths'],
+                assists=participant['assists'],
+                total_gold=participant['totalGoldEarned'],
+                creep_score=participant['creepScore'],
+                kill_participation=to_rounded_percentage(participant['killParticipation']),
+                champion_damage_share=to_rounded_percentage(participant['championDamageShare']),
+                wards_placed=participant['wardsPlaced'],
+                wards_destroyed=participant['wardsDestroyed']
+            )
             player_stats_from_response.append(new_player_stats)
         return player_stats_from_response
 
@@ -309,3 +310,7 @@ def parse_team_metadata(team_metadata: dict, game_id: str) \
             'esportsPlayerId', str(new_player_metadata.participant_id))
         player_metadata_for_team.append(new_player_metadata)
     return player_metadata_for_team
+
+
+def to_rounded_percentage(float_value: float):
+    return round(float_value * 100)
