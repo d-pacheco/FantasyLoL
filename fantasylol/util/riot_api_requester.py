@@ -154,7 +154,7 @@ class RiotApiRequester:
             teams_from_response.append(new_team)
         return teams_from_response
 
-    def get_players(self) -> List[schemas.ProfessionalPlayerSchema]:
+    def get_players(self) -> List[schemas.ProfessionalPlayer]:
         url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
@@ -164,7 +164,7 @@ class RiotApiRequester:
         players_from_response = []
         for team in res_json['data']['teams']:
             for player in team['players']:
-                new_player = schemas.ProfessionalPlayerSchema()
+                new_player = schemas.ProfessionalPlayer()
                 new_player.id = player['id']
                 new_player.summoner_name = player['summonerName']
                 new_player.image = player['image']

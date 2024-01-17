@@ -199,7 +199,7 @@ class ProfessionalTeam(BaseModel):
     )
     alternative_image: str = Field(
         default=None,
-        description="The alternatice image url of the team",
+        description="The alternative image url of the team",
         examples=["http://static.lolesports.com/teams/1704375161753_T1_esports.png"]
     )
     background_image: str = Field(
@@ -219,38 +219,34 @@ class ProfessionalTeam(BaseModel):
     )
 
 
-class ProfessionalPlayerSchema(BaseModel):
+class ProfessionalPlayer(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
-        description="The esports id of the player given by RIOT"
+        description="The esports id of the player given by RIOT",
+        examples=["98767991747728851"]
     )
     summoner_name: str = Field(
         default=None,
-        description="The summoner name of the player"
+        description="The summoner name of the player",
+        examples=["Faker"]
     )
     image: str = Field(
         default=None,
-        description="The url for the players image"
+        description="The url for the players image",
+        examples=["http://static.lolesports.com/players/1686475867148_T1_Faker.png"]
     )
     role: str = Field(
         default=None,
-        description="The role that the player plays"
+        description="The role that the player plays",
+        examples=["mid"]
     )
     team_id: str = Field(
         default=None,
-        description="The id of the team that the player is on"
+        description="The id of the team that the player is on",
+        examples=["98767991853197861"]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "111111111111111111",
-            "summoner_name": "summonerName",
-            "image": "http://player-image.png",
-            "role": "jungle",
-            "team_id": "111111111111111111"
-        }
 
 
 class PlayerGameMetadataSchema(BaseModel):

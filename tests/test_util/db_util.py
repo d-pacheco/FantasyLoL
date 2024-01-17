@@ -43,8 +43,8 @@ def save_team(team: schemas.ProfessionalTeam):
         db.commit()
 
 
-def save_player(player: schemas.ProfessionalPlayerSchema):
-    db_player = models.ProfessionalPlayer(**player.model_dump())
+def save_player(player: schemas.ProfessionalPlayer):
+    db_player = models.ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
         db.commit()

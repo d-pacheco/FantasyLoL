@@ -72,7 +72,7 @@ class ProfessionalTeamModel(Base):
     home_league = Column(String)
 
 
-class ProfessionalPlayer(Base):
+class ProfessionalPlayerModel(Base):
     __tablename__ = "professional_players"
 
     id = Column(String, primary_key=True)
