@@ -103,7 +103,7 @@ future_match_fixture = schemas.MatchSchema(
     team_2_name=team_2_fixture.name
 )
 
-game_1_fixture_completed = schemas.GameSchema(
+game_1_fixture_completed = schemas.Game(
     id=generate_random_id(),
     state=GameState.COMPLETED,
     number=1,
@@ -115,21 +115,21 @@ get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
     state=game_1_fixture_completed.state
 )
 
-game_2_fixture_inprogress = schemas.GameSchema(
+game_2_fixture_inprogress = schemas.Game(
     id=generate_random_id(),
     state=GameState.INPROGRESS,
     number=2,
     match_id=match_fixture.id
 )
 
-game_3_fixture_unstarted = schemas.GameSchema(
+game_3_fixture_unstarted = schemas.Game(
     id=generate_random_id(),
     state=GameState.UNSTARTED,
     number=3,
     match_id=match_fixture.id
 )
 
-game_4_fixture_unneeded = schemas.GameSchema(
+game_4_fixture_unneeded = schemas.Game(
     id=generate_random_id(),
     state=GameState.UNNEEDED,
     number=4,

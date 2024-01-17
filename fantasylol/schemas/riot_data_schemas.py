@@ -123,37 +123,34 @@ class MatchSchema(BaseModel):
         }
 
 
-class GameSchema(BaseModel):
+class Game(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
         description="The ID of the game",
+        examples=["110853020184706766"]
     )
     state: GameState = Field(
         default=None,
-        description="The state of the game"
+        description="The state of the game",
+        examples=["completed"]
     )
     number: int = Field(
         default=None,
-        description="The game number within the strategy type and count"
+        description="The game number within the strategy type and count",
+        examples=[1]
     )
     match_id: str = Field(
         default=None,
-        description="The ID of the match that the game is in"
+        description="The ID of the match that the game is in",
+        examples=["110853020184706765"]
     )
     has_game_data: bool = Field(
         default=True,
-        description="If this game has player metadata and stats available"
+        description="If this game has player metadata and stats available",
+        examples=[True]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "110413246204026236",
-            "state": "completed",
-            "number": 1,
-            "match_id": "110413246204026235",
-        }
 
 
 class GetGamesResponseSchema(BaseModel):

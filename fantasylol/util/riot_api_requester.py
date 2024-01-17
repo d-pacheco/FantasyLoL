@@ -34,7 +34,7 @@ class RiotApiRequester:
             headers = self.default_headers
         return self.client.get(url, headers=headers)
 
-    def get_games_from_event_details(self, match_id: str) -> List[schemas.GameSchema]:
+    def get_games_from_event_details(self, match_id: str) -> List[schemas.Game]:
         event_details_url = (
             f"https://esports-api.lolesports.com"
             f"/persisted/gw/getEventDetails?hl=en-GB&id={match_id}"
@@ -55,7 +55,7 @@ class RiotApiRequester:
 
         games_from_response = []
         for game in games:
-            new_game = schemas.GameSchema()
+            new_game = schemas.Game()
             new_game.id = game['id']
             new_game.state = game['state']
             new_game.number = game['number']

@@ -5,7 +5,7 @@ from fantasylol.db.models import (
     LeagueModel,
     TournamentModel,
     Match,
-    Game,
+    GameModel,
     PlayerGameMetadata,
     PlayerGameStats,
     ProfessionalTeamModel,
@@ -106,17 +106,17 @@ def get_matches_ids_without_games() -> List[str]:
 # --------------------------------------------------
 # ---------------- Game Operations -----------------
 # --------------------------------------------------
-def save_game(game: Game):
-    db_game = Game(**game.model_dump())
+def save_game(game: GameModel):
+    db_game = GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
         db.commit()
 
 
-def bulk_save_games(games: List[schemas.GameSchema]):
+def bulk_save_games(games: List[schemas.Game]):
     db_games = []
     for game in games:
-        db_games.append(Game(**game.model_dump()))
+        db_games.append(GameModel(**game.model_dump()))
     with DatabaseConnection() as db:
         db.bulk_save_objects(db_games)
         db.commit()
@@ -124,7 +124,7 @@ def bulk_save_games(games: List[schemas.GameSchema]):
 
 def update_has_game_data(game_id: str, has_game_data: bool):
     with DatabaseConnection() as db:
-        db_game: Game = db.query(Game).filter(Game.id == game_id).first()
+        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
             db_game.has_game_data = has_game_data
             db.merge(db_game)
@@ -133,19 +133,19 @@ def update_has_game_data(game_id: str, has_game_data: bool):
 
 def update_game_state(game_id: str, state: str):
     with DatabaseConnection() as db:
-        db_game: Game = db.query(Game).filter(Game.id == game_id).first()
+        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
             db_game.state = state
             db.merge(db_game)
             db.commit()
 
 
-def get_games(filters: list = None) -> List[Game]:
+def get_games(filters: list = None) -> List[GameModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(Game).filter(*filters)
+            query = db.query(GameModel).filter(*filters)
         else:
-            query = db.query(Game)
+            query = db.query(GameModel)
         return query.all()
 
 
@@ -166,9 +166,9 @@ def get_games_to_check_state() -> List[str]:
     return game_ids
 
 
-def get_game_by_id(game_id: str) -> Game:
+def get_game_by_id(game_id: str) -> GameModel:
     with DatabaseConnection() as db:
-        return db.query(Game).filter(Game.id == game_id).first()
+        return db.query(GameModel).filter(GameModel.id == game_id).first()
 
 
 # --------------------------------------------------

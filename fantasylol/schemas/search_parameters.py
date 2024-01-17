@@ -9,10 +9,9 @@ class PlayerSearchParameters(BaseModel):
     team_id: Optional[str] = None
 
 
-@dataclass
-class GameSearchParameters:
-    state: str = None
-    match_id: str = None
+class GameSearchParameters(BaseModel):
+    state: Optional[str] = None
+    match_id: Optional[str] = None
 
 
 @dataclass

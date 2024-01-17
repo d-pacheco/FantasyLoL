@@ -1,6 +1,6 @@
 import random
 
-from fantasylol.db.models import Game
+from fantasylol.db.models import GameModel
 from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.db.models import ProfessionalPlayerModel
 from fantasylol.db.models import LeagueModel
@@ -69,7 +69,7 @@ class RiotApiRequestUtil:
             "number": 2,
             "match_id": int(self.mock_match_id),
         }
-        return Game(**mock_game_attrs)
+        return GameModel(**mock_game_attrs)
 
     def create_mock_live_game_response(self):
         response = {
