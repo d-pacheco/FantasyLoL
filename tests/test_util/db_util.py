@@ -17,16 +17,16 @@ def save_match(match: schemas.MatchSchema):
         db.commit()
 
 
-def save_game(game: schemas.GameSchema):
-    db_game = models.Game(**game.model_dump())
+def save_game(game: schemas.Game):
+    db_game = models.GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
         db.commit()
 
 
-def get_game(game_id: int) -> models.Game:
+def get_game(game_id: int) -> models.GameModel:
     with DatabaseConnection() as db:
-        return db.query(models.Game).filter(models.Game.id == game_id).first()
+        return db.query(models.GameModel).filter(models.GameModel.id == game_id).first()
 
 
 def save_tournament(tournament: schemas.Tournament):

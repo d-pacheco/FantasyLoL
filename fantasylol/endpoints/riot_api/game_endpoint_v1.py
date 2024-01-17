@@ -1,10 +1,9 @@
 import logging
-from fastapi import APIRouter, Depends
-from fastapi import Query
-from typing import List
+from fastapi import APIRouter, Depends, Query
+from fastapi_pagination import paginate, Page
 
 from fantasylol.service.riot_game_service import RiotGameService
-from fantasylol.schemas.riot_data_schemas import GameSchema
+from fantasylol.schemas.riot_data_schemas import Game
 from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.search_parameters import GameSearchParameters
 
@@ -22,15 +21,10 @@ def validate_status_parameter(state: GameState = Query(None, description="Filter
     path="/game",
     description="Get a list of games based on a set of search criteria",
     tags=["Games"],
-    response_model=List[GameSchema],
+    response_model=Page[Game],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [GameSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[Game]
         }
     }
 )
@@ -41,22 +35,18 @@ def get_riot_games(
         state=state,
         match_id=match_id
     )
-    return game_service.get_games(search_parameters)
+    games = game_service.get_games(search_parameters)
+    return paginate(games)
 
 
 @router.get(
     path="/game/{game_id}",
     description="Get game by its ID",
     tags=["Games"],
-    response_model=GameSchema,
+    response_model=Game,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": GameSchema.ExampleResponse.example
-                }
-            }
+            "model": Game
         },
         404: {
             "description": "Not Found",

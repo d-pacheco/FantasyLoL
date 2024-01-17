@@ -48,7 +48,7 @@ class Match(Base):
     team_2_name = Column(String)
 
 
-class Game(Base):
+class GameModel(Base):
     __tablename__ = "games"
 
     id = Column(String, primary_key=True, index=True)

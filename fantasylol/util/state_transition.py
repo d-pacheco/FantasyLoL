@@ -20,4 +20,4 @@ def on_game_state_transition(target, value, old_value, initiator):
 class StateTransitionHandler:
     @staticmethod
     def configure_listeners():
-        event.listen(models.Game.state, 'set', on_game_state_transition, retval=True)
+        event.listen(models.GameModel.state, 'set', on_game_state_transition, retval=True)
