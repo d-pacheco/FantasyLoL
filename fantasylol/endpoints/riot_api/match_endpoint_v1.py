@@ -1,11 +1,9 @@
 import logging
-from fastapi import APIRouter
-from fastapi import Query
-from fastapi import status
-from typing import List
+from fastapi import APIRouter, Query, status
+from fastapi_pagination import paginate, Page
 
 from fantasylol.service.riot_match_service import RiotMatchService
-from fantasylol.schemas.riot_data_schemas import MatchSchema
+from fantasylol.schemas.riot_data_schemas import Match
 from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 
@@ -19,15 +17,10 @@ logger = logging.getLogger('fantasy-lol')
     path="/matches",
     description="Get a list of matches based on a set of search criteria",
     tags=["Matches"],
-    response_model=List[MatchSchema],
+    response_model=Page[Match],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [MatchSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[Match]
         }
     }
 )
@@ -38,22 +31,18 @@ def get_riot_matches(
         league_slug=league_slug,
         tournament_id=tournament_id
     )
-    return match_service.get_matches(search_parameters)
+    matches = match_service.get_matches(search_parameters)
+    return paginate(matches)
 
 
 @router.get(
     path="/matches/{match_id}",
     description="Get a match by its ID",
     tags=["Matches"],
-    response_model=MatchSchema,
+    response_model=Match,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": MatchSchema.ExampleResponse.example
-                }
-            }
+            "model": Match
         }
     }
 )
@@ -64,7 +53,7 @@ def get_riot_match_by_id(match_id: str):
 @router.get(
     path="/fetch-new-schedule",
     description="Fetch schedule from riots servers",
-    tags=["Matches"],
+    tags=["Manual Job Triggers"],
     status_code=status.HTTP_200_OK
 )
 def fetch_new_schedule():
@@ -82,7 +71,7 @@ def fetch_new_schedule():
     description="Fetch entire schedule from riots servers. "
                 "This should only ever be used once for a new deployment. "
                 "This task usually takes 30 to 45 minutes to complete",
-    tags=["Matches"]
+    tags=["Manual Job Triggers"]
 )
 def fetch_entire_schedule():
     max_retries = 3

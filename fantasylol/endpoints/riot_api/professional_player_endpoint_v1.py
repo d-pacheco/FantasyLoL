@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
-from fastapi import Query
+from fastapi import APIRouter, Depends, Query
+from fastapi_pagination import paginate, Page
 from typing import List
 
 from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
-from fantasylol.schemas.riot_data_schemas import ProfessionalPlayerSchema
+from fantasylol.schemas.riot_data_schemas import ProfessionalPlayer
 from fantasylol.schemas.search_parameters import PlayerSearchParameters
 from fantasylol.schemas.player_role import PlayerRole
 
@@ -20,15 +20,10 @@ def validate_role_parameter(role: PlayerRole = Query(None, description="Filter b
     path="/professional-player",
     description="Get a list of professional players based on a set of search criteria",
     tags=["Professional Players"],
-    response_model=List[ProfessionalPlayerSchema],
+    response_model=Page[ProfessionalPlayer],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [ProfessionalPlayerSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[ProfessionalPlayer]
         }
     }
 )
@@ -41,22 +36,18 @@ def get_riot_professional_players(
         role=role,
         team_id=team_id
     )
-    return professional_player_service.get_players(search_params)
+    players = professional_player_service.get_players(search_params)
+    return paginate(players)
 
 
 @router.get(
     path="/professional-player/{professional_player_id}",
     description="Get professional player by their ID",
     tags=["Professional Players"],
-    response_model=ProfessionalPlayerSchema,
+    response_model=ProfessionalPlayer,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": ProfessionalPlayerSchema.ExampleResponse.example
-                }
-            }
+            "model": ProfessionalPlayer
         },
         404: {
             "description": "Not Found",
@@ -76,15 +67,10 @@ def get_professional_team_by_id(professional_player_id: str):
     path="/fetch-professional-players",
     description="Fetch professional players from riots servers",
     tags=["Professional Players"],
-    response_model=List[ProfessionalPlayerSchema],
+    response_model=List[ProfessionalPlayer],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [ProfessionalPlayerSchema.ExampleResponse.example]
-                }
-            }
+            "model": List[ProfessionalPlayer]
         }
     })
 def fetch_professional_players_from_riot():

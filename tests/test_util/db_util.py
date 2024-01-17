@@ -3,48 +3,48 @@ from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.db import models
 
 
-def save_league(league: schemas.LeagueSchema):
-    db_league = models.League(**league.model_dump())
+def save_league(league: schemas.League):
+    db_league = models.LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
         db.commit()
 
 
-def save_match(match: schemas.MatchSchema):
-    db_match = models.Match(**match.model_dump())
+def save_match(match: schemas.Match):
+    db_match = models.MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
         db.commit()
 
 
-def save_game(game: schemas.GameSchema):
-    db_game = models.Game(**game.model_dump())
+def save_game(game: schemas.Game):
+    db_game = models.GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
         db.commit()
 
 
-def get_game(game_id: int) -> models.Game:
+def get_game(game_id: int) -> models.GameModel:
     with DatabaseConnection() as db:
-        return db.query(models.Game).filter(models.Game.id == game_id).first()
+        return db.query(models.GameModel).filter(models.GameModel.id == game_id).first()
 
 
-def save_tournament(tournament: schemas.TournamentSchema):
-    db_tournament = models.Tournament(**tournament.model_dump())
+def save_tournament(tournament: schemas.Tournament):
+    db_tournament = models.TournamentModel(**tournament.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_tournament)
         db.commit()
 
 
-def save_team(team: schemas.ProfessionalTeamSchema):
-    db_team = models.ProfessionalTeam(**team.model_dump())
+def save_team(team: schemas.ProfessionalTeam):
+    db_team = models.ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
         db.commit()
 
 
-def save_player(player: schemas.ProfessionalPlayerSchema):
-    db_player = models.ProfessionalPlayer(**player.model_dump())
+def save_player(player: schemas.ProfessionalPlayer):
+    db_player = models.ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
         db.commit()

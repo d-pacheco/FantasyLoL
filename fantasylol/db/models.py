@@ -13,7 +13,7 @@ from fantasylol.schemas.player_role import PlayerRole
 Base = declarative_base()
 
 
-class League(Base):
+class LeagueModel(Base):
     __tablename__ = "leagues"
 
     id = Column(String, primary_key=True, index=True)
@@ -24,7 +24,7 @@ class League(Base):
     priority = Column(Integer)
 
 
-class Tournament(Base):
+class TournamentModel(Base):
     __tablename__ = "tournaments"
 
     id = Column(String, primary_key=True, index=True)
@@ -34,7 +34,7 @@ class Tournament(Base):
     league_id = Column(String, ForeignKey("leagues.id"))
 
 
-class Match(Base):
+class MatchModel(Base):
     __tablename__ = "matches"
 
     id = Column(String, primary_key=True, index=True)
@@ -48,7 +48,7 @@ class Match(Base):
     team_2_name = Column(String)
 
 
-class Game(Base):
+class GameModel(Base):
     __tablename__ = "games"
 
     id = Column(String, primary_key=True, index=True)
@@ -58,7 +58,7 @@ class Game(Base):
     has_game_data = Column(Boolean, default=True)
 
 
-class ProfessionalTeam(Base):
+class ProfessionalTeamModel(Base):
     __tablename__ = "professional_teams"
 
     id = Column(String, primary_key=True, index=True)
@@ -72,7 +72,7 @@ class ProfessionalTeam(Base):
     home_league = Column(String)
 
 
-class ProfessionalPlayer(Base):
+class ProfessionalPlayerModel(Base):
     __tablename__ = "professional_players"
 
     id = Column(String, primary_key=True)

@@ -34,7 +34,7 @@ class RiotApiRequester:
             headers = self.default_headers
         return self.client.get(url, headers=headers)
 
-    def get_games_from_event_details(self, match_id: str) -> List[schemas.GameSchema]:
+    def get_games_from_event_details(self, match_id: str) -> List[schemas.Game]:
         event_details_url = (
             f"https://esports-api.lolesports.com"
             f"/persisted/gw/getEventDetails?hl=en-GB&id={match_id}"
@@ -55,7 +55,7 @@ class RiotApiRequester:
 
         games_from_response = []
         for game in games:
-            new_game = schemas.GameSchema()
+            new_game = schemas.Game()
             new_game.id = game['id']
             new_game.state = game['state']
             new_game.number = game['number']
@@ -84,7 +84,7 @@ class RiotApiRequester:
             games_from_response.append(game_response)
         return games_from_response
 
-    def get_leagues(self) -> List[schemas.LeagueSchema]:
+    def get_leagues(self) -> List[schemas.League]:
         url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
@@ -93,7 +93,7 @@ class RiotApiRequester:
         res_json = response.json()
         leagues_from_response = []
         for league in res_json['data']['leagues']:
-            new_league = schemas.LeagueSchema()
+            new_league = schemas.League()
             new_league.id = league['id']
             new_league.slug = league['slug']
             new_league.name = league['name']
@@ -103,7 +103,7 @@ class RiotApiRequester:
             leagues_from_response.append(new_league)
         return leagues_from_response
 
-    def get_tournament_for_league(self, league_id: int) -> List[schemas.TournamentSchema]:
+    def get_tournament_for_league(self, league_id: int) -> List[schemas.Tournament]:
         url = (
             "https://esports-api.lolesports.com/persisted/gw"
             f"/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
@@ -116,7 +116,7 @@ class RiotApiRequester:
         tournaments_from_response = []
         tournaments = res_json['data']['leagues'][0]['tournaments']
         for tournament in tournaments:
-            new_tournament = schemas.TournamentSchema()
+            new_tournament = schemas.Tournament()
             new_tournament.id = tournament['id']
             new_tournament.slug = tournament['slug']
             new_tournament.start_date = tournament['startDate']
@@ -125,7 +125,7 @@ class RiotApiRequester:
             tournaments_from_response.append(new_tournament)
         return tournaments_from_response
 
-    def get_teams(self) -> List[schemas.ProfessionalTeamSchema]:
+    def get_teams(self) -> List[schemas.ProfessionalTeam]:
         url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
@@ -141,7 +141,7 @@ class RiotApiRequester:
             if team['homeLeague'] != 'None':
                 team['homeLeague'] = team['homeLeague']['name']
 
-            new_team = schemas.ProfessionalTeamSchema()
+            new_team = schemas.ProfessionalTeam()
             new_team.id = team['id']
             new_team.slug = team['slug']
             new_team.name = team['name']
@@ -154,7 +154,7 @@ class RiotApiRequester:
             teams_from_response.append(new_team)
         return teams_from_response
 
-    def get_players(self) -> List[schemas.ProfessionalPlayerSchema]:
+    def get_players(self) -> List[schemas.ProfessionalPlayer]:
         url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
@@ -164,7 +164,7 @@ class RiotApiRequester:
         players_from_response = []
         for team in res_json['data']['teams']:
             for player in team['players']:
-                new_player = schemas.ProfessionalPlayerSchema()
+                new_player = schemas.ProfessionalPlayer()
                 new_player.id = player['id']
                 new_player.summoner_name = player['summonerName']
                 new_player.image = player['image']
@@ -247,13 +247,13 @@ class RiotApiRequester:
         pages.newer = schedule['pages']['newer']
         return pages
 
-    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.MatchSchema]:
+    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.Match]:
         schedule = self.__get_schedule(page_token)
         matches_from_response = []
         events = schedule.get("events", [])
         for event in events:
             match = event['match']
-            new_match = schemas.MatchSchema()
+            new_match = schemas.Match()
             new_match.id = match['id']
             new_match.start_time = event['startTime']
             new_match.block_name = event['blockName']

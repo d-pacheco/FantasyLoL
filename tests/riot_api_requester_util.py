@@ -1,11 +1,11 @@
 import random
 
-from fantasylol.db.models import Game
-from fantasylol.db.models import ProfessionalTeam
-from fantasylol.db.models import ProfessionalPlayer
-from fantasylol.db.models import League
-from fantasylol.db.models import Tournament
-from fantasylol.db.models import Match
+from fantasylol.db.models import GameModel
+from fantasylol.db.models import ProfessionalTeamModel
+from fantasylol.db.models import ProfessionalPlayerModel
+from fantasylol.db.models import LeagueModel
+from fantasylol.db.models import TournamentModel
+from fantasylol.db.models import MatchModel
 
 
 class RiotApiRequestUtil:
@@ -69,7 +69,7 @@ class RiotApiRequestUtil:
             "number": 2,
             "match_id": int(self.mock_match_id),
         }
-        return Game(**mock_game_attrs)
+        return GameModel(**mock_game_attrs)
 
     def create_mock_live_game_response(self):
         response = {
@@ -242,7 +242,7 @@ class RiotApiRequestUtil:
             "role": self.mocked_player_1_role,
             "team_id": int(self.mock_team_1_id)
         }
-        return ProfessionalPlayer(**mock_player_attrs)
+        return ProfessionalPlayerModel(**mock_player_attrs)
 
     def create_mock_team(self):
         mock_team_attrs = {
@@ -256,7 +256,7 @@ class RiotApiRequestUtil:
             "status": self.mock_team_1_status,
             "home_league": self.mock_league_name
         }
-        return ProfessionalTeam(**mock_team_attrs)
+        return ProfessionalTeamModel(**mock_team_attrs)
 
     def create_mock_team_response(self):
         response = {
@@ -323,7 +323,7 @@ class RiotApiRequestUtil:
         }
         return response
 
-    def create_mock_league(self) -> League:
+    def create_mock_league(self) -> LeagueModel:
         mock_league_attrs = {
             "id": int(self.mock_league_id),
             "slug": self.mock_league_slug,
@@ -332,7 +332,7 @@ class RiotApiRequestUtil:
             "image": self.mock_league_image,
             "priority": 1  # Adjust the attribute name if needed
         }
-        return League(**mock_league_attrs)
+        return LeagueModel(**mock_league_attrs)
 
     def create_mock_league_response(self):
         response = {
@@ -363,7 +363,7 @@ class RiotApiRequestUtil:
             "end_date": self.mock_tournament_end_date,
             "league_id": int(self.mock_league_id)
         }
-        return Tournament(**mock_tournament_attrs)
+        return TournamentModel(**mock_tournament_attrs)
 
     def create_mock_tournament_response(self):
         response = {
@@ -396,7 +396,7 @@ class RiotApiRequestUtil:
             "team_1_name": self.mock_team_1_name,
             "team_2_name": self.mock_team_2_name
         }
-        return Match(**mock_match_attrs)
+        return MatchModel(**mock_match_attrs)
 
     def create_mock_match_response(self):
         return {

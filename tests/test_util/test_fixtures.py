@@ -22,7 +22,7 @@ def generate_random_id():
     return str(random.randint(100000000000000000, 999999999999999999))
 
 
-league_fixture = schemas.LeagueSchema(
+league_fixture = schemas.League(
     id=generate_random_id(),
     name="Mock Challengers",
     slug="mock-challengers-league",
@@ -31,7 +31,7 @@ league_fixture = schemas.LeagueSchema(
     priority=1
 )
 
-tournament_fixture = schemas.TournamentSchema(
+tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="mock_slug_2023",
     start_date="2023-01-01",
@@ -39,7 +39,7 @@ tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-future_tournament_fixture = schemas.TournamentSchema(
+future_tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="future_slug",
     start_date=formatted_future_start_date,
@@ -47,7 +47,7 @@ future_tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-active_tournament_fixture = schemas.TournamentSchema(
+active_tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="active_slug",
     start_date=formatted_past_start_date,
@@ -55,7 +55,7 @@ active_tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-team_1_fixture = schemas.ProfessionalTeamSchema(
+team_1_fixture = schemas.ProfessionalTeam(
     id=generate_random_id(),
     slug="mock-team-1",
     name="Mock Team 1",
@@ -67,7 +67,7 @@ team_1_fixture = schemas.ProfessionalTeamSchema(
     home_league=league_fixture.name
 )
 
-team_2_fixture = schemas.ProfessionalTeamSchema(
+team_2_fixture = schemas.ProfessionalTeam(
     id=generate_random_id(),
     slug="mock-team-2",
     name="Mock Team 2",
@@ -79,7 +79,7 @@ team_2_fixture = schemas.ProfessionalTeamSchema(
     home_league=league_fixture.name
 )
 
-match_fixture = schemas.MatchSchema(
+match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time="2023-01-03T15:00:00Z",
     block_name="mockBlockName",
@@ -91,7 +91,7 @@ match_fixture = schemas.MatchSchema(
     team_2_name=team_2_fixture.name
 )
 
-future_match_fixture = schemas.MatchSchema(
+future_match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time=formatted_future_match_datetime,
     block_name="futureBlockName",
@@ -103,7 +103,7 @@ future_match_fixture = schemas.MatchSchema(
     team_2_name=team_2_fixture.name
 )
 
-game_1_fixture_completed = schemas.GameSchema(
+game_1_fixture_completed = schemas.Game(
     id=generate_random_id(),
     state=GameState.COMPLETED,
     number=1,
@@ -115,28 +115,28 @@ get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
     state=game_1_fixture_completed.state
 )
 
-game_2_fixture_inprogress = schemas.GameSchema(
+game_2_fixture_inprogress = schemas.Game(
     id=generate_random_id(),
     state=GameState.INPROGRESS,
     number=2,
     match_id=match_fixture.id
 )
 
-game_3_fixture_unstarted = schemas.GameSchema(
+game_3_fixture_unstarted = schemas.Game(
     id=generate_random_id(),
     state=GameState.UNSTARTED,
     number=3,
     match_id=match_fixture.id
 )
 
-game_4_fixture_unneeded = schemas.GameSchema(
+game_4_fixture_unneeded = schemas.Game(
     id=generate_random_id(),
     state=GameState.UNNEEDED,
     number=4,
     match_id=match_fixture.id
 )
 
-player_1_fixture = schemas.ProfessionalPlayerSchema(
+player_1_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer1",
     image="http://mocked-player-1.png",
@@ -144,7 +144,7 @@ player_1_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_2_fixture = schemas.ProfessionalPlayerSchema(
+player_2_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer2",
     image="http://mocked-player-2.png",
@@ -152,7 +152,7 @@ player_2_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_3_fixture = schemas.ProfessionalPlayerSchema(
+player_3_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer3",
     image="http://mocked-player-3.png",
@@ -160,7 +160,7 @@ player_3_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_4_fixture = schemas.ProfessionalPlayerSchema(
+player_4_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer4",
     image="http://mocked-player-4.png",
@@ -168,7 +168,7 @@ player_4_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_5_fixture = schemas.ProfessionalPlayerSchema(
+player_5_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer5",
     image="http://mocked-player-5.png",

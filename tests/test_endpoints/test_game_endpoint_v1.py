@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from fastapi_pagination import add_pagination
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -18,6 +19,7 @@ GET_GAME_BY_ID_MOCK_PATH = f"{BASE_GAME_SERVICE_MOCK_PATH}.get_game_by_id"
 
 class GameEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
+        add_pagination(app)
         self.client = TestClient(app)
 
     @patch(GET_GAMES_MOCK_PATH)
@@ -33,7 +35,8 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        games = response.json()
+        response_json: dict = response.json()
+        games = response_json.get('items')
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
         self.assertEqual(expected_game_response, games[0])
@@ -54,7 +57,8 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        games = response.json()
+        response_json: dict = response.json()
+        games = response_json.get('items')
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
         self.assertEqual(expected_game_response, games[0])
@@ -73,7 +77,8 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        games = response.json()
+        response_json: dict = response.json()
+        games = response_json.get('items')
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
         self.assertEqual(expected_game_response, games[0])
@@ -92,7 +97,8 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        games = response.json()
+        response_json: dict = response.json()
+        games = response_json.get('items')
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
         self.assertEqual(expected_game_response, games[0])
@@ -124,7 +130,8 @@ class GameEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        games = response.json()
+        response_json: dict = response.json()
+        games = response_json.get('items')
         self.assertIsInstance(games, list)
         self.assertEqual(1, len(games))
         self.assertEqual(expected_game_response, games[0])

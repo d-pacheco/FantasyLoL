@@ -1,9 +1,9 @@
-from fastapi import APIRouter
-from fastapi import Query
+from fastapi import APIRouter, Query
+from fastapi_pagination import paginate, Page
 from typing import List
 
 from fantasylol.service.riot_league_service import RiotLeagueService
-from fantasylol.schemas.riot_data_schemas import LeagueSchema
+from fantasylol.schemas.riot_data_schemas import League
 from fantasylol.schemas.search_parameters import LeagueSearchParameters
 
 
@@ -16,15 +16,10 @@ league_service = RiotLeagueService()
     path="/league",
     description="Get a list of leagues based on a set of search criteria",
     tags=["Leagues"],
-    response_model=List[LeagueSchema],
+    response_model=Page[League],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [LeagueSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[League]
         }
     }
 )
@@ -35,22 +30,18 @@ def get_riot_leagues(
         name=name,
         region=region
     )
-    return league_service.get_leagues(search_parameters)
+    leagues = league_service.get_leagues(search_parameters)
+    return paginate(leagues)
 
 
 @router.get(
     path="/league/{league_id}",
     description="Get league by its ID",
     tags=["Leagues"],
-    response_model=LeagueSchema,
+    response_model=League,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": LeagueSchema.ExampleResponse.example
-                }
-            }
+            "model": League
         },
         404: {
             "description": "Not Found",
@@ -70,15 +61,10 @@ def get_riot_league_by_id(league_id: str):
     path="/fetch-leagues",
     description="fetch leagues from riots servers",
     tags=["Leagues"],
-    response_model=List[LeagueSchema],
+    response_model=List[League],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [LeagueSchema.ExampleResponse.example]
-                }
-            }
+            "model": List[League]
         }
     }
 )

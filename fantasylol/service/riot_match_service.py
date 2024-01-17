@@ -1,10 +1,10 @@
 import logging
 from typing import List
 from fantasylol.db import crud
-from fantasylol.db.models import Match
+from fantasylol.db.models import MatchModel
 from fantasylol.db.models import Schedule
 from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
-from fantasylol.schemas.riot_data_schemas import MatchSchema
+from fantasylol.schemas.riot_data_schemas import Match
 from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
@@ -103,20 +103,20 @@ class RiotMatchService:
         return schedule_updated
 
     @staticmethod
-    def get_matches(search_parameters: MatchSearchParameters) -> List[MatchSchema]:
+    def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:
         filters = []
         if search_parameters.league_slug is not None:
-            filters.append(Match.league_slug == search_parameters.league_slug)
+            filters.append(MatchModel.league_slug == search_parameters.league_slug)
         if search_parameters.tournament_id is not None:
-            filters.append(Match.tournament_id == search_parameters.tournament_id)
+            filters.append(MatchModel.tournament_id == search_parameters.tournament_id)
         matches_orms = crud.get_matches(filters)
-        matches = [MatchSchema.model_validate(match_orm) for match_orm in matches_orms]
+        matches = [Match.model_validate(match_orm) for match_orm in matches_orms]
         return matches
 
     @staticmethod
-    def get_match_by_id(match_id: str) -> MatchSchema:
+    def get_match_by_id(match_id: str) -> Match:
         match_orm = crud.get_match_by_id(match_id)
         if match_orm is None:
             raise MatchNotFoundException()
-        match = MatchSchema.model_validate(match_orm)
+        match = Match.model_validate(match_orm)
         return match
