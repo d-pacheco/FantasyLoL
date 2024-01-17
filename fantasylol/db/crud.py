@@ -4,7 +4,7 @@ from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import (
     LeagueModel,
     TournamentModel,
-    Match,
+    MatchModel,
     GameModel,
     PlayerGameMetadata,
     PlayerGameStats,
@@ -25,7 +25,7 @@ def save_league(league: schemas.League):
         db.commit()
 
 
-def get_leagues(filters: list = None) -> List[Match]:
+def get_leagues(filters: list = None) -> List[MatchModel]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(LeagueModel).filter(*filters)
@@ -66,25 +66,25 @@ def get_tournament_by_id(tournament_id: str) -> TournamentModel:
 # --------------------------------------------------
 # --------------- Match Operations -----------------
 # --------------------------------------------------
-def save_match(match: schemas.MatchSchema):
-    db_match = Match(**match.model_dump())
+def save_match(match: schemas.Match):
+    db_match = MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
         db.commit()
 
 
-def get_matches(filters: list = None) -> List[Match]:
+def get_matches(filters: list = None) -> List[MatchModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(Match).filter(*filters)
+            query = db.query(MatchModel).filter(*filters)
         else:
-            query = db.query(Match)
+            query = db.query(MatchModel)
         return query.all()
 
 
-def get_match_by_id(match_id: str) -> Match:
+def get_match_by_id(match_id: str) -> MatchModel:
     with DatabaseConnection() as db:
-        return db.query(Match).filter(Match.id == match_id).first()
+        return db.query(MatchModel).filter(MatchModel.id == match_id).first()
 
 
 def get_matches_ids_without_games() -> List[str]:

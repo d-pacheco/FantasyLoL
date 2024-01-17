@@ -34,7 +34,7 @@ class TournamentModel(Base):
     league_id = Column(String, ForeignKey("leagues.id"))
 
 
-class Match(Base):
+class MatchModel(Base):
     __tablename__ = "matches"
 
     id = Column(String, primary_key=True, index=True)

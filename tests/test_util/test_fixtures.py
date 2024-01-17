@@ -79,7 +79,7 @@ team_2_fixture = schemas.ProfessionalTeam(
     home_league=league_fixture.name
 )
 
-match_fixture = schemas.MatchSchema(
+match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time="2023-01-03T15:00:00Z",
     block_name="mockBlockName",
@@ -91,7 +91,7 @@ match_fixture = schemas.MatchSchema(
     team_2_name=team_2_fixture.name
 )
 
-future_match_fixture = schemas.MatchSchema(
+future_match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time=formatted_future_match_datetime,
     block_name="futureBlockName",

@@ -69,58 +69,54 @@ class Tournament(BaseModel):
     )
 
 
-class MatchSchema(BaseModel):
+class Match(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
-        description="The ID of the match"
+        description="The ID of the match",
+        examples=["110853020184706765"]
     )
     start_time: str = Field(
         default=None,
-        description="The start time of the match"
+        description="The start time of the match",
+        examples=["2023-11-19T08:00:00Z"]
     )
     block_name: str = Field(
         default=None,
-        description="The block name of the match"
+        description="The block name of the match",
+        examples=["Finals"]
     )
     league_slug: str = Field(
         default=None,
-        description="The slug of the league the match is in"
+        description="The slug of the league the match is in",
+        examples=["worlds"]
     )
     strategy_type: str = Field(
         default=None,
-        description="The strategy type of the match"
+        description="The strategy type of the match",
+        examples=["bestOf"]
     )
     strategy_count: int = Field(
         default=None,
-        description="The number of games for the strategy type"
+        description="The number of games for the strategy type",
+        examples=[5]
     )
     tournament_id: str = Field(
         default=None,
-        description="The id of the tournament the match is taking place in"
+        description="The id of the tournament the match is taking place in",
+        examples=["110852926142971547"]
     )
     team_1_name: str = Field(
         default=None,
-        description="The name of the first team participating in the match"
+        description="The name of the first team participating in the match",
+        examples=["WeiboGaming FAW AUDI"]
     )
     team_2_name: str = Field(
         default=None,
-        description="The name of the second team participating in the match"
+        description="The name of the second team participating in the match",
+        examples=["T1"]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "110853020184706765",
-            "start_time": "2023-11-19T08:00:00Z",
-            "block_name": "Finals",
-            "league_slug": "worlds",
-            "strategy_type": "bestOf",
-            "strategy_count": 5,
-            "tournament_id": "111111111111111111",
-            "team_1_name": "WeiboGaming FAW AUDI",
-            "team_2_name": "T1"
-        }
 
 
 class Game(BaseModel):
