@@ -7,7 +7,7 @@ from fantasylol.db.models import TournamentModel
 from fantasylol.schemas.riot_data_schemas import Tournament
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
-from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.riot_data_schemas import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 logger = logging.getLogger('fantasy-lol')

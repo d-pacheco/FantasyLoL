@@ -5,7 +5,7 @@ from typing import List
 from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
 from fantasylol.schemas.riot_data_schemas import ProfessionalPlayer
 from fantasylol.schemas.search_parameters import PlayerSearchParameters
-from fantasylol.schemas.player_role import PlayerRole
+from fantasylol.schemas.riot_data_schemas import PlayerRole
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

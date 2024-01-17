@@ -3,7 +3,7 @@ from tests.test_util import riot_data_util
 
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
 from fantasylol.service.riot_game_service import RiotGameService
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.schemas.search_parameters import GameSearchParameters
 
 

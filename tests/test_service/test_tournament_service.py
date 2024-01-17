@@ -3,7 +3,7 @@ from tests.test_util import riot_data_util
 
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.service.riot_tournament_service import RiotTournamentService
-from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.riot_data_schemas import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 

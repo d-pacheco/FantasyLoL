@@ -1,6 +1,6 @@
 from sqlalchemy import event
 from fantasylol.db import models
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.service.riot_game_stats_service import RiotGameStatsService
 import logging
 

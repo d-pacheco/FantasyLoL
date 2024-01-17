@@ -7,7 +7,7 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures
 
 from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.schemas.search_parameters import GameSearchParameters
 from fantasylol import app
 
