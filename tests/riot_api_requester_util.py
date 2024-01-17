@@ -1,7 +1,7 @@
 import random
 
 from fantasylol.db.models import Game
-from fantasylol.db.models import ProfessionalTeam
+from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.db.models import ProfessionalPlayer
 from fantasylol.db.models import League
 from fantasylol.db.models import Tournament
@@ -256,7 +256,7 @@ class RiotApiRequestUtil:
             "status": self.mock_team_1_status,
             "home_league": self.mock_league_name
         }
-        return ProfessionalTeam(**mock_team_attrs)
+        return ProfessionalTeamModel(**mock_team_attrs)
 
     def create_mock_team_response(self):
         response = {

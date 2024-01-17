@@ -55,7 +55,7 @@ active_tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-team_1_fixture = schemas.ProfessionalTeamSchema(
+team_1_fixture = schemas.ProfessionalTeam(
     id=generate_random_id(),
     slug="mock-team-1",
     name="Mock Team 1",
@@ -67,7 +67,7 @@ team_1_fixture = schemas.ProfessionalTeamSchema(
     home_league=league_fixture.name
 )
 
-team_2_fixture = schemas.ProfessionalTeamSchema(
+team_2_fixture = schemas.ProfessionalTeam(
     id=generate_random_id(),
     slug="mock-team-2",
     name="Mock Team 2",

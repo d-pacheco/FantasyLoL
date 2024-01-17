@@ -58,7 +58,7 @@ class Game(Base):
     has_game_data = Column(Boolean, default=True)
 
 
-class ProfessionalTeam(Base):
+class ProfessionalTeamModel(Base):
     __tablename__ = "professional_teams"
 
     id = Column(String, primary_key=True, index=True)

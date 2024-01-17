@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from fastapi_pagination import add_pagination
 from unittest.mock import patch
 from http import HTTPStatus
 
@@ -19,6 +20,7 @@ TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team
 
 class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
     def setUp(self):
+        add_pagination(app)
         self.client = TestClient(app)
 
     @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
@@ -35,7 +37,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])
@@ -57,7 +60,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])
@@ -79,7 +83,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])
@@ -101,7 +106,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])
@@ -123,7 +129,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])
@@ -143,7 +150,8 @@ class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_teams = response.json()
+        response_json: dict = response.json()
+        professional_teams = response_json.get('items')
         self.assertIsInstance(professional_teams, list)
         self.assertEqual(1, len(professional_teams))
         self.assertEqual(expected_team_response, professional_teams[0])

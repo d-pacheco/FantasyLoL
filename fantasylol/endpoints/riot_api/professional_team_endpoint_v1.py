@@ -1,9 +1,9 @@
-from fastapi import APIRouter
-from fastapi import Query
+from fastapi import APIRouter, Query
+from fastapi_pagination import paginate, Page
 from typing import List
 
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
-from fantasylol.schemas.riot_data_schemas import ProfessionalTeamSchema
+from fantasylol.schemas.riot_data_schemas import ProfessionalTeam
 from fantasylol.schemas.search_parameters import TeamSearchParameters
 
 VERSION = "v1"
@@ -15,15 +15,10 @@ professional_team_service = RiotProfessionalTeamService()
     path="/professional-team",
     description="Get a list of professional teams based on a set of search criteria",
     tags=["Professional Teams"],
-    response_model=List[ProfessionalTeamSchema],
+    response_model=Page[ProfessionalTeam],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [ProfessionalTeamSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[ProfessionalTeam]
         }
     }
 )
@@ -40,22 +35,18 @@ def get_riot_professional_teams(
         status=status,
         league=league
     )
-    return professional_team_service.get_teams(search_parameters)
+    teams = professional_team_service.get_teams(search_parameters)
+    return paginate(teams)
 
 
 @router.get(
     path="/professional-team/{professional_team_id}",
     description="Get professional team by its ID",
     tags=["Professional Teams"],
-    response_model=ProfessionalTeamSchema,
+    response_model=ProfessionalTeam,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": ProfessionalTeamSchema.ExampleResponse.example
-                }
-            }
+            "model": ProfessionalTeam
         },
         404: {
             "description": "Not Found",
@@ -75,15 +66,10 @@ def get_professional_team_by_id(professional_team_id: str):
     path="/fetch-professional-teams",
     description="Fetch professional teams from riots servers",
     tags=["Professional Teams"],
-    response_model=List[ProfessionalTeamSchema],
+    response_model=List[ProfessionalTeam],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [ProfessionalTeamSchema.ExampleResponse.example]
-                }
-            }
+            "model": List[ProfessionalTeam]
         }
     })
 def fetch_professional_teams_from_riot():
