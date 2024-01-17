@@ -9,7 +9,7 @@ from fantasylol.db.models import (
     PlayerGameMetadata,
     PlayerGameStats,
     ProfessionalTeamModel,
-    ProfessionalPlayer,
+    ProfessionalPlayerModel,
     Schedule
 )
 from fantasylol.schemas import riot_data_schemas as schemas
@@ -198,25 +198,26 @@ def get_team_by_id(team_id: str) -> ProfessionalTeamModel:
 # --------------------------------------------------
 # --------------- Player Operations --------------
 # --------------------------------------------------
-def save_player(player: schemas.ProfessionalPlayerSchema):
-    db_player = ProfessionalPlayer(**player.model_dump())
+def save_player(player: schemas.ProfessionalPlayer):
+    db_player = ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
         db.commit()
 
 
-def get_players(filters: list = None) -> List[ProfessionalPlayer]:
+def get_players(filters: list = None) -> List[ProfessionalPlayerModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(ProfessionalPlayer).filter(*filters)
+            query = db.query(ProfessionalPlayerModel).filter(*filters)
         else:
-            query = db.query(ProfessionalPlayer)
+            query = db.query(ProfessionalPlayerModel)
         return query.all()
 
 
-def get_player_by_id(player_id: str) -> ProfessionalPlayer:
+def get_player_by_id(player_id: str) -> ProfessionalPlayerModel:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalPlayer).filter(ProfessionalPlayer.id == player_id).first()
+        return db.query(ProfessionalPlayerModel)\
+            .filter(ProfessionalPlayerModel.id == player_id).first()
 
 
 # --------------------------------------------------

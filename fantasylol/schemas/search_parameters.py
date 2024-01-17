@@ -3,11 +3,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-@dataclass
-class PlayerSearchParameters:
-    summoner_name: str = None
-    role: str = None
-    team_id: str = None
+class PlayerSearchParameters(BaseModel):
+    summoner_name: Optional[str] = None
+    role: Optional[str] = None
+    team_id: Optional[str] = None
 
 
 @dataclass

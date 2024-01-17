@@ -136,7 +136,7 @@ game_4_fixture_unneeded = schemas.GameSchema(
     match_id=match_fixture.id
 )
 
-player_1_fixture = schemas.ProfessionalPlayerSchema(
+player_1_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer1",
     image="http://mocked-player-1.png",
@@ -144,7 +144,7 @@ player_1_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_2_fixture = schemas.ProfessionalPlayerSchema(
+player_2_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer2",
     image="http://mocked-player-2.png",
@@ -152,7 +152,7 @@ player_2_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_3_fixture = schemas.ProfessionalPlayerSchema(
+player_3_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer3",
     image="http://mocked-player-3.png",
@@ -160,7 +160,7 @@ player_3_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_4_fixture = schemas.ProfessionalPlayerSchema(
+player_4_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer4",
     image="http://mocked-player-4.png",
@@ -168,7 +168,7 @@ player_4_fixture = schemas.ProfessionalPlayerSchema(
     team_id=team_1_fixture.id
 )
 
-player_5_fixture = schemas.ProfessionalPlayerSchema(
+player_5_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer5",
     image="http://mocked-player-5.png",
