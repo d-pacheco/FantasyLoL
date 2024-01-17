@@ -4,7 +4,7 @@ from typing import List
 
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.riot_data_schemas import Tournament
-from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.riot_data_schemas import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
 VERSION = "v1"

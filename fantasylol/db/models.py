@@ -6,9 +6,8 @@ from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
-from fantasylol.schemas.game_state import GameState
-from fantasylol.schemas.player_role import PlayerRole
-
+from fantasylol.schemas.riot_data_schemas import GameState
+from fantasylol.schemas.riot_data_schemas import PlayerRole
 
 Base = declarative_base()
 

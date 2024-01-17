@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytz
 
 from fantasylol.schemas import riot_data_schemas as schemas
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 
 past_start_date = datetime.now(pytz.utc) - timedelta(days=5)
 formatted_past_start_date = past_start_date.strftime("%Y-%m-%d")

@@ -8,7 +8,7 @@ from tests.test_util import test_fixtures as fixtures
 
 from fantasylol.exceptions.tournament_not_found_exception import \
     TournamentNotFoundException
-from fantasylol.schemas.tournament_status import TournamentStatus
+from fantasylol.schemas.riot_data_schemas import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 from fantasylol import app
 

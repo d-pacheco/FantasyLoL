@@ -1,7 +1,6 @@
-from pydantic import BaseModel, Field, ConfigDict
+from enum import Enum
 
-from fantasylol.schemas.game_state import GameState
-from fantasylol.schemas.player_role import PlayerRole
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class League(BaseModel):
@@ -37,6 +36,12 @@ class League(BaseModel):
         description="The priority of league in list ranking order",
         examples=[300]
     )
+
+
+class TournamentStatus(str, Enum):
+    COMPLETED = "completed"
+    ACTIVE = "active"
+    UPCOMING = "upcoming"
 
 
 class Tournament(BaseModel):
@@ -117,6 +122,13 @@ class Match(BaseModel):
         description="The name of the second team participating in the match",
         examples=["T1"]
     )
+
+
+class GameState(str, Enum):
+    COMPLETED = "completed"
+    INPROGRESS = "inProgress"
+    UNSTARTED = "unstarted"
+    UNNEEDED = "unneeded"
 
 
 class Game(BaseModel):
@@ -202,6 +214,15 @@ class ProfessionalTeam(BaseModel):
         description="The home league name of the team",
         examples=["LCK"]
     )
+
+
+class PlayerRole(str, Enum):
+    TOP = "top"
+    JUNGLE = "jungle"
+    MID = "mid"
+    BOTTOM = "bottom"
+    SUPPORT = "support"
+    NONE = "none"
 
 
 class ProfessionalPlayer(BaseModel):

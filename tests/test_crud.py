@@ -1,7 +1,7 @@
 import copy
 
 from fantasylol.db import crud
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import db_util

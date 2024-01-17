@@ -4,7 +4,7 @@ from fastapi_pagination import paginate, Page
 
 from fantasylol.service.riot_game_service import RiotGameService
 from fantasylol.schemas.riot_data_schemas import Game
-from fantasylol.schemas.game_state import GameState
+from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.schemas.search_parameters import GameSearchParameters
 
 VERSION = "v1"
