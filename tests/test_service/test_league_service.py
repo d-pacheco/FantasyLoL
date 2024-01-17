@@ -12,7 +12,7 @@ def create_league_service():
     return RiotLeagueService()
 
 
-def create_league_in_db() -> schemas.LeagueSchema:
+def create_league_in_db() -> schemas.League:
     league_fixture = fixtures.league_fixture
     db_util.save_league(league_fixture)
     return league_fixture

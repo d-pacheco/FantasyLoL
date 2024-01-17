@@ -13,7 +13,7 @@ from fantasylol.schemas.player_role import PlayerRole
 Base = declarative_base()
 
 
-class League(Base):
+class LeagueModel(Base):
     __tablename__ = "leagues"
 
     id = Column(String, primary_key=True, index=True)

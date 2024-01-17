@@ -22,7 +22,7 @@ def generate_random_id():
     return str(random.randint(100000000000000000, 999999999999999999))
 
 
-league_fixture = schemas.LeagueSchema(
+league_fixture = schemas.League(
     id=generate_random_id(),
     name="Mock Challengers",
     slug="mock-challengers-league",

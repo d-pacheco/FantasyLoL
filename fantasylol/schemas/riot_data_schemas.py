@@ -4,43 +4,39 @@ from fantasylol.schemas.game_state import GameState
 from fantasylol.schemas.player_role import PlayerRole
 
 
-class LeagueSchema(BaseModel):
+class League(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
         description="The ID of the league",
+        examples=["98767975604431411"]
     )
     slug: str = Field(
         default=None,
-        description="The SLUG of the league"
+        description="The SLUG of the league",
+        examples=["worlds"]
     )
     name: str = Field(
         default=None,
-        description="The name of the league"
+        description="The name of the league",
+        examples=["Worlds"]
     )
     region: str = Field(
         default=None,
-        description="The region of the league"
+        description="The region of the league",
+        examples=["INTERNATIONAL"]
     )
     image: str = Field(
         default=None,
-        description="The image url of the league"
+        description="The image url of the league",
+        examples=["http://static.lolesports.com/leagues/1592594612171_WorldsDarkBG.png"]
     )
     priority: int = Field(
         default=None,
-        description="The priority of league in list ranking order"
+        description="The priority of league in list ranking order",
+        examples=[300]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "98767975604431411",
-            "slug": "worlds",
-            "name": "Words",
-            "region": "INTERNATIONAL",
-            "image": "http://static.lolesports.com/leagues/1592594612171_WorldsDarkBG.png",
-            "priority": 300
-        }
 
 
 class Tournament(BaseModel):
