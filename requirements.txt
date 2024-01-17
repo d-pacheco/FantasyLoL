@@ -2,6 +2,7 @@ SQLAlchemy
 APScheduler
 cloudscraper
 fastapi
+fastapi_pagination
 uvicorn
 httpx==0.23.2
 python-dotenv
