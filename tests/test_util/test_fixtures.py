@@ -31,7 +31,7 @@ league_fixture = schemas.LeagueSchema(
     priority=1
 )
 
-tournament_fixture = schemas.TournamentSchema(
+tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="mock_slug_2023",
     start_date="2023-01-01",
@@ -39,7 +39,7 @@ tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-future_tournament_fixture = schemas.TournamentSchema(
+future_tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="future_slug",
     start_date=formatted_future_start_date,
@@ -47,7 +47,7 @@ future_tournament_fixture = schemas.TournamentSchema(
     league_id=league_fixture.id
 )
 
-active_tournament_fixture = schemas.TournamentSchema(
+active_tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="active_slug",
     start_date=formatted_past_start_date,

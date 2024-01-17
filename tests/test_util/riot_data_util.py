@@ -27,19 +27,19 @@ def create_unneeded_game_in_db() -> riot_data_schemas.GameSchema:
     return unneeded_game
 
 
-def create_completed_tournament_in_db() -> riot_data_schemas.TournamentSchema:
+def create_completed_tournament_in_db() -> riot_data_schemas.Tournament:
     completed_tournament = test_fixtures.tournament_fixture
     db_util.save_tournament(completed_tournament)
     return completed_tournament
 
 
-def create_upcoming_tournament_in_db() -> riot_data_schemas.TournamentSchema:
+def create_upcoming_tournament_in_db() -> riot_data_schemas.Tournament:
     upcoming_tournament = test_fixtures.future_tournament_fixture
     db_util.save_tournament(upcoming_tournament)
     return upcoming_tournament
 
 
-def create_active_tournament_in_db() -> riot_data_schemas.TournamentSchema:
+def create_active_tournament_in_db() -> riot_data_schemas.Tournament:
     active_tournament = test_fixtures.active_tournament_fixture
     db_util.save_tournament(active_tournament)
     return active_tournament

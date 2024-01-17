@@ -3,7 +3,7 @@ from sqlalchemy import text
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db.models import (
     League,
-    Tournament,
+    TournamentModel,
     Match,
     Game,
     PlayerGameMetadata,
@@ -42,25 +42,25 @@ def get_league_by_id(league_id: str) -> League:
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------
-def save_tournament(tournament: schemas.TournamentSchema):
-    db_tournament = Tournament(**tournament.model_dump())
+def save_tournament(tournament: schemas.Tournament):
+    db_tournament = TournamentModel(**tournament.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_tournament)
         db.commit()
 
 
-def get_tournaments(filters: list) -> List[Tournament]:
+def get_tournaments(filters: list) -> List[TournamentModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(Tournament).filter(*filters)
+            query = db.query(TournamentModel).filter(*filters)
         else:
-            query = db.query(Tournament)
+            query = db.query(TournamentModel)
         return query.all()
 
 
-def get_tournament_by_id(tournament_id: str) -> Tournament:
+def get_tournament_by_id(tournament_id: str) -> TournamentModel:
     with DatabaseConnection() as db:
-        return db.query(Tournament).filter(Tournament.id == tournament_id).first()
+        return db.query(TournamentModel).filter(TournamentModel.id == tournament_id).first()
 
 
 # --------------------------------------------------

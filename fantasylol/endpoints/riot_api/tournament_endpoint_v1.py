@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
-from fastapi import Query
+from fastapi import APIRouter, Depends, Query
+from fastapi_pagination import paginate, Page
 from typing import List
 
 from fantasylol.service.riot_tournament_service import RiotTournamentService
-from fantasylol.schemas.riot_data_schemas import TournamentSchema
+from fantasylol.schemas.riot_data_schemas import Tournament
 from fantasylol.schemas.tournament_status import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
@@ -21,36 +21,27 @@ def validate_status_parameter(status: TournamentStatus = Query(
     path="/tournament",
     description="Get a list of tournaments based on a set of search criteria",
     tags=["Tournaments"],
-    response_model=List[TournamentSchema],
+    response_model=Page[Tournament],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [TournamentSchema.ExampleResponse.example]
-                }
-            }
+            "model": Page[Tournament]
         }
     }
 )
 def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_parameter)):
     search_parameters = TournamentSearchParameters(status=status)
-    return tournament_service.get_tournaments(search_parameters)
+    tournaments = tournament_service.get_tournaments(search_parameters)
+    return paginate(tournaments)
 
 
 @router.get(
     path="/tournament/{tournament_id}",
     description="Get a tournament by its ID",
     tags=["Tournaments"],
-    response_model=TournamentSchema,
+    response_model=Tournament,
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": TournamentSchema.ExampleResponse.example
-                }
-            }
+            "model": Tournament
         },
         404: {
             "description": "Not Found",
@@ -70,15 +61,10 @@ def get_riot_tournaments_by_id(tournament_id: str):
     path="/fetch-tournaments",
     description="Fetch tournaments from riots servers",
     tags=["Tournaments"],
-    response_model=List[TournamentSchema],
+    response_model=List[Tournament],
     responses={
         200: {
-            "description": "OK",
-            "content": {
-                "application/json": {
-                    "example": [TournamentSchema.ExampleResponse.example]
-                }
-            }
+            "model": List[Tournament]
         }
     }
 )

@@ -43,38 +43,34 @@ class LeagueSchema(BaseModel):
         }
 
 
-class TournamentSchema(BaseModel):
+class Tournament(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str = Field(
         default=None,
-        description="The ID of the tournament"
+        description="The ID of the tournament",
+        examples=["110852926142971547"]
     )
     slug: str = Field(
         default=None,
-        description="The SLUG of the tournament"
+        description="The SLUG of the tournament",
+        examples=["worlds_2023"]
     )
     start_date: str = Field(
         default=None,
-        description="The start date of the tournament"
+        description="The start date of the tournament",
+        examples=["2023-10-09"]
     )
     end_date: str = Field(
         default=None,
-        description="The end date of the tournament"
+        description="The end date of the tournament",
+        examples=["2023-11-19"]
     )
     league_id: str = Field(
         default=None,
-        description="The ID of the league the tournament is being held in"
+        description="The ID of the league the tournament is being held in",
+        examples=["98767975604431411"]
     )
-
-    class ExampleResponse:
-        example = {
-            "id": "111111111111111111",
-            "slug": "example_slug",
-            "start_date": "2023-01-01",
-            "end_date": "2023-02-01",
-            "league_id": 98767975604431411
-        }
 
 
 class MatchSchema(BaseModel):

@@ -103,7 +103,7 @@ class RiotApiRequester:
             leagues_from_response.append(new_league)
         return leagues_from_response
 
-    def get_tournament_for_league(self, league_id: int) -> List[schemas.TournamentSchema]:
+    def get_tournament_for_league(self, league_id: int) -> List[schemas.Tournament]:
         url = (
             "https://esports-api.lolesports.com/persisted/gw"
             f"/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
@@ -116,7 +116,7 @@ class RiotApiRequester:
         tournaments_from_response = []
         tournaments = res_json['data']['leagues'][0]['tournaments']
         for tournament in tournaments:
-            new_tournament = schemas.TournamentSchema()
+            new_tournament = schemas.Tournament()
             new_tournament.id = tournament['id']
             new_tournament.slug = tournament['slug']
             new_tournament.start_date = tournament['startDate']
