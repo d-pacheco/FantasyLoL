@@ -55,11 +55,12 @@ class RiotApiRequester:
 
         games_from_response = []
         for game in games:
-            new_game = schemas.Game()
-            new_game.id = game['id']
-            new_game.state = game['state']
-            new_game.number = game['number']
-            new_game.match_id = event['id']
+            new_game = schemas.Game(
+                id=game['id'],
+                state=game['state'],
+                number=game['number'],
+                match_id=event['id']
+            )
             games_from_response.append(new_game)
         return games_from_response
 
@@ -93,13 +94,14 @@ class RiotApiRequester:
         res_json = response.json()
         leagues_from_response = []
         for league in res_json['data']['leagues']:
-            new_league = schemas.League()
-            new_league.id = league['id']
-            new_league.slug = league['slug']
-            new_league.name = league['name']
-            new_league.region = league['region']
-            new_league.image = league['image']
-            new_league.priority = league['priority']
+            new_league = schemas.League(
+                id=league['id'],
+                slug=league['slug'],
+                name=league['name'],
+                region=league['region'],
+                image=league['image'],
+                priority=league['priority']
+            )
             leagues_from_response.append(new_league)
         return leagues_from_response
 
@@ -116,12 +118,13 @@ class RiotApiRequester:
         tournaments_from_response = []
         tournaments = res_json['data']['leagues'][0]['tournaments']
         for tournament in tournaments:
-            new_tournament = schemas.Tournament()
-            new_tournament.id = tournament['id']
-            new_tournament.slug = tournament['slug']
-            new_tournament.start_date = tournament['startDate']
-            new_tournament.end_date = tournament['endDate']
-            new_tournament.league_id = league_id
+            new_tournament = schemas.Tournament(
+                id=tournament['id'],
+                slug=tournament['slug'],
+                start_date=tournament['startDate'],
+                end_date=tournament['endDate'],
+                league_id=league_id
+            )
             tournaments_from_response.append(new_tournament)
         return tournaments_from_response
 
@@ -141,16 +144,17 @@ class RiotApiRequester:
             if team['homeLeague'] != 'None':
                 team['homeLeague'] = team['homeLeague']['name']
 
-            new_team = schemas.ProfessionalTeam()
-            new_team.id = team['id']
-            new_team.slug = team['slug']
-            new_team.name = team['name']
-            new_team.code = team['code']
-            new_team.image = team['image']
-            new_team.alternative_image = team['alternativeImage']
-            new_team.background_image = team['backgroundImage']
-            new_team.status = team['status']
-            new_team.home_league = team['homeLeague']
+            new_team = schemas.ProfessionalTeam(
+                id=team['id'],
+                slug=team['slug'],
+                name=team['name'],
+                code=team['code'],
+                image=team['image'],
+                alternative_image=team['alternativeImage'],
+                background_image=team['backgroundImage'],
+                status=team['status'],
+                home_league=team['homeLeague']
+            )
             teams_from_response.append(new_team)
         return teams_from_response
 
@@ -164,12 +168,13 @@ class RiotApiRequester:
         players_from_response = []
         for team in res_json['data']['teams']:
             for player in team['players']:
-                new_player = schemas.ProfessionalPlayer()
-                new_player.id = player['id']
-                new_player.summoner_name = player['summonerName']
-                new_player.image = player['image']
-                new_player.role = player['role']
-                new_player.team_id = team['id']
+                new_player = schemas.ProfessionalPlayer(
+                    id=player['id'],
+                    summoner_name=player['summonerName'],
+                    image=player['image'],
+                    role=player['role'],
+                    team_id=team['id']
+                )
                 players_from_response.append(new_player)
         return players_from_response
 
@@ -303,14 +308,16 @@ def parse_team_metadata(team_metadata: dict, game_id: str) \
     participant_metadata = team_metadata.get("participantMetadata", [])
     player_metadata_for_team = []
     for participant in participant_metadata:
-        new_player_metadata = schemas.PlayerGameMetadata()
-        new_player_metadata.game_id = game_id
-        new_player_metadata.participant_id = participant['participantId']
-        new_player_metadata.champion_id = participant['championId']
-        new_player_metadata.role = participant['role']
-        # Weird edge case where it doesn't exist for some games:
-        new_player_metadata.player_id = participant.get(
-            'esportsPlayerId', str(new_player_metadata.participant_id))
+        new_player_metadata = schemas.PlayerGameMetadata(
+            game_id=game_id,
+            participant_id=participant['participantId'],
+            champion_id=participant['championId'],
+            role=participant['role'],
+            # Weird edge case where it doesn't exist for some games:
+            player_id=participant.get(
+                'esportsPlayerId', str(participant['participantId'])
+            )
+        )
         player_metadata_for_team.append(new_player_metadata)
     return player_metadata_for_team
 
