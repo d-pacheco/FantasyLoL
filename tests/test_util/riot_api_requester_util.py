@@ -982,3 +982,65 @@ get_live_stats_details_response = {
 get_live_stats_details_empty_frames_response = {
     "frames": []
 }
+
+get_schedule_response = {
+    "data": {
+        "schedule": {
+            "pages": {
+                "older": "olderToken",
+                "newer": "newerToken"
+            },
+            "events": [
+                {
+                    "startTime": test_fixtures.match_fixture.start_time,
+                    "state": "completed",
+                    "type": "match",
+                    "blockName": test_fixtures.match_fixture.block_name,
+                    "league": {
+                        "name": test_fixtures.league_fixture.name,
+                        "slug": test_fixtures.league_fixture.slug
+                    },
+                    "match": {
+                        "id": test_fixtures.match_fixture.id,
+                        "flags": [
+                            "hasVod",
+                            "isSpoiler"
+                        ],
+                        "teams": [
+                            {
+                                "name": test_fixtures.team_1_fixture.name,
+                                "code": test_fixtures.team_1_fixture.code,
+                                "image": test_fixtures.team_1_fixture.image,
+                                "result": {
+                                    "outcome": "loss",
+                                    "gameWins": 1
+                                },
+                                "record": {
+                                    "wins": 1,
+                                    "losses": 1
+                                }
+                            },
+                            {
+                                "name": test_fixtures.team_2_fixture.name,
+                                "code": test_fixtures.team_2_fixture.code,
+                                "image": test_fixtures.team_2_fixture.image,
+                                "result": {
+                                    "outcome": "win",
+                                    "gameWins": 2
+                                },
+                                "record": {
+                                    "wins": 3,
+                                    "losses": 0
+                                }
+                            }
+                        ],
+                        "strategy": {
+                            "type": test_fixtures.match_fixture.strategy_type,
+                            "count": test_fixtures.match_fixture.strategy_count
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

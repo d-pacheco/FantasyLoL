@@ -12,6 +12,9 @@ from tests.test_util import test_fixtures
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
     'fantasylol.util.riot_api_requester.cloudscraper.create_scraper'
 
+RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH = \
+    'fantasylol.util.riot_api_requester.RiotApiRequester.get_tournament_id_for_match'
+
 
 class RiotApiRequesterTest(FantasyLolTestBase):
 
@@ -269,7 +272,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_games(game_ids_to_get)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_metadata_for_game(self, mock_cloud_scraper):
+    def test_get_player_metadata_for_game_successful(self, mock_cloud_scraper):
         # Arrange
         game = test_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -351,7 +354,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(0, len(get_player_metadata_response))
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_stats_for_game(self, mock_cloud_scraper):
+    def test_get_player_stats_for_game_successful(self, mock_cloud_scraper):
         # Arrange
         game = test_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -423,7 +426,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
 
-        # Act and Assert
+        # Act
         riot_api_requester = RiotApiRequester()
         get_player_stats_response = riot_api_requester \
             .get_player_stats_for_game(game.id, time_stamp)
@@ -454,3 +457,107 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         # Assert
         self.assertIsInstance(get_player_stats_response, list)
         self.assertEqual(0, len(get_player_stats_response))
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_tournament_id_for_match_successful(self, mock_cloud_scraper):
+        # Arrange
+        expected_tournament_id = test_fixtures.tournament_fixture.id
+        match = test_fixtures.match_fixture
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.json.return_value = riot_api_requester_util.get_event_details_response
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        tournament_id = riot_api_requester.get_tournament_id_for_match(match.id)
+
+        # Assert
+        self.assertIsInstance(tournament_id, str)
+        self.assertEqual(expected_tournament_id, tournament_id)
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_tournament_id_for_match_status_code_assertion(self, mock_cloud_scraper):
+        # Arrange
+        match = test_fixtures.match_fixture
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.NO_CONTENT
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        with self.assertRaises(RiotApiStatusCodeAssertException):
+            riot_api_requester.get_tournament_id_for_match(match.id)
+
+    @patch(RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH)
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_matches_from_schedule_successful(
+            self, mock_cloud_scraper, mock_get_tournament_id_for_match):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+        mock_get_tournament_id_for_match.return_value = test_fixtures.tournament_fixture.id
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.json.return_value = riot_api_requester_util.get_schedule_response
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        matches = riot_api_requester.get_matches_from_schedule()
+
+        # Assert
+        self.assertIsInstance(matches, list)
+        self.assertEqual(1, len(matches))
+        self.assertEqual(expected_match, matches[0])
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_matches_from_schedule_status_code_assertion(self, mock_cloud_scraper):
+        # Arrange
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.NO_CONTENT
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        with self.assertRaises(RiotApiStatusCodeAssertException):
+            riot_api_requester.get_matches_from_schedule()
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_pages_from_schedule_successful(self, mock_cloud_scraper):
+        # Arrange
+        expected_page_tokens = test_fixtures.riot_schedule_pages_fixture
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.json.return_value = riot_api_requester_util.get_schedule_response
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        pages = riot_api_requester.get_pages_from_schedule()
+
+        # Assert
+        self.assertEqual(expected_page_tokens, pages)
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_pages_from_schedule_status_code_assertion(self, mock_cloud_scraper):
+        # Arrange
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.NO_CONTENT
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act and Assert
+        riot_api_requester = RiotApiRequester()
+        with self.assertRaises(RiotApiStatusCodeAssertException):
+            riot_api_requester.get_pages_from_schedule()

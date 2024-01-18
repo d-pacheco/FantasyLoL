@@ -435,3 +435,8 @@ player_10_game_stats_fixture = schemas.PlayerGameStats(
     wards_placed=random.randint(10, 20),
     wards_destroyed=random.randint(10, 20)
 )
+
+riot_schedule_pages_fixture = schemas.RiotSchedulePages(
+    older="olderToken",
+    newer="newerToken"
+)

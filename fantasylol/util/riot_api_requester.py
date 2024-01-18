@@ -222,6 +222,7 @@ class RiotApiRequester:
                 f"No frames fetched for game id {game_id} with time stamp {time_stamp}"
             )
             return player_stats_from_response
+
         last_frame = frames[len(frames) - 1]
         participants = last_frame.get("participants", [])
         for participant in participants:
@@ -243,9 +244,10 @@ class RiotApiRequester:
 
     def get_pages_from_schedule(self, page_token: str = None) -> schemas.RiotSchedulePages:
         schedule = self.__get_schedule(page_token)
-        pages = schemas.RiotSchedulePages()
-        pages.older = schedule['pages']['older']
-        pages.newer = schedule['pages']['newer']
+        pages = schemas.RiotSchedulePages(
+            older=schedule['pages']['older'],
+            newer=schedule['pages']['newer']
+        )
         return pages
 
     def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.Match]:
@@ -254,16 +256,17 @@ class RiotApiRequester:
         events = schedule.get("events", [])
         for event in events:
             match = event['match']
-            new_match = schemas.Match()
-            new_match.id = match['id']
-            new_match.start_time = event['startTime']
-            new_match.block_name = event['blockName']
-            new_match.league_slug = event['league']['slug']
-            new_match.strategy_type = match['strategy']['type']
-            new_match.strategy_count = match['strategy']['count']
-            new_match.tournament_id = self.get_tournament_id_for_match(new_match.id)
-            new_match.team_1_name = match['teams'][0]['name']
-            new_match.team_2_name = match['teams'][1]['name']
+            new_match = schemas.Match(
+                id=match['id'],
+                start_time=event['startTime'],
+                block_name=event['blockName'],
+                league_slug=event['league']['slug'],
+                strategy_type=match['strategy']['type'],
+                strategy_count=match['strategy']['count'],
+                tournament_id=self.get_tournament_id_for_match(match['id']),
+                team_1_name=match['teams'][0]['name'],
+                team_2_name=match['teams'][1]['name']
+            )
             matches_from_response.append(new_match)
         return matches_from_response
 
