@@ -24,7 +24,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_search_all(self, mock_get_leagues):
         # Arrange
-        league_fixture = fixtures.league_fixture
+        league_fixture = fixtures.league_1_fixture
         expected_league_response = league_fixture.model_dump()
         mock_get_leagues.return_value = [league_fixture]
 
@@ -43,7 +43,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_name_filter_existing_league(self, mock_get_leagues):
         # Arrange
-        league_fixture = fixtures.league_fixture
+        league_fixture = fixtures.league_1_fixture
         expected_league_response = league_fixture.model_dump()
         mock_get_leagues.return_value = [league_fixture]
 
@@ -66,7 +66,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
     @patch(GET_LEAGUES_MOCK_PATH)
     def test_get_leagues_endpoint_region_filter_existing_league(self, mock_get_leagues):
         # Arrange
-        league_fixture = fixtures.league_fixture
+        league_fixture = fixtures.league_1_fixture
         expected_league_response = league_fixture.model_dump()
         mock_get_leagues.return_value = [league_fixture]
 
@@ -89,7 +89,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_successful(self, mock_get_league_by_id):
         # Arrange
-        league_fixture = fixtures.league_fixture
+        league_fixture = fixtures.league_1_fixture
         expected_league_response = league_fixture.model_dump()
         mock_get_league_by_id.return_value = league_fixture
 
@@ -106,7 +106,7 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_not_found(self, mock_get_league_by_id):
         # Arrange
-        league_fixture = fixtures.league_fixture
+        league_fixture = fixtures.league_1_fixture
         mock_get_league_by_id.side_effect = LeagueNotFoundException
 
         # Act

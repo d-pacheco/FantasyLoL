@@ -21,7 +21,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_leagues_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_league = test_fixtures.league_fixture
+        expected_league = test_fixtures.league_1_fixture
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
@@ -83,7 +83,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         mock_client = Mock()
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
-        league_fixture = test_fixtures.league_fixture
+        league_fixture = test_fixtures.league_1_fixture
 
         # Act and Assert
         riot_api_requester = RiotApiRequester()

@@ -22,7 +22,7 @@ def generate_random_id():
     return str(random.randint(100000000000000000, 999999999999999999))
 
 
-league_fixture = schemas.League(
+league_1_fixture = schemas.League(
     id=generate_random_id(),
     name="Mock Challengers",
     slug="mock-challengers-league",
@@ -31,12 +31,21 @@ league_fixture = schemas.League(
     priority=1
 )
 
+league_2_fixture = schemas.League(
+    id=generate_random_id(),
+    name="Mock Pro",
+    slug="mock-pro-league",
+    region="MOCKED REGION2",
+    image="http//:mocked-league-2-image.png",
+    priority=2
+)
+
 tournament_fixture = schemas.Tournament(
     id=generate_random_id(),
     slug="mock_slug_2023",
     start_date="2023-01-01",
     end_date="2023-02-03",
-    league_id=league_fixture.id
+    league_id=league_1_fixture.id
 )
 
 future_tournament_fixture = schemas.Tournament(
@@ -44,7 +53,7 @@ future_tournament_fixture = schemas.Tournament(
     slug="future_slug",
     start_date=formatted_future_start_date,
     end_date=formatted_future_end_date,
-    league_id=league_fixture.id
+    league_id=league_1_fixture.id
 )
 
 active_tournament_fixture = schemas.Tournament(
@@ -52,7 +61,7 @@ active_tournament_fixture = schemas.Tournament(
     slug="active_slug",
     start_date=formatted_past_start_date,
     end_date=formatted_future_end_date,
-    league_id=league_fixture.id
+    league_id=league_1_fixture.id
 )
 
 team_1_fixture = schemas.ProfessionalTeam(
@@ -64,7 +73,7 @@ team_1_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-1-alternative-image.png",
     background_image="http://mock-team-1-background.png",
     status="active",
-    home_league=league_fixture.name
+    home_league=league_1_fixture.name
 )
 
 team_2_fixture = schemas.ProfessionalTeam(
@@ -76,14 +85,14 @@ team_2_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-2-alternative-image.png",
     background_image="http://mock-team-2-background.png",
     status="active",
-    home_league=league_fixture.name
+    home_league=league_1_fixture.name
 )
 
 match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time="2023-01-03T15:00:00Z",
     block_name="mockBlockName",
-    league_slug=league_fixture.slug,
+    league_slug=league_1_fixture.slug,
     strategy_type="bestOf",
     strategy_count=3,
     tournament_id=tournament_fixture.id,
@@ -95,7 +104,7 @@ future_match_fixture = schemas.Match(
     id=generate_random_id(),
     start_time=formatted_future_match_datetime,
     block_name="futureBlockName",
-    league_slug=league_fixture.slug,
+    league_slug=league_1_fixture.slug,
     strategy_type="bestOf",
     strategy_count=3,
     tournament_id=tournament_fixture.id,
