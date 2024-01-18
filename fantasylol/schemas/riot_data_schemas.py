@@ -255,7 +255,7 @@ class ProfessionalPlayer(BaseModel):
     )
 
 
-class PlayerGameMetadataSchema(BaseModel):
+class PlayerGameMetadata(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     game_id: str = Field(
@@ -280,14 +280,14 @@ class PlayerGameMetadataSchema(BaseModel):
     )
 
 
-class PlayerGameStatsSchema(BaseModel):
+class PlayerGameStats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     game_id: str = Field(
         default=None,
         description="The id of the game this players metadata is for"
     )
-    participant_id: str = Field(
+    participant_id: int = Field(
         default=None,
         description="The participant id for the game given by riot"
     )

@@ -50,15 +50,15 @@ def save_player(player: schemas.ProfessionalPlayer):
         db.commit()
 
 
-def save_player_metadata(player_metadata: schemas.PlayerGameMetadataSchema):
-    db_player_metadata = models.PlayerGameMetadata(**player_metadata.model_dump())
+def save_player_metadata(player_metadata: schemas.PlayerGameMetadata):
+    db_player_metadata = models.PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_metadata)
         db.commit()
 
 
-def save_player_stats(player_stats: schemas.PlayerGameStatsSchema):
-    db_player_stats = models.PlayerGameStats(**player_stats.model_dump())
+def save_player_stats(player_stats: schemas.PlayerGameStats):
+    db_player_stats = models.PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
