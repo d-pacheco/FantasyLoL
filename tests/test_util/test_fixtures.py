@@ -136,6 +136,13 @@ game_4_fixture_unneeded = schemas.Game(
     match_id=match_fixture.id
 )
 
+game_1_fixture_unstarted_future_match = schemas.Game(
+    id=generate_random_id(),
+    state=GameState.UNSTARTED,
+    number=3,
+    match_id=future_match_fixture.id
+)
+
 player_1_fixture = schemas.ProfessionalPlayer(
     id=generate_random_id(),
     summoner_name="MockerPlayer1",
