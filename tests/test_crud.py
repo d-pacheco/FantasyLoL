@@ -1,7 +1,8 @@
 import copy
 
 from fantasylol.db import crud
-from fantasylol.schemas.riot_data_schemas import GameState
+from fantasylol.schemas import riot_data_schemas as schemas
+from fantasylol.db import models
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import db_util
@@ -93,6 +94,126 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ---------------- Game Operations -----------------
     # --------------------------------------------------
+    def test_save_game(self):
+        # Arrange
+        game = test_fixtures.game_1_fixture_completed
+
+        # Act
+        crud.save_game(game)
+
+        # Assert
+        game_model_from_db = db_util.get_game(game.id)
+        game_from_db = schemas.Game.model_validate(game_model_from_db)
+        self.assertEqual(game, game_from_db)
+
+    def test_bulk_save_games(self):
+        # Arrange
+        games_to_save = [
+            test_fixtures.game_1_fixture_completed,
+            test_fixtures.game_2_fixture_inprogress,
+            test_fixtures.game_3_fixture_unstarted
+        ]
+
+        # Act
+        crud.bulk_save_games(games_to_save)
+
+        # Assert
+        game_1_model_from_db = db_util.get_game(test_fixtures.game_1_fixture_completed.id)
+        game_1_from_db = schemas.Game.model_validate(game_1_model_from_db)
+        self.assertEqual(games_to_save[0], game_1_from_db)
+        game_2_model_from_db = db_util.get_game(test_fixtures.game_2_fixture_inprogress.id)
+        game_2_from_db = schemas.Game.model_validate(game_2_model_from_db)
+        self.assertEqual(games_to_save[1], game_2_from_db)
+        game_3_model_from_db = db_util.get_game(test_fixtures.game_3_fixture_unstarted.id)
+        game_3_from_db = schemas.Game.model_validate(game_3_model_from_db)
+        self.assertEqual(games_to_save[2], game_3_from_db)
+
+    def test_get_games_no_filters(self):
+        # Arrange
+        expected_game = test_fixtures.game_1_fixture_completed
+        db_util.save_game(expected_game)
+
+        # Act
+        game_models_from_db = crud.get_games()
+
+        # Assert
+        self.assertIsInstance(game_models_from_db, list)
+        self.assertEqual(1, len(game_models_from_db))
+        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertEqual(expected_game, game_from_db)
+
+    def test_get_games_empty_filters(self):
+        # Arrange
+        filters = []
+        expected_game = test_fixtures.game_1_fixture_completed
+        db_util.save_game(expected_game)
+
+        # Act
+        game_models_from_db = crud.get_games(filters)
+
+        # Assert
+        self.assertIsInstance(game_models_from_db, list)
+        self.assertEqual(1, len(game_models_from_db))
+        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertEqual(expected_game, game_from_db)
+
+    def test_get_games_game_state_filter(self):
+        # Arrange
+        filters = []
+        expected_game = test_fixtures.game_1_fixture_completed
+        filters.append(models.GameModel.state == expected_game.state)
+        db_util.save_game(expected_game)
+        db_util.save_game(test_fixtures.game_2_fixture_inprogress)
+        db_util.save_game(test_fixtures.game_3_fixture_unstarted)
+
+        # Act
+        game_models_from_db = crud.get_games(filters)
+
+        # Assert
+        self.assertIsInstance(game_models_from_db, list)
+        self.assertEqual(1, len(game_models_from_db))
+        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertEqual(expected_game, game_from_db)
+
+    def test_get_games_match_id_filter(self):
+        # Arrange
+        filters = []
+        expected_game = test_fixtures.game_1_fixture_unstarted_future_match
+        filters.append(models.GameModel.match_id == expected_game.match_id)
+        db_util.save_game(expected_game)
+        db_util.save_game(test_fixtures.game_3_fixture_unstarted)
+
+        # Act
+        game_models_from_db = crud.get_games(filters)
+
+        # Assert
+        self.assertIsInstance(game_models_from_db, list)
+        self.assertEqual(1, len(game_models_from_db))
+        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertEqual(expected_game, game_from_db)
+
+    def test_get_game_by_id_existing_game(self):
+        # Arrange
+        expected_game = test_fixtures.game_1_fixture_completed
+        db_util.save_game(expected_game)
+
+        # Act
+        game_model_from_db = crud.get_game_by_id(expected_game.id)
+
+        # Assert
+        game_from_db = schemas.Game.model_validate(game_model_from_db)
+        self.assertEqual(expected_game, game_from_db)
+
+    def test_get_game_by_id_no_existing_game(self):
+        # Arrange
+        expected_game = test_fixtures.game_1_fixture_completed
+
+        # Act
+        game_model_from_db = crud.get_game_by_id(expected_game.id)
+
+        # Assert
+        self.assertIsNone(game_model_from_db)
+
     def test_get_games_to_check_status_inprogress_game(self):
         # Arrange
         match_in_past = test_fixtures.match_fixture
@@ -215,10 +336,10 @@ class CrudTest(FantasyLolTestBase):
         unstarted_game = test_fixtures.game_3_fixture_unstarted
         db_util.save_game(unstarted_game)
         modified_game = copy.deepcopy(unstarted_game)
-        modified_game.state = GameState.UNNEEDED
+        modified_game.state = schemas.GameState.UNNEEDED
 
         # Act
-        crud.update_game_state(unstarted_game.id, GameState.UNNEEDED.value)
+        crud.update_game_state(unstarted_game.id, schemas.GameState.UNNEEDED.value)
 
         # Assert
         game_from_db = db_util.get_game(unstarted_game.id)
