@@ -10,6 +10,12 @@ def save_league(league: schemas.League):
         db.commit()
 
 
+def get_league_by_id(league_id: str) -> models.LeagueModel:
+    with DatabaseConnection() as db:
+        return db.query(models.LeagueModel)\
+            .filter(models.LeagueModel.id == league_id).first()
+
+
 def save_match(match: schemas.Match):
     db_match = models.MatchModel(**match.model_dump())
     with DatabaseConnection() as db:

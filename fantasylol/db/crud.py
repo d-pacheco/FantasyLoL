@@ -25,7 +25,7 @@ def save_league(league: schemas.League):
         db.commit()
 
 
-def get_leagues(filters: list = None) -> List[MatchModel]:
+def get_leagues(filters: list = None) -> List[LeagueModel]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(LeagueModel).filter(*filters)

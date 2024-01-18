@@ -13,7 +13,7 @@ def create_league_service():
 
 
 def create_league_in_db() -> schemas.League:
-    league_fixture = fixtures.league_fixture
+    league_fixture = fixtures.league_1_fixture
     db_util.save_league(league_fixture)
     return league_fixture
 

@@ -4,12 +4,12 @@ get_leagues_mock_response = {
     "data": {
         "leagues": [
             {
-                "id": test_fixtures.league_fixture.id,
-                "slug": test_fixtures.league_fixture.slug,
-                "name": test_fixtures.league_fixture.name,
-                "region": test_fixtures.league_fixture.region,
-                "image": test_fixtures.league_fixture.image,
-                "priority": test_fixtures.league_fixture.priority,
+                "id": test_fixtures.league_1_fixture.id,
+                "slug": test_fixtures.league_1_fixture.slug,
+                "name": test_fixtures.league_1_fixture.name,
+                "region": test_fixtures.league_1_fixture.region,
+                "image": test_fixtures.league_1_fixture.image,
+                "priority": test_fixtures.league_1_fixture.priority,
                 "displayPriority": {
                     "position": 0,
                     "status": "selected"
@@ -49,8 +49,8 @@ get_teams_response = {
                 "backgroundImage": test_fixtures.team_1_fixture.background_image,
                 "status": test_fixtures.team_1_fixture.status,
                 "homeLeague": {
-                    "name": test_fixtures.league_fixture.name,
-                    "region": test_fixtures.league_fixture.region
+                    "name": test_fixtures.league_1_fixture.name,
+                    "region": test_fixtures.league_1_fixture.region
                 },
                 "players": [
                     {
@@ -108,10 +108,10 @@ get_event_details_response = {
                 "id": test_fixtures.tournament_fixture.id
             },
             "league": {
-                "id": test_fixtures.league_fixture.id,
-                "slug": test_fixtures.league_fixture.slug,
-                "image": test_fixtures.league_fixture.image,
-                "name": test_fixtures.league_fixture.name
+                "id": test_fixtures.league_1_fixture.id,
+                "slug": test_fixtures.league_1_fixture.slug,
+                "image": test_fixtures.league_1_fixture.image,
+                "name": test_fixtures.league_1_fixture.name
             },
             "match": {
                 "strategy": {
@@ -997,8 +997,8 @@ get_schedule_response = {
                     "type": "match",
                     "blockName": test_fixtures.match_fixture.block_name,
                     "league": {
-                        "name": test_fixtures.league_fixture.name,
-                        "slug": test_fixtures.league_fixture.slug
+                        "name": test_fixtures.league_1_fixture.name,
+                        "slug": test_fixtures.league_1_fixture.slug
                     },
                     "match": {
                         "id": test_fixtures.match_fixture.id,
