@@ -62,6 +62,12 @@ def save_player(player: schemas.ProfessionalPlayer):
         db.commit()
 
 
+def get_player_by_id(player_id: str) -> models.ProfessionalPlayerModel:
+    with DatabaseConnection() as db:
+        return db.query(models.ProfessionalPlayerModel) \
+            .filter(models.ProfessionalPlayerModel.id == player_id).first()
+
+
 def save_player_metadata(player_metadata: schemas.PlayerGameMetadata):
     db_player_metadata = models.PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
