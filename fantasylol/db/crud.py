@@ -196,7 +196,7 @@ def get_team_by_id(team_id: str) -> ProfessionalTeamModel:
 
 
 # --------------------------------------------------
-# --------------- Player Operations --------------
+# --------------- Player Operations ----------------
 # --------------------------------------------------
 def save_player(player: schemas.ProfessionalPlayer):
     db_player = ProfessionalPlayerModel(**player.model_dump())

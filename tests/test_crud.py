@@ -13,6 +13,183 @@ from tests.test_util.game_stats_test_util import GameStatsTestUtil
 
 class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
+    # --------------- Player Operations ----------------
+    # --------------------------------------------------
+    def test_save_player(self):
+        # Arrange
+        expected_player = test_fixtures.player_1_fixture
+
+        # Act
+        crud.save_player(expected_player)
+
+        # Assert
+        player_model_from_db = db_util.get_player_by_id(expected_player.id)
+        self.assertIsNotNone(player_model_from_db)
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_model_from_db)
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_no_filters(self):
+        # Arrange
+        expected_player = test_fixtures.player_1_fixture
+        db_util.save_player(expected_player)
+
+        # Act
+        player_models_from_db = crud.get_players()
+
+        # Assert
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(1, len(player_models_from_db))
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_empty_filters(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        db_util.save_player(expected_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(1, len(player_models_from_db))
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_summoner_name_filter_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_6_fixture
+        filters.append(
+            models.ProfessionalPlayerModel.summoner_name == expected_player.summoner_name
+        )
+        db_util.save_player(expected_player)
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player, other_player)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(1, len(player_models_from_db))
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_summoner_name_filter_no_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_6_fixture
+        filters.append(
+            models.ProfessionalPlayerModel.summoner_name == expected_player.summoner_name
+        )
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player.summoner_name, other_player.summoner_name)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(0, len(player_models_from_db))
+
+    def test_get_players_team_id_filter_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_6_fixture
+        filters.append(models.ProfessionalPlayerModel.team_id == expected_player.team_id)
+        db_util.save_player(expected_player)
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player, other_player)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(1, len(player_models_from_db))
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_team_id_filter_no_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_6_fixture
+        filters.append(models.ProfessionalPlayerModel.team_id == expected_player.team_id)
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player.team_id, other_player.team_id)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(0, len(player_models_from_db))
+
+    def test_get_players_role_filter_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_7_fixture
+        filters.append(models.ProfessionalPlayerModel.role == expected_player.role)
+        db_util.save_player(expected_player)
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player, other_player)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(1, len(player_models_from_db))
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_players_role_filter_no_existing_player(self):
+        # Arrange
+        filters = []
+        expected_player = test_fixtures.player_1_fixture
+        other_player = test_fixtures.player_7_fixture
+        filters.append(models.ProfessionalPlayerModel.role == expected_player.role)
+        db_util.save_player(other_player)
+
+        # Act
+        player_models_from_db = crud.get_players(filters)
+
+        # Assert
+        self.assertNotEqual(expected_player.role, other_player.role)
+        self.assertIsInstance(player_models_from_db, list)
+        self.assertEqual(0, len(player_models_from_db))
+
+    def test_get_player_by_id_existing_player(self):
+        # Arrange
+        expected_player = test_fixtures.player_1_fixture
+        db_util.save_player(expected_player)
+
+        # Act
+        player_model_from_db = crud.get_player_by_id(expected_player.id)
+
+        # Assert
+        self.assertIsNotNone(player_model_from_db)
+        player_from_db = schemas.ProfessionalPlayer.model_validate(player_model_from_db)
+        self.assertEqual(expected_player, player_from_db)
+
+    def test_get_player_by_id_no_existing_player(self):
+        # Arrange
+        expected_player = test_fixtures.player_1_fixture
+
+        # Act
+        player_model_from_db = crud.get_player_by_id(expected_player.id)
+
+        # Assert
+        self.assertIsNone(player_model_from_db)
+
+    # --------------------------------------------------
     # ----------- Player Metadata Operations -----------
     # --------------------------------------------------
     def test_get_games_without_player_metadata_completed_game_without_10_rows(self):
