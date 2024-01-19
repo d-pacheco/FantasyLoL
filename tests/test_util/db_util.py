@@ -49,6 +49,12 @@ def save_team(team: schemas.ProfessionalTeam):
         db.commit()
 
 
+def get_team_by_id(team_id: str) -> models.ProfessionalTeamModel:
+    with DatabaseConnection() as db:
+        return db.query(models.ProfessionalTeamModel)\
+            .filter(models.ProfessionalTeamModel.id == team_id).first()
+
+
 def save_player(player: schemas.ProfessionalPlayer):
     db_player = models.ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
