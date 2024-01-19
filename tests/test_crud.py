@@ -487,3 +487,221 @@ class CrudTest(FantasyLolTestBase):
 
         # Assert
         self.assertIsNone(league_model_from_db)
+
+    # --------------------------------------------------
+    # ---------------- Team Operations ----------------
+    # --------------------------------------------------
+    def test_save_team(self):
+        # Arrange
+        expected_team = test_fixtures.team_1_fixture
+
+        # Act
+        crud.save_team(expected_team)
+
+        # Assert
+        team_model_from_db = db_util.get_team_by_id(expected_team.id)
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_model_from_db)
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_no_filters(self):
+        # Arrange
+        expected_team = test_fixtures.team_1_fixture
+        db_util.save_team(expected_team)
+
+        # Act
+        team_models_from_db = crud.get_teams()
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_empty_filters(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        db_util.save_team(expected_team)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_name_filter_existing_team(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.name == expected_team.name)
+        db_util.save_team(expected_team)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_name_filter_no_existing_team(self):
+        # Arrange
+        filters = []
+        team_1 = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.name == team_1.name)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(0, len(team_models_from_db))
+
+    def test_get_teams_slug_filter_existing_team(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.slug == expected_team.slug)
+        db_util.save_team(expected_team)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_slug_filter_no_existing_team(self):
+        # Arrange
+        filters = []
+        team_1 = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.slug == team_1.slug)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(0, len(team_models_from_db))
+
+    def test_get_teams_code_filter_existing_team(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.code == expected_team.code)
+        db_util.save_team(expected_team)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_code_filter_no_existing_team(self):
+        # Arrange
+        filters = []
+        team_1 = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.code == team_1.code)
+        db_util.save_team(test_fixtures.team_2_fixture)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(0, len(team_models_from_db))
+
+    def test_get_teams_status_filter_existing_team(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.status == expected_team.status)
+        db_util.save_team(expected_team)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_status_filter_no_existing_team(self):
+        # Arrange
+        filters = []
+        team_1 = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.status == team_1.status)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(0, len(team_models_from_db))
+
+    def test_get_teams_league_filter_existing_team(self):
+        # Arrange
+        filters = []
+        expected_team = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.home_league == expected_team.home_league)
+        db_util.save_team(expected_team)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(1, len(team_models_from_db))
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_teams_league_filter_no_existing_team(self):
+        # Arrange
+        filters = []
+        team_1 = test_fixtures.team_1_fixture
+        filters.append(models.ProfessionalTeamModel.home_league == team_1.home_league)
+
+        # Act
+        team_models_from_db = crud.get_teams(filters)
+
+        # Assert
+        self.assertIsInstance(team_models_from_db, list)
+        self.assertEqual(0, len(team_models_from_db))
+
+    def test_get_team_by_id_existing_team(self):
+        # Arrange
+        expected_team = test_fixtures.team_1_fixture
+        db_util.save_team(expected_team)
+
+        # Act
+        team_model_from_db = crud.get_team_by_id(expected_team.id)
+
+        # Assert
+        self.assertIsNotNone(team_model_from_db)
+        team_from_db = schemas.ProfessionalTeam.model_validate(team_model_from_db)
+        self.assertEqual(expected_team, team_from_db)
+
+    def test_get_team_from_id_no_existing_team(self):
+        # Arrange
+        expected_team = test_fixtures.team_1_fixture
+
+        # Act
+        team_model_from_db = crud.get_team_by_id(expected_team.id)
+
+        # Assert
+        self.assertIsNone(team_model_from_db)
