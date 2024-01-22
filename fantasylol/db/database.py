@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 
 from fantasylol.db import models
+from fantasylol.db import views
 from fantasylol.util.config import Config
 
 Path("./database/").mkdir(parents=True, exist_ok=True)
@@ -16,6 +17,13 @@ engine = create_engine(
 )
 
 models.Base.metadata.create_all(bind=engine)
+
+with engine.connect() as connection:
+    connection.execute(views.player_game_view_query)
+    connection.commit()
+
+views.Base.metadata.create_all(bind=engine)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

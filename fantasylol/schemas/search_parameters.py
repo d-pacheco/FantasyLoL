@@ -13,6 +13,11 @@ class GameSearchParameters(BaseModel):
     match_id: Optional[str] = None
 
 
+class PlayerGameStatsSearchParameters(BaseModel):
+    game_id: Optional[str] = None
+    player_id: Optional[str] = None
+
+
 class MatchSearchParameters(BaseModel):
     league_slug: Optional[str] = None
     tournament_id: Optional[str] = None

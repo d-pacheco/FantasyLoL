@@ -12,6 +12,7 @@ from fantasylol.db.models import (
     ProfessionalPlayerModel,
     Schedule
 )
+from fantasylol.db.views import PlayerGameView
 from fantasylol.schemas import riot_data_schemas as schemas
 
 
@@ -278,6 +279,15 @@ def get_game_ids_to_fetch_player_stats_for():
     for row in rows:
         game_ids.append(row[0])
     return game_ids
+
+
+def get_player_game_stats(filters: list = None) -> List[PlayerGameView]:
+    with DatabaseConnection() as db:
+        if filters:
+            query = db.query(PlayerGameView).filter(*filters)
+        else:
+            query = db.query(PlayerGameView)
+        return query.all()
 
 
 # --------------------------------------------------
