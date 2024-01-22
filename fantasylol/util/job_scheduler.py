@@ -1,5 +1,7 @@
 import logging
 import atexit
+from datetime import datetime
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
@@ -33,11 +35,16 @@ class JobScheduler:
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
 
+    def trigger_league_service_job(self):
+        job = self.scheduler.get_job('league_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
         self.schedule_job(
-            job_function=self.riot_league_service.fetch_and_store_leagues,
+            job_function=self.riot_league_service.fetch_leagues_from_riot_retry_job,
             job_config=Config.LEAGUE_SERVICE_SCHEDULE,
             job_id='league_service_job',
         )
