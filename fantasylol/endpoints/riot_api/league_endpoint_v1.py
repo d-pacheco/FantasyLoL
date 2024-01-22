@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
-from typing import List
 
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.schemas.riot_data_schemas import League

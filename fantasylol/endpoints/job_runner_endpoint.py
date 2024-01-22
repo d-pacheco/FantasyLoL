@@ -27,3 +27,43 @@ logger = logging.getLogger('fantasy-lol')
 async def manual_fetch_leagues_from_riot_job_trigger():
     job_scheduler.trigger_league_service_job()
     return "Job triggered successfully"
+
+
+@router.post(
+    path="/update-game-states",
+    description="Manually trigger update game states job",
+    tags=["Manual Job Triggers"],
+    status_code=202,
+    responses={
+        202: {
+            "content": {
+                "application/json": {
+                    "example": "Job triggered successfully"
+                }
+            }
+        }
+    }
+)
+async def trigger_update_game_states_job():
+    job_scheduler.trigger_update_game_states_job()
+    return "Job triggered successfully"
+
+
+@router.post(
+    path="/fetch-games-from-matches",
+    description="Manually trigger fetch games from match ids job",
+    tags=["Manual Job Triggers"],
+    status_code=202,
+    responses={
+        202: {
+            "content": {
+                "application/json": {
+                    "example": "Job triggered successfully"
+                }
+            }
+        }
+    }
+)
+async def trigger_fetch_games_from_match_ids_job():
+    job_scheduler.trigger_games_from_match_ids_job()
+    return "Job triggered successfully"

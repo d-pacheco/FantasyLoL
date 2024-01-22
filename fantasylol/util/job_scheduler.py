@@ -40,6 +40,16 @@ class JobScheduler:
         if job:
             job.modify(next_run_time=datetime.now())
 
+    def trigger_update_game_states_job(self):
+        job = self.scheduler.get_job('update_game_states_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_games_from_match_ids_job(self):
+        job = self.scheduler.get_job('games_from_match_ids_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
@@ -69,12 +79,12 @@ class JobScheduler:
             job_id='match_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_service.fetch_and_store_games_from_match_ids,
+            job_function=self.riot_game_service.fetch_games_from_match_ids_retry_job,
             job_config=Config.GAME_SERVICE_SCHEDULE,
             job_id='games_from_match_ids_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_service.update_game_states_job,
+            job_function=self.riot_game_service.update_game_states_retry_job,
             job_config=Config.GAME_SERVICE_SCHEDULE,
             job_id='update_game_states_job'
         )
