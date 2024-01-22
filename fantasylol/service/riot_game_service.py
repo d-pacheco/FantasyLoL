@@ -25,7 +25,7 @@ class RiotGameService:
         logger.info("Starting fetch games from match ids job")
         while retry_count <= max_retries and not job_completed:
             try:
-                match_ids = crud.get_matches_ids_without_games()
+                match_ids = crud.get_match_ids_without_games()
 
                 for i in range(0, len(match_ids), batch_size):
                     batch = match_ids[i:i + batch_size]
