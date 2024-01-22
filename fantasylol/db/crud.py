@@ -88,7 +88,7 @@ def get_match_by_id(match_id: str) -> MatchModel:
         return db.query(MatchModel).filter(MatchModel.id == match_id).first()
 
 
-def get_matches_ids_without_games() -> List[str]:
+def get_match_ids_without_games() -> List[str]:
     sql_query = """
         SELECT matches.id
         FROM matches

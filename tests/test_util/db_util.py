@@ -23,6 +23,11 @@ def save_match(match: schemas.Match):
         db.commit()
 
 
+def get_match_by_id(match_id: str) -> models.MatchModel:
+    with DatabaseConnection() as db:
+        return db.query(models.MatchModel).filter(models.MatchModel.id == match_id).first()
+
+
 def save_game(game: schemas.Game):
     db_game = models.GameModel(**game.model_dump())
     with DatabaseConnection() as db:

@@ -796,6 +796,165 @@ class CrudTest(FantasyLolTestBase):
         self.assertIsNone(league_model_from_db)
 
     # --------------------------------------------------
+    # --------------- Match Operations -----------------
+    # --------------------------------------------------
+    def test_save_match(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+
+        # Act
+        crud.save_match(expected_match)
+
+        # Assert
+        match_model_from_db = db_util.get_match_by_id(expected_match.id)
+        self.assertIsNotNone(match_model_from_db)
+        match_from_db = schemas.Match.model_validate(match_model_from_db)
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_matches_no_filters(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches()
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(1, len(match_models_from_db))
+        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_matches_empty_filters(self):
+        # Arrange
+        filters = []
+        expected_match = test_fixtures.match_fixture
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches(filters)
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(1, len(match_models_from_db))
+        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_matches_league_slug_filter_existing_match(self):
+        # Arrange
+        filters = []
+        expected_match = test_fixtures.match_fixture
+        filters.append(models.MatchModel.league_slug == expected_match.league_slug)
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches(filters)
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(1, len(match_models_from_db))
+        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_matches_league_slug_filter_no_existing_match(self):
+        # Arrange
+        filters = []
+        expected_match = test_fixtures.match_fixture
+        filters.append(models.MatchModel.league_slug == "badFilter")
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches(filters)
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(0, len(match_models_from_db))
+
+    def test_get_matches_tournament_id_filter_existing_match(self):
+        # Arrange
+        filters = []
+        expected_match = test_fixtures.match_fixture
+        filters.append(models.MatchModel.tournament_id == expected_match.tournament_id)
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches(filters)
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(1, len(match_models_from_db))
+        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_matches_tournament_id_filter_no_existing_match(self):
+        # Arrange
+        filters = []
+        expected_match = test_fixtures.match_fixture
+        filters.append(models.MatchModel.tournament_id == "badFilter")
+        db_util.save_match(expected_match)
+
+        # Act
+        match_models_from_db = crud.get_matches(filters)
+
+        # Assert
+        self.assertIsInstance(match_models_from_db, list)
+        self.assertEqual(0, len(match_models_from_db))
+
+    def test_get_match_by_id_existing_match(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+        db_util.save_match(expected_match)
+
+        # Act
+        match_model_from_db = crud.get_match_by_id(expected_match.id)
+
+        # Assert
+        self.assertIsNotNone(match_model_from_db)
+        match_from_db = schemas.Match.model_validate(match_model_from_db)
+        self.assertEqual(expected_match, match_from_db)
+
+    def test_get_match_by_id_no_existing_match(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+
+        # Act
+        match_model_from_db = crud.get_match_by_id(expected_match.id)
+
+        # Assert
+        self.assertIsNone(match_model_from_db)
+
+    def test_get_match_ids_without_games_matches_with_no_games(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+        game_for_future_match = test_fixtures.game_1_fixture_unstarted_future_match
+        db_util.save_match(expected_match)
+        db_util.save_game(game_for_future_match)
+
+        # Act
+        match_ids_without_games = crud.get_match_ids_without_games()
+
+        # Assert
+        self.assertNotEqual(game_for_future_match.match_id, expected_match.id)
+        self.assertIsInstance(match_ids_without_games, list)
+        self.assertEqual(1, len(match_ids_without_games))
+        self.assertEqual(expected_match.id, match_ids_without_games[0])
+
+    def test_get_match_ids_without_games_matches_with_games(self):
+        # Arrange
+        expected_match = test_fixtures.match_fixture
+        db_util.save_match(expected_match)
+        game = test_fixtures.game_1_fixture_completed
+        db_util.save_game(game)
+
+        # Act
+        match_ids_without_games = crud.get_match_ids_without_games()
+
+        # Assert
+        self.assertEqual(game.match_id, expected_match.id)
+        self.assertIsInstance(match_ids_without_games, list)
+        self.assertEqual(0, len(match_ids_without_games))
+
+    # --------------------------------------------------
     # ---------------- Team Operations ----------------
     # --------------------------------------------------
     def test_save_team(self):
