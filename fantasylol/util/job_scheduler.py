@@ -50,6 +50,11 @@ class JobScheduler:
         if job:
             job.modify(next_run_time=datetime.now())
 
+    def trigger_player_service_job(self):
+        job = self.scheduler.get_job('player_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
@@ -69,7 +74,7 @@ class JobScheduler:
             job_id='team_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_player_service.fetch_and_store_professional_players,
+            job_function=self.riot_player_service.fetch_professional_players_from_riot_retry_job,
             job_config=Config.PLAYER_SERVICE_SCHEDULE,
             job_id='player_service_job'
         )
