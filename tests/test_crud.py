@@ -3,6 +3,7 @@ import copy
 from fantasylol.db import crud
 from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.db import models
+from fantasylol.db import views
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import db_util
@@ -267,6 +268,135 @@ class CrudTest(FantasyLolTestBase):
         game_ids = crud.get_game_ids_to_fetch_player_stats_for()
         self.assertIsInstance(game_ids, list)
         self.assertEqual(0, len(game_ids))
+
+    def test_get_player_game_stats_no_filters(self):
+        # Arrange
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats()
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(1, len(player_game_data_models_from_db))
+        player_game_data_from_db = schemas.PlayerGameData.model_validate(
+            player_game_data_models_from_db[0]
+        )
+        self.assertEqual(expected_player_game_data, player_game_data_from_db)
+
+    def test_get_player_game_stats_empty_filter(self):
+        # Arrange
+        filters = []
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(1, len(player_game_data_models_from_db))
+        player_game_data_from_db = schemas.PlayerGameData.model_validate(
+            player_game_data_models_from_db[0]
+        )
+        self.assertEqual(expected_player_game_data, player_game_data_from_db)
+
+    def test_get_player_game_stats_has_metadata_but_no_stats(self):
+        # Arrange
+        filters = []
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(0, len(player_game_data_models_from_db))
+
+    def test_get_player_game_stats_has_stats_but_no_metadata(self):
+        # Arrange
+        filters = []
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(0, len(player_game_data_models_from_db))
+
+    def test_get_player_game_stats_game_id_filter_existing_stats(self):
+        # Arrange
+        filters = []
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        filters.append(views.PlayerGameView.game_id == expected_player_game_data.game_id)
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(1, len(player_game_data_models_from_db))
+        player_game_data_from_db = schemas.PlayerGameData.model_validate(
+            player_game_data_models_from_db[0]
+        )
+        self.assertEqual(expected_player_game_data, player_game_data_from_db)
+
+    def test_get_player_game_stats_game_id_filter_no_existing_stats(self):
+        # Arrange
+        filters = []
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        filters.append(views.PlayerGameView.game_id == expected_player_game_data.game_id)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(0, len(player_game_data_models_from_db))
+
+    def test_get_player_game_stats_player_id_filter_existing_stats(self):
+        # Arrange
+        filters = []
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        filters.append(views.PlayerGameView.player_id == expected_player_game_data.player_id)
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(1, len(player_game_data_models_from_db))
+        player_game_data_from_db = schemas.PlayerGameData.model_validate(
+            player_game_data_models_from_db[0]
+        )
+        self.assertEqual(expected_player_game_data, player_game_data_from_db)
+
+    def test_get_player_game_stats_player_id_filter_no_existing_stats(self):
+        # Arrange
+        filters = []
+        expected_player_game_data = test_fixtures.player_1_game_data_fixture
+        filters.append(views.PlayerGameView.player_id == expected_player_game_data.player_id)
+        db_util.save_player_metadata(test_fixtures.player_1_game_metadata_fixture)
+        db_util.save_player_stats(test_fixtures.player_1_game_stats_fixture)
+
+        # Act
+        player_game_data_models_from_db = crud.get_player_game_stats(filters)
+
+        # Assert
+        self.assertIsInstance(player_game_data_models_from_db, list)
+        self.assertEqual(1, len(player_game_data_models_from_db))
+        player_game_data_from_db = schemas.PlayerGameData.model_validate(
+            player_game_data_models_from_db[0]
+        )
+        self.assertEqual(expected_player_game_data, player_game_data_from_db)
 
     # --------------------------------------------------
     # ---------------- Game Operations -----------------

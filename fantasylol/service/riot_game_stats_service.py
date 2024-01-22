@@ -1,9 +1,13 @@
 from datetime import datetime, timezone, timedelta
 import logging
 import time
+from typing import List
 
 from fantasylol.db import crud
+from fantasylol.db.views import PlayerGameView
 from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
+from fantasylol.schemas.search_parameters import PlayerGameStatsSearchParameters
+from fantasylol.schemas.riot_data_schemas import PlayerGameData
 from fantasylol.util.riot_api_requester import RiotApiRequester
 
 logger = logging.getLogger('fantasy-lol')
@@ -104,3 +108,18 @@ class RiotGameStatsService:
         except Exception as e:
             logger.error(f"{str(e)}")
             raise e
+
+    @staticmethod
+    def get_player_stats(search_parameters: PlayerGameStatsSearchParameters) \
+            -> List[PlayerGameData]:
+        filters = []
+        if search_parameters.game_id is not None:
+            filters.append(PlayerGameView.game_id == search_parameters.game_id)
+        if search_parameters.player_id is not None:
+            filters.append(PlayerGameView.player_id == search_parameters.player_id)
+        player_game_stats_orms = crud.get_player_game_stats(filters)
+        player_game_stats = [PlayerGameData.model_validate(game_stats_orm)
+                             for game_stats_orm in player_game_stats_orms]
+        sorted_player_game_stats = sorted(player_game_stats,
+                                          key=lambda x: (x.game_id, x.participant_id))
+        return sorted_player_game_stats

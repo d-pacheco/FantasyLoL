@@ -329,6 +329,82 @@ class PlayerGameStats(BaseModel):
     )
 
 
+class PlayerGameData(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: str = Field(
+        default=None,
+        description="The id of the game this players metadata is for",
+        examples=["110853020184706766"]
+    )
+    player_id: str = Field(
+        default=None,
+        description="The id of the player given by riot",
+        examples=["98767991747728851"]
+
+    )
+    participant_id: int = Field(
+        default=None,
+        description="The participant id for the game given by riot",
+        examples=[8]
+    )
+    champion_id: str = Field(
+        default=None,
+        description="The id of the champion the player played in the game",
+        examples=["Ahri"]
+    )
+    role: PlayerRole = Field(
+        default=None,
+        description="The role the player played in the game",
+        examples=["mid"]
+    )
+    kills: int = Field(
+        default=None,
+        description="The number of kills the player got",
+        examples=[1]
+    )
+    deaths: int = Field(
+        default=None,
+        description="The number of deaths for the player",
+        examples=[2]
+    )
+    assists: int = Field(
+        default=None,
+        description="The number of assists for the players",
+        examples=[4]
+    )
+    total_gold: int = Field(
+        default=None,
+        description="The total gold the player had",
+        examples=[11643]
+    )
+    creep_score: int = Field(
+        default=None,
+        description="The creep score the player had",
+        examples=[248]
+    )
+    kill_participation: int = Field(
+        default=None,
+        description="The kill participation the player had",
+        examples=[33]
+    )
+    champion_damage_share: int = Field(
+        default=None,
+        description="The damage percentage of the team the player did to champions",
+        examples=[15]
+    )
+    wards_placed: int = Field(
+        default=None,
+        description="The number of wards the player placed",
+        examples=[7]
+    )
+    wards_destroyed: int = Field(
+        default=None,
+        description="The number of enemy wards the player destroyed",
+        examples=[7]
+    )
+
+
 class RiotSchedulePages(BaseModel):
     older: str = Field(default=None)
     newer: str = Field(default=None)

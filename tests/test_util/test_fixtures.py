@@ -452,6 +452,176 @@ player_10_game_stats_fixture = schemas.PlayerGameStats(
     wards_destroyed=random.randint(10, 20)
 )
 
+player_1_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_1_game_metadata_fixture.game_id,
+    player_id=player_1_game_metadata_fixture.player_id,
+    participant_id=player_1_game_metadata_fixture.participant_id,
+    champion_id=player_1_game_metadata_fixture.champion_id,
+    role=player_1_game_metadata_fixture.role,
+    kills=player_1_game_stats_fixture.kills,
+    deaths=player_1_game_stats_fixture.deaths,
+    assists=player_1_game_stats_fixture.assists,
+    total_gold=player_1_game_stats_fixture.total_gold,
+    creep_score=player_1_game_stats_fixture.creep_score,
+    kill_participation=player_1_game_stats_fixture.kill_participation,
+    champion_damage_share=player_1_game_stats_fixture.champion_damage_share,
+    wards_placed=player_1_game_stats_fixture.wards_placed,
+    wards_destroyed=player_1_game_stats_fixture.wards_destroyed
+)
+
+player_2_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_2_game_metadata_fixture.game_id,
+    player_id=player_2_game_metadata_fixture.player_id,
+    participant_id=player_2_game_metadata_fixture.participant_id,
+    champion_id=player_2_game_metadata_fixture.champion_id,
+    role=player_2_game_metadata_fixture.role,
+    kills=player_2_game_stats_fixture.kills,
+    deaths=player_2_game_stats_fixture.deaths,
+    assists=player_2_game_stats_fixture.assists,
+    total_gold=player_2_game_stats_fixture.total_gold,
+    creep_score=player_2_game_stats_fixture.creep_score,
+    kill_participation=player_2_game_stats_fixture.kill_participation,
+    champion_damage_share=player_2_game_stats_fixture.champion_damage_share,
+    wards_placed=player_2_game_stats_fixture.wards_placed,
+    wards_destroyed=player_2_game_stats_fixture.wards_destroyed
+)
+
+player_3_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_3_game_metadata_fixture.game_id,
+    player_id=player_3_game_metadata_fixture.player_id,
+    participant_id=player_3_game_metadata_fixture.participant_id,
+    champion_id=player_3_game_metadata_fixture.champion_id,
+    role=player_3_game_metadata_fixture.role,
+    kills=player_3_game_stats_fixture.kills,
+    deaths=player_3_game_stats_fixture.deaths,
+    assists=player_3_game_stats_fixture.assists,
+    total_gold=player_3_game_stats_fixture.total_gold,
+    creep_score=player_3_game_stats_fixture.creep_score,
+    kill_participation=player_3_game_stats_fixture.kill_participation,
+    champion_damage_share=player_3_game_stats_fixture.champion_damage_share,
+    wards_placed=player_3_game_stats_fixture.wards_placed,
+    wards_destroyed=player_3_game_stats_fixture.wards_destroyed
+)
+
+player_4_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_4_game_metadata_fixture.game_id,
+    player_id=player_4_game_metadata_fixture.player_id,
+    participant_id=player_4_game_metadata_fixture.participant_id,
+    champion_id=player_4_game_metadata_fixture.champion_id,
+    role=player_4_game_metadata_fixture.role,
+    kills=player_4_game_stats_fixture.kills,
+    deaths=player_4_game_stats_fixture.deaths,
+    assists=player_4_game_stats_fixture.assists,
+    total_gold=player_4_game_stats_fixture.total_gold,
+    creep_score=player_4_game_stats_fixture.creep_score,
+    kill_participation=player_4_game_stats_fixture.kill_participation,
+    champion_damage_share=player_4_game_stats_fixture.champion_damage_share,
+    wards_placed=player_4_game_stats_fixture.wards_placed,
+    wards_destroyed=player_4_game_stats_fixture.wards_destroyed
+)
+
+player_5_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_5_game_metadata_fixture.game_id,
+    player_id=player_5_game_metadata_fixture.player_id,
+    participant_id=player_5_game_metadata_fixture.participant_id,
+    champion_id=player_5_game_metadata_fixture.champion_id,
+    role=player_5_game_metadata_fixture.role,
+    kills=player_5_game_stats_fixture.kills,
+    deaths=player_5_game_stats_fixture.deaths,
+    assists=player_5_game_stats_fixture.assists,
+    total_gold=player_5_game_stats_fixture.total_gold,
+    creep_score=player_5_game_stats_fixture.creep_score,
+    kill_participation=player_5_game_stats_fixture.kill_participation,
+    champion_damage_share=player_5_game_stats_fixture.champion_damage_share,
+    wards_placed=player_5_game_stats_fixture.wards_placed,
+    wards_destroyed=player_5_game_stats_fixture.wards_destroyed
+)
+
+player_6_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_6_game_metadata_fixture.game_id,
+    player_id=player_6_game_metadata_fixture.player_id,
+    participant_id=player_6_game_metadata_fixture.participant_id,
+    champion_id=player_6_game_metadata_fixture.champion_id,
+    role=player_6_game_metadata_fixture.role,
+    kills=player_6_game_stats_fixture.kills,
+    deaths=player_6_game_stats_fixture.deaths,
+    assists=player_6_game_stats_fixture.assists,
+    total_gold=player_6_game_stats_fixture.total_gold,
+    creep_score=player_6_game_stats_fixture.creep_score,
+    kill_participation=player_6_game_stats_fixture.kill_participation,
+    champion_damage_share=player_6_game_stats_fixture.champion_damage_share,
+    wards_placed=player_6_game_stats_fixture.wards_placed,
+    wards_destroyed=player_6_game_stats_fixture.wards_destroyed
+)
+
+player_7_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_7_game_metadata_fixture.game_id,
+    player_id=player_7_game_metadata_fixture.player_id,
+    participant_id=player_7_game_metadata_fixture.participant_id,
+    champion_id=player_7_game_metadata_fixture.champion_id,
+    role=player_7_game_metadata_fixture.role,
+    kills=player_7_game_stats_fixture.kills,
+    deaths=player_7_game_stats_fixture.deaths,
+    assists=player_7_game_stats_fixture.assists,
+    total_gold=player_7_game_stats_fixture.total_gold,
+    creep_score=player_7_game_stats_fixture.creep_score,
+    kill_participation=player_7_game_stats_fixture.kill_participation,
+    champion_damage_share=player_7_game_stats_fixture.champion_damage_share,
+    wards_placed=player_7_game_stats_fixture.wards_placed,
+    wards_destroyed=player_7_game_stats_fixture.wards_destroyed
+)
+
+player_8_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_8_game_metadata_fixture.game_id,
+    player_id=player_8_game_metadata_fixture.player_id,
+    participant_id=player_8_game_metadata_fixture.participant_id,
+    champion_id=player_8_game_metadata_fixture.champion_id,
+    role=player_8_game_metadata_fixture.role,
+    kills=player_8_game_stats_fixture.kills,
+    deaths=player_8_game_stats_fixture.deaths,
+    assists=player_8_game_stats_fixture.assists,
+    total_gold=player_8_game_stats_fixture.total_gold,
+    creep_score=player_8_game_stats_fixture.creep_score,
+    kill_participation=player_8_game_stats_fixture.kill_participation,
+    champion_damage_share=player_8_game_stats_fixture.champion_damage_share,
+    wards_placed=player_8_game_stats_fixture.wards_placed,
+    wards_destroyed=player_8_game_stats_fixture.wards_destroyed
+)
+
+player_9_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_9_game_metadata_fixture.game_id,
+    player_id=player_9_game_metadata_fixture.player_id,
+    participant_id=player_9_game_metadata_fixture.participant_id,
+    champion_id=player_9_game_metadata_fixture.champion_id,
+    role=player_9_game_metadata_fixture.role,
+    kills=player_9_game_stats_fixture.kills,
+    deaths=player_9_game_stats_fixture.deaths,
+    assists=player_9_game_stats_fixture.assists,
+    total_gold=player_9_game_stats_fixture.total_gold,
+    creep_score=player_9_game_stats_fixture.creep_score,
+    kill_participation=player_9_game_stats_fixture.kill_participation,
+    champion_damage_share=player_9_game_stats_fixture.champion_damage_share,
+    wards_placed=player_9_game_stats_fixture.wards_placed,
+    wards_destroyed=player_9_game_stats_fixture.wards_destroyed
+)
+
+player_10_game_data_fixture = schemas.PlayerGameData(
+    game_id=player_10_game_metadata_fixture.game_id,
+    player_id=player_10_game_metadata_fixture.player_id,
+    participant_id=player_10_game_metadata_fixture.participant_id,
+    champion_id=player_10_game_metadata_fixture.champion_id,
+    role=player_10_game_metadata_fixture.role,
+    kills=player_10_game_stats_fixture.kills,
+    deaths=player_10_game_stats_fixture.deaths,
+    assists=player_10_game_stats_fixture.assists,
+    total_gold=player_10_game_stats_fixture.total_gold,
+    creep_score=player_10_game_stats_fixture.creep_score,
+    kill_participation=player_10_game_stats_fixture.kill_participation,
+    champion_damage_share=player_10_game_stats_fixture.champion_damage_share,
+    wards_placed=player_10_game_stats_fixture.wards_placed,
+    wards_destroyed=player_10_game_stats_fixture.wards_destroyed
+)
+
 riot_schedule_pages_fixture = schemas.RiotSchedulePages(
     older="olderToken",
     newer="newerToken"
