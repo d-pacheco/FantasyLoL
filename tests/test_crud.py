@@ -830,7 +830,6 @@ class CrudTest(FantasyLolTestBase):
     def test_get_tournaments_empty_filters_no_existing_tournaments(self):
         # Arrange
         filters = []
-        expected_tournament = test_fixtures.tournament_fixture
 
         # Act
         tournament_models_from_db = crud.get_tournaments(filters)
