@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
-from typing import List
 
 from fantasylol.service.riot_tournament_service import RiotTournamentService
 from fantasylol.schemas.riot_data_schemas import Tournament
@@ -55,18 +54,3 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
 )
 def get_riot_tournaments_by_id(tournament_id: str):
     return tournament_service.get_tournament_by_id(tournament_id)
-
-
-@router.get(
-    path="/fetch-tournaments",
-    description="Fetch tournaments from riots servers",
-    tags=["Tournaments"],
-    response_model=List[Tournament],
-    responses={
-        200: {
-            "model": List[Tournament]
-        }
-    }
-)
-def fetch_tournaments_from_riot():
-    return tournament_service.fetch_and_store_tournaments()

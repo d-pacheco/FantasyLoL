@@ -1,5 +1,7 @@
 import logging
 import atexit
+from datetime import datetime
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
@@ -33,51 +35,86 @@ class JobScheduler:
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
 
+    def trigger_league_service_job(self):
+        job = self.scheduler.get_job('league_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_update_game_states_job(self):
+        job = self.scheduler.get_job('update_game_states_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_games_from_match_ids_job(self):
+        job = self.scheduler.get_job('games_from_match_ids_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_player_service_job(self):
+        job = self.scheduler.get_job('player_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_team_service_job(self):
+        job = self.scheduler.get_job('team_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_tournament_service_job(self):
+        job = self.scheduler.get_job('tournament_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_match_service_job(self):
+        job = self.scheduler.get_job('match_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
         self.schedule_job(
-            job_function=self.riot_league_service.fetch_and_store_leagues,
+            job_function=self.riot_league_service.fetch_leagues_from_riot_retry_job,
             job_config=Config.LEAGUE_SERVICE_SCHEDULE,
             job_id='league_service_job',
         )
         self.schedule_job(
-            job_function=self.riot_tournament_service.fetch_and_store_tournaments,
+            job_function=self.riot_tournament_service.fetch_tournaments_retry_job,
             job_config=Config.TOURNAMENT_SERVICE_SCHEDULE,
             job_id='tournament_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_team_service.fetch_and_store_professional_teams,
+            job_function=self.riot_team_service.fetch_professional_teams_from_riot_retry_job,
             job_config=Config.TEAM_SERVICE_SCHEDULE,
             job_id='team_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_player_service.fetch_and_store_professional_players,
+            job_function=self.riot_player_service.fetch_professional_players_from_riot_retry_job,
             job_config=Config.PLAYER_SERVICE_SCHEDULE,
             job_id='player_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_match_service.fetch_new_schedule,
+            job_function=self.riot_match_service.fetch_new_schedule_retry_job,
             job_config=Config.MATCH_SERVICE_SCHEDULE,
             job_id='match_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_service.fetch_and_store_games_from_match_ids,
+            job_function=self.riot_game_service.fetch_games_from_match_ids_retry_job,
             job_config=Config.GAME_SERVICE_SCHEDULE,
             job_id='games_from_match_ids_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_service.update_game_states_job,
+            job_function=self.riot_game_service.update_game_states_retry_job,
             job_config=Config.GAME_SERVICE_SCHEDULE,
             job_id='update_game_states_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_stats_service.run_player_metadata_job,
+            job_function=self.riot_game_stats_service.run_player_metadata_retry_job,
             job_config=Config.GAME_STATS_SERVICE_SCHEDULE,
             job_id='player_metadata_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_stats_service.run_player_stats_job,
+            job_function=self.riot_game_stats_service.run_player_stats_retry_job,
             job_config=Config.GAME_STATS_SERVICE_SCHEDULE,
             job_id='player_stats_job'
         )

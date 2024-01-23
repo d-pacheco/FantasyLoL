@@ -60,12 +60,3 @@ def get_riot_games(
 )
 def get_riot_game_by_id(game_id: str):
     return game_service.get_game_by_id(game_id)
-
-
-@router.get(
-    path="/fetch-games-from-matches",
-    description="Manually trigger fetch games from match ids job",
-    tags=["Manual Job Triggers"]
-)
-def fetch_games_from_matches(batch_size: int = Query(None, description="size of the batches")):
-    game_service.fetch_and_store_games_from_match_ids(batch_size)

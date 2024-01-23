@@ -1,10 +1,12 @@
 import logging
 from typing import List
+
 from fantasylol.db import crud
 from fantasylol.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from fantasylol.db.models import ProfessionalPlayerModel
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.util.job_runner import JobRunner
 from fantasylol.schemas.search_parameters import PlayerSearchParameters
 from fantasylol.schemas.riot_data_schemas import ProfessionalPlayer
 
@@ -14,17 +16,19 @@ logger = logging.getLogger('fantasy-lol')
 class RiotProfessionalPlayerService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
+        self.job_runner = JobRunner()
 
-    def fetch_and_store_professional_players(self) -> List[ProfessionalPlayer]:
-        logger.info("Fetching and storing professional players from riot's api")
-        try:
-            fetched_players = self.riot_api_requester.get_players()
-            for player in fetched_players:
-                crud.save_player(player)
-            return fetched_players
-        except Exception as e:
-            logger.error(f"{str(e)}")
-            raise e
+    def fetch_professional_players_from_riot_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.fetch_professional_players_from_riot_job,
+            job_name="fetch players from riot job",
+            max_retries=3
+        )
+
+    def fetch_professional_players_from_riot_job(self):
+        fetched_players = self.riot_api_requester.get_players()
+        for player in fetched_players:
+            crud.save_player(player)
 
     @staticmethod
     def get_players(search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
-from typing import List
 
 from fantasylol.service.riot_league_service import RiotLeagueService
 from fantasylol.schemas.riot_data_schemas import League
@@ -55,18 +54,3 @@ def get_riot_leagues(
 )
 def get_riot_league_by_id(league_id: str):
     return league_service.get_league_by_id(league_id)
-
-
-@router.get(
-    path="/fetch-leagues",
-    description="fetch leagues from riots servers",
-    tags=["Leagues"],
-    response_model=List[League],
-    responses={
-        200: {
-            "model": List[League]
-        }
-    }
-)
-def fetch_leagues_from_riot():
-    return league_service.fetch_and_store_leagues()

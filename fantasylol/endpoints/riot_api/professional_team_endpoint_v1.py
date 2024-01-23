@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
-from typing import List
 
 from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
 from fantasylol.schemas.riot_data_schemas import ProfessionalTeam
@@ -60,17 +59,3 @@ def get_riot_professional_teams(
 )
 def get_professional_team_by_id(professional_team_id: str):
     return professional_team_service.get_team_by_id(professional_team_id)
-
-
-@router.get(
-    path="/fetch-professional-teams",
-    description="Fetch professional teams from riots servers",
-    tags=["Professional Teams"],
-    response_model=List[ProfessionalTeam],
-    responses={
-        200: {
-            "model": List[ProfessionalTeam]
-        }
-    })
-def fetch_professional_teams_from_riot():
-    return professional_team_service.fetch_and_store_professional_teams()
