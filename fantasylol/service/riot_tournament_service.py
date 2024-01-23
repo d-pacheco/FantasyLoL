@@ -7,6 +7,7 @@ from fantasylol.db.models import TournamentModel
 from fantasylol.schemas.riot_data_schemas import Tournament
 from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.util.job_runner import JobRunner
 from fantasylol.schemas.riot_data_schemas import TournamentStatus
 from fantasylol.schemas.search_parameters import TournamentSearchParameters
 
@@ -16,22 +17,24 @@ logger = logging.getLogger('fantasy-lol')
 class RiotTournamentService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
+        self.job_runner = JobRunner()
 
-    def fetch_and_store_tournaments(self) -> List[Tournament]:
-        logger.info("Fetching and storing tournaments from riot's api")
-        try:
-            stored_leagues = crud.get_leagues()
+    def fetch_tournaments_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.fetch_tournaments_job,
+            job_name="fetch tournaments job",
+            max_retries=3
+        )
 
-            fetched_tournaments = []
-            for league in stored_leagues:
-                tournaments = self.riot_api_requester.get_tournament_for_league(league.id)
-                for tournament in tournaments:
-                    crud.save_tournament(tournament)
-                    fetched_tournaments.append(tournament)
-            return fetched_tournaments
-        except Exception as e:
-            logger.error(f"{str(e)}")
-            raise e
+    def fetch_tournaments_job(self):
+        stored_leagues = crud.get_leagues()
+
+        fetched_tournaments = []
+        for league in stored_leagues:
+            tournaments = self.riot_api_requester.get_tournament_for_league(league.id)
+            for tournament in tournaments:
+                crud.save_tournament(tournament)
+                fetched_tournaments.append(tournament)
 
     @staticmethod
     def get_tournaments(search_parameters: TournamentSearchParameters) -> List[Tournament]:

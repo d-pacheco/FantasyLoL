@@ -60,6 +60,11 @@ class JobScheduler:
         if job:
             job.modify(next_run_time=datetime.now())
 
+    def trigger_tournament_service_job(self):
+        job = self.scheduler.get_job('tournament_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
@@ -69,7 +74,7 @@ class JobScheduler:
             job_id='league_service_job',
         )
         self.schedule_job(
-            job_function=self.riot_tournament_service.fetch_and_store_tournaments,
+            job_function=self.riot_tournament_service.fetch_tournaments_retry_job,
             job_config=Config.TOURNAMENT_SERVICE_SCHEDULE,
             job_id='tournament_service_job'
         )
