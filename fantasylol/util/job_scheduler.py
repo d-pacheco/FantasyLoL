@@ -109,12 +109,12 @@ class JobScheduler:
             job_id='update_game_states_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_stats_service.run_player_metadata_job,
+            job_function=self.riot_game_stats_service.run_player_metadata_retry_job,
             job_config=Config.GAME_STATS_SERVICE_SCHEDULE,
             job_id='player_metadata_job'
         )
         self.schedule_job(
-            job_function=self.riot_game_stats_service.run_player_stats_job,
+            job_function=self.riot_game_stats_service.run_player_stats_retry_job,
             job_config=Config.GAME_STATS_SERVICE_SCHEDULE,
             job_id='player_stats_job'
         )

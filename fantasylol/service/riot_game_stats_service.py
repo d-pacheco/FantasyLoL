@@ -1,14 +1,13 @@
 from datetime import datetime, timezone, timedelta
 import logging
-import time
 from typing import List
 
 from fantasylol.db import crud
 from fantasylol.db.views import PlayerGameView
-from fantasylol.exceptions.fantasy_lol_exception import FantasyLolException
 from fantasylol.schemas.search_parameters import PlayerGameStatsSearchParameters
 from fantasylol.schemas.riot_data_schemas import PlayerGameData
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.util.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 
@@ -25,31 +24,19 @@ def round_current_time_to_10_seconds() -> str:
 class RiotGameStatsService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
+        self.job_runner = JobRunner()
+
+    def run_player_metadata_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.run_player_metadata_job,
+            job_name="player metadata job",
+            max_retries=3
+        )
 
     def run_player_metadata_job(self):
-        max_retries = 3
-        retry_count = 0
-        error = None
-        job_completed = False
-
-        logger.info("Starting player metadata job")
-
-        while retry_count <= max_retries and not job_completed:
-            try:
-                game_ids = crud.get_game_ids_without_player_metadata()
-                for game_id in game_ids:
-                    self.fetch_and_store_player_metadata_for_game(game_id)
-                job_completed = True
-            except FantasyLolException as e:
-                retry_count += 1
-                error = e
-                logger.warning(f"An error occurred during player metadata job."
-                               f" Retry attempt: {retry_count}")
-                time.sleep(10)
-        if job_completed:
-            logger.info("Player metadata job completed")
-        else:
-            logger.error(f"Player metadata job failed with error: {error}")
+        game_ids = crud.get_game_ids_without_player_metadata()
+        for game_id in game_ids:
+            self.fetch_and_store_player_metadata_for_game(game_id)
 
     def fetch_and_store_player_metadata_for_game(self, game_id: str):
         logger.info(f"Fetching player metadata for game with id: {game_id}")
@@ -67,30 +54,17 @@ class RiotGameStatsService:
             logger.error(f"{str(e)}")
             raise e
 
+    def run_player_stats_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.run_player_stats_job,
+            job_name="player stats job",
+            max_retries=3
+        )
+
     def run_player_stats_job(self):
-        max_retries = 3
-        retry_count = 0
-        error = None
-        job_completed = False
-
-        logger.info("Starting player stats job")
-
-        while retry_count <= max_retries and not job_completed:
-            try:
-                game_ids = crud.get_game_ids_to_fetch_player_stats_for()
-                for game_id in game_ids:
-                    self.fetch_and_store_player_stats_for_game(game_id)
-                job_completed = True
-            except FantasyLolException as e:
-                retry_count += 1
-                error = e
-                logger.warning(f"An error occurred during player stats job."
-                               f" Retry attempt: {retry_count}")
-                time.sleep(10)
-        if job_completed:
-            logger.info("Player stats job completed")
-        else:
-            logger.error(f"Player stats job failed with error: {error}")
+        game_ids = crud.get_game_ids_to_fetch_player_stats_for()
+        for game_id in game_ids:
+            self.fetch_and_store_player_stats_for_game(game_id)
 
     def fetch_and_store_player_stats_for_game(self, game_id: str):
         logger.info(f"Fetching player stats for game with id: {game_id}")
