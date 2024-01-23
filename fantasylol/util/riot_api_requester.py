@@ -260,6 +260,8 @@ class RiotApiRequester:
         matches_from_response = []
         events = schedule.get("events", [])
         for event in events:
+            if event['type'] != 'match':
+                continue
             match = event['match']
             new_match = schemas.Match(
                 id=match['id'],
