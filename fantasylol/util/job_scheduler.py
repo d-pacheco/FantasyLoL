@@ -21,7 +21,15 @@ logger = logging.getLogger('fantasy-lol')
 
 
 class JobScheduler:
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(JobScheduler, cls).__new__(cls)
+            cls._instance._init()
+        return cls._instance
+
+    def _init(self):
         self.riot_league_service = RiotLeagueService()
         self.riot_tournament_service = RiotTournamentService()
         self.riot_team_service = RiotProfessionalTeamService()
@@ -34,6 +42,9 @@ class JobScheduler:
         self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
+
+    def __init__(self):
+        pass
 
     def trigger_league_service_job(self):
         job = self.scheduler.get_job('league_service_job')
@@ -69,6 +80,9 @@ class JobScheduler:
         job = self.scheduler.get_job('match_service_job')
         if job:
             job.modify(next_run_time=datetime.now())
+
+    def print_jobs(self):
+        self.scheduler.print_jobs()
 
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
