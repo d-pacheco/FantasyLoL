@@ -1,5 +1,6 @@
 import logging
 from typing import List
+
 from fantasylol.db import crud
 from fantasylol.db.models import MatchModel
 from fantasylol.db.models import Schedule
@@ -7,6 +8,7 @@ from fantasylol.exceptions.match_not_found_exception import MatchNotFoundExcepti
 from fantasylol.schemas.riot_data_schemas import Match
 from fantasylol.schemas.search_parameters import MatchSearchParameters
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.util.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 
@@ -14,8 +16,44 @@ logger = logging.getLogger('fantasy-lol')
 class RiotMatchService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
+        self.job_runner = JobRunner()
 
-    def fetch_entire_schedule(self) -> bool:
+    def fetch_new_schedule_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.fetch_new_schedule_job,
+            job_name="fetch schedule from riot job",
+            max_retries=3
+        )
+
+    def fetch_new_schedule_job(self):
+        riot_schedule = crud.get_schedule("riot_schedule")
+        if riot_schedule is None:
+            logging.warning("Riot schedule not found in db. Fetching entire schedule. "
+                            "This should only occur on new deployments")
+            return self.fetch_entire_schedule()
+        newer_page_token = riot_schedule.current_token_key
+
+        no_new_schedule = False
+        while not no_new_schedule:
+            schedule_pages = self.riot_api_requester.get_pages_from_schedule(newer_page_token)
+            newer_page_token = schedule_pages.newer
+            if newer_page_token is None:
+                no_new_schedule = True
+                continue
+
+            fetched_matches = self.riot_api_requester.get_matches_from_schedule(newer_page_token)
+            for match in fetched_matches:
+                crud.save_match(match)
+
+            riot_schedule_attr = {
+                'schedule_name': "riot_schedule",
+                'older_token_key': schedule_pages.older,
+                'current_token_key': newer_page_token
+            }
+            riot_schedule_model = Schedule(**riot_schedule_attr)
+            crud.update_schedule(riot_schedule_model)
+
+    def fetch_entire_schedule(self):
         # To only be used on a new deployment to populate the database with the entire schedule
         # After which fetch new schedule should only be used
 
@@ -46,7 +84,7 @@ class RiotMatchService:
             crud.update_schedule(entire_schedule_model)
 
         self.backprop_older_schedules()
-        return self.fetch_new_schedule()
+        self.fetch_new_schedule_job()
 
     def backprop_older_schedules(self):
         entire_schedule = crud.get_schedule("entire_schedule")
@@ -70,37 +108,6 @@ class RiotMatchService:
             }
             entire_schedule_model = Schedule(**entire_schedule_attr)
             crud.update_schedule(entire_schedule_model)
-
-    def fetch_new_schedule(self) -> bool:
-        riot_schedule = crud.get_schedule("riot_schedule")
-        if riot_schedule is None:
-            logging.warning("Riot schedule not found in db. Fetching entire schedule. "
-                            "This should only occur on new deployments")
-            return self.fetch_entire_schedule()
-        newer_page_token = riot_schedule.current_token_key
-
-        schedule_updated = False
-        no_new_schedule = False
-        while not no_new_schedule:
-            schedule_pages = self.riot_api_requester.get_pages_from_schedule(newer_page_token)
-            newer_page_token = schedule_pages.newer
-            if newer_page_token is None:
-                no_new_schedule = True
-                continue
-
-            fetched_matches = self.riot_api_requester.get_matches_from_schedule(newer_page_token)
-            for match in fetched_matches:
-                crud.save_match(match)
-
-            schedule_updated = True
-            riot_schedule_attr = {
-                'schedule_name': "riot_schedule",
-                'older_token_key': schedule_pages.older,
-                'current_token_key': newer_page_token
-            }
-            riot_schedule_model = Schedule(**riot_schedule_attr)
-            crud.update_schedule(riot_schedule_model)
-        return schedule_updated
 
     @staticmethod
     def get_matches(search_parameters: MatchSearchParameters) -> List[Match]:

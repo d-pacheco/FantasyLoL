@@ -65,6 +65,11 @@ class JobScheduler:
         if job:
             job.modify(next_run_time=datetime.now())
 
+    def trigger_match_service_job(self):
+        job = self.scheduler.get_job('match_service_job')
+        if job:
+            job.modify(next_run_time=datetime.now())
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
@@ -89,7 +94,7 @@ class JobScheduler:
             job_id='player_service_job'
         )
         self.schedule_job(
-            job_function=self.riot_match_service.fetch_new_schedule,
+            job_function=self.riot_match_service.fetch_new_schedule_retry_job,
             job_config=Config.MATCH_SERVICE_SCHEDULE,
             job_id='match_service_job'
         )
