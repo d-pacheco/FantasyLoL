@@ -87,3 +87,23 @@ async def trigger_fetch_games_from_match_ids_job():
 async def trigger_fetch_players_from_riot_job():
     job_scheduler.trigger_player_service_job()
     return "Job triggered successfully"
+
+
+@router.post(
+    path="/fetch-teams",
+    description="Manually trigger fetch teams from riot job",
+    tags=["Manual Job Triggers"],
+    status_code=202,
+    responses={
+        202: {
+            "content": {
+                "application/json": {
+                    "example": "Job triggered successfully"
+                }
+            }
+        }
+    }
+)
+async def trigger_fetch_teams_from_riot_job():
+    job_scheduler.trigger_team_service_job()
+    return "Job triggered successfully"

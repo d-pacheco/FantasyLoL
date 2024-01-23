@@ -1,10 +1,12 @@
 import logging
 from typing import List
+
 from fantasylol.db import crud
 from fantasylol.db.models import ProfessionalTeamModel
 from fantasylol.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
 from fantasylol.util.riot_api_requester import RiotApiRequester
+from fantasylol.util.job_runner import JobRunner
 from fantasylol.schemas.search_parameters import TeamSearchParameters
 from fantasylol.schemas.riot_data_schemas import ProfessionalTeam
 
@@ -14,18 +16,21 @@ logger = logging.getLogger('fantasy-lol')
 class RiotProfessionalTeamService:
     def __init__(self):
         self.riot_api_requester = RiotApiRequester()
+        self.job_runner = JobRunner()
 
-    def fetch_and_store_professional_teams(self) -> List[ProfessionalTeam]:
-        logger.info("Fetching and storing professional teams from riot's api")
-        try:
-            fetched_teams = self.riot_api_requester.get_teams()
+    def fetch_professional_teams_from_riot_retry_job(self):
+        self.job_runner.run_retry_job(
+            job_function=self.fetch_professional_teams_from_riot_job,
+            job_name="fetch teams from riot job",
+            max_retries=3
+        )
 
-            for team in fetched_teams:
-                crud.save_team(team)
-            return fetched_teams
-        except Exception as e:
-            logger.error(f"Error: {str(e)}")
-            raise e
+    def fetch_professional_teams_from_riot_job(self):
+        fetched_teams = self.riot_api_requester.get_teams()
+
+        for team in fetched_teams:
+            crud.save_team(team)
+        return fetched_teams
 
     @staticmethod
     def get_teams(search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
