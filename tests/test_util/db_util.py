@@ -47,6 +47,12 @@ def save_tournament(tournament: schemas.Tournament):
         db.commit()
 
 
+def get_tournament_by_id(tournament_id: str) -> models.TournamentModel:
+    with DatabaseConnection() as db:
+        return db.query(models.TournamentModel)\
+            .filter(models.TournamentModel.id == tournament_id).first()
+
+
 def save_team(team: schemas.ProfessionalTeam):
     db_team = models.ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
