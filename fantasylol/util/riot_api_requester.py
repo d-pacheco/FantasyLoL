@@ -5,7 +5,7 @@ from requests import Response
 from typing import List
 
 from fantasylol.schemas import riot_data_schemas as schemas
-
+from fantasylol.util.config import Config
 from fantasylol.exceptions.riot_api_status_code_assert_exception import \
     RiotApiStatusCodeAssertException
 
@@ -14,7 +14,8 @@ logger = logging.getLogger('fantasy-lol')
 
 class RiotApiRequester:
     def __init__(self):
-        RIOT_API_KEY = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"
+        self.esports_api_url = Config.ESPORTS_API_URL
+        self.esports_feed_url = Config.ESPORTS_FEED_URL
         self.client = cloudscraper.create_scraper(
             browser={
                 'browser': 'chrome',
@@ -26,7 +27,7 @@ class RiotApiRequester:
         self.default_headers = {
             "Origin": "https://lolesports.com",
             "Referrer": "https://lolesports.com",
-            "x-api-key": RIOT_API_KEY
+            "x-api-key": Config.RIOT_API_KEY
         }
 
     def make_request(self, url, headers=None) -> Response:
@@ -35,10 +36,7 @@ class RiotApiRequester:
         return self.client.get(url, headers=headers)
 
     def get_games_from_event_details(self, match_id: str) -> List[schemas.Game]:
-        event_details_url = (
-            f"https://esports-api.lolesports.com"
-            f"/persisted/gw/getEventDetails?hl=en-GB&id={match_id}"
-        )
+        event_details_url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(event_details_url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
@@ -66,10 +64,7 @@ class RiotApiRequester:
 
     def get_games(self, game_ids: List[str]) -> List[schemas.GetGamesResponseSchema]:
         game_ids_str = ','.join(map(str, game_ids))
-        url = (
-            f"https://esports-api.lolesports.com"
-            f"/persisted/gw/getGames?hl=en-GB&id={game_ids_str}"
-        )
+        url = f"{self.esports_api_url}/getGames?hl=en-GB&id={game_ids_str}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -86,7 +81,7 @@ class RiotApiRequester:
         return games_from_response
 
     def get_leagues(self) -> List[schemas.League]:
-        url = "https://esports-api.lolesports.com/persisted/gw/getLeagues?hl=en-GB"
+        url = f"{self.esports_api_url}/getLeagues?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -106,10 +101,7 @@ class RiotApiRequester:
         return leagues_from_response
 
     def get_tournament_for_league(self, league_id: int) -> List[schemas.Tournament]:
-        url = (
-            "https://esports-api.lolesports.com/persisted/gw"
-            f"/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
-        )
+        url = f"{self.esports_api_url}/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -129,7 +121,7 @@ class RiotApiRequester:
         return tournaments_from_response
 
     def get_teams(self) -> List[schemas.ProfessionalTeam]:
-        url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
+        url = f"{self.esports_api_url}/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -159,7 +151,7 @@ class RiotApiRequester:
         return teams_from_response
 
     def get_players(self) -> List[schemas.ProfessionalPlayer]:
-        url = "https://esports-api.lolesports.com/persisted/gw/getTeams?hl=en-GB"
+        url = f"{self.esports_api_url}/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -180,10 +172,7 @@ class RiotApiRequester:
 
     def get_player_metadata_for_game(self, game_id: str, time_stamp: str) \
             -> List[schemas.PlayerGameMetadata]:
-        url = (
-            "https://feed.lolesports.com"
-            f"/livestats/v1/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
-        )
+        url = f"{self.esports_feed_url}/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
@@ -205,10 +194,7 @@ class RiotApiRequester:
 
     def get_player_stats_for_game(self, game_id: str, time_stamp: str) \
             -> List[schemas.PlayerGameStats]:
-        url = (
-            "https://feed.lolesports.com"
-            f"/livestats/v1/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
-        )
+        url = f"{self.esports_feed_url}/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
@@ -278,10 +264,7 @@ class RiotApiRequester:
         return matches_from_response
 
     def get_tournament_id_for_match(self, match_id: str) -> str:
-        url = (
-            "https://esports-api.lolesports.com"
-            f"/persisted/gw/getEventDetails?hl=en-GB&id={match_id}"
-        )
+        url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
@@ -291,12 +274,9 @@ class RiotApiRequester:
 
     def __get_schedule(self, page_token: str = None) -> dict:
         if page_token is None:
-            url = "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
+            url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
         else:
-            url = (
-                "https://esports-api.lolesports.com/persisted/gw/getSchedule?hl=en-GB"
-                f"&pageToken={page_token}"
-            )
+            url = f"{self.esports_api_url}/getSchedule?hl=en-GB&pageToken={page_token}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
