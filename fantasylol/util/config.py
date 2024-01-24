@@ -14,6 +14,11 @@ class AppConfig:
     DEBUG_LOGGING: bool = False
     USE_TEST_DB = 'tests' in sys.argv
 
+    # Api Requester:
+    RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"  # This is a public key
+    ESPORTS_API_URL: str = "https://esports-api.lolesports.com/persisted/gw"
+    ESPORTS_FEED_URL: str = "https://feed.lolesports.com/livestats/v1"
+
     # Job schedules:
     LEAGUE_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "00"}'
     TOURNAMENT_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "05"}'
