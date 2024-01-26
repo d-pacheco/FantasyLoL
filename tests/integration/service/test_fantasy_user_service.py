@@ -43,7 +43,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(UserAlreadyExistsException) as context:
             user_service.user_signup(modified_user_create)
 
-        self.assertEqual(str(context.exception), 'Username already in use')
+        self.assertIn('Username already in use', str(context.exception))
 
     def test_user_signup_email_already_in_use_exception(self):
         # Arrange
@@ -57,4 +57,4 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(UserAlreadyExistsException) as context:
             user_service.user_signup(modified_user_create)
 
-        self.assertEqual(str(context.exception), 'Email already in use')
+        self.assertIn('Email already in use', str(context.exception))

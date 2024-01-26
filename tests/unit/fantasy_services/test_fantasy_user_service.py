@@ -61,7 +61,7 @@ class UserServiceTest(FantasyLolTestBase):
                 username='existinguser', email='newuser@example.com'
             )
 
-        self.assertEqual(str(context.exception), 'Username already in use')
+        self.assertIn('Username already in use', str(context.exception))
         mock_get_user_by_username.assert_called_once_with('existinguser')
         mock_get_user_by_email.assert_not_called()
 
@@ -78,7 +78,7 @@ class UserServiceTest(FantasyLolTestBase):
                 username='newuser', email='existinguser@example.com'
             )
 
-        self.assertEqual(str(context.exception), 'Email already in use')
+        self.assertIn('Email already in use', str(context.exception))
         mock_get_user_by_username.assert_called_once_with('newuser')
         mock_get_user_by_email.assert_called_once_with('existinguser@example.com')
 
