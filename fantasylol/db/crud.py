@@ -1,91 +1,85 @@
 from typing import List
 from sqlalchemy import text
+
 from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import (
-    LeagueModel,
-    TournamentModel,
-    MatchModel,
-    GameModel,
-    PlayerGameMetadataModel,
-    PlayerGameStatsModel,
-    ProfessionalTeamModel,
-    ProfessionalPlayerModel,
-    Schedule
-)
+from fantasylol.db import models
 from fantasylol.db.views import PlayerGameView
-from fantasylol.schemas import riot_data_schemas as schemas
+from fantasylol.schemas import riot_data_schemas as riot_schemas
+from fantasylol.schemas import fantasy_schemas as f_schemas
 
 
 # --------------------------------------------------
 # --------------- League Operations ----------------
 # --------------------------------------------------
-def save_league(league: schemas.League):
-    db_league = LeagueModel(**league.model_dump())
+def save_league(league: riot_schemas.League):
+    db_league = models.LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
         db.commit()
 
 
-def get_leagues(filters: list = None) -> List[LeagueModel]:
+def get_leagues(filters: list = None) -> List[models.LeagueModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(LeagueModel).filter(*filters)
+            query = db.query(models.LeagueModel).filter(*filters)
         else:
-            query = db.query(LeagueModel)
+            query = db.query(models.LeagueModel)
         return query.all()
 
 
-def get_league_by_id(league_id: str) -> LeagueModel:
+def get_league_by_id(league_id: str) -> models.LeagueModel:
     with DatabaseConnection() as db:
-        return db.query(LeagueModel).filter(LeagueModel.id == league_id).first()
+        return db.query(models.LeagueModel).filter(models.LeagueModel.id == league_id).first()
 
 
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------
-def save_tournament(tournament: schemas.Tournament):
-    db_tournament = TournamentModel(**tournament.model_dump())
+def save_tournament(tournament: riot_schemas.Tournament):
+    db_tournament = models.TournamentModel(**tournament.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_tournament)
         db.commit()
 
 
-def get_tournaments(filters: list) -> List[TournamentModel]:
+def get_tournaments(filters: list) -> List[models.TournamentModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(TournamentModel).filter(*filters)
+            query = db.query(models.TournamentModel).filter(*filters)
         else:
-            query = db.query(TournamentModel)
+            query = db.query(models.TournamentModel)
         return query.all()
 
 
-def get_tournament_by_id(tournament_id: str) -> TournamentModel:
+def get_tournament_by_id(tournament_id: str) -> models.TournamentModel:
     with DatabaseConnection() as db:
-        return db.query(TournamentModel).filter(TournamentModel.id == tournament_id).first()
+        return db.query(models.TournamentModel)\
+            .filter(models.TournamentModel.id == tournament_id).first()
 
 
 # --------------------------------------------------
 # --------------- Match Operations -----------------
 # --------------------------------------------------
-def save_match(match: schemas.Match):
-    db_match = MatchModel(**match.model_dump())
+def save_match(match: riot_schemas.Match):
+    db_match = models.MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
         db.commit()
 
 
-def get_matches(filters: list = None) -> List[MatchModel]:
+def get_matches(filters: list = None) -> List[models.MatchModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(MatchModel).filter(*filters)
+            query = db.query(models.MatchModel).filter(*filters)
         else:
-            query = db.query(MatchModel)
+            query = db.query(models.MatchModel)
         return query.all()
 
 
-def get_match_by_id(match_id: str) -> MatchModel:
+def get_match_by_id(match_id: str) -> models.MatchModel:
     with DatabaseConnection() as db:
-        return db.query(MatchModel).filter(MatchModel.id == match_id).first()
+        return db.query(models.MatchModel)\
+            .filter(models.MatchModel.id == match_id).first()
 
 
 def get_match_ids_without_games() -> List[str]:
@@ -107,17 +101,17 @@ def get_match_ids_without_games() -> List[str]:
 # --------------------------------------------------
 # ---------------- Game Operations -----------------
 # --------------------------------------------------
-def save_game(game: GameModel):
-    db_game = GameModel(**game.model_dump())
+def save_game(game: riot_schemas.Game):
+    db_game = models.GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
         db.commit()
 
 
-def bulk_save_games(games: List[schemas.Game]):
+def bulk_save_games(games: List[riot_schemas.Game]):
     db_games = []
     for game in games:
-        db_games.append(GameModel(**game.model_dump()))
+        db_games.append(models.GameModel(**game.model_dump()))
     with DatabaseConnection() as db:
         db.bulk_save_objects(db_games)
         db.commit()
@@ -125,7 +119,8 @@ def bulk_save_games(games: List[schemas.Game]):
 
 def update_has_game_data(game_id: str, has_game_data: bool):
     with DatabaseConnection() as db:
-        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
+        db_game: models.GameModel = db.query(models.GameModel)\
+            .filter(models.GameModel.id == game_id).first()
         if db_game is not None:
             db_game.has_game_data = has_game_data
             db.merge(db_game)
@@ -134,19 +129,20 @@ def update_has_game_data(game_id: str, has_game_data: bool):
 
 def update_game_state(game_id: str, state: str):
     with DatabaseConnection() as db:
-        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
+        db_game: models.GameModel = db.query(models.GameModel)\
+            .filter(models.GameModel.id == game_id).first()
         if db_game is not None:
             db_game.state = state
             db.merge(db_game)
             db.commit()
 
 
-def get_games(filters: list = None) -> List[GameModel]:
+def get_games(filters: list = None) -> List[models.GameModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(GameModel).filter(*filters)
+            query = db.query(models.GameModel).filter(*filters)
         else:
-            query = db.query(GameModel)
+            query = db.query(models.GameModel)
         return query.all()
 
 
@@ -167,65 +163,67 @@ def get_games_to_check_state() -> List[str]:
     return game_ids
 
 
-def get_game_by_id(game_id: str) -> GameModel:
+def get_game_by_id(game_id: str) -> models.GameModel:
     with DatabaseConnection() as db:
-        return db.query(GameModel).filter(GameModel.id == game_id).first()
+        return db.query(models.GameModel)\
+            .filter(models.GameModel.id == game_id).first()
 
 
 # --------------------------------------------------
 # ---------------- Team Operations ----------------
 # --------------------------------------------------
-def save_team(team: schemas.ProfessionalTeam):
-    db_team = ProfessionalTeamModel(**team.model_dump())
+def save_team(team: riot_schemas.ProfessionalTeam):
+    db_team = models.ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
         db.commit()
 
 
-def get_teams(filters: list = None) -> List[ProfessionalTeamModel]:
+def get_teams(filters: list = None) -> List[models.ProfessionalTeamModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(ProfessionalTeamModel).filter(*filters)
+            query = db.query(models.ProfessionalTeamModel).filter(*filters)
         else:
-            query = db.query(ProfessionalTeamModel)
+            query = db.query(models.ProfessionalTeamModel)
         return query.all()
 
 
-def get_team_by_id(team_id: str) -> ProfessionalTeamModel:
+def get_team_by_id(team_id: str) -> models.ProfessionalTeamModel:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalTeamModel).filter(ProfessionalTeamModel.id == team_id).first()
+        return db.query(models.ProfessionalTeamModel)\
+            .filter(models.ProfessionalTeamModel.id == team_id).first()
 
 
 # --------------------------------------------------
 # --------------- Player Operations ----------------
 # --------------------------------------------------
-def save_player(player: schemas.ProfessionalPlayer):
-    db_player = ProfessionalPlayerModel(**player.model_dump())
+def save_player(player: riot_schemas.ProfessionalPlayer):
+    db_player = models.ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
         db.commit()
 
 
-def get_players(filters: list = None) -> List[ProfessionalPlayerModel]:
+def get_players(filters: list = None) -> List[models.ProfessionalPlayerModel]:
     with DatabaseConnection() as db:
         if filters:
-            query = db.query(ProfessionalPlayerModel).filter(*filters)
+            query = db.query(models.ProfessionalPlayerModel).filter(*filters)
         else:
-            query = db.query(ProfessionalPlayerModel)
+            query = db.query(models.ProfessionalPlayerModel)
         return query.all()
 
 
-def get_player_by_id(player_id: str) -> ProfessionalPlayerModel:
+def get_player_by_id(player_id: str) -> models.ProfessionalPlayerModel:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalPlayerModel)\
-            .filter(ProfessionalPlayerModel.id == player_id).first()
+        return db.query(models.ProfessionalPlayerModel)\
+            .filter(models.ProfessionalPlayerModel.id == player_id).first()
 
 
 # --------------------------------------------------
 # ----------- Player Metadata Operations -----------
 # --------------------------------------------------
-def save_player_metadata(player_metadata: schemas.PlayerGameMetadata):
-    db_player_metadata = PlayerGameMetadataModel(**player_metadata.model_dump())
+def save_player_metadata(player_metadata: riot_schemas.PlayerGameMetadata):
+    db_player_metadata = models.PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_metadata)
         db.commit()
@@ -254,8 +252,8 @@ def get_game_ids_without_player_metadata():
 # --------------------------------------------------
 # ------------- Player Stats Operations ------------
 # --------------------------------------------------
-def save_player_stats(player_stats: schemas.PlayerGameStats):
-    db_player_stats = PlayerGameStatsModel(**player_stats.model_dump())
+def save_player_stats(player_stats: riot_schemas.PlayerGameStats):
+    db_player_stats = models.PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
@@ -293,12 +291,41 @@ def get_player_game_stats(filters: list = None) -> List[PlayerGameView]:
 # --------------------------------------------------
 # --------------- Schedule Operations --------------
 # --------------------------------------------------
-def get_schedule(schedule_name: str) -> Schedule:
+def get_schedule(schedule_name: str) -> models.Schedule:
     with DatabaseConnection() as db:
-        return db.query(Schedule).filter(Schedule.schedule_name == schedule_name).first()
+        return db.query(models.Schedule)\
+            .filter(models.Schedule.schedule_name == schedule_name).first()
 
 
-def update_schedule(schedule: Schedule):
+def update_schedule(schedule: models.Schedule):
     with DatabaseConnection() as db:
         db.merge(schedule)
         db.commit()
+
+
+# --------------------------------------------------
+# ----------------- User Operations ----------------
+# --------------------------------------------------
+def create_user(user: f_schemas.User):
+    db_user = models.UserModel(**user.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_user)
+        db.commit()
+
+
+def get_user_by_id(user_id: str) -> models.UserModel:
+    with DatabaseConnection() as db:
+        return db.query(models.UserModel) \
+            .filter(models.UserModel.id == user_id).first()
+
+
+def get_user_by_username(username: str) -> models.UserModel:
+    with DatabaseConnection() as db:
+        return db.query(models.UserModel)\
+            .filter(models.UserModel.username == username).first()
+
+
+def get_user_by_email(email: str) -> models.UserModel:
+    with DatabaseConnection() as db:
+        return db.query(models.UserModel) \
+            .filter(models.UserModel.email == email).first()

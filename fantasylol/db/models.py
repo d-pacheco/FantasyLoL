@@ -6,12 +6,18 @@ from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
+import uuid
+
 from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.schemas.riot_data_schemas import PlayerRole
+
 
 Base = declarative_base()
 
 
+# --------------------------------------------------
+# ---------------- Riot Data Models ----------------
+# --------------------------------------------------
 class LeagueModel(Base):
     __tablename__ = "leagues"
 
@@ -125,3 +131,16 @@ class Schedule(Base):
     schedule_name = Column(String, primary_key=True)
     older_token_key = Column(String)
     current_token_key = Column(String)
+
+
+# --------------------------------------------------
+# ----------------- Fantasy Models -----------------
+# --------------------------------------------------
+class UserModel(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()),
+                unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)

@@ -5,7 +5,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/fantasylol/db" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fantasylol/endpoints" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/fantasylol/endpoints/lol_fantasy_api" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fantasylol/endpoints/riot_api" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fantasylol/exceptions" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fantasylol/schemas" isTestSource="false" />
@@ -15,6 +14,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests/test_endpoints" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/test_service" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/test_util" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/fantasylol/endpoints/fantasy_api" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="inheritedJdk" />

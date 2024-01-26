@@ -1,5 +1,6 @@
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.schemas import riot_data_schemas as schemas
+from fantasylol.schemas import fantasy_schemas
 from fantasylol.db import models
 
 
@@ -90,4 +91,17 @@ def save_player_stats(player_stats: schemas.PlayerGameStats):
     db_player_stats = models.PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
+        db.commit()
+
+
+def get_user_by_username(username: str) -> models.UserModel:
+    with DatabaseConnection() as db:
+        return db.query(models.UserModel) \
+            .filter(models.UserModel.username == username).first()
+
+
+def create_user(user: fantasy_schemas.User):
+    db_user = models.UserModel(**user.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_user)
         db.commit()
