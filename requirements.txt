@@ -12,3 +12,5 @@ requests
 pydantic
 pytz
 bcrypt
+PyJWT
+python-decouple

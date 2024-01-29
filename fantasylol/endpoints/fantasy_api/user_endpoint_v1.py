@@ -14,4 +14,4 @@ user_service = UserService()
     tags=["Users"]
 )
 def user_signup(user: UserCreate = Body(...)):
-    user_service.user_signup(user)
+    return user_service.user_signup(user)
