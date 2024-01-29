@@ -13,6 +13,11 @@ user_create_fixture = fantasy_schemas.UserCreate(
     password=user_password
 )
 
+user_login_fixture = fantasy_schemas.UserLogin(
+    username=user_create_fixture.username,
+    password=user_password
+)
+
 user_fixture = fantasy_schemas.User(
     id=str(uuid.uuid4()),
     username=user_create_fixture.username,

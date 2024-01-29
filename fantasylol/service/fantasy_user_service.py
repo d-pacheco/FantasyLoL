@@ -4,7 +4,9 @@ import bcrypt
 from fantasylol.auth.auth_handler import sign_jwt
 from fantasylol.db import crud
 from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from fantasylol.schemas.fantasy_schemas import UserCreate, User
+from fantasylol.exceptions.invalid_username_password_exception import\
+    InvalidUsernameOrPasswordException
+from fantasylol.schemas.fantasy_schemas import UserCreate, User, UserLogin
 
 
 class UserService:
@@ -46,3 +48,17 @@ class UserService:
         salt = bcrypt.gensalt()
         pw_bytes = str.encode(password)
         return bcrypt.hashpw(pw_bytes, salt)
+
+    @staticmethod
+    def login_user(user_credentials: UserLogin):
+        user = crud.get_user_by_username(user_credentials.username)
+        if user is None:
+            raise InvalidUsernameOrPasswordException()
+
+        passwords_match = bcrypt.checkpw(
+            user_credentials.password.encode(), str.encode(user.password)
+        )
+        if not passwords_match:
+            raise InvalidUsernameOrPasswordException()
+
+        return sign_jwt(user.id)

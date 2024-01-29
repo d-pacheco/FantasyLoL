@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 
-from fantasylol.schemas.fantasy_schemas import UserCreate
+from fantasylol.schemas.fantasy_schemas import UserCreate, UserLogin
 from fantasylol.service.fantasy_user_service import UserService
 
 
@@ -15,3 +15,11 @@ user_service = UserService()
 )
 def user_signup(user: UserCreate = Body(...)):
     return user_service.user_signup(user)
+
+
+@router.post(
+    path="/user/login",
+    tags=["Users"]
+)
+def user_login(credentials: UserLogin = Body(...)):
+    return user_service.login_user(credentials)
