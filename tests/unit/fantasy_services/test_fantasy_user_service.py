@@ -1,13 +1,19 @@
 from unittest.mock import patch, MagicMock
+import copy
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
+from fantasylol.db.models import UserModel
 from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
+from fantasylol.exceptions.invalid_username_password_exception import\
+    InvalidUsernameOrPasswordException
 from fantasylol.service.fantasy_user_service import UserService
+from fantasylol.auth.auth_handler import token_response
 
 BASE_USER_SERVICE_PATH = 'fantasylol.service.fantasy_user_service.UserService'
 BASE_CRUD_PATH = 'fantasylol.db.crud'
+SIGN_JWT_PATH = 'fantasylol.service.fantasy_user_service.sign_jwt'
 
 
 class UserServiceTest(FantasyLolTestBase):
@@ -133,3 +139,50 @@ class UserServiceTest(FantasyLolTestBase):
         mock_hashpw.assert_called_once_with(
             password.encode('utf-8'), b'$2b$12$abcdefghijklmnopqrstuv'
         )
+
+    @patch(SIGN_JWT_PATH)
+    @patch(f'{BASE_CRUD_PATH}.get_user_by_username')
+    def test_user_login_successful(self, mock_get_user_by_username, mock_sign_jwt):
+        # Arrange
+        user = UserModel(**fantasy_fixtures.user_fixture.model_dump())
+        mock_get_user_by_username.return_value = user
+        mock_token_response = token_response("mock-token")
+        mock_sign_jwt.return_value = mock_token_response
+        user_service = UserService()
+
+        # Act
+        token = user_service.login_user(fantasy_fixtures.user_login_fixture)
+
+        # Assert
+        mock_get_user_by_username.assert_called_once_with(user.username)
+        mock_sign_jwt.assert_called_once_with(user.id)
+        self.assertEqual(mock_token_response, token)
+
+    @patch(f'{BASE_CRUD_PATH}.get_user_by_username', return_value=None)
+    def test_user_login_invalid_username(self, mock_get_user_by_username):
+        # Arrange
+        user_login = fantasy_fixtures.user_login_fixture
+        user_service = UserService()
+
+        # Act and Assert
+        with self.assertRaises(InvalidUsernameOrPasswordException) as context:
+            user_service.login_user(user_login)
+
+        self.assertIn("Invalid username/password", str(context.exception.detail))
+        mock_get_user_by_username.assert_called_once_with(user_login.username)
+
+    @patch(f'{BASE_CRUD_PATH}.get_user_by_username')
+    def test_user_login_invalid_password(self, mock_get_user_by_username):
+        # Arrange
+        user = UserModel(**fantasy_fixtures.user_fixture.model_dump())
+        mock_get_user_by_username.return_value = user
+        user_login = copy.deepcopy(fantasy_fixtures.user_login_fixture)
+        user_login.password = "badPassword"
+        user_service = UserService()
+
+        # Act and Assert
+        with self.assertRaises(InvalidUsernameOrPasswordException) as context:
+            user_service.login_user(user_login)
+
+        self.assertIn("Invalid username/password", str(context.exception.detail))
+        mock_get_user_by_username.assert_called_once_with(user_login.username)

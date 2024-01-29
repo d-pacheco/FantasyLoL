@@ -7,6 +7,8 @@ from tests.test_util import fantasy_fixtures
 from tests.test_util import db_util
 
 from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
+from fantasylol.exceptions.invalid_username_password_exception import \
+    InvalidUsernameOrPasswordException
 from fantasylol.schemas import fantasy_schemas
 from fantasylol.service.fantasy_user_service import UserService
 
@@ -58,3 +60,40 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
             user_service.user_signup(modified_user_create)
 
         self.assertIn('Email already in use', str(context.exception))
+
+    def test_user_login_successful(self):
+        # Arrange
+        login_credentials = fantasy_fixtures.user_login_fixture
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        user_service = UserService
+
+        # Act
+        login_response = user_service.login_user(login_credentials)
+
+        # Assert
+        self.assertIsInstance(login_response, dict)
+        self.assertIn("access_token", login_response)
+
+    def test_user_login_invalid_username(self):
+        # Arrange
+        login_credentials = copy.deepcopy(fantasy_fixtures.user_login_fixture)
+        login_credentials.username = "badUsername"
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        user_service = UserService()
+
+        # Act and Assert
+        with self.assertRaises(InvalidUsernameOrPasswordException) as context:
+            user_service.login_user(login_credentials)
+        self.assertIn("Invalid username/password", str(context.exception.detail))
+
+    def test_user_login_invalid_password(self):
+        # Arrange
+        login_credentials = copy.deepcopy(fantasy_fixtures.user_login_fixture)
+        login_credentials.password = "badPassword"
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        user_service = UserService()
+
+        # Act and Assert
+        with self.assertRaises(InvalidUsernameOrPasswordException) as context:
+            user_service.login_user(login_credentials)
+        self.assertIn("Invalid username/password", str(context.exception.detail))
