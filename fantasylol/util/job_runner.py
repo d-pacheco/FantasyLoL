@@ -24,7 +24,8 @@ class JobRunner:
                 error = e
                 logger.warning(f"An error occurred during {job_name}."
                                f" Retry attempt: {retry_count}")
-                time.sleep(5)
+                if retry_count <= max_retries:
+                    time.sleep(5)
         if job_completed:
             logger.info(f"{job_name} completed successfully")
         else:
