@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import secrets
 from dotenv import load_dotenv
 from typing import get_type_hints
 from fantasylol.exceptions.AppConfigException import AppConfigException
@@ -12,7 +13,14 @@ class AppConfig:
     # Configure config default values
     DATABASE_URL: str = "sqlite:///./fantasy-league-of-legends.db"
     DEBUG_LOGGING: bool = False
-    USE_TEST_DB = 'tests' in sys.argv
+    TESTS_RUNNING = 'tests' in sys.argv
+
+    # Auth
+    SECRET: str
+    ALGORITHM: str
+    if TESTS_RUNNING:
+        SECRET = secrets.token_hex(32)
+        ALGORITHM = 'HS256'
 
     # Api Requester:
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"  # This is a public key

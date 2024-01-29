@@ -1,7 +1,10 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import logging
 
 from .auth_handler import decode_jwt
+
+logger = logging.getLogger('fantasy-lol')
 
 
 class JWTBearer(HTTPBearer):
@@ -25,7 +28,8 @@ class JWTBearer(HTTPBearer):
 
         try:
             payload = decode_jwt(jw_token)
-        except:
+        except Exception as e:
+            logger.error(e)
             payload = None
         if payload:
             is_token_valid = True

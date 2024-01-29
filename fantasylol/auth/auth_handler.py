@@ -1,11 +1,14 @@
 import time
 from typing import Dict
-
 import jwt
-from decouple import config
+import logging
 
-JWT_SECRET = config("SECRET")
-JWT_ALGORITHM = config("ALGORITHM")
+from fantasylol.util.config import Config
+
+logger = logging.getLogger('fantasy-lol')
+
+JWT_SECRET = Config.SECRET
+JWT_ALGORITHM = Config.ALGORITHM
 
 
 def token_response(token: str):
@@ -29,5 +32,6 @@ def decode_jwt(token: str) -> dict:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return decoded_token if decoded_token["exp"] >= time.time() else {}
-    except:
+    except Exception as e:
+        logger.error(e)
         return {}
