@@ -1,6 +1,7 @@
 import uuid
 import bcrypt
 
+from fantasylol.auth.auth_handler import sign_jwt
 from fantasylol.db import crud
 from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
 from fantasylol.schemas.fantasy_schemas import UserCreate, User
@@ -12,6 +13,7 @@ class UserService:
         self.validate_username_and_email(user_create.username, user_create.email)
         user = self.create_new_user(user_create)
         crud.create_user(user)
+        return sign_jwt(user.id)
 
     @staticmethod
     def validate_username_and_email(username: str, email: str):
