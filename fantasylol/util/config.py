@@ -18,9 +18,6 @@ class AppConfig:
     # Auth
     SECRET: str
     ALGORITHM: str
-    if TESTS_RUNNING:
-        SECRET = secrets.token_hex(32)
-        ALGORITHM = 'HS256'
 
     # Api Requester:
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"  # This is a public key
@@ -36,7 +33,10 @@ class AppConfig:
     GAME_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "45"}'
     GAME_STATS_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "*/5"}'
 
-    def __init__(self, env):
+    def __init__(self, env, tests_running: bool = False):
+        if tests_running:
+            self.__set_test_configs()
+
         for field in self.__annotations__:
             if not field.isupper():
                 continue
@@ -62,6 +62,11 @@ class AppConfig:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def __set_test_configs(self):
+        self.SECRET = secrets.token_hex(32)
+        self.ALGORITHM = 'HS256'
+        self.TESTS_RUNNING = True
 
 
 Config = AppConfig(os.environ)
