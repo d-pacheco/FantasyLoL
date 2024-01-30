@@ -1,11 +1,12 @@
 import uuid
 
 from fantasylol.db import crud
-from fantasylol.schemas.fantasy_schemas import FantasyLeague,FantasyLeagueCreate
+from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueCreate
 
 
 class FantasyLeagueService:
-    def create_fantasy_league(self, owner_id: str, league_create: FantasyLeagueCreate) -> FantasyLeague:
+    def create_fantasy_league(
+            self, owner_id: str, league_create: FantasyLeagueCreate) -> FantasyLeague:
         fantasy_league_id = self.generate_new_valid_id()
         new_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
