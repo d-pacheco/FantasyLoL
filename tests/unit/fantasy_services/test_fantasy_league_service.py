@@ -1,12 +1,13 @@
 from unittest.mock import patch, MagicMock
 import uuid
+import copy
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 
 from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from fantasylol.exceptions.forbidden_exception import ForbiddenException
 from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
-from fantasylol.schemas.fantasy_schemas import FantasyLeague
+from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings
 from tests.test_util import fantasy_fixtures
 
 FANTASY_LEAGUE_SERV_PATH = 'fantasylol.service.fantasy.fantasy_league_service.FantasyLeagueService'
@@ -74,6 +75,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(expected_fantasy_league_settings, fantasy_league_settings)
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_get_fantasy_league_settings_no_league_found_exception(
@@ -88,6 +90,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_league_service.get_fantasy_league_settings(owner_id, league_id)
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_get_fantasy_league_settings_forbidden_exception(
@@ -102,3 +105,87 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(ForbiddenException):
             fantasy_league_service.get_fantasy_league_settings(owner_id, league_id)
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
+
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_update_fantasy_league_settings_successful(
+            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = fantasy_league
+        owner_id = fantasy_league.owner_id
+        league_id = fantasy_league.id
+
+        updated_league_settings = FantasyLeagueSettings(
+            name="Update fantasy league",
+            number_of_teams=10
+        )
+        expected_updated_league = copy.deepcopy(fantasy_league)
+        expected_updated_league.name = updated_league_settings.name
+        expected_updated_league.number_of_teams = updated_league_settings.number_of_teams
+        mock_update_fantasy_league_settings.return_value = expected_updated_league
+
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act
+        updated_league = fantasy_league_service.update_fantasy_league_settings(
+            owner_id, league_id, updated_league_settings
+        )
+
+        # Assert
+        self.assertEqual(expected_updated_league, updated_league)
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
+        mock_update_fantasy_league_settings.assert_called_once_with(
+            league_id, updated_league_settings
+        )
+
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_update_fantasy_league_settings_league_not_found_exception(
+            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = None
+        owner_id = fantasy_league.owner_id
+        league_id = fantasy_league.id
+
+        updated_league_settings = FantasyLeagueSettings(
+            name="Update fantasy league",
+            number_of_teams=10
+        )
+
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.update_fantasy_league_settings(
+                owner_id, league_id, updated_league_settings
+            )
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
+        mock_update_fantasy_league_settings.assert_not_called()
+
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_update_fantasy_league_settings_forbidden_exception(
+            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = fantasy_league
+        owner_id = str(uuid.uuid4())
+        league_id = fantasy_league.id
+
+        updated_league_settings = FantasyLeagueSettings(
+            name="Update fantasy league",
+            number_of_teams=10
+        )
+
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act and Assert
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.update_fantasy_league_settings(
+                owner_id, league_id, updated_league_settings
+            )
+        mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
+        mock_update_fantasy_league_settings.assert_not_called()

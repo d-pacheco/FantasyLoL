@@ -40,3 +40,19 @@ class FantasyLeagueService:
             number_of_teams=fantasy_league_model.number_of_teams
         )
         return league_settings
+
+    @staticmethod
+    def update_fantasy_league_settings(
+            owner_id: str, league_id: str,
+            league_settings: FantasyLeagueSettings) -> FantasyLeague:
+        fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
+        if fantasy_league_model is None:
+            raise FantasyLeagueNotFoundException()
+        if fantasy_league_model.owner_id != owner_id:
+            raise ForbiddenException()
+
+        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+            league_id, league_settings
+        )
+        updated_fantasy_league = FantasyLeague.model_validate(updated_fantasy_league_model)
+        return updated_fantasy_league
