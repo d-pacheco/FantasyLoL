@@ -23,3 +23,15 @@ class User(BaseModel):
     username: str
     email: str
     password: str
+
+
+class FantasyLeagueCreate(BaseModel):
+    name: str
+
+
+class FantasyLeague(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    owner_id: str
+    name: str

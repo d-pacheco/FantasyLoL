@@ -144,3 +144,11 @@ class UserModel(Base):
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+
+
+class FantasyLeagueModel(Base):
+    __tablename__ = "fantasy_leagues"
+
+    id = Column(String, primary_key=True, unique=True, nullable=False)
+    owner_id = Column(String, nullable=False)
+    name = Column(String)

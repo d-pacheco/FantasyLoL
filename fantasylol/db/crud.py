@@ -329,3 +329,19 @@ def get_user_by_email(email: str) -> models.UserModel:
     with DatabaseConnection() as db:
         return db.query(models.UserModel) \
             .filter(models.UserModel.email == email).first()
+
+
+# --------------------------------------------------
+# ---------- Fantasy League Operations -------------
+# --------------------------------------------------
+def create_fantasy_league(fantasy_league: f_schemas.FantasyLeague):
+    db_fantasy_league = models.FantasyLeagueModel(**fantasy_league.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_fantasy_league)
+        db.commit()
+
+
+def get_fantasy_league_by_id(fantasy_league_id: str) -> models.FantasyLeagueModel:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueModel) \
+            .filter(models.FantasyLeagueModel.id == fantasy_league_id).first()

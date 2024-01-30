@@ -1,14 +1,17 @@
 import copy
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 from fantasylol.db import crud
 from fantasylol.schemas import riot_data_schemas as schemas
+from fantasylol.schemas import fantasy_schemas
 from fantasylol.db import models
 from fantasylol.db import views
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import db_util
 from tests.test_util import test_fixtures
+from tests.test_util import fantasy_fixtures
 from tests.test_util import riot_data_util
 from tests.test_util.game_stats_test_util import GameStatsTestUtil
 
@@ -1297,3 +1300,53 @@ class CrudTest(FantasyLolTestBase):
 
         # Assert
         self.assertIsNone(team_model_from_db)
+
+    # --------------------------------------------------
+    # ---------- Fantasy League Operations -------------
+    # --------------------------------------------------
+    def test_create_fantasy_league(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+
+        # Act
+        crud.create_fantasy_league(fantasy_league)
+
+        # Assert
+        fantasy_league_model_from_db = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        fantasy_league_from_db = fantasy_league.model_validate(fantasy_league_model_from_db)
+        self.assertEqual(fantasy_league, fantasy_league_from_db)
+
+    def test_create_fantasy_league_with_an_existing_id(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(IntegrityError) as context:
+            crud.create_fantasy_league(fantasy_league)
+        self.assertIn('UNIQUE constraint failed: fantasy_leagues.id', str(context.exception))
+
+    def test_get_fantasy_league_by_id_existing_fantasy_league(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+
+        # Act
+        fantasy_league_model_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
+
+        # Assert
+        self.assertIsNotNone(fantasy_league_model_from_db)
+        fantasy_league_from_db = fantasy_schemas.FantasyLeague.model_validate(
+            fantasy_league_model_from_db
+        )
+        self.assertEqual(fantasy_league, fantasy_league_from_db)
+
+    def test_get_fantasy_league_by_id_no_existing_fantasy_league(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+
+        # Act
+        fantasy_league_model_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
+
+        # Assert
+        self.assertIsNone(fantasy_league_model_from_db)
