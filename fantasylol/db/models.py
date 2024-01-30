@@ -152,3 +152,4 @@ class FantasyLeagueModel(Base):
     id = Column(String, primary_key=True, unique=True, nullable=False)
     owner_id = Column(String, nullable=False)
     name = Column(String)
+    number_of_teams = Column(Integer)

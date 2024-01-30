@@ -25,12 +25,14 @@ user_fixture = fantasy_schemas.User(
     password=user_hashed_password
 )
 
-fantasy_league_create_fixture = fantasy_schemas.FantasyLeagueCreate(
-    name="Fantasy League 1"
+fantasy_league_settings_fixture = fantasy_schemas.FantasyLeagueSettings(
+    name="Fantasy League 1",
+    number_of_teams=6
 )
 
 fantasy_league_fixture = fantasy_schemas.FantasyLeague(
     id=str(uuid.uuid4()),
     owner_id=user_fixture.id,
-    name=fantasy_league_create_fixture.name
+    name=fantasy_league_settings_fixture.name,
+    number_of_teams=fantasy_league_settings_fixture.number_of_teams
 )
