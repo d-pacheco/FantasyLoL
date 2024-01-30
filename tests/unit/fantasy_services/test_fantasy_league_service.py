@@ -3,6 +3,8 @@ import uuid
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 
+from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from fantasylol.exceptions.forbidden_exception import ForbiddenException
 from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
 from fantasylol.schemas.fantasy_schemas import FantasyLeague
 from tests.test_util import fantasy_fixtures
@@ -19,18 +21,18 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         # Arrange
         fantasy_league_id = str(uuid.uuid4())
         owner_id = str(uuid.uuid4())
-        fantasy_league_create = fantasy_fixtures.fantasy_league_create_fixture
+        fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
         expected_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
             owner_id=owner_id,
-            name=fantasy_league_create.name
+            name=fantasy_league_settings.name
         )
         mock_generate_new_valid_id.return_value = fantasy_league_id
         fantasy_league_service = FantasyLeagueService()
 
         # Act
         fantasy_league = fantasy_league_service.create_fantasy_league(
-            owner_id, fantasy_league_create
+            owner_id, fantasy_league_settings
         )
 
         # Assert
@@ -40,7 +42,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id', side_effect=[MagicMock(), None])
     @patch('uuid.uuid4', side_effect=['id1', 'id2'])
-    def test_generate_new_valid_id(self, mock_uuid4, mock_get_user_by_id):
+    def test_generate_new_valid_id(self, mock_uuid4, mock_get_fantasy_league_by_id):
         # Arrange
         fantasy_league_service = FantasyLeagueService()
 
@@ -51,6 +53,52 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         self.assertEqual(generated_id, 'id2')
         mock_uuid4.assert_called()
         self.assertEqual(mock_uuid4.call_count, 2)
-        mock_get_user_by_id.assert_any_call('id1')
-        mock_get_user_by_id.assert_any_call('id2')
-        mock_get_user_by_id.assert_called_with('id2')
+        mock_get_fantasy_league_by_id.assert_any_call('id1')
+        mock_get_fantasy_league_by_id.assert_any_call('id2')
+        mock_get_fantasy_league_by_id.assert_called_with('id2')
+
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_get_fantasy_league_settings_successful(self, mock_get_fantasy_league_by_id):
+        # Arrange
+        expected_fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = fantasy_league
+        owner_id = fantasy_league.owner_id
+        league_id = fantasy_league.id
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act
+        fantasy_league_settings = fantasy_league_service.get_fantasy_league_settings(
+            owner_id, league_id
+        )
+
+        # Assert
+        self.assertEqual(expected_fantasy_league_settings, fantasy_league_settings)
+
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_get_fantasy_league_settings_no_league_found_exception(
+            self, mock_get_fantasy_league_by_id):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = None
+        owner_id = fantasy_league.owner_id
+        league_id = fantasy_league.id
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.get_fantasy_league_settings(owner_id, league_id)
+
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
+    def test_get_fantasy_league_settings_forbidden_exception(
+            self, mock_get_fantasy_league_by_id):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        mock_get_fantasy_league_by_id.return_value = fantasy_league
+        owner_id = str(uuid.uuid4())
+        league_id = fantasy_league.id
+        fantasy_league_service = FantasyLeagueService()
+
+        # Act and Assert
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.get_fantasy_league_settings(owner_id, league_id)

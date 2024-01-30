@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class UserCreate(BaseModel):
@@ -25,13 +25,29 @@ class User(BaseModel):
     password: str
 
 
-class FantasyLeagueCreate(BaseModel):
-    name: str
+class FantasyLeagueSettings(BaseModel):
+    name: str = Field(
+        default=None,
+        description="The name of the fantasy league",
+        examples=["My Fantasy League"]
+    )
+    number_of_teams: int = Field(
+        default=6,
+        description="Number of teams in the fantasy league\n"
+                    "Allowed values: 4, 6, 8, 10"
+    )
+
+    @field_validator('number_of_teams')
+    @classmethod
+    def valid_team_size(cls, value: str):
+        valid_values = {4, 6, 8, 10}
+        if value not in valid_values:
+            raise ValueError("Invalid number of teams. Allowed values: 4, 6, 8, 10")
+        return value
 
 
-class FantasyLeague(BaseModel):
+class FantasyLeague(FantasyLeagueSettings):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
     owner_id: str
-    name: str
