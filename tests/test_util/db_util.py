@@ -13,7 +13,7 @@ def save_league(league: schemas.League):
 
 def get_league_by_id(league_id: str) -> models.LeagueModel:
     with DatabaseConnection() as db:
-        return db.query(models.LeagueModel)\
+        return db.query(models.LeagueModel) \
             .filter(models.LeagueModel.id == league_id).first()
 
 
@@ -50,7 +50,7 @@ def save_tournament(tournament: schemas.Tournament):
 
 def get_tournament_by_id(tournament_id: str) -> models.TournamentModel:
     with DatabaseConnection() as db:
-        return db.query(models.TournamentModel)\
+        return db.query(models.TournamentModel) \
             .filter(models.TournamentModel.id == tournament_id).first()
 
 
@@ -63,7 +63,7 @@ def save_team(team: schemas.ProfessionalTeam):
 
 def get_team_by_id(team_id: str) -> models.ProfessionalTeamModel:
     with DatabaseConnection() as db:
-        return db.query(models.ProfessionalTeamModel)\
+        return db.query(models.ProfessionalTeamModel) \
             .filter(models.ProfessionalTeamModel.id == team_id).first()
 
 
@@ -94,6 +94,9 @@ def save_player_stats(player_stats: schemas.PlayerGameStats):
         db.commit()
 
 
+# --------------------------------------------------
+# -------------- Fantasy Operations ----------------
+# --------------------------------------------------
 def get_user_by_username(username: str) -> models.UserModel:
     with DatabaseConnection() as db:
         return db.query(models.UserModel) \
@@ -105,3 +108,16 @@ def create_user(user: fantasy_schemas.User):
     with DatabaseConnection() as db:
         db.add(db_user)
         db.commit()
+
+
+def create_fantasy_league(fantasy_league: fantasy_schemas.FantasyLeague):
+    db_fantasy_league = models.FantasyLeagueModel(**fantasy_league.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_fantasy_league)
+        db.commit()
+
+
+def get_fantasy_league_by_id(fantasy_league_id: str) -> models.FantasyLeagueModel:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueModel) \
+            .filter(models.FantasyLeagueModel.id == fantasy_league_id).first()

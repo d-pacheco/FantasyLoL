@@ -24,3 +24,13 @@ user_fixture = fantasy_schemas.User(
     email=user_create_fixture.email,
     password=user_hashed_password
 )
+
+fantasy_league_create_fixture = fantasy_schemas.FantasyLeagueCreate(
+    name="Fantasy League 1"
+)
+
+fantasy_league_fixture = fantasy_schemas.FantasyLeague(
+    id=str(uuid.uuid4()),
+    owner_id=user_fixture.id,
+    name=fantasy_league_create_fixture.name
+)

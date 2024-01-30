@@ -8,7 +8,10 @@ from .riot_api import (
     game_endpoint_v1,
     match_endpoint_v1
 )
-from .fantasy_api import user_endpoint_v1
+from .fantasy_api import (
+    user_endpoint_v1,
+    fantasy_league_endpoint_v1
+)
 from . import job_runner_endpoint
 
 router = APIRouter()
@@ -30,3 +33,4 @@ router.include_router(job_runner_endpoint.router)
 # Include routs for the Fantasy League of Legends api endpoints
 FANTASY_ENDPOINT_PREFIX = "/fantasy"
 router.include_router(user_endpoint_v1.router, prefix=FANTASY_ENDPOINT_PREFIX)
+router.include_router(fantasy_league_endpoint_v1.router, prefix=FANTASY_ENDPOINT_PREFIX)
