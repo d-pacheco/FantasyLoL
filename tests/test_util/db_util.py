@@ -1,3 +1,6 @@
+from sqlalchemy import and_
+from typing import List
+
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.schemas import riot_data_schemas as schemas
 from fantasylol.schemas import fantasy_schemas
@@ -121,3 +124,24 @@ def get_fantasy_league_by_id(fantasy_league_id: str) -> models.FantasyLeagueMode
     with DatabaseConnection() as db:
         return db.query(models.FantasyLeagueModel) \
             .filter(models.FantasyLeagueModel.id == fantasy_league_id).first()
+
+
+def get_pending_and_accepted_members_for_league(league_id: str) \
+        -> List[models.FantasyLeagueMembershipModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueMembershipModel). \
+            filter(and_(models.FantasyLeagueMembershipModel.league_id == league_id,
+                        models.FantasyLeagueMembershipModel.status.in_(
+                            [fantasy_schemas.FantasyLeagueMembershipStatus.PENDING,
+                             fantasy_schemas.FantasyLeagueMembershipStatus.ACCEPTED]))
+                   ).all()
+
+
+def create_fantasy_league_membership(
+        fantasy_league_membership: fantasy_schemas.FantasyLeagueMembership):
+    db_fantasy_league_membership = models.FantasyLeagueMembershipModel(
+        **fantasy_league_membership.model_dump()
+    )
+    with DatabaseConnection() as db:
+        db.merge(db_fantasy_league_membership)
+        db.commit()

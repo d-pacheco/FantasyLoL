@@ -49,3 +49,16 @@ def update_fantasy_league_settings(
     owner_id = decoded_token.get("user_id")
     return fantasy_league_service.update_fantasy_league_settings(
                                     owner_id, fantasy_league_id, fantasy_league_settings)
+
+
+@router.post(
+    path="/leagues/{fantasy_league_id}/invite/{username}",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())]
+)
+def send_invite_user_to_fantasy_league(
+        fantasy_league_id: str,
+        username: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    owner_id = decoded_token.get("user_id")
+    fantasy_league_service.send_fantasy_league_invite(owner_id, fantasy_league_id, username)

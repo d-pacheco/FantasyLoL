@@ -1,5 +1,6 @@
 from typing import List
 from sqlalchemy import text
+from sqlalchemy import and_
 
 from fantasylol.db.database import DatabaseConnection
 from fantasylol.db import models
@@ -53,7 +54,7 @@ def get_tournaments(filters: list) -> List[models.TournamentModel]:
 
 def get_tournament_by_id(tournament_id: str) -> models.TournamentModel:
     with DatabaseConnection() as db:
-        return db.query(models.TournamentModel)\
+        return db.query(models.TournamentModel) \
             .filter(models.TournamentModel.id == tournament_id).first()
 
 
@@ -78,7 +79,7 @@ def get_matches(filters: list = None) -> List[models.MatchModel]:
 
 def get_match_by_id(match_id: str) -> models.MatchModel:
     with DatabaseConnection() as db:
-        return db.query(models.MatchModel)\
+        return db.query(models.MatchModel) \
             .filter(models.MatchModel.id == match_id).first()
 
 
@@ -119,7 +120,7 @@ def bulk_save_games(games: List[riot_schemas.Game]):
 
 def update_has_game_data(game_id: str, has_game_data: bool):
     with DatabaseConnection() as db:
-        db_game: models.GameModel = db.query(models.GameModel)\
+        db_game: models.GameModel = db.query(models.GameModel) \
             .filter(models.GameModel.id == game_id).first()
         if db_game is not None:
             db_game.has_game_data = has_game_data
@@ -129,7 +130,7 @@ def update_has_game_data(game_id: str, has_game_data: bool):
 
 def update_game_state(game_id: str, state: str):
     with DatabaseConnection() as db:
-        db_game: models.GameModel = db.query(models.GameModel)\
+        db_game: models.GameModel = db.query(models.GameModel) \
             .filter(models.GameModel.id == game_id).first()
         if db_game is not None:
             db_game.state = state
@@ -165,7 +166,7 @@ def get_games_to_check_state() -> List[str]:
 
 def get_game_by_id(game_id: str) -> models.GameModel:
     with DatabaseConnection() as db:
-        return db.query(models.GameModel)\
+        return db.query(models.GameModel) \
             .filter(models.GameModel.id == game_id).first()
 
 
@@ -190,7 +191,7 @@ def get_teams(filters: list = None) -> List[models.ProfessionalTeamModel]:
 
 def get_team_by_id(team_id: str) -> models.ProfessionalTeamModel:
     with DatabaseConnection() as db:
-        return db.query(models.ProfessionalTeamModel)\
+        return db.query(models.ProfessionalTeamModel) \
             .filter(models.ProfessionalTeamModel.id == team_id).first()
 
 
@@ -215,7 +216,7 @@ def get_players(filters: list = None) -> List[models.ProfessionalPlayerModel]:
 
 def get_player_by_id(player_id: str) -> models.ProfessionalPlayerModel:
     with DatabaseConnection() as db:
-        return db.query(models.ProfessionalPlayerModel)\
+        return db.query(models.ProfessionalPlayerModel) \
             .filter(models.ProfessionalPlayerModel.id == player_id).first()
 
 
@@ -293,7 +294,7 @@ def get_player_game_stats(filters: list = None) -> List[PlayerGameView]:
 # --------------------------------------------------
 def get_schedule(schedule_name: str) -> models.Schedule:
     with DatabaseConnection() as db:
-        return db.query(models.Schedule)\
+        return db.query(models.Schedule) \
             .filter(models.Schedule.schedule_name == schedule_name).first()
 
 
@@ -321,7 +322,7 @@ def get_user_by_id(user_id: str) -> models.UserModel:
 
 def get_user_by_username(username: str) -> models.UserModel:
     with DatabaseConnection() as db:
-        return db.query(models.UserModel)\
+        return db.query(models.UserModel) \
             .filter(models.UserModel.username == username).first()
 
 
@@ -359,3 +360,26 @@ def update_fantasy_league_settings(
         db.commit()
         db.refresh(league)
         return league
+
+
+# --------------------------------------------------
+# ------- Fantasy League Invite Operations ---------
+# --------------------------------------------------
+def create_fantasy_league_membership(fantasy_league_membership: f_schemas.FantasyLeagueMembership):
+    db_fantasy_league_membership = models.FantasyLeagueMembershipModel(
+        **fantasy_league_membership.model_dump()
+    )
+    with DatabaseConnection() as db:
+        db.merge(db_fantasy_league_membership)
+        db.commit()
+
+
+def get_pending_and_accepted_members_for_league(league_id: str) \
+        -> List[models.FantasyLeagueMembershipModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueMembershipModel). \
+            filter(and_(models.FantasyLeagueMembershipModel.league_id == league_id,
+                        models.FantasyLeagueMembershipModel.status.in_(
+                            [f_schemas.FantasyLeagueMembershipStatus.PENDING,
+                             f_schemas.FantasyLeagueMembershipStatus.ACCEPTED]))
+                   ).all()

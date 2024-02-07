@@ -61,3 +61,16 @@ class FantasyLeague(FantasyLeagueSettings):
     id: str
     owner_id: str
     status: FantasyLeagueStatus
+
+
+class FantasyLeagueMembershipStatus(str, Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+    REVOKED = "revoked"
+
+
+class FantasyLeagueMembership(BaseModel):
+    league_id: str
+    user_id: str
+    status: FantasyLeagueMembershipStatus
