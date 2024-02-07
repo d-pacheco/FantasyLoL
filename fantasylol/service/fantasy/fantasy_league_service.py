@@ -3,7 +3,11 @@ import uuid
 from fantasylol.db import crud
 from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from fantasylol.exceptions.forbidden_exception import ForbiddenException
-from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings, FantasyLeagueStatus
+from fantasylol.schemas.fantasy_schemas import (
+    FantasyLeague,
+    FantasyLeagueSettings,
+    FantasyLeagueStatus
+)
 
 
 class FantasyLeagueService:
