@@ -7,7 +7,7 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from fantasylol.exceptions.forbidden_exception import ForbiddenException
 from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
-from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings
+from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings, FantasyLeagueStatus
 from tests.test_util import fantasy_fixtures
 
 FANTASY_LEAGUE_SERV_PATH = 'fantasylol.service.fantasy.fantasy_league_service.FantasyLeagueService'
@@ -26,6 +26,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         expected_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
             owner_id=owner_id,
+            status=FantasyLeagueStatus.PRE_DRAFT,
             name=fantasy_league_settings.name
         )
         mock_generate_new_valid_id.return_value = fantasy_league_id

@@ -1,3 +1,4 @@
+from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
@@ -46,8 +47,17 @@ class FantasyLeagueSettings(BaseModel):
         return value
 
 
+class FantasyLeagueStatus(str, Enum):
+    PRE_DRAFT = "pre-draft"
+    DRAFT = "draft"
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    DELETED = "deleted"
+
+
 class FantasyLeague(FantasyLeagueSettings):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
     owner_id: str
+    status: FantasyLeagueStatus

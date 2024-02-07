@@ -3,7 +3,7 @@ import uuid
 from fantasylol.db import crud
 from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from fantasylol.exceptions.forbidden_exception import ForbiddenException
-from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings
+from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings, FantasyLeagueStatus
 
 
 class FantasyLeagueService:
@@ -13,6 +13,7 @@ class FantasyLeagueService:
         new_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
             owner_id=owner_id,
+            status=FantasyLeagueStatus.PRE_DRAFT,
             name=league_settings.name,
             number_of_teams=league_settings.number_of_teams
         )

@@ -33,6 +33,7 @@ fantasy_league_settings_fixture = fantasy_schemas.FantasyLeagueSettings(
 fantasy_league_fixture = fantasy_schemas.FantasyLeague(
     id=str(uuid.uuid4()),
     owner_id=user_fixture.id,
+    status=fantasy_schemas.FantasyLeagueStatus.PRE_DRAFT,
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams
 )
