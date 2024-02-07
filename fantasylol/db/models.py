@@ -11,6 +11,7 @@ import uuid
 from fantasylol.schemas.riot_data_schemas import GameState
 from fantasylol.schemas.riot_data_schemas import PlayerRole
 from fantasylol.schemas.fantasy_schemas import FantasyLeagueStatus
+from fantasylol.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
 
 
 Base = declarative_base()
@@ -155,3 +156,11 @@ class FantasyLeagueModel(Base):
     status = Column(Enum(FantasyLeagueStatus), nullable=False)
     name = Column(String)
     number_of_teams = Column(Integer)
+
+
+class FantasyLeagueMembershipModel(Base):
+    __tablename__ = "fantasy_league_memberships"
+
+    league_id = Column(String, primary_key=True, nullable=False)
+    user_id = Column(String, primary_key=True, nullable=False)
+    status = Column(Enum(FantasyLeagueMembershipStatus), nullable=False)
