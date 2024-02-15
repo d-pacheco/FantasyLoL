@@ -73,7 +73,7 @@ class FantasyLeagueService:
         fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
         pending_and_active_members = crud.get_pending_and_accepted_members_for_league(league_id)
         if len(pending_and_active_members) >= fantasy_league_model.number_of_teams:
-            raise FantasyLeagueInviteException()
+            raise FantasyLeagueInviteException("Invite exceeds maximum players for the league")
 
         user_model = crud.get_user_by_username(username)
         if user_model is None:
@@ -81,6 +81,37 @@ class FantasyLeagueService:
 
         create_fantasy_league_membership(
             league_id, user_model.id, FantasyLeagueMembershipStatus.PENDING
+        )
+
+    @staticmethod
+    def join_fantasy_league(user_id: str, league_id: str):
+        fantasy_league = crud.get_fantasy_league_by_id(league_id)
+        if fantasy_league is None:
+            raise FantasyLeagueNotFoundException()
+
+        fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
+        user_membership = [membership for membership in fantasy_league_members
+                           if membership.user_id == user_id]
+        if user_membership:
+            user_membership = user_membership[0]
+        else:
+            raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
+
+        if (user_membership.status == FantasyLeagueMembershipStatus.DECLINED or
+                user_membership.status == FantasyLeagueMembershipStatus.REVOKED):
+            raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
+
+        accepted_member_count = 0
+        for member in fantasy_league_members:
+            if member.status == FantasyLeagueMembershipStatus.ACCEPTED:
+                accepted_member_count += 1
+
+        if (user_membership.status == FantasyLeagueMembershipStatus.PENDING and
+                fantasy_league.number_of_teams < accepted_member_count + 1):
+            raise FantasyLeagueInviteException("Fantasy league is full")
+
+        crud.update_fantasy_league_membership_status(
+            user_membership, FantasyLeagueMembershipStatus.ACCEPTED
         )
 
 
