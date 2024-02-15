@@ -383,3 +383,12 @@ def get_pending_and_accepted_members_for_league(league_id: str) \
                             [f_schemas.FantasyLeagueMembershipStatus.PENDING,
                              f_schemas.FantasyLeagueMembershipStatus.ACCEPTED]))
                    ).all()
+
+
+def update_fantasy_league_membership_status(
+        membership_model: models.FantasyLeagueMembershipModel,
+        new_status: f_schemas.FantasyLeagueMembershipStatus):
+    with DatabaseConnection() as db:
+        membership_model.status = new_status
+        db.merge(membership_model)
+        db.commit()
