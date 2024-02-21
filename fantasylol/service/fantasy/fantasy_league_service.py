@@ -114,6 +114,25 @@ class FantasyLeagueService:
             user_membership, FantasyLeagueMembershipStatus.ACCEPTED
         )
 
+    @staticmethod
+    def leave_fantasy_league(user_id: str, league_id: str):
+        fantasy_league = crud.get_fantasy_league_by_id(league_id)
+        if fantasy_league is None:
+            raise FantasyLeagueNotFoundException()
+
+        if fantasy_league.owner_id == user_id:
+            raise FantasyLeagueInviteException("Cannot leave a fantasy league that you own")
+
+        fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
+        user_membership = [membership for membership in fantasy_league_members
+                           if membership.user_id == user_id]
+        if user_membership and user_membership[0].status == FantasyLeagueMembershipStatus.ACCEPTED:
+            crud.update_fantasy_league_membership_status(
+                user_membership[0], FantasyLeagueMembershipStatus.DECLINED
+            )
+        else:
+            raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
+
 
 def create_fantasy_league_membership(
         league_id: str, user_id: str, status: FantasyLeagueMembershipStatus):
