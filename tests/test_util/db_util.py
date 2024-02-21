@@ -137,6 +137,12 @@ def get_pending_and_accepted_members_for_league(league_id: str) \
                    ).all()
 
 
+def get_all_league_memberships(league_id: str) -> List[models.FantasyLeagueMembershipModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueMembershipModel)\
+            .filter(models.FantasyLeagueMembershipModel.league_id == league_id).all()
+
+
 def create_fantasy_league_membership(
         fantasy_league_membership: fantasy_schemas.FantasyLeagueMembership):
     db_fantasy_league_membership = models.FantasyLeagueMembershipModel(

@@ -216,6 +216,65 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league_service.join_fantasy_league(user_2.id, fantasy_league.id)
         self.assertIn("Fantasy league is full", str(context.exception))
 
+    def test_leave_fantasy_league_successful(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        user_2 = fantasy_fixtures.user_2_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id, user_2.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act
+        fantasy_league_service.leave_fantasy_league(user_2.id, fantasy_league.id)
+
+        # Assert
+        pending_and_active_members = db_util.get_all_league_memberships(fantasy_league.id)
+        self.assertEqual(1, len(pending_and_active_members))
+        membership_from_db = pending_and_active_members[0]
+        self.assertEqual(user_2.id, membership_from_db.user_id)
+        self.assertEqual(FantasyLeagueMembershipStatus.DECLINED, membership_from_db.status)
+
+    def test_leave_fantasy_league_when_owner_exception(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInviteException):
+            fantasy_league_service.leave_fantasy_league(user.id, fantasy_league.id)
+
+    def test_leave_fantasy_league_with_no_membership_exception(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        user_2 = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInviteException):
+            fantasy_league_service.leave_fantasy_league(user_2.id, fantasy_league.id)
+
+    def test_leave_fantasy_league_with_no_accepted_membership_exception(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        user_2 = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id, user_2.id, FantasyLeagueMembershipStatus.PENDING
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInviteException):
+            fantasy_league_service.leave_fantasy_league(user_2.id, fantasy_league.id)
+
 
 def create_fantasy_league_membership_for_league(
         league_id: str, user_id: str, status: FantasyLeagueMembershipStatus):
