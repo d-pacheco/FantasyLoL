@@ -121,7 +121,7 @@ class FantasyLeagueService:
             raise FantasyLeagueNotFoundException()
 
         if fantasy_league.owner_id == user_id:
-            raise FantasyLeagueInviteException("You cannot leave a fantasy league when you are the owner")
+            raise FantasyLeagueInviteException("Cannot leave a fantasy league that you own")
 
         fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
         user_membership = [membership for membership in fantasy_league_members
