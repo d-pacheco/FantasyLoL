@@ -1,6 +1,8 @@
 import logging
 import cloudscraper
 from http import HTTPStatus
+
+import pydantic
 from requests import Response
 from typing import List
 
@@ -187,8 +189,12 @@ class RiotApiRequester:
         game_metadata = res_json.get("gameMetadata", {})
         blue_team_metadata = game_metadata.get("blueTeamMetadata", {})
         red_team_metadata = game_metadata.get("redTeamMetadata", {})
-        blue_team_player_metadata = parse_team_metadata(blue_team_metadata, game_id)
-        red_team_player_metadata = parse_team_metadata(red_team_metadata, game_id)
+        try:
+            blue_team_player_metadata = parse_team_metadata(blue_team_metadata, game_id)
+            red_team_player_metadata = parse_team_metadata(red_team_metadata, game_id)
+        except pydantic.ValidationError:
+            logger.error(f"Error validating player metadata for game id {game_id}")
+            return []
         player_metadata_from_response = blue_team_player_metadata + red_team_player_metadata
         return player_metadata_from_response
 
