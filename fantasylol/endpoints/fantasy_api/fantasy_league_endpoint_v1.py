@@ -62,3 +62,27 @@ def send_invite_user_to_fantasy_league(
         decoded_token: dict = Depends(JWTBearer())):
     owner_id = decoded_token.get("user_id")
     fantasy_league_service.send_fantasy_league_invite(owner_id, fantasy_league_id, username)
+
+
+@router.post(
+    path="/leagues/{fantasy_league_id}/join",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())]
+)
+def join_fantasy_league(
+        fantasy_league_id: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    fantasy_league_service.join_fantasy_league(user_id, fantasy_league_id)
+
+
+@router.post(
+    path="/leagues/{fantasy_league_id}/leave",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())]
+)
+def leave_fantasy_league(
+        fantasy_league_id: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    fantasy_league_service.leave_fantasy_league(user_id, fantasy_league_id)
