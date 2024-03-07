@@ -39,19 +39,19 @@ class RiotGameStatsService:
             self.fetch_and_store_player_metadata_for_game(game_id)
 
     def fetch_and_store_player_metadata_for_game(self, game_id: str):
-        logger.info(f"Fetching player metadata for game with id: {game_id}")
+        logger.debug(f"Fetching player metadata for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_metadata = self.riot_api_requester.get_player_metadata_for_game(
                 game_id, time_stamp)
             if len(fetched_player_metadata) == 0:
-                logger.info(f"Game id {game_id} has no player metadata available")
+                logger.debug(f"Game id {game_id} has no player metadata available")
                 crud.update_has_game_data(game_id, False)
 
             for player_metadata in fetched_player_metadata:
                 crud.save_player_metadata(player_metadata)
         except Exception as e:
-            logger.error(f"{str(e)}")
+            logger.error(f"Error getting player metadata for game with id {game_id}: {str(e)}")
             raise e
 
     def run_player_stats_retry_job(self):
@@ -67,20 +67,20 @@ class RiotGameStatsService:
             self.fetch_and_store_player_stats_for_game(game_id)
 
     def fetch_and_store_player_stats_for_game(self, game_id: str):
-        logger.info(f"Fetching player stats for game with id: {game_id}")
+        logger.debug(f"Fetching player stats for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
             fetched_player_stats = self.riot_api_requester.get_player_stats_for_game(
                 game_id, time_stamp)
 
             if len(fetched_player_stats) == 0:
-                logger.info(f"Game id {game_id} has no player stats available")
+                logger.debug(f"Game id {game_id} has no player stats available")
                 crud.update_has_game_data(game_id, False)
 
             for player_stats in fetched_player_stats:
                 crud.save_player_stats(player_stats)
         except Exception as e:
-            logger.error(f"{str(e)}")
+            logger.error(f"Error getting player stats for game with id {game_id}: {str(e)}")
             raise e
 
     @staticmethod

@@ -25,7 +25,6 @@ class RiotLeagueService:
         )
 
     def fetch_leagues_from_riot_job(self):
-        logger.info("Fetching and storing leagues from riot's api")
         fetched_leagues = self.riot_api_requester.get_leagues()
         for league in fetched_leagues:
             crud.save_league(league)
