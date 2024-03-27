@@ -1,10 +1,20 @@
 services:
-  fantasylol-app:
+  riot-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-riot
     ports:
       - "8000:80"
+    volumes:
+      - fantasy_sqlitedb:/app/database
+      - fantasy_logs:/app/logs
+
+  fantasy-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-fantasy
+    ports:
+      - "8002:80"
     volumes:
       - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs

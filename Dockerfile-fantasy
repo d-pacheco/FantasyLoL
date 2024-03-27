@@ -6,8 +6,8 @@ COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./fantasylol /app/fantasylol
-COPY ./main.py /app
+COPY ./src /app/src
+COPY ./fantasy_app.py /app
 COPY ./.env /app
 
 # Make port 80 available to the world outside this container
@@ -17,4 +17,4 @@ EXPOSE 80
 ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
 
 # Run main.py when the container launches
-CMD ["python", "./main.py"]
+CMD ["python", "./fantasy_app.py"]
