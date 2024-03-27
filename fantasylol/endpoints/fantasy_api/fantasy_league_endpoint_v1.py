@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Body, Depends
 
 from fantasylol.auth.auth_bearer import JWTBearer
-from fantasylol.schemas.fantasy_schemas import FantasyLeague, FantasyLeagueSettings
+from fantasylol.schemas.fantasy_schemas import (
+    FantasyLeague,
+    FantasyLeagueSettings,
+    FantasyLeagueScoringSettings
+)
 from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
 
 
@@ -49,6 +53,19 @@ def update_fantasy_league_settings(
     owner_id = decoded_token.get("user_id")
     return fantasy_league_service.update_fantasy_league_settings(
                                     owner_id, fantasy_league_id, fantasy_league_settings)
+
+
+@router.get(
+    path="/leagues/{fantasy_league_id}/scoring",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())],
+    response_model=FantasyLeagueScoringSettings
+)
+def get_fantasy_league_scoring_settings(
+        fantasy_league_id: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    owner_id = decoded_token.get("user_id")
+    return fantasy_league_service.get_scoring_settings(owner_id, fantasy_league_id)
 
 
 @router.post(

@@ -10,7 +10,8 @@ from fantasylol.schemas.fantasy_schemas import (
     FantasyLeagueSettings,
     FantasyLeagueStatus,
     FantasyLeagueMembership,
-    FantasyLeagueMembershipStatus
+    FantasyLeagueMembershipStatus,
+    FantasyLeagueScoringSettings
 )
 
 
@@ -26,6 +27,11 @@ class FantasyLeagueService:
             number_of_teams=league_settings.number_of_teams
         )
         crud.create_fantasy_league(new_fantasy_league)
+
+        fantasy_league_scoring_settings = FantasyLeagueScoringSettings(
+            fantasy_league_id=fantasy_league_id
+        )
+        crud.create_fantasy_league_scoring_settings(fantasy_league_scoring_settings)
 
         create_fantasy_league_membership(
             fantasy_league_id, owner_id, FantasyLeagueMembershipStatus.ACCEPTED
@@ -66,6 +72,12 @@ class FantasyLeagueService:
         )
         updated_fantasy_league = FantasyLeague.model_validate(updated_fantasy_league_model)
         return updated_fantasy_league
+
+    @staticmethod
+    def get_scoring_settings(owner_id: str, league_id: str) -> FantasyLeagueScoringSettings:
+        validate_league(owner_id, league_id)
+        scoring_settings_model = crud.get_fantasy_league_scoring_settings_by_id(league_id)
+        return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
 
     @staticmethod
     def send_fantasy_league_invite(owner_id: str, league_id: str, username: str):

@@ -348,6 +348,22 @@ def get_fantasy_league_by_id(fantasy_league_id: str) -> models.FantasyLeagueMode
             .filter(models.FantasyLeagueModel.id == fantasy_league_id).first()
 
 
+def create_fantasy_league_scoring_settings(
+        scoring_settings: f_schemas.FantasyLeagueScoringSettings):
+    db_scoring_settings = models.FantasyLeagueScoringSettingModel(**scoring_settings.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_scoring_settings)
+        db.commit()
+
+
+def get_fantasy_league_scoring_settings_by_id(league_id: str) \
+        -> f_schemas.FantasyLeagueScoringSettings:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueScoringSettingModel) \
+            .filter(models.FantasyLeagueScoringSettingModel.fantasy_league_id == league_id) \
+            .first()
+
+
 def update_fantasy_league_settings(
         fantasy_league_id: str,
         settings: f_schemas.FantasyLeagueSettings) -> models.FantasyLeagueModel:
