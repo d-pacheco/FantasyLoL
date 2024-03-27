@@ -2,6 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Enum
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import Float
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
@@ -164,3 +165,17 @@ class FantasyLeagueMembershipModel(Base):
     league_id = Column(String, primary_key=True, nullable=False)
     user_id = Column(String, primary_key=True, nullable=False)
     status = Column(Enum(FantasyLeagueMembershipStatus), nullable=False)
+
+
+class FantasyLeagueScoringSettingModel(Base):
+    __tablename__ = "fantasy_league_scoring_settings"
+
+    fantasy_league_id = Column(String, primary_key=True, nullable=False)
+    kills = Column(Integer, nullable=False)
+    deaths = Column(Integer, nullable=False)
+    assists = Column(Integer, nullable=False)
+    creep_score = Column(Float, nullable=False)
+    wards_placed = Column(Float, nullable=False)
+    wards_destroyed = Column(Float, nullable=False)
+    kill_participation = Column(Integer, nullable=False)
+    damage_percentage = Column(Integer, nullable=False)

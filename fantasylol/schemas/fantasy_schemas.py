@@ -26,6 +26,55 @@ class User(BaseModel):
     password: str
 
 
+class FantasyLeagueScoringSettings(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: str = Field(
+        description="The id of the fantasy league",
+        examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc']
+    )
+    kills: int = Field(
+        default=2,
+        description="The number of points kills are worth in a given fantasy league",
+        examples=[2]
+    )
+    deaths: int = Field(
+        default=-1,
+        description="The number of points deaths are worth in a given fantasy league",
+        examples=[-1]
+    )
+    assists: float = Field(
+        default=0.5,
+        description="The number of points assists are worth in a given fantasy league",
+        examples=[0.5]
+    )
+    creep_score: float = Field(
+        default=0.05,
+        description="The number of points creeps score are worth in a given fantasy league",
+        examples=[0.05]
+    )
+    wards_placed: float = Field(
+        default=0.1,
+        description="The number of points wards placed are worth in a given fantasy league",
+        examples=[0.1]
+    )
+    wards_destroyed: float = Field(
+        default=0.1,
+        description="The number of points wards destroyed are worth in a given fantasy league",
+        examples=[0.1]
+    )
+    kill_participation: int = Field(
+        default=10,
+        description="The number of points kill participation is worth in a given fantasy league",
+        examples=[10]
+    )
+    damage_percentage: int = Field(
+        default=5,
+        description="The number of points damage percentage is worth in a given fantasy league",
+        examples=[5]
+    )
+
+
 class FantasyLeagueSettings(BaseModel):
     name: str = Field(
         default=None,

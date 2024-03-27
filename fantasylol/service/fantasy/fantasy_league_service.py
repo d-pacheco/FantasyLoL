@@ -10,7 +10,8 @@ from fantasylol.schemas.fantasy_schemas import (
     FantasyLeagueSettings,
     FantasyLeagueStatus,
     FantasyLeagueMembership,
-    FantasyLeagueMembershipStatus
+    FantasyLeagueMembershipStatus,
+    FantasyLeagueScoringSettings
 )
 
 
@@ -26,6 +27,11 @@ class FantasyLeagueService:
             number_of_teams=league_settings.number_of_teams
         )
         crud.create_fantasy_league(new_fantasy_league)
+
+        fantasy_league_scoring_settings = FantasyLeagueScoringSettings(
+            fantasy_league_id=fantasy_league_id
+        )
+        crud.create_fantasy_league_scoring_settings(fantasy_league_scoring_settings)
 
         create_fantasy_league_membership(
             fantasy_league_id, owner_id, FantasyLeagueMembershipStatus.ACCEPTED

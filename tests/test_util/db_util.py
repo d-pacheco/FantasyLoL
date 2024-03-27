@@ -139,8 +139,16 @@ def get_pending_and_accepted_members_for_league(league_id: str) \
 
 def get_all_league_memberships(league_id: str) -> List[models.FantasyLeagueMembershipModel]:
     with DatabaseConnection() as db:
-        return db.query(models.FantasyLeagueMembershipModel)\
+        return db.query(models.FantasyLeagueMembershipModel) \
             .filter(models.FantasyLeagueMembershipModel.league_id == league_id).all()
+
+
+def get_fantasy_league_scoring_settings_by_id(league_id: str) \
+        -> models.FantasyLeagueScoringSettingModel:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueScoringSettingModel) \
+            .filter(models.FantasyLeagueScoringSettingModel.fantasy_league_id == league_id) \
+            .first()
 
 
 def create_fantasy_league_membership(
