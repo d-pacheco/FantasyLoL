@@ -3,9 +3,9 @@ import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from fantasylol import app
-from fantasylol.util.config import Config
-from fantasylol.util.job_scheduler import JobScheduler
+from src.riot import app
+from src.common.config import Config
+from src.riot.util.job_scheduler import JobScheduler
 
 
 def configure_logger():
