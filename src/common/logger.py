@@ -1,11 +1,8 @@
-import uvicorn
 import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from src.riot import app
-from src.common.config import Config
-from src.riot.util.job_scheduler import JobScheduler
+from .config import Config
 
 
 def configure_logger():
@@ -38,10 +35,3 @@ def configure_logger():
     console_handler.setLevel(logging_level)
     console_handler.setFormatter(formatter)
     fantasy_lol_logger.addHandler(console_handler)
-
-
-if __name__ == "__main__":
-    configure_logger()
-    job_scheduler = JobScheduler()
-    job_scheduler.schedule_all_jobs()
-    uvicorn.run(app, host="0.0.0.0", port=80)
