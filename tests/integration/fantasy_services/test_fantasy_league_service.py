@@ -4,14 +4,14 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 from tests.test_util import db_util
 
-from fantasylol.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
-from fantasylol.schemas.fantasy_schemas import FantasyLeagueMembership
-from fantasylol.schemas.fantasy_schemas import FantasyLeagueScoringSettings
-from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
-from fantasylol.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
-from fantasylol.exceptions.forbidden_exception import ForbiddenException
-from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from fantasylol.exceptions.user_not_found_exception import UserNotFoundException
+from common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
+from common.schemas.fantasy_schemas import FantasyLeagueMembership
+from common.schemas.fantasy_schemas import FantasyLeagueScoringSettings
+from fantasy.service.fantasy_league_service import FantasyLeagueService
+from fantasy.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
+from fantasy.exceptions.forbidden_exception import ForbiddenException
+from fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from fantasy.exceptions.user_not_found_exception import UserNotFoundException
 
 
 class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):

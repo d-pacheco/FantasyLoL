@@ -1,8 +1,8 @@
 import random
 
-from fantasylol.db.models import PlayerGameMetadataModel, PlayerGameStatsModel
-from fantasylol.db.database import DatabaseConnection
-from fantasylol.schemas.riot_data_schemas import PlayerRole
+from db.models import PlayerGameMetadataModel, PlayerGameStatsModel
+from db.database import DatabaseConnection
+from common.schemas.riot_data_schemas import PlayerRole
 
 
 class GameStatsTestUtil:

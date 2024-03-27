@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
-from fantasylol.util.riot_api_requester import RiotApiRequester
-from fantasylol.exceptions.riot_api_status_code_assert_exception import \
+from riot.util.riot_api_requester import RiotApiRequester
+from riot.exceptions.riot_api_status_code_assert_exception import \
     RiotApiStatusCodeAssertException
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
@@ -10,10 +10,10 @@ from tests.test_util import riot_api_requester_util
 from tests.test_util import test_fixtures
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
-    'fantasylol.util.riot_api_requester.cloudscraper.create_scraper'
+    'riot.util.riot_api_requester.cloudscraper.create_scraper'
 
 RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH = \
-    'fantasylol.util.riot_api_requester.RiotApiRequester.get_tournament_id_for_match'
+    'riot.util.riot_api_requester.RiotApiRequester.get_tournament_id_for_match'
 
 
 class RiotApiRequesterTest(FantasyLolTestBase):

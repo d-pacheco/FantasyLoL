@@ -1,6 +1,6 @@
-from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
-from fantasylol.service.riot_match_service import RiotMatchService
-from fantasylol.schemas.search_parameters import MatchSearchParameters
+from riot.exceptions.match_not_found_exception import MatchNotFoundException
+from riot.service.riot_match_service import RiotMatchService
+from common.schemas.search_parameters import MatchSearchParameters
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util

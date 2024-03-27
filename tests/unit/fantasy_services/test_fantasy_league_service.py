@@ -5,17 +5,17 @@ import copy
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from fantasylol.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from fantasylol.exceptions.forbidden_exception import ForbiddenException
-from fantasylol.service.fantasy.fantasy_league_service import FantasyLeagueService
-from fantasylol.schemas.fantasy_schemas import (
+from fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from fantasy.exceptions.forbidden_exception import ForbiddenException
+from fantasy.service.fantasy_league_service import FantasyLeagueService
+from common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueStatus
 )
 
-FANTASY_LEAGUE_SERV_PATH = 'fantasylol.service.fantasy.fantasy_league_service.FantasyLeagueService'
-BASE_CRUD_PATH = 'fantasylol.db.crud'
+FANTASY_LEAGUE_SERV_PATH = 'fantasy.service.fantasy_league_service.FantasyLeagueService'
+BASE_CRUD_PATH = 'db.crud'
 
 
 class TestFantasyLeagueService(FantasyLolTestBase):

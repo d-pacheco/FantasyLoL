@@ -6,16 +6,16 @@ from http import HTTPStatus
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures
 
-from fantasylol.exceptions.tournament_not_found_exception import \
+from riot.exceptions.tournament_not_found_exception import \
     TournamentNotFoundException
-from fantasylol.schemas.riot_data_schemas import TournamentStatus
-from fantasylol.schemas.search_parameters import TournamentSearchParameters
-from fantasylol import app
+from common.schemas.riot_data_schemas import TournamentStatus
+from common.schemas.search_parameters import TournamentSearchParameters
+from riot import app
 
 
 TOURNAMENT_BASE_URL = "/riot/v1/tournament"
 BASE_TOURNAMENT_SERVICE_MOCK_PATH = \
-    "fantasylol.service.riot_tournament_service.RiotTournamentService"
+    "riot.service.riot_tournament_service.RiotTournamentService"
 GET_TOURNAMENTS_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournaments"
 GET_TOURNAMENTS_BY_ID_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournament_by_id"
 

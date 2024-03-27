@@ -1,11 +1,11 @@
 import random
 
-from fantasylol.db.models import GameModel
-from fantasylol.db.models import ProfessionalTeamModel
-from fantasylol.db.models import ProfessionalPlayerModel
-from fantasylol.db.models import LeagueModel
-from fantasylol.db.models import TournamentModel
-from fantasylol.db.models import MatchModel
+from db.models import GameModel
+from db.models import ProfessionalTeamModel
+from db.models import ProfessionalPlayerModel
+from db.models import LeagueModel
+from db.models import TournamentModel
+from db.models import MatchModel
 
 
 class RiotApiRequestUtil:

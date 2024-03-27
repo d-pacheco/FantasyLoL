@@ -6,12 +6,12 @@ from unittest.mock import patch
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures
 
-from fantasylol.schemas.search_parameters import PlayerGameStatsSearchParameters
-from fantasylol import app
+from common.schemas.search_parameters import PlayerGameStatsSearchParameters
+from riot import app
 
 GAME_STATS_BASE_URL = "/riot/v1/stats"
 BASE_GAME_STATS_SERVICE_MOCK_PATH = \
-    "fantasylol.service.riot_game_stats_service.RiotGameStatsService"
+    "riot.service.riot_game_stats_service.RiotGameStatsService"
 GET_PLAYER_GAME_STATS_MOCK_PATH = f"{BASE_GAME_STATS_SERVICE_MOCK_PATH}.get_player_stats"
 
 

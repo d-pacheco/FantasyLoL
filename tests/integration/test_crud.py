@@ -2,11 +2,8 @@ import copy
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
-from fantasylol.db import crud
-from fantasylol.schemas import riot_data_schemas as schemas
-from fantasylol.schemas import fantasy_schemas
-from fantasylol.db import models
-from fantasylol.db import views
+from db import crud, models, views
+from common.schemas import fantasy_schemas, riot_data_schemas as schemas
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import db_util

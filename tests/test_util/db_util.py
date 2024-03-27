@@ -1,10 +1,9 @@
 from sqlalchemy import and_
 from typing import List
 
-from fantasylol.db.database import DatabaseConnection
-from fantasylol.schemas import riot_data_schemas as schemas
-from fantasylol.schemas import fantasy_schemas
-from fantasylol.db import models
+from db.database import DatabaseConnection
+from common.schemas import fantasy_schemas, riot_data_schemas as schemas
+from db import models
 
 
 def save_league(league: schemas.League):

@@ -1,7 +1,7 @@
-from fantasylol.exceptions.league_not_found_exception import LeagueNotFoundException
-from fantasylol.service.riot_league_service import RiotLeagueService
-from fantasylol.schemas.search_parameters import LeagueSearchParameters
-from fantasylol.schemas import riot_data_schemas as schemas
+from riot.exceptions.league_not_found_exception import LeagueNotFoundException
+from riot.service.riot_league_service import RiotLeagueService
+from common.schemas.search_parameters import LeagueSearchParameters
+from common.schemas import riot_data_schemas as schemas
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures

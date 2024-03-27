@@ -6,14 +6,14 @@ from http import HTTPStatus
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures
 
-from fantasylol.exceptions.professional_team_not_found_exception import \
+from riot.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
-from fantasylol.schemas.search_parameters import TeamSearchParameters
-from fantasylol import app
+from common.schemas.search_parameters import TeamSearchParameters
+from riot import app
 
 PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"
 BASE_TEAM_SERVICE_MOCK_PATH = \
-    "fantasylol.service.riot_professional_team_service.RiotProfessionalTeamService"
+    "riot.service.riot_professional_team_service.RiotProfessionalTeamService"
 TEAM_SERVICE_GET_TEAMS_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_teams"
 TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team_by_id"
 

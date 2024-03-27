@@ -2,12 +2,11 @@ import unittest
 import logging
 from sqlalchemy import MetaData
 
-from fantasylol.db.database import engine
-from fantasylol.db import models
-
+from db.database import engine
+from db import models
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
-    'fantasylol.util.riot_api_requester.cloudscraper.create_scraper'
+    'riot.util.riot_api_requester.cloudscraper.create_scraper'
 
 
 class FantasyLolTestBase(unittest.TestCase):

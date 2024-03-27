@@ -1,4 +1,4 @@
-from fantasylol.schemas import riot_data_schemas
+from common.schemas import riot_data_schemas
 from tests.test_util import test_fixtures
 from tests.test_util import db_util
 

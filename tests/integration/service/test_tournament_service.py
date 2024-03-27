@@ -1,10 +1,10 @@
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from fantasylol.exceptions.tournament_not_found_exception import TournamentNotFoundException
-from fantasylol.service.riot_tournament_service import RiotTournamentService
-from fantasylol.schemas.riot_data_schemas import TournamentStatus
-from fantasylol.schemas.search_parameters import TournamentSearchParameters
+from riot.exceptions.tournament_not_found_exception import TournamentNotFoundException
+from riot.service.riot_tournament_service import RiotTournamentService
+from common.schemas.riot_data_schemas import TournamentStatus
+from common.schemas.search_parameters import TournamentSearchParameters
 
 
 def create_tournament_service():

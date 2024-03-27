@@ -5,9 +5,9 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.fantasy_lol_test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.riot_api_requester_util import RiotApiRequestUtil
 
-from fantasylol.db.database import DatabaseConnection
-from fantasylol.db.models import PlayerGameMetadataModel
-from fantasylol.service.riot_game_stats_service import RiotGameStatsService
+from db.database import DatabaseConnection
+from db.models import PlayerGameMetadataModel
+from riot.service.riot_game_stats_service import RiotGameStatsService
 
 
 def create_game_stats_service():

@@ -6,11 +6,11 @@ from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 from tests.test_util import db_util
 
-from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from fantasylol.exceptions.invalid_username_password_exception import \
+from fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
+from fantasy.exceptions.invalid_username_password_exception import \
     InvalidUsernameOrPasswordException
-from fantasylol.schemas import fantasy_schemas
-from fantasylol.service.fantasy_user_service import UserService
+from common.schemas import fantasy_schemas
+from fantasy.service.fantasy_user_service import UserService
 
 
 class UserServiceIntegrationTest(FantasyLolTestBase):

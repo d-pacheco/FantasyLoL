@@ -1,10 +1,10 @@
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from fantasylol.exceptions.game_not_found_exception import GameNotFoundException
-from fantasylol.service.riot_game_service import RiotGameService
-from fantasylol.schemas.riot_data_schemas import GameState
-from fantasylol.schemas.search_parameters import GameSearchParameters
+from riot.exceptions.game_not_found_exception import GameNotFoundException
+from riot.service.riot_game_service import RiotGameService
+from common.schemas.riot_data_schemas import GameState
+from common.schemas.search_parameters import GameSearchParameters
 
 
 def create_game_service():

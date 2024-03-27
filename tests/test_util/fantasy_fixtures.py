@@ -1,7 +1,7 @@
 import uuid
 import bcrypt
 
-from fantasylol.schemas import fantasy_schemas
+from common.schemas import fantasy_schemas
 
 user_password = "WeakTestPw"
 salt = bcrypt.gensalt()

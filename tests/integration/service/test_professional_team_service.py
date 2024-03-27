@@ -1,10 +1,10 @@
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from fantasylol.exceptions.professional_team_not_found_exception import \
+from riot.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
-from fantasylol.service.riot_professional_team_service import RiotProfessionalTeamService
-from fantasylol.schemas.search_parameters import TeamSearchParameters
+from riot.service.riot_professional_team_service import RiotProfessionalTeamService
+from common.schemas.search_parameters import TeamSearchParameters
 
 
 def create_professional_team_service():

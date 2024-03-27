@@ -1,10 +1,10 @@
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from fantasylol.exceptions.professional_player_not_found_exception import \
+from riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
-from fantasylol.service.riot_professional_player_service import RiotProfessionalPlayerService
-from fantasylol.schemas.search_parameters import PlayerSearchParameters
+from riot.service.riot_professional_player_service import RiotProfessionalPlayerService
+from common.schemas.search_parameters import PlayerSearchParameters
 
 
 def create_professional_player_service():

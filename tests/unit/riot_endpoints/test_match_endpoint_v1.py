@@ -6,12 +6,12 @@ from unittest.mock import patch
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import test_fixtures as fixtures
 
-from fantasylol.exceptions.match_not_found_exception import MatchNotFoundException
-from fantasylol.schemas.search_parameters import MatchSearchParameters
-from fantasylol import app
+from riot.exceptions.match_not_found_exception import MatchNotFoundException
+from common.schemas.search_parameters import MatchSearchParameters
+from riot import app
 
 MATCH_ENDPOINT_BASE_URL = "/riot/v1/matches"
-BASE_MATCH_SERVICE_MOCK_PATH = "fantasylol.service.riot_match_service.RiotMatchService"
+BASE_MATCH_SERVICE_MOCK_PATH = "riot.service.riot_match_service.RiotMatchService"
 GET_MATCHES_MOCK_PATH = f"{BASE_MATCH_SERVICE_MOCK_PATH}.get_matches"
 GET_MATCHES_BY_ID_MOCK_PATH = f"{BASE_MATCH_SERVICE_MOCK_PATH}.get_match_by_id"
 

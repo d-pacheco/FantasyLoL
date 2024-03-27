@@ -4,16 +4,16 @@ import copy
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from fantasylol.db.models import UserModel
-from fantasylol.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from fantasylol.exceptions.invalid_username_password_exception import\
+from db.models import UserModel
+from fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
+from fantasy.exceptions.invalid_username_password_exception import\
     InvalidUsernameOrPasswordException
-from fantasylol.service.fantasy_user_service import UserService
-from fantasylol.auth.auth_handler import token_response
+from fantasy.service.fantasy_user_service import UserService
+from auth.auth_handler import token_response
 
-BASE_USER_SERVICE_PATH = 'fantasylol.service.fantasy_user_service.UserService'
-BASE_CRUD_PATH = 'fantasylol.db.crud'
-SIGN_JWT_PATH = 'fantasylol.service.fantasy_user_service.sign_jwt'
+BASE_USER_SERVICE_PATH = 'fantasy.service.fantasy_user_service.UserService'
+BASE_CRUD_PATH = 'db.crud'
+SIGN_JWT_PATH = 'fantasy.service.fantasy_user_service.sign_jwt'
 
 
 class UserServiceTest(FantasyLolTestBase):

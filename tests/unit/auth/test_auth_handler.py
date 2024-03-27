@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 
-from fantasylol.auth.auth_handler import sign_jwt, decode_jwt
+from auth.auth_handler import sign_jwt, decode_jwt
 
 
 class TestAuthHandler(FantasyLolTestBase):
