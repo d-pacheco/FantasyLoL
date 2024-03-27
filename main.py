@@ -3,9 +3,9 @@ import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from riot import app
-from common.config import Config
-from riot.util.job_scheduler import JobScheduler
+from src.riot import app
+from src.common import Config
+from src.riot.util.job_scheduler import JobScheduler
 
 
 def configure_logger():

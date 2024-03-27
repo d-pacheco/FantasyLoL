@@ -1,12 +1,9 @@
 #!/bin/bash
 
-echo "auth tests"
-python -m unittest discover -s auth -p "test*.py"
-echo "common tests"
-python -m unittest discover -s common -p "test*.py"
-echo "db tests"
-python -m unittest discover -s db -p "test*.py"
-echo "fantasy tests"
-python -m unittest discover -s fantasy -p "test*.py"
-echo "riot tests"
-python -m unittest discover -s riot -p "test*.py"
+# Loop through each subdirectory in src and run unittest discovery
+for dir in src/*; do
+    if [ -d "$dir/tests" ]; then
+        echo "Running tests in $dir"
+        python -m unittest discover -s "$dir" -p "test*.py"
+    fi
+done
