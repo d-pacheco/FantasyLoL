@@ -4,7 +4,7 @@ from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
 from src.riot import app
-from src.common import Config
+from src.common.config import Config
 from src.riot.util.job_scheduler import JobScheduler
 
 

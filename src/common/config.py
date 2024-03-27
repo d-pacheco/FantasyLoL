@@ -13,7 +13,7 @@ class AppConfig:
     # Configure config default values
     DATABASE_URL: str = "sqlite:///./fantasy-league-of-legends.db"
     DEBUG_LOGGING: bool = False
-    TESTS_RUNNING = 'tests' in sys.argv
+    TESTS_RUNNING = 'python.exe -m unittest' in sys.argv
 
     # Auth
     SECRET: str
