@@ -15,6 +15,9 @@ class AppConfig:
     DEBUG_LOGGING: bool = False
     TESTS_RUNNING = 'python.exe -m unittest' in sys.argv
 
+    print(sys.argv)
+    print(TESTS_RUNNING)
+
     # Auth
     SECRET: str
     ALGORITHM: str
