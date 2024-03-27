@@ -1,6 +1,5 @@
 import uuid
 
-import fantasy_schemas
 from tests.fantasy_lol_test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 from tests.test_util import db_util
@@ -37,9 +36,51 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         )
         self.assertIsNotNone(scoring_settings_from_db)
         self.assertEqual(
-            fantasy_schemas.FantasyLeagueScoringSettings.model_validate(expected_default_settings),
-            fantasy_schemas.FantasyLeagueScoringSettings.model_validate(scoring_settings_from_db)
+            FantasyLeagueScoringSettings.model_validate(expected_default_settings),
+            FantasyLeagueScoringSettings.model_validate(scoring_settings_from_db)
         )
+
+    def test_get_fantasy_league_scoring_settings_successful(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        expected_scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        user = fantasy_fixtures.user_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(expected_scoring_settings)
+
+        # Act
+        returned_scoring_settings = fantasy_league_service.get_scoring_settings(
+            user.id, fantasy_league.id
+        )
+
+        # Assert
+        self.assertEqual(expected_scoring_settings, returned_scoring_settings)
+
+    def test_get_fantasy_league_scoring_settings_non_existing_league(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        user = fantasy_fixtures.user_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(scoring_settings)
+
+        # Act and Act
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.get_scoring_settings("badUserId", fantasy_league.id)
+
+    def test_get_fantasy_league_scoring_settings_not_owner_of_league(self):
+        # Arrange
+        fantasy_league_service = FantasyLeagueService()
+        user = fantasy_fixtures.user_fixture
+        db_util.create_user(user)
+
+        # Act and Act
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.get_scoring_settings(user.id, "badLeagueId")
 
     def test_send_fantasy_league_invite_successful(self):
         # Arrange

@@ -44,3 +44,15 @@ fantasy_league_fixture = fantasy_schemas.FantasyLeague(
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams
 )
+
+fantasy_league_scoring_settings_fixture = fantasy_schemas.FantasyLeagueScoringSettings(
+    fantasy_league_id=fantasy_league_fixture.id,
+    kills=4,
+    deaths=2,
+    assists=1,
+    creep_score=0.8,
+    wards_placed=0.2,
+    wards_destroyed=0.2,
+    kill_participation=15,
+    damage_percentage=8
+)

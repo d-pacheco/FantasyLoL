@@ -143,6 +143,14 @@ def get_all_league_memberships(league_id: str) -> List[models.FantasyLeagueMembe
             .filter(models.FantasyLeagueMembershipModel.league_id == league_id).all()
 
 
+def create_fantasy_league_scoring_settings(
+        scoring_settings: fantasy_schemas.FantasyLeagueScoringSettings):
+    db_scoring_settings = models.FantasyLeagueScoringSettingModel(**scoring_settings.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_scoring_settings)
+        db.commit()
+
+
 def get_fantasy_league_scoring_settings_by_id(league_id: str) \
         -> models.FantasyLeagueScoringSettingModel:
     with DatabaseConnection() as db:

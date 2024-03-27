@@ -74,6 +74,12 @@ class FantasyLeagueService:
         return updated_fantasy_league
 
     @staticmethod
+    def get_scoring_settings(owner_id: str, league_id: str) -> FantasyLeagueScoringSettings:
+        validate_league(owner_id, league_id)
+        scoring_settings_model = crud.get_fantasy_league_scoring_settings_by_id(league_id)
+        return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
+
+    @staticmethod
     def send_fantasy_league_invite(owner_id: str, league_id: str, username: str):
         validate_league(owner_id, league_id)
         fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
