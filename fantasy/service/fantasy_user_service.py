@@ -3,8 +3,8 @@ import bcrypt
 
 from auth.auth_handler import sign_jwt
 from db import crud
-from fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from fantasy.exceptions.invalid_username_password_exception import\
+from ..exceptions.user_already_exists_exception import UserAlreadyExistsException
+from ..exceptions.invalid_username_password_exception import\
     InvalidUsernameOrPasswordException
 from common.schemas.fantasy_schemas import UserCreate, User, UserLogin
 

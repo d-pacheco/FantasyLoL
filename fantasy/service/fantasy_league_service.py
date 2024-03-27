@@ -1,10 +1,10 @@
 import uuid
 
 from db import crud
-from fantasy.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
-from fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from fantasy.exceptions.forbidden_exception import ForbiddenException
-from fantasy.exceptions.user_not_found_exception import UserNotFoundException
+from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
+from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from ..exceptions.forbidden_exception import ForbiddenException
+from ..exceptions.user_not_found_exception import UserNotFoundException
 from common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
