@@ -53,6 +53,7 @@ jobs:
         run: |
           for dir in src/*; do
             if [ -d "$dir/tests" ]; then
+              echo "Running tests in $dir"
               python -m unittest discover -s "$dir" -p "test*.py"
             fi
           done
