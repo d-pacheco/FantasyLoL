@@ -1,5 +1,5 @@
 from enum import Enum
-
+from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -406,5 +406,5 @@ class PlayerGameData(BaseModel):
 
 
 class RiotSchedulePages(BaseModel):
-    older: str = Field(default=None)
-    newer: str = Field(default=None)
+    older: Optional[str] = Field(default=None)
+    newer: Optional[str] = Field(default=None)
