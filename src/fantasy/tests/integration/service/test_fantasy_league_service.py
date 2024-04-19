@@ -8,7 +8,8 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueMembershipStatus,
     FantasyLeagueMembership,
     FantasyLeagueScoringSettings,
-    FantasyLeagueDraftOrder
+    FantasyLeagueDraftOrder,
+    FantasyLeagueDraftOrderResponse
 )
 from src.fantasy.service.fantasy_league_service import FantasyLeagueService
 from src.fantasy.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
@@ -84,7 +85,7 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         # Assert
         self.assertEqual(expected_scoring_settings, returned_scoring_settings)
 
-    def test_get_fantasy_league_scoring_settings_non_existing_league(self):
+    def test_get_fantasy_league_scoring_settings_settings_not_owner_of_league(self):
         # Arrange
         scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
@@ -97,7 +98,7 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(ForbiddenException):
             fantasy_league_service.get_scoring_settings("badUserId", fantasy_league.id)
 
-    def test_get_fantasy_league_scoring_settings_not_owner_of_league(self):
+    def test_get_fantasy_league_scoring_non_existing_league(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
         db_util.create_user(user)
@@ -394,6 +395,47 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(FantasyLeagueInviteException):
             fantasy_league_service.leave_fantasy_league(user_2.id, fantasy_league.id)
+
+    def test_get_fantasy_league_draft_order_successful(self):
+        # Arrange
+        user_1 = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user_1)
+        user_1_draft_order = create_draft_order_for_fantasy_league(fantasy_league.id, user_1.id, 1)
+        user_1_draft_order_response = FantasyLeagueDraftOrderResponse(
+            user_id=user_1.id, username=user_1.username, position=user_1_draft_order.position
+        )
+
+        # Act
+        current_draft_order = fantasy_league_service.get_fantasy_league_draft_order(
+            user_1.id, fantasy_league.id
+        )
+
+        # Assert
+        self.assertIsInstance(current_draft_order, list)
+        self.assertEqual(1, len(current_draft_order))
+        self.assertEqual(user_1_draft_order_response, current_draft_order[0])
+
+    def test_get_fantasy_league_draft_order_non_existing_league(self):
+        # Arrange
+        user_1 = fantasy_fixtures.user_fixture
+        db_util.create_user(user_1)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.get_fantasy_league_draft_order(user_1.id, "badLeagueId")
+
+    def test_get_fantasy_league_draft_order_not_league_owner(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        user_1 = fantasy_fixtures.user_fixture
+        db_util.create_user(user_1)
+
+        # Act and Assert
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.get_fantasy_league_draft_order("notOwner", fantasy_league.id)
 
 
 def create_fantasy_league_membership_for_league(
