@@ -407,3 +407,35 @@ def update_fantasy_league_membership_status(
         membership_model.status = new_status
         db.merge(membership_model)
         db.commit()
+
+
+# --------------------------------------------------
+# ----- Fantasy League Draft Order Operations ------
+# --------------------------------------------------
+def create_fantasy_league_draft_order(draft_order: f_schemas.FantasyLeagueDraftOrder):
+    db_draft_order = models.FantasyLeagueDraftOrderModel(**draft_order.model_dump())
+    with DatabaseConnection() as db:
+        db.merge(db_draft_order)
+        db.commit()
+
+
+def get_fantasy_league_draft_order(league_id: str) -> List[models.FantasyLeagueDraftOrderModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueDraftOrderModel) \
+            .filter(models.FantasyLeagueDraftOrderModel.fantasy_league_id == league_id) \
+            .all()
+
+
+def delete_fantasy_league_draft_order(draft_order_model: models.FantasyLeagueDraftOrderModel):
+    with DatabaseConnection() as db:
+        db.delete(draft_order_model)
+        db.commit()
+
+
+def update_fantasy_league_draft_order_position(
+        draft_order_model: models.FantasyLeagueDraftOrderModel,
+        new_position: int):
+    with DatabaseConnection() as db:
+        draft_order_model.position = new_position
+        db.merge(draft_order_model)
+        db.commit()

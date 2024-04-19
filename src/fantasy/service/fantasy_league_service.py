@@ -11,7 +11,8 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
-    FantasyLeagueScoringSettings
+    FantasyLeagueScoringSettings,
+    FantasyLeagueDraftOrder
 )
 
 
@@ -36,6 +37,7 @@ class FantasyLeagueService:
         create_fantasy_league_membership(
             fantasy_league_id, owner_id, FantasyLeagueMembershipStatus.ACCEPTED
         )
+        create_draft_order_entry(owner_id, fantasy_league_id)
 
         return new_fantasy_league
 
@@ -125,6 +127,7 @@ class FantasyLeagueService:
         crud.update_fantasy_league_membership_status(
             user_membership, FantasyLeagueMembershipStatus.ACCEPTED
         )
+        create_draft_order_entry(user_id, league_id)
 
     @staticmethod
     def leave_fantasy_league(user_id: str, league_id: str):
@@ -142,8 +145,49 @@ class FantasyLeagueService:
             crud.update_fantasy_league_membership_status(
                 user_membership[0], FantasyLeagueMembershipStatus.DECLINED
             )
+            update_draft_order_on_player_leave(user_id, league_id)
         else:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
+
+
+def update_draft_order_on_player_leave(user_id: str, league_id: str):
+    current_draft_order = crud.get_fantasy_league_draft_order(league_id)
+
+    draft_position_to_delete = None
+    for draft_position in current_draft_order:
+        if draft_position.user_id == user_id:
+            draft_position_to_delete = draft_position
+            break
+    if draft_position_to_delete is None:
+        raise Exception(f"User {user_id} doesn't have a draft position in league {league_id}")
+
+    crud.delete_fantasy_league_draft_order(draft_position_to_delete)
+    for draft_position in current_draft_order:
+        if draft_position.position > draft_position_to_delete.position:
+            crud.update_fantasy_league_draft_order_position(
+                draft_position, draft_position.position - 1
+            )
+
+
+def create_draft_order_entry(user_id: str, league_id: str):
+    fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
+    if fantasy_league_model is None:
+        raise FantasyLeagueNotFoundException()
+
+    current_draft_order = crud.get_fantasy_league_draft_order(league_id)
+    if len(current_draft_order) == 0:
+        max_position = 0
+    else:
+        max_position = max(
+            current_draft_order, key=lambda draft_position: draft_position.position
+        ).position
+
+    new_draft_position = FantasyLeagueDraftOrder(
+        fantasy_league_id=league_id,
+        user_id=user_id,
+        position=max_position + 1
+    )
+    crud.create_fantasy_league_draft_order(new_draft_position)
 
 
 def create_fantasy_league_membership(

@@ -73,3 +73,17 @@ def create_fantasy_league_membership(
     with DatabaseConnection() as db:
         db.merge(db_fantasy_league_membership)
         db.commit()
+
+
+def create_fantasy_league_draft_order(draft_order: fantasy_schemas.FantasyLeagueDraftOrder):
+    db_draft_order = models.FantasyLeagueDraftOrderModel(**draft_order.model_dump())
+    with DatabaseConnection() as db:
+        db.merge(db_draft_order)
+        db.commit()
+
+
+def get_fantasy_league_draft_order(league_id: str) -> List[models.FantasyLeagueDraftOrderModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueDraftOrderModel) \
+            .filter(models.FantasyLeagueDraftOrderModel.fantasy_league_id == league_id) \
+            .all()
