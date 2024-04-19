@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 
 from ...db import crud
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
@@ -12,7 +13,8 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
     FantasyLeagueScoringSettings,
-    FantasyLeagueDraftOrder
+    FantasyLeagueDraftOrder,
+    FantasyLeagueDraftOrderResponse
 )
 
 
@@ -148,6 +150,21 @@ class FantasyLeagueService:
             update_draft_order_on_player_leave(user_id, league_id)
         else:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
+
+    @staticmethod
+    def get_fantasy_league_draft_order(user_id: str, league_id: str)\
+            -> List[FantasyLeagueDraftOrderResponse]:
+        validate_league(user_id, league_id)
+        current_draft_order = crud.get_fantasy_league_draft_order(league_id)
+
+        draft_order_response = []
+        for draft_position in current_draft_order:
+            user = crud.get_user_by_id(draft_position.user_id)
+            new_draft_order_response = FantasyLeagueDraftOrderResponse(
+                user_id=user.id, username=user.username, position=draft_position.position
+            )
+            draft_order_response.append(new_draft_order_response)
+        return draft_order_response
 
 
 def update_draft_order_on_player_leave(user_id: str, league_id: str):

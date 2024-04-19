@@ -131,3 +131,9 @@ class FantasyLeagueDraftOrder(BaseModel):
     fantasy_league_id: str
     user_id: str
     position: int
+
+
+class FantasyLeagueDraftOrderResponse(BaseModel):
+    user_id: str
+    username: str
+    position: int

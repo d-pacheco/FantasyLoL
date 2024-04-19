@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Body, Depends
+from typing import List
 
 from src.auth.auth_bearer import JWTBearer
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
-    FantasyLeagueScoringSettings
+    FantasyLeagueScoringSettings,
+    FantasyLeagueDraftOrderResponse
 )
 from src.fantasy.service.fantasy_league_service import FantasyLeagueService
 
@@ -103,3 +105,16 @@ def leave_fantasy_league(
         decoded_token: dict = Depends(JWTBearer())):
     user_id = decoded_token.get("user_id")
     fantasy_league_service.leave_fantasy_league(user_id, fantasy_league_id)
+
+
+@router.get(
+    path="/leagues/{fantasy_league_id}/draft-order",
+    tags=["Fantasy Leagues"],
+    response_model=List[FantasyLeagueDraftOrderResponse],
+    dependencies=[Depends(JWTBearer())]
+)
+def get_fantasy_league_draft_order(
+        fantasy_league_id: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    return fantasy_league_service.get_fantasy_league_draft_order(user_id, fantasy_league_id)
