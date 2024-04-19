@@ -123,3 +123,11 @@ class FantasyLeagueMembership(BaseModel):
     league_id: str
     user_id: str
     status: FantasyLeagueMembershipStatus
+
+
+class FantasyLeagueDraftOrder(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: str
+    user_id: str
+    position: int

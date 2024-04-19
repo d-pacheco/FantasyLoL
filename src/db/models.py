@@ -6,6 +6,7 @@ from sqlalchemy import Float
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
@@ -166,6 +167,10 @@ class FantasyLeagueMembershipModel(Base):
     user_id = Column(String, primary_key=True, nullable=False)
     status = Column(Enum(FantasyLeagueMembershipStatus), nullable=False)
 
+    __table_args__ = (
+        PrimaryKeyConstraint('league_id', 'user_id'),
+    )
+
 
 class FantasyLeagueScoringSettingModel(Base):
     __tablename__ = "fantasy_league_scoring_settings"
@@ -179,3 +184,16 @@ class FantasyLeagueScoringSettingModel(Base):
     wards_destroyed = Column(Float, nullable=False)
     kill_participation = Column(Integer, nullable=False)
     damage_percentage = Column(Integer, nullable=False)
+
+
+class FantasyLeagueDraftOrderModel(Base):
+    __tablename__ = "fantasy_league_draft_order"
+
+    fantasy_league_id = Column(String, primary_key=True, nullable=False)
+    user_id = Column(String, primary_key=True, nullable=False)
+    position = Column(Integer, nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('fantasy_league_id', 'user_id'),
+        UniqueConstraint('fantasy_league_id', position),
+    )

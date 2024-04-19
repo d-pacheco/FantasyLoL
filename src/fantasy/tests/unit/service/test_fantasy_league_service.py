@@ -20,9 +20,13 @@ BASE_CRUD_PATH = 'src.db.crud'
 
 class TestFantasyLeagueService(FantasyLolTestBase):
 
+    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     @patch(f'{FANTASY_LEAGUE_SERV_PATH}.generate_new_valid_id')
     @patch(f'{BASE_CRUD_PATH}.create_fantasy_league')
-    def test_create_fantasy_league(self, mock_create_fantasy_league, mock_generate_new_valid_id):
+    def test_create_fantasy_league(self,
+                                   mock_create_fantasy_league,
+                                   mock_generate_new_valid_id,
+                                   mock_get_fantasy_league_by_id):
         # Arrange
         fantasy_league_id = str(uuid.uuid4())
         owner_id = str(uuid.uuid4())
@@ -34,6 +38,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
             name=fantasy_league_settings.name
         )
         mock_generate_new_valid_id.return_value = fantasy_league_id
+        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league
         fantasy_league_service = FantasyLeagueService()
 
         # Act
