@@ -118,3 +118,18 @@ def get_fantasy_league_draft_order(
         decoded_token: dict = Depends(JWTBearer())):
     user_id = decoded_token.get("user_id")
     return fantasy_league_service.get_fantasy_league_draft_order(user_id, fantasy_league_id)
+
+
+@router.put(
+    path="/leagues/{fantasy_league_id}/draft-order",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())]
+)
+def update_fantasy_league_draft_order(
+        fantasy_league_id: str,
+        decoded_token: dict = Depends(JWTBearer()),
+        updated_draft_order: List[FantasyLeagueDraftOrderResponse] = Body(...)):
+    user_id = decoded_token.get("user_id")
+    fantasy_league_service.update_fantasy_league_draft_order(
+        user_id, fantasy_league_id, updated_draft_order
+    )

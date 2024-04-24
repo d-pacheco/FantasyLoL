@@ -6,7 +6,6 @@ from sqlalchemy import Float
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
@@ -195,5 +194,4 @@ class FantasyLeagueDraftOrderModel(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint('fantasy_league_id', 'user_id'),
-        UniqueConstraint('fantasy_league_id', position),
     )
