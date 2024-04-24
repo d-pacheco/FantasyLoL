@@ -187,9 +187,12 @@ class FantasyLeagueService:
                 if db_model.user_id == updated_position.user_id), None
             )
             if db_draft_position is None:
-                raise Exception("Can't find user id???")  # This should never be hit if validation succeeds
+                # This should never be hit if validation succeeds
+                raise Exception("Can't find user id???")
 
-            crud.update_fantasy_league_draft_order_position(db_draft_position, updated_position.position)
+            crud.update_fantasy_league_draft_order_position(
+                db_draft_position, updated_position.position
+            )
 
 
 def validate_draft_order(
@@ -198,11 +201,11 @@ def validate_draft_order(
     member_ids = [draft_position.user_id for draft_position in current_draft_order]
 
     if len(updated_draft_order) != len(current_draft_order):
-        raise DraftOrderException("Draft order contains more or less players than are in the league")
+        raise DraftOrderException("Draft order contains more or less players than current draft")
 
     for draft_order in updated_draft_order:
         if draft_order.user_id not in member_ids:
-            raise DraftOrderException(f"User {draft_order.user_id} is not an active member of the league")
+            raise DraftOrderException(f"User {draft_order.user_id} is not in current draft")
 
     positions = [draft_position.position for draft_position in updated_draft_order]
     positions.sort()

@@ -6,7 +6,6 @@ from sqlalchemy import Float
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
