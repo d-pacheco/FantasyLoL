@@ -202,6 +202,9 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league.id, user_2.id, FantasyLeagueMembershipStatus.PENDING
         )
         create_draft_order_for_fantasy_league(fantasy_league.id, user_1.id, 1)
+        expected_user_1_draft_order = FantasyLeagueDraftOrder(
+            fantasy_league_id=fantasy_league.id, user_id=user_1.id, position=1
+        )
         expected_user_2_draft_order = FantasyLeagueDraftOrder(
             fantasy_league_id=fantasy_league.id, user_id=user_2.id, position=2
         )
@@ -219,7 +222,12 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(FantasyLeagueMembershipStatus.ACCEPTED, membership_from_db.status)
 
         draft_order_from_db = db_util.get_fantasy_league_draft_order(fantasy_league.id)
+        draft_order_from_db.sort(key=lambda x: x.position)
         self.assertEqual(2, len(draft_order_from_db))
+        self.assertEqual(
+            FantasyLeagueDraftOrder.model_validate(expected_user_1_draft_order),
+            FantasyLeagueDraftOrder.model_validate(draft_order_from_db[0])
+        )
         self.assertEqual(
             FantasyLeagueDraftOrder.model_validate(expected_user_2_draft_order),
             FantasyLeagueDraftOrder.model_validate(draft_order_from_db[1])
@@ -349,6 +357,7 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
 
         # Assert
         draft_order_from_db = db_util.get_fantasy_league_draft_order(fantasy_league.id)
+        draft_order_from_db.sort(key=lambda x: x.position)
         self.assertEqual(2, len(draft_order_from_db))
         self.assertEqual(
             FantasyLeagueDraftOrder.model_validate(user_1_draft_order),
