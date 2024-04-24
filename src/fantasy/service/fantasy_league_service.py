@@ -6,6 +6,7 @@ from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteExce
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
+from ..exceptions.draft_order_exception import DraftOrderException
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
@@ -165,6 +166,49 @@ class FantasyLeagueService:
             )
             draft_order_response.append(new_draft_order_response)
         return draft_order_response
+
+    @staticmethod
+    def update_fantasy_league_draft_order(
+            user_id: str,
+            league_id: str,
+            updated_draft_order: List[FantasyLeagueDraftOrderResponse]):
+        validate_league(user_id, league_id)
+
+        current_draft_order = []
+        current_draft_order_models = crud.get_fantasy_league_draft_order(league_id)
+        for draft_order_model in current_draft_order_models:
+            current_draft_order.append(FantasyLeagueDraftOrder.model_validate(draft_order_model))
+        validate_draft_order(current_draft_order, updated_draft_order)
+
+        for updated_position in updated_draft_order:
+            db_draft_position = next((
+                db_model
+                for db_model in current_draft_order_models
+                if db_model.user_id == updated_position.user_id), None
+            )
+            if db_draft_position is None:
+                raise Exception("Can't find user id???")  # This should never be hit if validation succeeds
+
+            crud.update_fantasy_league_draft_order_position(db_draft_position, updated_position.position)
+
+
+def validate_draft_order(
+        current_draft_order: List[FantasyLeagueDraftOrder],
+        updated_draft_order: List[FantasyLeagueDraftOrderResponse]):
+    member_ids = [draft_position.user_id for draft_position in current_draft_order]
+
+    if len(updated_draft_order) != len(current_draft_order):
+        raise DraftOrderException("Draft order contains more or less players than are in the league")
+
+    for draft_order in updated_draft_order:
+        if draft_order.user_id not in member_ids:
+            raise DraftOrderException(f"User {draft_order.user_id} is not an active member of the league")
+
+    positions = [draft_position.position for draft_position in updated_draft_order]
+    positions.sort()
+    expected_positions = list(range(1, len(current_draft_order) + 1))
+    if positions != expected_positions:
+        raise DraftOrderException("The positions given in the updated draft order are not valid")
 
 
 def update_draft_order_on_player_leave(user_id: str, league_id: str):

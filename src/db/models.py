@@ -195,5 +195,4 @@ class FantasyLeagueDraftOrderModel(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint('fantasy_league_id', 'user_id'),
-        UniqueConstraint('fantasy_league_id', position),
     )

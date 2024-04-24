@@ -16,6 +16,7 @@ from src.fantasy.exceptions.fantasy_league_invite_exception import FantasyLeague
 from src.fantasy.exceptions.forbidden_exception import ForbiddenException
 from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from src.fantasy.exceptions.user_not_found_exception import UserNotFoundException
+from src.fantasy.exceptions.draft_order_exception import DraftOrderException
 
 
 fantasy_league_service = FantasyLeagueService()
@@ -436,6 +437,187 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(ForbiddenException):
             fantasy_league_service.get_fantasy_league_draft_order("notOwner", fantasy_league.id)
+
+    def test_update_fantasy_league_draft_order_successful(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            1
+        )
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_2_fixture.id,
+            2
+        )
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=2
+            ),
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_2_fixture.id,
+                username=fantasy_fixtures.user_2_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act
+        fantasy_league_service.update_fantasy_league_draft_order(
+            fantasy_fixtures.user_fixture.id,
+            fantasy_fixtures.fantasy_league_fixture.id,
+            expected_updated_draft_order
+        )
+
+        # Assert
+        db_draft_order = db_util.get_fantasy_league_draft_order(fantasy_league.id)
+        self.assertEqual(2, len(db_draft_order))
+        for expected_updated_position in expected_updated_draft_order:
+            for db_position in db_draft_order:
+                if expected_updated_position.user_id == db_position.user_id:
+                    self.assertEqual(expected_updated_position.position, db_position.position)
+
+    def test_update_fantasy_league_draft_order_missing_members(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            1
+        )
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_2_fixture.id,
+            2
+        )
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Assert
+        with self.assertRaises(DraftOrderException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.fantasy_league_fixture.id,
+                expected_updated_draft_order
+            )
+
+    def test_update_fantasy_league_draft_order_bad_user_id(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            1
+        )
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_2_fixture.id,
+            2
+        )
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=2
+            ),
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_3_fixture.id,
+                username=fantasy_fixtures.user_3_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Assert
+        with self.assertRaises(DraftOrderException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.fantasy_league_fixture.id,
+                expected_updated_draft_order
+            )
+
+    def test_update_fantasy_league_draft_order_bad_position_order(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            1
+        )
+        create_draft_order_for_fantasy_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_2_fixture.id,
+            2
+        )
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=3
+            ),
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_2_fixture.id,
+                username=fantasy_fixtures.user_2_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Assert
+        with self.assertRaises(DraftOrderException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.fantasy_league_fixture.id,
+                expected_updated_draft_order
+            )
+
+    def test_update_fantasy_league_draft_order_no_existing_fantasy_league(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        db_util.create_user(user)
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Act
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.fantasy_league_fixture.id,
+                expected_updated_draft_order
+            )
+
+    def test_update_fantasy_league_draft_order_not_owner_of_league(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        expected_updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Act
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_2_fixture.id,
+                fantasy_fixtures.fantasy_league_fixture.id,
+                expected_updated_draft_order
+            )
 
 
 def create_fantasy_league_membership_for_league(
