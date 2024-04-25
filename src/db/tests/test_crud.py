@@ -1347,3 +1347,89 @@ class CrudTest(FantasyLolTestBase):
 
         # Assert
         self.assertIsNone(fantasy_league_model_from_db)
+
+    def test_create_fantasy_team(self):
+        # Arrange
+        fantasy_team = fantasy_fixtures.fantasy_team_week_1
+
+        # act
+        crud.create_or_update_fantasy_team(fantasy_team)
+
+        # Assert
+        fantasy_teams_from_db = db_util.get_all_fantasy_teams()
+        self.assertIsInstance(fantasy_teams_from_db, list)
+        self.assertEqual(1, len(fantasy_teams_from_db))
+        self.assertEqual(
+            fantasy_team,
+            fantasy_schemas.FantasyTeam.model_validate(fantasy_teams_from_db[0])
+        )
+
+    def test_update_fantasy_team(self):
+        # Arrange
+        fantasy_team = fantasy_fixtures.fantasy_team_week_1
+        crud.create_or_update_fantasy_team(fantasy_team)
+        modified_team = copy.deepcopy(fantasy_team)
+        modified_team.top_player_id = '1234'
+
+        # act
+        crud.create_or_update_fantasy_team(modified_team)
+
+        # Assert
+        fantasy_teams_from_db = db_util.get_all_fantasy_teams()
+        self.assertIsInstance(fantasy_teams_from_db, list)
+        self.assertEqual(1, len(fantasy_teams_from_db))
+        self.assertEqual(
+            modified_team,
+            fantasy_schemas.FantasyTeam.model_validate(fantasy_teams_from_db[0])
+        )
+
+    def test_get_all_fantasy_teams_for_user(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        user = fantasy_fixtures.user_fixture
+        fantasy_team_week_1 = fantasy_fixtures.fantasy_team_week_1
+        crud.create_or_update_fantasy_team(fantasy_team_week_1)
+        fantasy_team_week_2 = fantasy_fixtures.fantasy_team_week_2
+        crud.create_or_update_fantasy_team(fantasy_team_week_2)
+
+        # Act
+        fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(fantasy_league.id, user.id)
+
+        # Assert
+        self.assertIsInstance(fantasy_teams_from_db, list)
+        self.assertEqual(2, len(fantasy_teams_from_db))
+        fantasy_teams_from_db.sort(key=lambda x: x.week)
+        self.assertEqual(
+            fantasy_team_week_1,
+            fantasy_schemas.FantasyTeam.model_validate(fantasy_teams_from_db[0])
+        )
+        self.assertEqual(
+            fantasy_team_week_2,
+            fantasy_schemas.FantasyTeam.model_validate(fantasy_teams_from_db[1])
+        )
+
+    def test_get_all_fantasy_teams_for_user_bad_fantasy_league_id(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_team_week_1 = fantasy_fixtures.fantasy_team_week_1
+        crud.create_or_update_fantasy_team(fantasy_team_week_1)
+
+        # Act
+        fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user("badLeagueId", user.id)
+
+        # Assert
+        self.assertIsInstance(fantasy_teams_from_db, list)
+        self.assertEqual(0, len(fantasy_teams_from_db))
+
+    def test_get_all_fantasy_teams_for_user_bad_user_id(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        fantasy_team_week_1 = fantasy_fixtures.fantasy_team_week_1
+        crud.create_or_update_fantasy_team(fantasy_team_week_1)
+
+        # Act
+        fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(fantasy_league.id, "badUserId")
+
+        # Assert
+        self.assertIsInstance(fantasy_teams_from_db, list)
+        self.assertEqual(0, len(fantasy_teams_from_db))

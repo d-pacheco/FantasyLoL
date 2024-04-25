@@ -163,3 +163,8 @@ def save_player_stats(player_stats: schemas.PlayerGameStats):
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
+
+
+def get_all_fantasy_teams() -> List[models.FantasyTeamModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyTeamModel).all()

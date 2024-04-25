@@ -195,3 +195,20 @@ class FantasyLeagueDraftOrderModel(Base):
     __table_args__ = (
         PrimaryKeyConstraint('fantasy_league_id', 'user_id'),
     )
+
+
+class FantasyTeamModel(Base):
+    __tablename__ = "fantasy_teams"
+
+    fantasy_league_id = Column(String, primary_key=True, nullable=False)
+    user_id = Column(String, primary_key=True, nullable=False)
+    week = Column(Integer, primary_key=True, nullable=False)
+    top_player_id = Column(String, nullable=True)
+    jungle_player_id = Column(String, nullable=True)
+    mid_player_id = Column(String, nullable=True)
+    adc_player_id = Column(String, nullable=True)
+    support_player_id = Column(String, nullable=True)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('fantasy_league_id', 'user_id', 'week'),
+    )
