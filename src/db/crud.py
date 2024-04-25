@@ -439,3 +439,21 @@ def update_fantasy_league_draft_order_position(
         draft_order_model.position = new_position
         db.merge(draft_order_model)
         db.commit()
+
+
+# --------------------------------------------------
+# ------------ Fantasy Team Operations -------------
+# --------------------------------------------------
+def create_or_update_fantasy_team(fantasy_team: f_schemas.FantasyTeam):
+    db_fantasy_team = models.FantasyTeamModel(**fantasy_team.model_dump())
+    with DatabaseConnection() as db:
+        db.merge(db_fantasy_team)
+        db.commit()
+
+
+def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) \
+        -> List[models.FantasyTeamModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyTeamModel) \
+            .filter(models.FantasyTeamModel.fantasy_league_id == fantasy_league_id,
+                    models.FantasyTeamModel.user_id == user_id).all()
