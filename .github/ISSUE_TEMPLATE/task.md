@@ -2,7 +2,7 @@
 name: Task
 about: Create a task issue (a small piece of work)
 title: ''
-labels: Type:Task
+labels: type:task
 assignees: ''
 
 ---

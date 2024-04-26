@@ -2,7 +2,7 @@
 name: User Story
 about: Create a user story for a feature to be added
 title: ''
-labels: Type:Story
+labels: type:story
 assignees: ''
 
 ---
