@@ -157,6 +157,7 @@ class FantasyLeagueModel(Base):
     status = Column(Enum(FantasyLeagueStatus), nullable=False)
     name = Column(String)
     number_of_teams = Column(Integer)
+    current_week = Column(Integer, nullable=True)
 
 
 class FantasyLeagueMembershipModel(Base):
