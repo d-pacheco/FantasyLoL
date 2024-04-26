@@ -111,6 +111,7 @@ class FantasyLeague(FantasyLeagueSettings):
     id: str
     owner_id: str
     status: FantasyLeagueStatus
+    current_week: Optional[int] = None
 
 
 class FantasyLeagueMembershipStatus(str, Enum):
