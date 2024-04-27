@@ -409,6 +409,14 @@ def update_fantasy_league_membership_status(
         db.commit()
 
 
+def get_user_membership_for_fantasy_league(
+        user_id: str, fantasy_league_id: str) -> models.FantasyLeagueMembershipModel:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueMembershipModel) \
+            .filter(models.FantasyLeagueMembershipModel.league_id == fantasy_league_id,
+                    models.FantasyLeagueMembershipModel.user_id == user_id).first()
+
+
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------
@@ -457,3 +465,12 @@ def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) \
         return db.query(models.FantasyTeamModel) \
             .filter(models.FantasyTeamModel.fantasy_league_id == fantasy_league_id,
                     models.FantasyTeamModel.user_id == user_id).all()
+
+
+# Need to add a test for this:
+def get_all_fantasy_teams_for_current_week(fantasy_league_id: str, week: int) \
+        -> List[models.FantasyTeamModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyTeamModel) \
+            .filter(models.FantasyTeamModel.fantasy_league_id == fantasy_league_id,
+                    models.FantasyTeamModel.week == week).all()
