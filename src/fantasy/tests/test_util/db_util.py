@@ -3,7 +3,15 @@ from typing import List
 
 from src.db.database import DatabaseConnection
 from src.common.schemas import fantasy_schemas
+from src.common.schemas import riot_data_schemas as riot_schemas
 from src.db import models
+
+
+def create_professional_player(pro_player: riot_schemas.ProfessionalPlayer):
+    db_pro_player = models.ProfessionalPlayerModel(**pro_player.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_pro_player)
+        db.commit()
 
 
 def get_user_by_username(username: str) -> models.UserModel:
@@ -87,3 +95,10 @@ def get_fantasy_league_draft_order(league_id: str) -> List[models.FantasyLeagueD
         return db.query(models.FantasyLeagueDraftOrderModel) \
             .filter(models.FantasyLeagueDraftOrderModel.fantasy_league_id == league_id) \
             .all()
+
+
+def create_fantasy_team(fantasy_team: fantasy_schemas.FantasyTeam):
+    db_fantasy_team = models.FantasyTeamModel(**fantasy_team.model_dump())
+    with DatabaseConnection() as db:
+        db.add(db_fantasy_team)
+        db.commit()

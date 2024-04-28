@@ -1385,7 +1385,7 @@ class CrudTest(FantasyLolTestBase):
 
     def test_get_all_fantasy_teams_for_user(self):
         # Arrange
-        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
         user = fantasy_fixtures.user_fixture
         fantasy_team_week_1 = fantasy_fixtures.fantasy_team_week_1
         crud.create_or_update_fantasy_team(fantasy_team_week_1)

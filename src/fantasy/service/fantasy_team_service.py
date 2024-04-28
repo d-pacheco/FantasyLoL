@@ -6,6 +6,8 @@ from ...db.models import (
     ProfessionalPlayerModel
 )
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from ..exceptions.fantasy_membership_exception import FantasyMembershipException
+from ..exceptions.fantasy_draft_exception import FantasyDraftException
 from ...riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from ...common.schemas.fantasy_schemas import (
@@ -33,7 +35,9 @@ class FantasyTeamService:
         )
 
         if player_already_drafted(professional_player, fantasy_league):
-            raise Exception("Player already drafted in the current week")
+            raise FantasyDraftException(
+                f"Player ({professional_player.id}) is already drafted in the current week"
+            )
 
         crud.create_or_update_fantasy_team(current_fantasy_team)
         return current_fantasy_team
@@ -47,14 +51,19 @@ def validate_league(
         raise FantasyLeagueNotFoundException()
 
     if fantasy_league_model.status not in required_states:
-        raise Exception("League not in a required state")
+        raise FantasyDraftException(
+            f"Fantasy league ({fantasy_league_id}) is not in one of the required states: "
+            f"{required_states}"
+        )
     return fantasy_league_model
 
 
 def validate_user_membership(user_id: str, fantasy_league_id: str):
     user_membership = crud.get_user_membership_for_fantasy_league(user_id, fantasy_league_id)
     if user_membership is None or user_membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
-        raise Exception("User not apart of the fantasy league")
+        raise FantasyMembershipException(
+            f"User ({user_id}) is not apart of the fantasy league ({fantasy_league_id})"
+        )
 
 
 def get_player_from_db(player_id: str) -> ProfessionalPlayerModel:
@@ -73,7 +82,9 @@ def validate_user_can_draft_player_for_role(
         fantasy_teams_by_week.sort(key=lambda x: x.week)
         recent_fantasy_team = FantasyTeam.model_validate(fantasy_teams_by_week[-1])
         if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:
-            raise Exception("Slot not available")
+            raise FantasyDraftException(
+                f"Slot not available for role ({professional_player.role}) to draft new player"
+            )
     else:
         recent_fantasy_team = FantasyTeam(
             fantasy_league_id=fantasy_league.id,

@@ -12,6 +12,8 @@ from src.db.models import (
 )
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException
+from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
+from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
 from src.fantasy.service.fantasy_team_service import (
     validate_league,
     validate_user_membership,
@@ -73,7 +75,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
 
         # Act and Assert
-        with self.assertRaises(Exception):
+        with self.assertRaises(FantasyDraftException):
             validate_league(expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT])
 
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
@@ -89,7 +91,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         # Act and Assert
         try:
             validate_user_membership("someUserId", "someId")
-        except Exception:
+        except FantasyMembershipException:
             self.fail()
 
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
@@ -98,7 +100,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         mock_get_user_membership.return_value = None
 
         # Act and Assert
-        with self.assertRaises(Exception):
+        with self.assertRaises(FantasyMembershipException):
             validate_user_membership("someUserId", "someId")
 
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
@@ -112,7 +114,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         mock_get_user_membership.return_value = user_membership_model_active
 
         # Act and Assert
-        with self.assertRaises(Exception):
+        with self.assertRaises(FantasyMembershipException):
             validate_user_membership("someUserId", "someId")
 
     @patch(f'{BASE_CRUD_PATH}.get_player_by_id')
@@ -275,7 +277,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         ]
 
         # Act and Assert
-        with self.assertRaises(Exception):
+        with self.assertRaises(FantasyDraftException):
             validate_user_can_draft_player_for_role(
                 fantasy_league_model, user_id, pro_player_model_fixture
             )

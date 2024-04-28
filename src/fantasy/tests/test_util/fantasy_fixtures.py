@@ -75,7 +75,7 @@ fantasy_league_scoring_settings_fixture = fantasy_schemas.FantasyLeagueScoringSe
 )
 
 fantasy_team_week_1 = fantasy_schemas.FantasyTeam(
-    fantasy_league_id=fantasy_league_fixture.id,
+    fantasy_league_id=fantasy_league_active_fixture.id,
     user_id=user_fixture.id,
     week=1,
     top_player_id=None,
@@ -86,7 +86,7 @@ fantasy_team_week_1 = fantasy_schemas.FantasyTeam(
 )
 
 fantasy_team_week_2 = fantasy_schemas.FantasyTeam(
-    fantasy_league_id=fantasy_league_fixture.id,
+    fantasy_league_id=fantasy_league_active_fixture.id,
     user_id=user_fixture.id,
     week=2,
     top_player_id=None,
