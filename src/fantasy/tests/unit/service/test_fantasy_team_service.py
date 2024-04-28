@@ -19,7 +19,7 @@ from src.fantasy.service.fantasy_team_service import (
     validate_user_membership,
     get_player_from_db,
     player_already_drafted,
-    validate_user_can_draft_player_for_role
+    get_users_most_recent_fantasy_team
 )
 from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
@@ -239,48 +239,10 @@ class TestFantasyTeamService(FantasyLolTestBase):
         expected_fantasy_team = FantasyTeam.model_validate(user_week_2_fantasy_team)
 
         # Act
-        returned_fantasy_team = validate_user_can_draft_player_for_role(
-            fantasy_league_model, user_id, pro_player_model_fixture
-        )
+        returned_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league_model, user_id)
 
         # Assert
         self.assertEqual(expected_fantasy_team, returned_fantasy_team)
-
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_user')
-    def test_validate_user_can_draft_player_for_role_no_open_spot_available(
-            self, mock_get_all_fantasy_teams_for_user):
-        # Arrange
-        user_id = "someUserId"
-        fantasy_league_model = create_fantasy_league_model(FantasyLeagueStatus.ACTIVE, 2)
-        user_week_1_fantasy_team = FantasyTeamModel(
-            fantasy_league_id=fantasy_league_model.id,
-            user_id=user_id,
-            week=1,
-            top_player_id="some_top_id",
-            jungle_player_id="some_jungle_id",
-            mid_player_id="some_mid_id",
-            adc_player_id="some_adc_id",
-            support_player_id="some_support_id"
-        )
-        user_week_2_fantasy_team = FantasyTeamModel(
-            fantasy_league_id=fantasy_league_model.id,
-            user_id=user_id,
-            week=fantasy_league_model.current_week,
-            top_player_id="some_top2_id",
-            jungle_player_id="some_jungle2_id",
-            mid_player_id="some_mid2_id",
-            adc_player_id="some_adc2_id",
-            support_player_id="some_support2_id"
-        )
-        mock_get_all_fantasy_teams_for_user.return_value = [
-            user_week_1_fantasy_team, user_week_2_fantasy_team
-        ]
-
-        # Act and Assert
-        with self.assertRaises(FantasyDraftException):
-            validate_user_can_draft_player_for_role(
-                fantasy_league_model, user_id, pro_player_model_fixture
-            )
 
     @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_user')
     def test_validate_user_can_draft_player_no_fantasy_teams_yet_saved(
@@ -296,9 +258,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         )
 
         # Act
-        returned_fantasy_team = validate_user_can_draft_player_for_role(
-            fantasy_league_model, user_id, pro_player_model_fixture
-        )
+        returned_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league_model, user_id)
 
         # Assert
         self.assertEqual(expected_fantasy_team, returned_fantasy_team)

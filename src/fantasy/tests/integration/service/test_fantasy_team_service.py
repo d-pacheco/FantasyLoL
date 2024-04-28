@@ -126,6 +126,28 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
 
+    def test_draft_player_no_slot_available_to_draft_player_for_role(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_1_fantasy_team.jungle_player_id = "somePlayerId"
+        db_util.create_fantasy_team(user_1_fantasy_team)
+        db_util.create_professional_player(pro_player_fixture)
+
+        # Act and Assert
+        with self.assertRaises(FantasyDraftException):
+            fantasy_team_service.draft_player(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id
+            )
+
     def test_draft_player_player_already_drafted_exception(self):
         # Arrange
         db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
