@@ -43,6 +43,26 @@ class FantasyTeamService:
         crud.create_or_update_fantasy_team(recent_fantasy_team)
         return recent_fantasy_team
 
+    @staticmethod
+    def drop_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
+        fantasy_league = validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
+        )
+        validate_user_membership(user_id, fantasy_league_id)
+        professional_player = get_player_from_db(player_id)
+
+        recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
+        if recent_fantasy_team.get_player_id_for_role(professional_player.role) \
+                != professional_player.id:
+            raise FantasyDraftException(
+                f"Invalid drop player request: User {user_id} does not have player "
+                f"{professional_player.id} currently drafted in fantasy league {fantasy_league_id}"
+            )
+        recent_fantasy_team.set_player_id_for_role(None, professional_player.role)
+
+        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        return recent_fantasy_team
+
 
 def validate_league(
         fantasy_league_id: str,
