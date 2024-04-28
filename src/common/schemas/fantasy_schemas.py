@@ -147,8 +147,34 @@ class FantasyTeam(BaseModel):
     fantasy_league_id: str
     user_id: str
     week: int
-    top_player_id: Optional[str]
-    jungle_player_id: Optional[str]
-    mid_player_id: Optional[str]
-    adc_player_id: Optional[str]
-    support_player_id: Optional[str]
+    top_player_id: Optional[str] = None
+    jungle_player_id: Optional[str] = None
+    mid_player_id: Optional[str] = None
+    adc_player_id: Optional[str] = None
+    support_player_id: Optional[str] = None
+
+    def get_player_id_for_role(self, role: str) -> str:
+        role = role.lower()
+        if role == 'top':
+            return self.top_player_id
+        if role == 'jungle':
+            return self.jungle_player_id
+        if role == 'mid':
+            return self.mid_player_id
+        if role == 'adc':
+            return self.adc_player_id
+        if role == 'support':
+            return self.support_player_id
+
+    def set_player_id_for_role(self, player_id: str, role: str):
+        role = role.lower()
+        if role == 'top':
+            self.top_player_id = player_id
+        if role == 'jungle':
+            self.jungle_player_id = player_id
+        if role == 'mid':
+            self.mid_player_id = player_id
+        if role == 'adc':
+            self.adc_player_id = player_id
+        if role == 'support':
+            self.support_player_id = player_id
