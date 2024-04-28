@@ -21,16 +21,17 @@ class FantasyTeamService:
     @staticmethod
     def draft_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
         fantasy_league = validate_league(
-            fantasy_league_id,
-            [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
+            fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
         validate_user_membership(user_id, fantasy_league_id)
         professional_player = get_player_from_db(player_id)
 
-        current_fantasy_team = validate_user_can_draft_player_for_role(
-            fantasy_league, user_id, professional_player
-        )
-        current_fantasy_team.set_player_id_for_role(
+        recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
+        if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:
+            raise FantasyDraftException(
+                f"Slot not available for role ({professional_player.role}) to draft new player"
+            )
+        recent_fantasy_team.set_player_id_for_role(
             professional_player.id, professional_player.role
         )
 
@@ -39,8 +40,28 @@ class FantasyTeamService:
                 f"Player ({professional_player.id}) is already drafted in the current week"
             )
 
-        crud.create_or_update_fantasy_team(current_fantasy_team)
-        return current_fantasy_team
+        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        return recent_fantasy_team
+
+    @staticmethod
+    def drop_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
+        fantasy_league = validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
+        )
+        validate_user_membership(user_id, fantasy_league_id)
+        professional_player = get_player_from_db(player_id)
+
+        recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
+        if recent_fantasy_team.get_player_id_for_role(professional_player.role) \
+                != professional_player.id:
+            raise FantasyDraftException(
+                f"Invalid drop player request: User {user_id} does not have player "
+                f"{professional_player.id} currently drafted in fantasy league {fantasy_league_id}"
+            )
+        recent_fantasy_team.set_player_id_for_role(None, professional_player.role)
+
+        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        return recent_fantasy_team
 
 
 def validate_league(
@@ -73,18 +94,13 @@ def get_player_from_db(player_id: str) -> ProfessionalPlayerModel:
     return pro_player_model
 
 
-def validate_user_can_draft_player_for_role(
+def get_users_most_recent_fantasy_team(
         fantasy_league: FantasyLeagueModel,
-        user_id: str,
-        professional_player: ProfessionalPlayerModel) -> FantasyTeam:
+        user_id: str) -> FantasyTeam:
     fantasy_teams_by_week = crud.get_all_fantasy_teams_for_user(fantasy_league.id, user_id)
-    if len(fantasy_teams_by_week) > 1:
+    if len(fantasy_teams_by_week) != 0:
         fantasy_teams_by_week.sort(key=lambda x: x.week)
         recent_fantasy_team = FantasyTeam.model_validate(fantasy_teams_by_week[-1])
-        if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:
-            raise FantasyDraftException(
-                f"Slot not available for role ({professional_player.role}) to draft new player"
-            )
     else:
         recent_fantasy_team = FantasyTeam(
             fantasy_league_id=fantasy_league.id,

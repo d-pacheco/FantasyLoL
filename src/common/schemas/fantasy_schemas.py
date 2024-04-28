@@ -166,7 +166,7 @@ class FantasyTeam(BaseModel):
         if role == 'support':
             return self.support_player_id
 
-    def set_player_id_for_role(self, player_id: str, role: str):
+    def set_player_id_for_role(self, player_id: Optional[str], role: str):
         role = role.lower()
         if role == 'top':
             self.top_player_id = player_id
