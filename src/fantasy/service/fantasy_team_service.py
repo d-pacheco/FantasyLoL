@@ -63,6 +63,47 @@ class FantasyTeamService:
         crud.create_or_update_fantasy_team(recent_fantasy_team)
         return recent_fantasy_team
 
+    @staticmethod
+    def swap_players(
+            fantasy_league_id: str,
+            user_id: str,
+            player_to_drop_id: str,
+            player_to_pickup_id: str) -> FantasyTeam:
+        fantasy_league = validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
+        )
+        validate_user_membership(user_id, fantasy_league_id)
+        pro_player_to_drop = get_player_from_db(player_to_drop_id)
+        pro_player_to_pickup = get_player_from_db(player_to_pickup_id)
+
+        if pro_player_to_drop.role != pro_player_to_pickup.role:
+            raise FantasyDraftException(
+                f"Mismatching roles: Player to drop ({pro_player_to_drop.id}) does not have "
+                f"the same role ({pro_player_to_drop.role}) as the player to pick "
+                f"({pro_player_to_pickup.id}) with role {pro_player_to_pickup.role}"
+            )
+
+        recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
+        if recent_fantasy_team.get_player_id_for_role(pro_player_to_drop.role) \
+                != pro_player_to_drop.id:
+            raise FantasyDraftException(
+                f"Player not drafted: User {user_id} does not have player "
+                f"{pro_player_to_drop.id} currently drafted in fantasy league {fantasy_league_id}"
+            )
+
+        if player_already_drafted(pro_player_to_pickup, fantasy_league):
+            raise FantasyDraftException(
+                f"Player already drafted: Player ({pro_player_to_pickup.id}) is already drafted"
+                f" in the current week"
+            )
+
+        recent_fantasy_team.set_player_id_for_role(
+            pro_player_to_pickup.id, pro_player_to_pickup.role
+        )
+
+        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        return recent_fantasy_team
+
 
 def validate_league(
         fantasy_league_id: str,

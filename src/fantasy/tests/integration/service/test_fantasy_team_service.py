@@ -24,6 +24,22 @@ pro_player_fixture = ProfessionalPlayer(
     role=PlayerRole.JUNGLE
 )
 
+pro_player_2_fixture = ProfessionalPlayer(
+    id=str(uuid.uuid4()),
+    team_id=str(uuid.uuid4()),
+    summoner_name="summonerName2",
+    image="imageUrl2",
+    role=PlayerRole.JUNGLE
+)
+
+pro_player_3_fixture = ProfessionalPlayer(
+    id=str(uuid.uuid4()),
+    team_id=str(uuid.uuid4()),
+    summoner_name="summonerName2",
+    image="imageUrl2",
+    role=PlayerRole.MID
+)
+
 fantasy_team_service = FantasyTeamService()
 
 
@@ -252,6 +268,149 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id
             )
+
+    def test_swap_players_successful(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_2_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_1_fantasy_team.jungle_player_id = pro_player_fixture.id
+        db_util.create_fantasy_team(user_1_fantasy_team)
+
+        user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
+        user_2_fantasy_team.jungle_player_id = "someOtherJunglePlayerId"
+        db_util.create_fantasy_team(user_2_fantasy_team)
+
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+
+        expected_fantasy_team = deepcopy(user_1_fantasy_team)
+        expected_fantasy_team.jungle_player_id = pro_player_2_fixture.id
+
+        # Act
+        returned_fantasy_team = fantasy_team_service.swap_players(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            pro_player_fixture.id,
+            pro_player_2_fixture.id
+        )
+
+        # Assert
+        self.assertEqual(expected_fantasy_team, returned_fantasy_team)
+        user_1_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
+            fantasy_fixtures.fantasy_league_active_fixture.id, fantasy_fixtures.user_fixture.id
+        )
+        self.assertEqual(1, len(user_1_fantasy_teams_from_db))
+        self.assertEqual(
+            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
+        )
+        # Check that user 2's fantasy team didn't update
+        user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
+            fantasy_fixtures.fantasy_league_active_fixture.id, fantasy_fixtures.user_2_fixture.id
+        )
+        self.assertEqual(1, len(user_2_fantasy_teams_from_db))
+        self.assertEqual(
+            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
+        )
+
+    def test_swap_players_mismatched_player_roles_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_1_fantasy_team.jungle_player_id = pro_player_fixture.id
+        db_util.create_fantasy_team(user_1_fantasy_team)
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_3_fixture)
+
+        # Act and Assert
+        with self.assertRaises(FantasyDraftException) as context:
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                pro_player_3_fixture.id
+            )
+        self.assertIn("Mismatching roles", str(context.exception))
+
+    def test_swap_players_user_does_not_have_player_drafted_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_1_fantasy_team.jungle_player_id = "someOtherPlayerId"
+        db_util.create_fantasy_team(user_1_fantasy_team)
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+
+        # Act and Assert
+        with self.assertRaises(FantasyDraftException) as context:
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                pro_player_2_fixture.id
+            )
+        self.assertIn("Player not drafted", str(context.exception))
+
+    def test_swap_players_already_drafted_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_2_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_1_fantasy_team.jungle_player_id = pro_player_fixture.id
+        db_util.create_fantasy_team(user_1_fantasy_team)
+
+        user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
+        user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
+        user_2_fantasy_team.jungle_player_id = pro_player_2_fixture.id
+        db_util.create_fantasy_team(user_2_fantasy_team)
+
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+
+        # Act and Assert
+        with self.assertRaises(FantasyDraftException) as context:
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                pro_player_2_fixture.id
+            )
+        self.assertIn("Player already drafted", str(context.exception))
 
 
 def create_fantasy_league_membership_for_league(
