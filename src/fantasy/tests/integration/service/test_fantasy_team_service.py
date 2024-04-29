@@ -467,7 +467,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 pro_player_fixture.id
             )
 
-    def test_drop_player_fantasy_league_not_draft_or_active_state(self):
+    def test_drop_player_fantasy_league_not_active_state(self):
         # Arrange
         bad_states = [
             FantasyLeagueStatus.PRE_DRAFT,
@@ -674,6 +674,112 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 pro_player_2_fixture.id
             )
         self.assertIn("Player already drafted", str(context.exception))
+
+    def test_swap_players_fantasy_league_not_found_exception(self):
+        # Arrange
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_team_service.swap_players(
+                "badFantasyLeagueId",
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                pro_player_2_fixture.id
+            )
+
+    def test_swap_players_fantasy_league_not_active_state(self):
+        # Arrange
+        bad_states = [
+            FantasyLeagueStatus.PRE_DRAFT,
+            FantasyLeagueStatus.DRAFT,
+            FantasyLeagueStatus.COMPLETED,
+            FantasyLeagueStatus.DELETED
+        ]
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+
+        # Act and Assert
+        for bad_state in bad_states:
+            bad_fantasy_league = FantasyLeague(
+                id=str(uuid.uuid4()),
+                owner_id=fantasy_fixtures.user_fixture.id,
+                status=bad_state,
+                current_week=1
+            )
+            db_util.create_fantasy_league(bad_fantasy_league)
+            with self.assertRaises(FantasyDraftException) as context:
+                fantasy_team_service.swap_players(
+                    bad_fantasy_league.id,
+                    fantasy_fixtures.user_fixture.id,
+                    pro_player_fixture.id,
+                    pro_player_2_fixture.id
+                )
+            self.assertIn("Invalid fantasy league state", str(context.exception))
+
+    def test_swap_players_user_not_an_active_member_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_professional_player(pro_player_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.PENDING
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyMembershipException):
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                pro_player_2_fixture.id
+            )
+
+    def test_swap_players_professional_player_to_drop_not_found_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_professional_player(pro_player_2_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and Assert
+        with self.assertRaises(ProfessionalPlayerNotFoundException):
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                "badProPlayerId",
+                pro_player_2_fixture.id
+            )
+
+    def test_swap_players_professional_player_to_pickup_not_found_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_professional_player(pro_player_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and Assert
+        with self.assertRaises(ProfessionalPlayerNotFoundException):
+            fantasy_team_service.swap_players(
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                fantasy_fixtures.user_fixture.id,
+                pro_player_fixture.id,
+                "badProPlayerId"
+            )
 
 
 def create_fantasy_league_membership_for_league(
