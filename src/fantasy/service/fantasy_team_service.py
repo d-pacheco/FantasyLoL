@@ -19,6 +19,19 @@ from ...common.schemas.fantasy_schemas import (
 
 class FantasyTeamService:
     @staticmethod
+    def get_all_fantasy_team_weeks(fantasy_league_id: str, user_id: str) -> List[FantasyTeam]:
+        validate_league(
+            fantasy_league_id,
+            [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
+        )
+        validate_user_membership(user_id, fantasy_league_id)
+
+        fantasy_team_weeks = crud.get_all_fantasy_teams_for_user(fantasy_league_id, user_id)
+        fantasy_team_weeks.sort(key=lambda x: x.week)
+
+        return fantasy_team_weeks
+
+    @staticmethod
     def draft_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
         fantasy_league = validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
@@ -114,8 +127,8 @@ def validate_league(
 
     if fantasy_league_model.status not in required_states:
         raise FantasyDraftException(
-            f"Fantasy league ({fantasy_league_id}) is not in one of the required states: "
-            f"{required_states}"
+            f"Invalid fantasy league state: Fantasy league ({fantasy_league_id}) is not in one of "
+            f"the required states: {required_states}"
         )
     return fantasy_league_model
 
