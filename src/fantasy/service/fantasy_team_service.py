@@ -50,7 +50,8 @@ class FantasyTeamService:
 
         if player_already_drafted(professional_player, fantasy_league):
             raise FantasyDraftException(
-                f"Player ({professional_player.id}) is already drafted in the current week"
+                f"Player already drafted: Player ({professional_player.id}) is already drafted"
+                f" in the current week"
             )
 
         crud.create_or_update_fantasy_team(recent_fantasy_team)
