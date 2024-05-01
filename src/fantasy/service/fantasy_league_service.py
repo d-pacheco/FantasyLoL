@@ -2,12 +2,8 @@ import uuid
 from typing import List
 
 from ...db import crud
-from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
-from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from ..exceptions.forbidden_exception import ForbiddenException
-from ..exceptions.user_not_found_exception import UserNotFoundException
-from ..exceptions.draft_order_exception import DraftOrderException
-from src.common.schemas.fantasy_schemas import (
+
+from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueStatus,
@@ -17,6 +13,15 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse
 )
+
+from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
+from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from ..exceptions.forbidden_exception import ForbiddenException
+from ..exceptions.user_not_found_exception import UserNotFoundException
+from ..exceptions.draft_order_exception import DraftOrderException
+from ..util.fantasy_league_util import FantasyLeagueUtil
+
+fantasy_league_util = FantasyLeagueUtil()
 
 
 class FantasyLeagueService:
@@ -54,9 +59,7 @@ class FantasyLeagueService:
 
     @staticmethod
     def get_fantasy_league_settings(owner_id: str, league_id: str) -> FantasyLeagueSettings:
-        fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
-        if fantasy_league_model is None:
-            raise FantasyLeagueNotFoundException()
+        fantasy_league_model = fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
 
@@ -68,15 +71,23 @@ class FantasyLeagueService:
 
     @staticmethod
     def update_fantasy_league_settings(
-            owner_id: str, league_id: str,
-            league_settings: FantasyLeagueSettings) -> FantasyLeague:
-        validate_league(owner_id, league_id)
+            owner_id: str,
+            league_id: str,
+            league_settings: FantasyLeagueSettings) -> FantasyLeagueSettings:
+        fantasy_league_model = fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league_model.owner_id != owner_id:
+            raise ForbiddenException()
 
         updated_fantasy_league_model = crud.update_fantasy_league_settings(
             league_id, league_settings
         )
-        updated_fantasy_league = FantasyLeague.model_validate(updated_fantasy_league_model)
-        return updated_fantasy_league
+        updated_fantasy_league_settings = FantasyLeagueSettings(
+            name=updated_fantasy_league_model.name,
+            number_of_teams=updated_fantasy_league_model.number_of_teams
+        )
+        return updated_fantasy_league_settings
 
     @staticmethod
     def get_scoring_settings(owner_id: str, league_id: str) -> FantasyLeagueScoringSettings:

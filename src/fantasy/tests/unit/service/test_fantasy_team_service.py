@@ -10,12 +10,9 @@ from src.db.models import (
     FantasyLeagueMembershipModel,
     ProfessionalPlayerModel
 )
-from src.fantasy.exceptions.fantasy_league_not_found_exception import \
-    FantasyLeagueNotFoundException
+
 from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
 from src.fantasy.service.fantasy_team_service import (
-    validate_league,
     validate_user_membership,
     get_player_from_db,
     player_already_drafted,
@@ -42,58 +39,6 @@ pro_player_model_fixture = ProfessionalPlayerModel(
 
 
 class TestFantasyTeamService(FantasyLolTestBase):
-
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_successful(self, mock_get_fantasy_league_by_id):
-        # Arrange
-        expected_fantasy_league_model = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 1)
-        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
-
-        # Act
-        returned_fantasy_league_model = validate_league(
-            expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT]
-        )
-
-        # Assert
-        self.assertEqual(expected_fantasy_league_model, returned_fantasy_league_model)
-
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_league_not_found_exception(self, mock_get_fantasy_league_by_id):
-        # Arrange
-        mock_get_fantasy_league_by_id.return_value = None
-
-        # Act and Assert
-        with self.assertRaises(FantasyLeagueNotFoundException):
-            validate_league("someId", [FantasyLeagueStatus.DRAFT])
-
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_not_in_required_state(self, mock_get_fantasy_league_by_id):
-        # Arrange
-        expected_fantasy_league_model = create_fantasy_league_model(
-            FantasyLeagueStatus.PRE_DRAFT, 1
-        )
-        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
-
-        # Act and Assert
-        with self.assertRaises(FantasyDraftException):
-            validate_league(expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT])
-
-    @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
-    def test_validate_user_membership_successful(self, mock_get_user_membership):
-        # Arrange
-        user_membership_model_active = FantasyLeagueMembershipModel(
-            league_id="someId",
-            user_id="someUserId",
-            status=FantasyLeagueMembershipStatus.ACCEPTED
-        )
-        mock_get_user_membership.return_value = user_membership_model_active
-
-        # Act and Assert
-        try:
-            validate_user_membership("someUserId", "someId")
-        except FantasyMembershipException:
-            self.fail()
-
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
     def test_validate_user_membership_no_membership(self, mock_get_user_membership):
         # Arrange
