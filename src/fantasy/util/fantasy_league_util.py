@@ -6,7 +6,8 @@ from ...db import crud
 from ...db.models import FantasyLeagueModel
 
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from ..exceptions.fantasy_draft_exception import FantasyDraftException
+from ..exceptions.fantasy_league_invalid_required_state_exception import \
+    FantasyLeagueInvalidRequiredStateException
 
 
 class FantasyLeagueUtil:
@@ -22,8 +23,7 @@ class FantasyLeagueUtil:
             return fantasy_league_model
 
         if fantasy_league_model.status not in required_states:
-            raise FantasyDraftException(
-                f"Invalid fantasy league state: Fantasy league ({fantasy_league_id}) is not in "
-                f"one of the required states: {required_states}"
+            raise FantasyLeagueInvalidRequiredStateException(
+                fantasy_league_id, fantasy_league_model.status, required_states
             )
         return fantasy_league_model
