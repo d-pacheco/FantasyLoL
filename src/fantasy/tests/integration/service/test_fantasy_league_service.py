@@ -19,7 +19,8 @@ from src.fantasy.exceptions.forbidden_exception import ForbiddenException
 from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from src.fantasy.exceptions.user_not_found_exception import UserNotFoundException
 from src.fantasy.exceptions.draft_order_exception import DraftOrderException
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
+from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
+    FantasyLeagueInvalidRequiredStateException
 
 fantasy_league_service = FantasyLeagueService()
 
@@ -170,7 +171,7 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         updated_fantasy_league_settings.name = "updatedFantasyLeague"
 
         # Act and Assert
-        with self.assertRaises(FantasyDraftException):
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
             fantasy_league_service.update_fantasy_league_settings(
                 fantasy_fixtures.user_fixture.id,
                 fantasy_fixtures.fantasy_league_active_fixture.id,

@@ -9,7 +9,8 @@ from src.db.models import (
 )
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
+from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
+    FantasyLeagueInvalidRequiredStateException
 from src.fantasy.util.fantasy_league_util import FantasyLeagueUtil
 from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus
@@ -53,7 +54,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
         mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
 
         # Act and Assert
-        with self.assertRaises(FantasyDraftException):
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
             fantasy_league_util.validate_league(
                 expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT]
             )

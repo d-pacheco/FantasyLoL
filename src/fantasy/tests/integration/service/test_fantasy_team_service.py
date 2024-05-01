@@ -18,6 +18,8 @@ from src.db import crud
 from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException
+from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
+    FantasyLeagueInvalidRequiredStateException
 from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
 from src.fantasy.service.fantasy_team_service import FantasyTeamService
 
@@ -113,12 +115,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
 
         # Act and Assert
-        with self.assertRaises(FantasyDraftException) as context:
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
             fantasy_team_service.get_all_fantasy_team_weeks(
                 fantasy_fixtures.fantasy_league_fixture.id,
                 fantasy_fixtures.user_fixture.id
             )
-        self.assertIn("Invalid fantasy league state", str(context.exception))
 
     def test_get_all_fantasy_team_weeks_user_not_an_active_member(self):
         # Arrange
@@ -333,13 +334,12 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 current_week=1
             )
             db_util.create_fantasy_league(bad_fantasy_league)
-            with self.assertRaises(FantasyDraftException) as context:
+            with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.draft_player(
                     bad_fantasy_league.id,
                     fantasy_fixtures.user_fixture.id,
                     pro_player_fixture.id
                 )
-            self.assertIn("Invalid fantasy league state", str(context.exception))
 
     def test_draft_player_user_not_an_active_member_exception(self):
         # Arrange
@@ -487,13 +487,12 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 current_week=1
             )
             db_util.create_fantasy_league(bad_fantasy_league)
-            with self.assertRaises(FantasyDraftException) as context:
+            with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.drop_player(
                     bad_fantasy_league.id,
                     fantasy_fixtures.user_fixture.id,
                     pro_player_fixture.id
                 )
-            self.assertIn("Invalid fantasy league state", str(context.exception))
 
     def test_drop_player_user_not_an_active_member_exception(self):
         # Arrange
@@ -711,14 +710,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 current_week=1
             )
             db_util.create_fantasy_league(bad_fantasy_league)
-            with self.assertRaises(FantasyDraftException) as context:
+            with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.swap_players(
                     bad_fantasy_league.id,
                     fantasy_fixtures.user_fixture.id,
                     pro_player_fixture.id,
                     pro_player_2_fixture.id
                 )
-            self.assertIn("Invalid fantasy league state", str(context.exception))
 
     def test_swap_players_user_not_an_active_member_exception(self):
         # Arrange
