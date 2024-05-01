@@ -5,22 +5,26 @@ from ...db.models import (
     FantasyLeagueModel,
     ProfessionalPlayerModel
 )
-from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from ..exceptions.fantasy_membership_exception import FantasyMembershipException
 from ..exceptions.fantasy_draft_exception import FantasyDraftException
+from ..util.fantasy_league_util import FantasyLeagueUtil
+
 from ...riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
+
 from ...common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyTeam
 )
 
+fantasy_league_util = FantasyLeagueUtil()
+
 
 class FantasyTeamService:
     @staticmethod
     def get_all_fantasy_team_weeks(fantasy_league_id: str, user_id: str) -> List[FantasyTeam]:
-        validate_league(
+        fantasy_league_util.validate_league(
             fantasy_league_id,
             [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
         )
@@ -33,7 +37,7 @@ class FantasyTeamService:
 
     @staticmethod
     def draft_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
-        fantasy_league = validate_league(
+        fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
         validate_user_membership(user_id, fantasy_league_id)
@@ -59,7 +63,7 @@ class FantasyTeamService:
 
     @staticmethod
     def drop_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
-        fantasy_league = validate_league(
+        fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
         validate_user_membership(user_id, fantasy_league_id)
@@ -83,7 +87,7 @@ class FantasyTeamService:
             user_id: str,
             player_to_drop_id: str,
             player_to_pickup_id: str) -> FantasyTeam:
-        fantasy_league = validate_league(
+        fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
         validate_user_membership(user_id, fantasy_league_id)
@@ -117,21 +121,6 @@ class FantasyTeamService:
 
         crud.create_or_update_fantasy_team(recent_fantasy_team)
         return recent_fantasy_team
-
-
-def validate_league(
-        fantasy_league_id: str,
-        required_states: List[FantasyLeagueStatus]) -> FantasyLeagueModel:
-    fantasy_league_model = crud.get_fantasy_league_by_id(fantasy_league_id)
-    if fantasy_league_model is None:
-        raise FantasyLeagueNotFoundException()
-
-    if fantasy_league_model.status not in required_states:
-        raise FantasyDraftException(
-            f"Invalid fantasy league state: Fantasy league ({fantasy_league_id}) is not in one of "
-            f"the required states: {required_states}"
-        )
-    return fantasy_league_model
 
 
 def validate_user_membership(user_id: str, fantasy_league_id: str):

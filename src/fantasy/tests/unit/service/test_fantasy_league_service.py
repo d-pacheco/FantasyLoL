@@ -127,27 +127,27 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         owner_id = fantasy_league.owner_id
         league_id = fantasy_league.id
 
-        updated_league_settings = FantasyLeagueSettings(
+        expected_updated_league_settings = FantasyLeagueSettings(
             name="Update fantasy league",
             number_of_teams=10
         )
         expected_updated_league = copy.deepcopy(fantasy_league)
-        expected_updated_league.name = updated_league_settings.name
-        expected_updated_league.number_of_teams = updated_league_settings.number_of_teams
+        expected_updated_league.name = expected_updated_league_settings.name
+        expected_updated_league.number_of_teams = expected_updated_league_settings.number_of_teams
         mock_update_fantasy_league_settings.return_value = expected_updated_league
 
         fantasy_league_service = FantasyLeagueService()
 
         # Act
-        updated_league = fantasy_league_service.update_fantasy_league_settings(
-            owner_id, league_id, updated_league_settings
+        updated_fantasy_league_settings = fantasy_league_service.update_fantasy_league_settings(
+            owner_id, league_id, expected_updated_league_settings
         )
 
         # Assert
-        self.assertEqual(expected_updated_league, updated_league)
+        self.assertEqual(expected_updated_league_settings, updated_fantasy_league_settings)
         mock_get_fantasy_league_by_id.assert_called_once_with(league_id)
         mock_update_fantasy_league_settings.assert_called_once_with(
-            league_id, updated_league_settings
+            league_id, expected_updated_league_settings
         )
 
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
