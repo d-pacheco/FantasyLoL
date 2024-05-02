@@ -16,6 +16,7 @@ from ...common.schemas.fantasy_schemas import (
 
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from ..exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..exceptions.draft_order_exception import DraftOrderException
@@ -73,15 +74,26 @@ class FantasyLeagueService:
     def update_fantasy_league_settings(
             owner_id: str,
             league_id: str,
-            league_settings: FantasyLeagueSettings) -> FantasyLeagueSettings:
+            updated_league_settings: FantasyLeagueSettings) -> FantasyLeagueSettings:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
 
+        fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
+        accepted_member_count = 0
+        for member in fantasy_league_members:
+            if member.status == FantasyLeagueMembershipStatus.ACCEPTED:
+                accepted_member_count += 1
+        if updated_league_settings.number_of_teams < accepted_member_count:
+            raise FantasyLeagueSettingsException(
+                f"Can not reduce number of teams to be less than the current number of active"
+                f"members inside of the fantasy league ({accepted_member_count})"
+            )
+
         updated_fantasy_league_model = crud.update_fantasy_league_settings(
-            league_id, league_settings
+            league_id, updated_league_settings
         )
         updated_fantasy_league_settings = FantasyLeagueSettings(
             name=updated_fantasy_league_model.name,

@@ -21,6 +21,7 @@ from src.fantasy.exceptions.user_not_found_exception import UserNotFoundExceptio
 from src.fantasy.exceptions.draft_order_exception import DraftOrderException
 from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
     FantasyLeagueInvalidRequiredStateException
+from src.fantasy.exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
 
 fantasy_league_service = FantasyLeagueService()
 
@@ -175,6 +176,26 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league_service.update_fantasy_league_settings(
                 fantasy_fixtures.user_fixture.id,
                 fantasy_fixtures.fantasy_league_active_fixture.id,
+                updated_fantasy_league_settings
+            )
+
+    def test_update_fantasy_league_settings_num_teams_less_than_active_member_count(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        for _ in range(fantasy_league.number_of_teams):
+            new_user_id = str(uuid.uuid4())
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, new_user_id, FantasyLeagueMembershipStatus.ACCEPTED
+            )
+        updated_fantasy_league_settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        updated_fantasy_league_settings.number_of_teams = 4
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueSettingsException):
+            fantasy_league_service.update_fantasy_league_settings(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_league.id,
                 updated_fantasy_league_settings
             )
 
