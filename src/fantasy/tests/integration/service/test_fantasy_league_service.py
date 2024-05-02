@@ -528,6 +528,19 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(FantasyLeagueInviteException):
             fantasy_league_service.leave_fantasy_league(user_2.id, fantasy_league.id)
 
+    def test_leave_fantasy_league_outside_of_pre_draft_state_exception(self):
+        # Arrange
+        user_2 = fantasy_fixtures.user_2_fixture
+        active_fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
+        db_util.create_fantasy_league(active_fantasy_league)
+        create_fantasy_league_membership_for_league(
+            active_fantasy_league.id, user_2.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.leave_fantasy_league(user_2.id, active_fantasy_league.id)
+
     def test_get_fantasy_league_draft_order_successful(self):
         # Arrange
         user_1 = fantasy_fixtures.user_fixture
