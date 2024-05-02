@@ -427,6 +427,19 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league_service.join_fantasy_league(user_2.id, fantasy_league.id)
         self.assertIn("Fantasy league is full", str(context.exception))
 
+    def test_join_fantasy_league_not_in_pre_draft_state(self):
+        # Arrange
+        user_2 = fantasy_fixtures.user_2_fixture
+        active_fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
+        db_util.create_fantasy_league(active_fantasy_league)
+        create_fantasy_league_membership_for_league(
+            active_fantasy_league.id, user_2.id, FantasyLeagueMembershipStatus.PENDING
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.join_fantasy_league(user_2.id, active_fantasy_league.id)
+
     def test_leave_fantasy_league_successful(self):
         # Arrange
         user_2 = fantasy_fixtures.user_2_fixture
