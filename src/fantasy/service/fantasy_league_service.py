@@ -145,11 +145,11 @@ class FantasyLeagueService:
 
     @staticmethod
     def leave_fantasy_league(user_id: str, league_id: str):
-        fantasy_league = crud.get_fantasy_league_by_id(league_id)
-        if fantasy_league is None:
-            raise FantasyLeagueNotFoundException()
+        fantasy_league_model = fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
 
-        if fantasy_league.owner_id == user_id:
+        if fantasy_league_model.owner_id == user_id:
             raise FantasyLeagueInviteException("Cannot leave a fantasy league that you own")
 
         fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
