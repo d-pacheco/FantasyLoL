@@ -1,21 +1,22 @@
-import logging
 import atexit
 from datetime import datetime
+import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
-from src.riot.exceptions.JobConfigException import JobConfigException
-from src.riot.service.riot_league_service import RiotLeagueService
-from src.riot.service.riot_tournament_service import RiotTournamentService
-from src.riot.service.riot_professional_team_service import RiotProfessionalTeamService
-from src.riot.service.riot_professional_player_service import RiotProfessionalPlayerService
-from src.riot.service.riot_match_service import RiotMatchService
-from src.riot.service.riot_game_service import RiotGameService
-from src.riot.service.riot_game_stats_service import RiotGameStatsService
-from src.common.config import Config
+from ...common.config import Config
+
+from ..exceptions.JobConfigException import JobConfigException
+from ..service.riot_league_service import RiotLeagueService
+from ..service.riot_tournament_service import RiotTournamentService
+from ..service.riot_professional_team_service import RiotProfessionalTeamService
+from ..service.riot_professional_player_service import RiotProfessionalPlayerService
+from ..service.riot_match_service import RiotMatchService
+from ..service.riot_game_service import RiotGameService
+from ..service.riot_game_stats_service import RiotGameStatsService
 
 logger = logging.getLogger('fantasy-lol')
 

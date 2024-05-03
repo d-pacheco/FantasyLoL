@@ -5,18 +5,20 @@ from ...db.models import (
     FantasyLeagueModel,
     ProfessionalPlayerModel
 )
-from ..exceptions.fantasy_membership_exception import FantasyMembershipException
-from ..exceptions.fantasy_draft_exception import FantasyDraftException
-from ..util.fantasy_league_util import FantasyLeagueUtil
-
-from ...riot.exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
 
 from ...common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyTeam
 )
+
+from ...riot.exceptions.professional_player_not_found_exception import \
+    ProfessionalPlayerNotFoundException
+
+from ..exceptions.fantasy_membership_exception import FantasyMembershipException
+from ..exceptions.fantasy_draft_exception import FantasyDraftException
+from ..util.fantasy_league_util import FantasyLeagueUtil
+
 
 fantasy_league_util = FantasyLeagueUtil()
 

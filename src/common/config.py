@@ -4,7 +4,8 @@ import sys
 import secrets
 from dotenv import load_dotenv
 from typing import get_type_hints
-from src.common.exceptions.AppConfigException import AppConfigException
+
+from .exceptions.AppConfigException import AppConfigException
 
 load_dotenv()
 

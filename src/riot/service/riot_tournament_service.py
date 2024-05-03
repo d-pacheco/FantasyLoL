@@ -2,14 +2,16 @@ import logging
 from datetime import datetime
 from typing import List
 
-from src.db import crud
-from src.db.models import TournamentModel
-from src.common.schemas.riot_data_schemas import Tournament
-from src.riot.exceptions.tournament_not_found_exception import TournamentNotFoundException
-from src.riot.util.riot_api_requester import RiotApiRequester
-from src.riot.util.job_runner import JobRunner
-from src.common.schemas.riot_data_schemas import TournamentStatus
-from src.common.schemas.search_parameters import TournamentSearchParameters
+from ...common.schemas.riot_data_schemas import Tournament
+from ...common.schemas.riot_data_schemas import TournamentStatus
+from ...common.schemas.search_parameters import TournamentSearchParameters
+
+from ...db import crud
+from ...db.models import TournamentModel
+
+from ..exceptions.tournament_not_found_exception import TournamentNotFoundException
+from ..util.riot_api_requester import RiotApiRequester
+from ..util.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

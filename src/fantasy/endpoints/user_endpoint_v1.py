@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Body
 
-from src.common.schemas.fantasy_schemas import UserCreate, UserLogin
-from src.fantasy.service.fantasy_user_service import UserService
+from ...common.schemas.fantasy_schemas import UserCreate, UserLogin
+
+from ..service.fantasy_user_service import UserService
 
 
 VERSION = "v1"

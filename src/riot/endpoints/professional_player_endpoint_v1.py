@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from src.riot.service.riot_professional_player_service import RiotProfessionalPlayerService
-from src.common.schemas.riot_data_schemas import ProfessionalPlayer
-from src.common.schemas.search_parameters import PlayerSearchParameters
-from src.common.schemas.riot_data_schemas import PlayerRole
+from ...common.schemas.riot_data_schemas import ProfessionalPlayer
+from ...common.schemas.search_parameters import PlayerSearchParameters
+from ...common.schemas.riot_data_schemas import PlayerRole
+
+from ..service.riot_professional_player_service import RiotProfessionalPlayerService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

@@ -1,15 +1,15 @@
-import logging
 import cloudscraper
 from http import HTTPStatus
+import logging
 
 import pydantic
 from requests import Response
 from typing import List
 
-from src.common.schemas import riot_data_schemas as schemas
-from src.common.config import Config
-from src.riot.exceptions.riot_api_status_code_assert_exception import \
-    RiotApiStatusCodeAssertException
+from ...common.schemas import riot_data_schemas as schemas
+from ...common.config import Config
+
+from ..exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
 
 logger = logging.getLogger('fantasy-lol')
 

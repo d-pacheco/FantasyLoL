@@ -2,9 +2,10 @@ import logging
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from src.riot.service.riot_game_stats_service import RiotGameStatsService
-from src.common.schemas.riot_data_schemas import PlayerGameData
-from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
+from ...common.schemas.riot_data_schemas import PlayerGameData
+from ...common.schemas.search_parameters import PlayerGameStatsSearchParameters
+
+from ..service.riot_game_stats_service import RiotGameStatsService
 
 
 VERSION = "v1"

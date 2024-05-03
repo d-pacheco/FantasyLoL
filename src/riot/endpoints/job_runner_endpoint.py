@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter
 
-from src.riot.util.job_scheduler import JobScheduler
+from ..util.job_scheduler import JobScheduler
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/jobs/{VERSION}")
