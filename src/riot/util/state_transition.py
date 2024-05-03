@@ -1,8 +1,11 @@
 from sqlalchemy import event
-from src.db import models
-from src.common.schemas.riot_data_schemas import GameState
-from src.riot.service.riot_game_stats_service import RiotGameStatsService
 import logging
+
+from ...common.schemas.riot_data_schemas import GameState
+
+from ...db import models
+
+from ..service.riot_game_stats_service import RiotGameStatsService
 
 logger = logging.getLogger('fantasy-lol')
 

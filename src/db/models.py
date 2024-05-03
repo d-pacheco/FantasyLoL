@@ -9,10 +9,10 @@ from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
-from src.common.schemas.riot_data_schemas import GameState
-from src.common.schemas.riot_data_schemas import PlayerRole
-from src.common.schemas.fantasy_schemas import FantasyLeagueStatus
-from src.common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
+from ..common.schemas.riot_data_schemas import GameState
+from ..common.schemas.riot_data_schemas import PlayerRole
+from ..common.schemas.fantasy_schemas import FantasyLeagueStatus
+from ..common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
 
 
 Base = declarative_base()

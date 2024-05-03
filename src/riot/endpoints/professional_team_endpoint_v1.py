@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from src.riot.service.riot_professional_team_service import RiotProfessionalTeamService
-from src.common.schemas.riot_data_schemas import ProfessionalTeam
-from src.common.schemas.search_parameters import TeamSearchParameters
+from ...common.schemas.riot_data_schemas import ProfessionalTeam
+from ...common.schemas.search_parameters import TeamSearchParameters
+
+from ..service.riot_professional_team_service import RiotProfessionalTeamService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

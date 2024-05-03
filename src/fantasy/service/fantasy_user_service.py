@@ -1,12 +1,15 @@
 import uuid
 import bcrypt
 
-from src.auth.auth_handler import sign_jwt
+from ...auth.auth_handler import sign_jwt
+
+from ...common.schemas.fantasy_schemas import UserCreate, User, UserLogin
+
 from ...db import crud
+
 from ..exceptions.user_already_exists_exception import UserAlreadyExistsException
 from ..exceptions.invalid_username_password_exception import\
     InvalidUsernameOrPasswordException
-from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin
 
 
 class UserService:

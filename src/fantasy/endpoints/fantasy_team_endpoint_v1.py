@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends
 from typing import List
 
-from src.auth.auth_bearer import JWTBearer
-from src.common.schemas.fantasy_schemas import FantasyTeam
-from src.fantasy.service.fantasy_team_service import FantasyTeamService
+from ...auth.auth_bearer import JWTBearer
+
+from ...common.schemas.fantasy_schemas import FantasyTeam
+
+from ..service.fantasy_team_service import FantasyTeamService
 
 
 VERSION = "v1"

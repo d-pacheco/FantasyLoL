@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Body, Depends
 from typing import List
 
-from src.auth.auth_bearer import JWTBearer
-from src.common.schemas.fantasy_schemas import (
+from ...auth.auth_bearer import JWTBearer
+
+from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrderResponse
 )
-from src.fantasy.service.fantasy_league_service import FantasyLeagueService
+
+from ..service.fantasy_league_service import FantasyLeagueService
 
 
 VERSION = "v1"

@@ -1,14 +1,15 @@
 import logging
 from typing import List
 
-from src.db import crud
-from src.db.models import MatchModel
-from src.db.models import Schedule
-from src.riot.exceptions.match_not_found_exception import MatchNotFoundException
-from src.common.schemas.riot_data_schemas import Match
-from src.common.schemas.search_parameters import MatchSearchParameters
-from src.riot.util.riot_api_requester import RiotApiRequester
-from src.riot.util.job_runner import JobRunner
+from ...common.schemas.riot_data_schemas import Match
+from ...common.schemas.search_parameters import MatchSearchParameters
+
+from ...db import crud
+from ...db.models import MatchModel, Schedule
+
+from ..exceptions.match_not_found_exception import MatchNotFoundException
+from ..util.riot_api_requester import RiotApiRequester
+from ..util.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

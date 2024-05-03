@@ -1,4 +1,4 @@
-from src.common.exceptions.fantasy_lol_exception import FantasyLolException
+from ...common.exceptions.fantasy_lol_exception import FantasyLolException
 
 
 class RiotApiStatusCodeAssertException(FantasyLolException):

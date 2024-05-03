@@ -2,7 +2,7 @@ from sqlalchemy import Column, Enum, Integer, String, PrimaryKeyConstraint
 from sqlalchemy import text
 from sqlalchemy.ext.declarative import declarative_base
 
-from src.common.schemas.riot_data_schemas import PlayerRole
+from ..common.schemas.riot_data_schemas import PlayerRole
 
 Base = declarative_base()
 

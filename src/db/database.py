@@ -2,9 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 
-from src.db import views
-from src.db import models
-from src.common.config import Config
+from . import views
+from . import models
+from ..common.config import Config
 
 Path("./database/").mkdir(parents=True, exist_ok=True)
 PRODUCTION_DATABASE_URL = Config.DATABASE_URL

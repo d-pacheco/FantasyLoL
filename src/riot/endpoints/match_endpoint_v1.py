@@ -2,9 +2,10 @@ import logging
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from src.riot.service.riot_match_service import RiotMatchService
-from src.common.schemas.riot_data_schemas import Match
-from src.common.schemas.search_parameters import MatchSearchParameters
+from ...common.schemas.riot_data_schemas import Match
+from ...common.schemas.search_parameters import MatchSearchParameters
+
+from ..service.riot_match_service import RiotMatchService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
