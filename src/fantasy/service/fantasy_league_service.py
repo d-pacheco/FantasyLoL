@@ -109,8 +109,12 @@ class FantasyLeagueService:
 
     @staticmethod
     def send_fantasy_league_invite(owner_id: str, league_id: str, username: str):
-        validate_league(owner_id, league_id)
-        fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
+        fantasy_league_model = fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league_model.owner_id != owner_id:
+            raise ForbiddenException()
+
         pending_and_active_members = crud.get_pending_and_accepted_members_for_league(league_id)
         if len(pending_and_active_members) >= fantasy_league_model.number_of_teams:
             raise FantasyLeagueInviteException("Invite exceeds maximum players for the league")

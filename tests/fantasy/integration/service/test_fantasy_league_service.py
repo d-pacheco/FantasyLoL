@@ -288,6 +288,21 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
                 user.id, "badLeagueId", user_2.username
             )
 
+    def test_send_fantasy_league_invite_outside_of_pre_draft_status_exception(self):
+        # Arrange
+        user_1 = fantasy_fixtures.user_fixture
+        user_2 = fantasy_fixtures.user_2_fixture
+        active_fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
+        db_util.create_user(user_1)
+        db_util.create_user(user_2)
+        db_util.create_fantasy_league(active_fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.send_fantasy_league_invite(
+                user_1.id, active_fantasy_league.id, user_2.username
+            )
+
     def test_send_fantasy_league_invite_to_non_existing_user(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
