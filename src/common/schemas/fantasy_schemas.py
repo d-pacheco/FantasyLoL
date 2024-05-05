@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
+from typing import Optional, List
 
 
 class UserCreate(BaseModel):
@@ -125,6 +125,13 @@ class FantasyLeagueMembership(BaseModel):
     league_id: str
     user_id: str
     status: FantasyLeagueMembershipStatus
+
+
+class UsersFantasyLeagues(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    pending: List[FantasyLeague]
+    accepted: List[FantasyLeague]
 
 
 class FantasyLeagueDraftOrder(BaseModel):

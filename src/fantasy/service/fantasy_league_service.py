@@ -9,6 +9,7 @@ from ...common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
+    UsersFantasyLeagues,
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse
@@ -108,6 +109,20 @@ class FantasyLeagueService:
             raise ForbiddenException()
         scoring_settings_model = crud.get_fantasy_league_scoring_settings_by_id(league_id)
         return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
+
+    @staticmethod
+    def get_users_pending_and_accepted_fantasy_leagues(user_id: str) -> UsersFantasyLeagues:
+        pending_fantasy_leagues = crud.get_users_fantasy_leagues_with_membership_status(
+            user_id, FantasyLeagueMembershipStatus.PENDING
+        )
+        accepted_fantasy_leagues = crud.get_users_fantasy_leagues_with_membership_status(
+            user_id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        users_fantasy_leagues = UsersFantasyLeagues(
+            pending=pending_fantasy_leagues,
+            accepted=accepted_fantasy_leagues
+        )
+        return users_fantasy_leagues
 
     @staticmethod
     def send_fantasy_league_invite(owner_id: str, league_id: str, username: str):

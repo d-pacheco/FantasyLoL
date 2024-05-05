@@ -417,6 +417,20 @@ def get_user_membership_for_fantasy_league(
                     models.FantasyLeagueMembershipModel.user_id == user_id).first()
 
 
+def get_users_fantasy_leagues_with_membership_status(
+        user_id: str,
+        membership_status: f_schemas.FantasyLeagueMembershipStatus) \
+            -> List[models.FantasyLeagueModel]:
+    with DatabaseConnection() as db:
+        return db.query(models.FantasyLeagueModel) \
+            .join(models.FantasyLeagueMembershipModel,
+                  models.FantasyLeagueModel.id == models.FantasyLeagueMembershipModel.league_id) \
+            .filter(and_(
+                models.FantasyLeagueMembershipModel.user_id == user_id,
+                models.FantasyLeagueMembershipModel.status == membership_status
+            )).all()
+
+
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------
