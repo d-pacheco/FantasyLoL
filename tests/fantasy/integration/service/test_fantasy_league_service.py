@@ -798,6 +798,25 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
                 expected_updated_draft_order
             )
 
+    def test_update_fantasy_league_draft_order_not_in_pre_draft_exception(self):
+        # Arrange
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        updated_draft_order = [
+            FantasyLeagueDraftOrderResponse(
+                user_id=fantasy_fixtures.user_fixture.id,
+                username=fantasy_fixtures.user_fixture.username,
+                position=1
+            )
+        ]
+
+        # Act and Act
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.update_fantasy_league_draft_order(
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.fantasy_league_active_fixture.id,
+                updated_draft_order
+            )
+
 
 def create_fantasy_league_membership_for_league(
         league_id: str, user_id: str, status: FantasyLeagueMembershipStatus):
