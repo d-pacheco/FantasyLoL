@@ -7,6 +7,7 @@ from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueScoringSettings,
+    UsersFantasyLeagues,
     FantasyLeagueDraftOrderResponse
 )
 
@@ -16,6 +17,18 @@ from ..service.fantasy_league_service import FantasyLeagueService
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
 fantasy_league_service = FantasyLeagueService()
+
+
+@router.get(
+    path="/leagues",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())],
+    response_model=UsersFantasyLeagues
+)
+def get_my_fantasy_leagues(
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    return fantasy_league_service.get_users_pending_and_accepted_fantasy_leagues(user_id)
 
 
 @router.post(

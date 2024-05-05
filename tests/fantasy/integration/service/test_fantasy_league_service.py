@@ -5,12 +5,14 @@ from tests.test_base import FantasyLolTestBase
 from tests.test_util import db_util, fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
+    FantasyLeague,
     FantasyLeagueMembershipStatus,
     FantasyLeagueMembership,
     FantasyLeagueSettings,
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrder,
-    FantasyLeagueDraftOrderResponse
+    FantasyLeagueDraftOrderResponse,
+    UsersFantasyLeagues
 )
 from src.fantasy.service.fantasy_league_service import FantasyLeagueService
 from src.fantasy.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
@@ -236,6 +238,82 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         # Act and Act
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_league_service.get_scoring_settings(user.id, "badLeagueId")
+
+    def test_get_users_pending_and_accepted_fantasy_leagues_successful(self):
+        # Arrange
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+
+        # Create user_1's memberships, all ACCEPTED as they are the owner
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Create user_2's memberships
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_fixture.id,
+            fantasy_fixtures.user_2_fixture.id,
+            FantasyLeagueMembershipStatus.PENDING
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_2_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act
+        users_fantasy_leagues = fantasy_league_service.\
+            get_users_pending_and_accepted_fantasy_leagues(fantasy_fixtures.user_2_fixture.id)
+
+        # Assert
+        self.assertIsInstance(users_fantasy_leagues, UsersFantasyLeagues)
+        self.assertEqual(1, len(users_fantasy_leagues.pending))
+        self.assertEqual(
+            fantasy_fixtures.fantasy_league_fixture,
+            FantasyLeague.model_validate(users_fantasy_leagues.pending[0])
+        )
+        self.assertEqual(1, len(users_fantasy_leagues.accepted))
+        self.assertEqual(
+            fantasy_fixtures.fantasy_league_active_fixture,
+            FantasyLeague.model_validate(users_fantasy_leagues.accepted[0])
+        )
+
+    def test_get_users_pending_and_accepted_fantasy_leagues_no_pending_or_accepted(self):
+        # Arrange
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+
+        # Create user_1's memberships, all ACCEPTED as they are the owner
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_active_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act
+        users_fantasy_leagues = fantasy_league_service. \
+            get_users_pending_and_accepted_fantasy_leagues(fantasy_fixtures.user_2_fixture.id)
+
+        # Assert
+        self.assertIsInstance(users_fantasy_leagues, UsersFantasyLeagues)
+        self.assertEqual(0, len(users_fantasy_leagues.pending))
+        self.assertEqual(0, len(users_fantasy_leagues.accepted))
 
     def test_send_fantasy_league_invite_successful(self):
         # Arrange
