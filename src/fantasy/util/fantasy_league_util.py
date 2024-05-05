@@ -19,10 +19,7 @@ class FantasyLeagueUtil:
         if fantasy_league_model is None:
             raise FantasyLeagueNotFoundException()
 
-        if required_states is None:
-            return fantasy_league_model
-
-        if fantasy_league_model.status not in required_states:
+        if (required_states is not None) and (fantasy_league_model.status not in required_states):
             raise FantasyLeagueInvalidRequiredStateException(
                 fantasy_league_id, fantasy_league_model.status, required_states
             )

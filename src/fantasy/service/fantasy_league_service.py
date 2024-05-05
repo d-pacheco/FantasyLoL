@@ -103,7 +103,9 @@ class FantasyLeagueService:
 
     @staticmethod
     def get_scoring_settings(owner_id: str, league_id: str) -> FantasyLeagueScoringSettings:
-        validate_league(owner_id, league_id)
+        fantasy_league_model = fantasy_league_util.validate_league(league_id)
+        if fantasy_league_model.owner_id != owner_id:
+            raise ForbiddenException()
         scoring_settings_model = crud.get_fantasy_league_scoring_settings_by_id(league_id)
         return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
 
@@ -182,10 +184,12 @@ class FantasyLeagueService:
     @staticmethod
     def get_fantasy_league_draft_order(user_id: str, league_id: str)\
             -> List[FantasyLeagueDraftOrderResponse]:
-        validate_league(user_id, league_id)
-        current_draft_order = crud.get_fantasy_league_draft_order(league_id)
+        fantasy_league_model = fantasy_league_util.validate_league(league_id)
+        if fantasy_league_model.owner_id != user_id:
+            raise ForbiddenException()
 
         draft_order_response = []
+        current_draft_order = crud.get_fantasy_league_draft_order(league_id)
         for draft_position in current_draft_order:
             user = crud.get_user_by_id(draft_position.user_id)
             new_draft_order_response = FantasyLeagueDraftOrderResponse(
@@ -199,7 +203,11 @@ class FantasyLeagueService:
             user_id: str,
             league_id: str,
             updated_draft_order: List[FantasyLeagueDraftOrderResponse]):
-        validate_league(user_id, league_id)
+        fantasy_league_model = fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league_model.owner_id != user_id:
+            raise ForbiddenException()
 
         current_draft_order = []
         current_draft_order_models = crud.get_fantasy_league_draft_order(league_id)
@@ -289,11 +297,3 @@ def create_fantasy_league_membership(
         status=status
     )
     crud.create_fantasy_league_membership(fantasy_league_membership)
-
-
-def validate_league(owner_id: str, league_id: str):
-    fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
-    if fantasy_league_model is None:
-        raise FantasyLeagueNotFoundException()
-    if fantasy_league_model.owner_id != owner_id:
-        raise ForbiddenException()
