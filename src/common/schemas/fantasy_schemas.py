@@ -30,9 +30,10 @@ class User(BaseModel):
 class FantasyLeagueScoringSettings(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    fantasy_league_id: str = Field(
-        description="The id of the fantasy league",
-        examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc']
+    fantasy_league_id: Optional[str] = Field(
+        description="The id of the fantasy league. This field is ignored in update requests",
+        examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc'],
+        default=None
     )
     kills: int = Field(
         default=2,

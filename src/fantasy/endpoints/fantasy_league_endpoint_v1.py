@@ -85,6 +85,22 @@ def get_fantasy_league_scoring_settings(
     return fantasy_league_service.get_scoring_settings(owner_id, fantasy_league_id)
 
 
+@router.put(
+    path="/leagues/{fantasy_league_id}/scoring",
+    tags=["Fantasy Leagues"],
+    dependencies=[Depends(JWTBearer())],
+    response_model=FantasyLeagueScoringSettings
+)
+def update_fantasy_league_scoring_settings(
+        fantasy_league_id: str,
+        scoring_settings: FantasyLeagueScoringSettings = Body(...),
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    return fantasy_league_service.update_scoring_settings(
+        fantasy_league_id, user_id, scoring_settings
+    )
+
+
 @router.post(
     path="/leagues/{fantasy_league_id}/invite/{username}",
     tags=["Fantasy Leagues"],
