@@ -363,6 +363,14 @@ def get_fantasy_league_scoring_settings_by_id(league_id: str) \
             .first()
 
 
+def update_fantasy_league_scoring_settings(
+        scoring_settings: f_schemas.FantasyLeagueScoringSettings):
+    db_scoring_settings = models.FantasyLeagueScoringSettingModel(**scoring_settings.model_dump())
+    with DatabaseConnection() as db:
+        db.merge(db_scoring_settings)
+        db.commit()
+
+
 def update_fantasy_league_settings(
         fantasy_league_id: str,
         settings: f_schemas.FantasyLeagueSettings) -> models.FantasyLeagueModel:

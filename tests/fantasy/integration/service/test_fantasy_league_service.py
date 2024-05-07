@@ -239,6 +239,130 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_league_service.get_scoring_settings(user.id, "badLeagueId")
 
+    def test_update_scoring_settings_successful(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(scoring_settings)
+
+        expected_updated_scoring_settings = deepcopy(scoring_settings)
+        expected_updated_scoring_settings.assists += 1
+        expected_updated_scoring_settings.wards_placed += 1
+
+        # Act
+        returned_scoring_settings = fantasy_league_service.update_scoring_settings(
+            fantasy_league.id, user.id, expected_updated_scoring_settings
+        )
+
+        # Assert
+        self.assertEqual(expected_updated_scoring_settings, returned_scoring_settings)
+        db_scoring_settings = db_util.get_fantasy_league_scoring_settings_by_id(fantasy_league.id)
+        self.assertEqual(
+            expected_updated_scoring_settings,
+            FantasyLeagueScoringSettings.model_validate(db_scoring_settings)
+        )
+
+    def test_update_scoring_settings_non_existing_fantasy_league_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(scoring_settings)
+
+        expected_updated_scoring_settings = deepcopy(scoring_settings)
+        expected_updated_scoring_settings.assists += 1
+        expected_updated_scoring_settings.wards_placed += 1
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.update_scoring_settings(
+                "badFantasyLeagueId", user.id, expected_updated_scoring_settings
+            )
+
+    def test_update_scoring_settings_not_in_pre_draft_status_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        active_fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
+        scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(active_fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(scoring_settings)
+
+        expected_updated_scoring_settings = deepcopy(scoring_settings)
+        expected_updated_scoring_settings.assists += 1
+        expected_updated_scoring_settings.wards_placed += 1
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.update_scoring_settings(
+                active_fantasy_league.id, user.id, expected_updated_scoring_settings
+            )
+
+    def test_update_scoring_settings_not_owner_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        db_util.create_user(user)
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_fantasy_league_scoring_settings(scoring_settings)
+
+        expected_updated_scoring_settings = deepcopy(scoring_settings)
+        expected_updated_scoring_settings.assists += 1
+        expected_updated_scoring_settings.wards_placed += 1
+
+        # Act and Assert
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.update_scoring_settings(
+                fantasy_league.id, "badUserId", expected_updated_scoring_settings
+            )
+
+    def test_update_scoring_settings_fantasy_league_id_is_ignored_successful(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        db_util.create_user(user)
+        fantasy_league_1 = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league_1)
+        fantasy_league_1_scoring_settings = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        db_util.create_fantasy_league_scoring_settings(fantasy_league_1_scoring_settings)
+
+        fantasy_league_2 = deepcopy(fantasy_league_1)
+        fantasy_league_2.id = str(uuid.uuid4())
+        db_util.create_fantasy_league(fantasy_league_2)
+        fantasy_league_2_scoring_settings = deepcopy(fantasy_league_1_scoring_settings)
+        fantasy_league_2_scoring_settings.fantasy_league_id = fantasy_league_2.id
+        db_util.create_fantasy_league_scoring_settings(fantasy_league_2_scoring_settings)
+
+        expected_updated_scoring_settings = deepcopy(fantasy_league_1_scoring_settings)
+        expected_updated_scoring_settings.assists += 1
+        expected_updated_scoring_settings.wards_placed += 1
+
+        # Put fantasy league 2's id into the scoring settings, but should be ignored in the
+        # update and update only fantasy league 1's scoring settings instead
+        updated_fantasy_league_1_scoring_settings = deepcopy(expected_updated_scoring_settings)
+        updated_fantasy_league_1_scoring_settings.fantasy_league_id = fantasy_league_2.id
+
+        # Act
+        returned_scoring_settings = fantasy_league_service.update_scoring_settings(
+            fantasy_league_1.id, user.id, updated_fantasy_league_1_scoring_settings
+        )
+
+        # Assert
+        self.assertNotEqual(fantasy_league_1.id, fantasy_league_2.id)
+        self.assertEqual(expected_updated_scoring_settings, returned_scoring_settings)
+        league_2_scoring_settings_from_db = db_util.get_fantasy_league_scoring_settings_by_id(
+            fantasy_league_2.id
+        )
+        self.assertEqual(
+            fantasy_league_2_scoring_settings,
+            FantasyLeagueScoringSettings.model_validate(league_2_scoring_settings_from_db)
+        )
+
     def test_get_users_pending_and_accepted_fantasy_leagues_successful(self):
         # Arrange
         db_util.create_user(fantasy_fixtures.user_fixture)
@@ -271,7 +395,7 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         )
 
         # Act
-        users_fantasy_leagues = fantasy_league_service.\
+        users_fantasy_leagues = fantasy_league_service. \
             get_users_pending_and_accepted_fantasy_leagues(fantasy_fixtures.user_2_fixture.id)
 
         # Assert

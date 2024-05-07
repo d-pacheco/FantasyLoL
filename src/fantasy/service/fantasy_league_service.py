@@ -111,6 +111,22 @@ class FantasyLeagueService:
         return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
 
     @staticmethod
+    def update_scoring_settings(
+            fantasy_league_id: str,
+            user_id: str,
+            scoring_settings: FantasyLeagueScoringSettings) -> FantasyLeagueScoringSettings:
+        fantasy_league = fantasy_league_util.validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league.owner_id != user_id:
+            raise ForbiddenException()
+
+        # Ensure that fantasy_league_id for the scoring settings is the one called by the endpoint
+        scoring_settings.fantasy_league_id = fantasy_league_id
+        crud.update_fantasy_league_scoring_settings(scoring_settings)
+        return scoring_settings
+
+    @staticmethod
     def get_users_pending_and_accepted_fantasy_leagues(user_id: str) -> UsersFantasyLeagues:
         pending_fantasy_leagues = crud.get_users_fantasy_leagues_with_membership_status(
             user_id, FantasyLeagueMembershipStatus.PENDING
