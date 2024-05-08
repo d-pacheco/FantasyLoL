@@ -213,6 +213,34 @@ class FantasyLeagueService:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
 
     @staticmethod
+    def revoke_from_fantasy_league(fantasy_league_id: str, user_id: str, user_to_remove_id: str):
+        fantasy_league = fantasy_league_util.validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league.owner_id != user_id:
+            raise ForbiddenException()
+
+        if user_id == user_to_remove_id:
+            raise FantasyLeagueInviteException(
+                "Invalid revoke request: You cannot revoke your own membership"
+            )
+
+        user_to_remove_membership = crud.get_user_membership_for_fantasy_league(
+            user_to_remove_id, fantasy_league_id
+        )
+        if user_to_remove_membership is None or \
+                user_to_remove_membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
+            raise FantasyLeagueInviteException(
+                f"No accepted membership: User {user_to_remove_id} does not have an accepted "
+                f"membership to the fantasy league {fantasy_league_id}"
+            )
+
+        crud.update_fantasy_league_membership_status(
+            user_to_remove_membership, FantasyLeagueMembershipStatus.REVOKED
+        )
+        update_draft_order_on_player_leave(user_to_remove_id, fantasy_league_id)
+
+    @staticmethod
     def get_fantasy_league_draft_order(user_id: str, league_id: str)\
             -> List[FantasyLeagueDraftOrderResponse]:
         fantasy_league_model = fantasy_league_util.validate_league(league_id)

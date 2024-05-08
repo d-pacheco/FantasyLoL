@@ -138,6 +138,22 @@ def leave_fantasy_league(
     fantasy_league_service.leave_fantasy_league(user_id, fantasy_league_id)
 
 
+@router.post(
+    path="/leagues/{fantasy_league_id}/revoke/{user_id_to_revoke}",
+    tags=["Fantasy Leagues"],
+    status_code=204,
+    dependencies=[Depends(JWTBearer())]
+)
+def revoke_from_fantasy_league(
+        fantasy_league_id: str,
+        user_id_to_revoke: str,
+        decoded_token: dict = Depends(JWTBearer())):
+    user_id = decoded_token.get("user_id")
+    fantasy_league_service.revoke_from_fantasy_league(
+        fantasy_league_id, user_id, user_id_to_revoke
+    )
+
+
 @router.get(
     path="/leagues/{fantasy_league_id}/draft-order",
     tags=["Fantasy Leagues"],

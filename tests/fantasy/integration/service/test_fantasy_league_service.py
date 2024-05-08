@@ -778,6 +778,178 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
         with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
             fantasy_league_service.leave_fantasy_league(user_2.id, active_fantasy_league.id)
 
+    def test_revoke_from_fantasy_league_successful(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+
+        users = [
+            fantasy_fixtures.user_fixture,
+            fantasy_fixtures.user_2_fixture,
+            fantasy_fixtures.user_3_fixture
+        ]
+        draft_order_position = 1
+        for user in users:
+            db_util.create_user(user)
+            create_draft_order_for_fantasy_league(fantasy_league.id, user.id, draft_order_position)
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+            )
+            draft_order_position += 1
+
+        # Act
+        fantasy_league_service.revoke_from_fantasy_league(
+            fantasy_league.id, users[0].id, users[1].id
+        )
+
+        # Assert
+        memberships_from_db = db_util.get_all_league_memberships(fantasy_league.id)
+        self.assertEqual(len(users), len(memberships_from_db))
+        for membership in memberships_from_db:
+            if membership.user_id == users[1].id:
+                self.assertEqual(membership.status, FantasyLeagueMembershipStatus.REVOKED)
+            else:
+                self.assertEqual(membership.status, FantasyLeagueMembershipStatus.ACCEPTED)
+
+        draft_order_from_db = db_util.get_fantasy_league_draft_order(fantasy_league.id)
+        self.assertEqual(len(users) - 1, len(draft_order_from_db))
+        draft_order_from_db.sort(key=lambda x: x.position)
+        self.assertEqual(users[0].id, draft_order_from_db[0].user_id)
+        self.assertEqual(1, draft_order_from_db[0].position)
+        self.assertEqual(users[2].id, draft_order_from_db[1].user_id)
+        self.assertEqual(2, draft_order_from_db[1].position)
+
+    def test_revoke_from_fantasy_league_non_existing_fantasy_league_exception(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+
+        users = [
+            fantasy_fixtures.user_fixture,
+            fantasy_fixtures.user_2_fixture,
+            fantasy_fixtures.user_3_fixture
+        ]
+        draft_order_position = 1
+        for user in users:
+            db_util.create_user(user)
+            create_draft_order_for_fantasy_league(fantasy_league.id, user.id, draft_order_position)
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+            )
+            draft_order_position += 1
+
+        # Act and assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.revoke_from_fantasy_league(
+                "badFantasyLeagueId", users[0].id, users[1].id
+            )
+
+    def test_revoke_from_fantasy_league_not_in_pre_draft_status_exception(self):
+        # Arrange
+        active_fantasy_league = fantasy_fixtures.fantasy_league_active_fixture
+        db_util.create_fantasy_league(active_fantasy_league)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_user(fantasy_fixtures.user_3_fixture)
+
+        # Act and assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.revoke_from_fantasy_league(
+                active_fantasy_league.id,
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.user_2_fixture.id
+            )
+
+    def test_revoke_from_fantasy_league_not_owner_exception(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_user(fantasy_fixtures.user_3_fixture)
+
+        # Act and assert
+        with self.assertRaises(ForbiddenException):
+            fantasy_league_service.revoke_from_fantasy_league(
+                fantasy_league.id, "badUserId", fantasy_fixtures.user_2_fixture.id
+            )
+
+    def test_revoke_from_fantasy_league_own_id_exception(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        user = fantasy_fixtures.user_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInviteException) as context:
+            fantasy_league_service.revoke_from_fantasy_league(fantasy_league.id, user.id, user.id)
+        self.assertIn("Invalid revoke request", str(context.exception))
+
+    def test_revoke_from_fantasy_league_no_membership_exception(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_user(fantasy_fixtures.user_3_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_3_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and assert
+        with self.assertRaises(FantasyLeagueInviteException) as context:
+            fantasy_league_service.revoke_from_fantasy_league(
+                fantasy_league.id,
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.user_2_fixture.id
+            )
+        self.assertIn("No accepted membership", str(context.exception))
+
+    def test_revoke_from_fantasy_league_no_accepted_membership_exception(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(fantasy_fixtures.user_fixture)
+        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        db_util.create_user(fantasy_fixtures.user_3_fixture)
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_2_fixture.id,
+            FantasyLeagueMembershipStatus.PENDING
+        )
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id,
+            fantasy_fixtures.user_3_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED
+        )
+
+        # Act and assert
+        with self.assertRaises(FantasyLeagueInviteException) as context:
+            fantasy_league_service.revoke_from_fantasy_league(
+                fantasy_league.id,
+                fantasy_fixtures.user_fixture.id,
+                fantasy_fixtures.user_2_fixture.id
+            )
+        self.assertIn("No accepted membership", str(context.exception))
+
     def test_get_fantasy_league_draft_order_successful(self):
         # Arrange
         user_1 = fantasy_fixtures.user_fixture
