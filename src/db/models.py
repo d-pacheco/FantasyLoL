@@ -158,6 +158,7 @@ class FantasyLeagueModel(Base):
     name = Column(String)
     number_of_teams = Column(Integer)
     current_week = Column(Integer, nullable=True)
+    current_draft_position = Column(Integer, nullable=True)
 
 
 class FantasyLeagueMembershipModel(Base):

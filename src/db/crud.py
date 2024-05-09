@@ -439,6 +439,19 @@ def get_users_fantasy_leagues_with_membership_status(
             )).all()
 
 
+def update_fantasy_leagues_current_draft_position(
+        fantasy_league_id: str, new_draft_position: int) -> models.FantasyLeagueModel:
+    with DatabaseConnection() as db:
+        fantasy_league_db: models.FantasyLeagueModel = db.query(models.FantasyLeagueModel)\
+            .filter(models.FantasyLeagueModel.id == fantasy_league_id).first()
+        if fantasy_league_db is not None:
+            fantasy_league_db.current_draft_position = new_draft_position
+            db.merge(fantasy_league_db)
+            db.commit(fantasy_league_db)
+            db.refresh(fantasy_league_db)
+            return fantasy_league_db
+
+
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------

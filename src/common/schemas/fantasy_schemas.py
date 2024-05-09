@@ -113,6 +113,7 @@ class FantasyLeague(FantasyLeagueSettings):
     owner_id: str
     status: FantasyLeagueStatus
     current_week: Optional[int] = None
+    current_draft_position: Optional[int] = None
 
 
 class FantasyLeagueMembershipStatus(str, Enum):
