@@ -41,7 +41,8 @@ user_3_fixture = fantasy_schemas.User(
 
 fantasy_league_settings_fixture = fantasy_schemas.FantasyLeagueSettings(
     name="Fantasy League 1",
-    number_of_teams=6
+    number_of_teams=6,
+    available_leagues=[]
 )
 
 fantasy_league_fixture = fantasy_schemas.FantasyLeague(
@@ -50,6 +51,7 @@ fantasy_league_fixture = fantasy_schemas.FantasyLeague(
     status=fantasy_schemas.FantasyLeagueStatus.PRE_DRAFT,
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams,
+    available_leagues=fantasy_league_settings_fixture.available_leagues,
     current_week=None
 )
 

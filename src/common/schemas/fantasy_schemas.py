@@ -88,6 +88,11 @@ class FantasyLeagueSettings(BaseModel):
         description="Number of teams in the fantasy league\n"
                     "Allowed values: 4, 6, 8, 10"
     )
+    available_leagues: list = Field(
+        default=[],
+        description="The IDs for the riot leagues available for drafting players from",
+        examples=[["98767991310872058"]]
+    )
 
     @field_validator('number_of_teams')
     @classmethod

@@ -6,6 +6,7 @@ from sqlalchemy import Float
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy import JSON
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
@@ -160,6 +161,7 @@ class FantasyLeagueModel(Base):
     number_of_teams = Column(Integer)
     current_week = Column(Integer, nullable=True)
     current_draft_position = Column(Integer, nullable=True)
+    available_leagues = Column(JSON)
 
 
 class FantasyLeagueMembershipModel(Base):

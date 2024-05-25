@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from src.riot.exceptions.league_not_found_exception import LeagueNotFoundException
+from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
 from src.riot.service.riot_league_service import RiotLeagueService
 from src.common.schemas.search_parameters import LeagueSearchParameters
 from src.common.schemas import riot_data_schemas as schemas
