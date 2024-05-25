@@ -1,13 +1,13 @@
 import logging
 from typing import List
 
+from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
 from ...common.schemas import riot_data_schemas as schemas
 from ...common.schemas.search_parameters import LeagueSearchParameters
 
 from ...db import crud
 from ...db.models import LeagueModel
 
-from ..exceptions.league_not_found_exception import LeagueNotFoundException
 from ..util.riot_api_requester import RiotApiRequester
 from ..util.job_runner import JobRunner
 

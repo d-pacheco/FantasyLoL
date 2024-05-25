@@ -389,14 +389,15 @@ def update_fantasy_league_settings(
         fantasy_league_id: str,
         settings: f_schemas.FantasyLeagueSettings) -> models.FantasyLeagueModel:
     with DatabaseConnection() as db:
-        league = db.query(models.FantasyLeagueModel).filter_by(id=fantasy_league_id).first()
+        fantasy_league = db.query(models.FantasyLeagueModel).filter_by(id=fantasy_league_id).first()
 
-        league.name = settings.name
-        league.number_of_teams = settings.number_of_teams
+        fantasy_league.name = settings.name
+        fantasy_league.number_of_teams = settings.number_of_teams
+        fantasy_league.available_leagues = settings.available_leagues
 
         db.commit()
-        db.refresh(league)
-        return league
+        db.refresh(fantasy_league)
+        return fantasy_league
 
 
 # --------------------------------------------------

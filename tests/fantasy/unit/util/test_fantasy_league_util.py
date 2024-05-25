@@ -3,18 +3,24 @@ import uuid
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
+from tests.test_util import riot_fixtures
+
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueStatus
+)
+from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
 
 from src.db.models import (
-    FantasyLeagueModel
+    FantasyLeagueModel,
+    LeagueModel
 )
+
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException
 from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
     FantasyLeagueInvalidRequiredStateException
+from src.fantasy.exceptions.fantasy_unavailable_exception import FantasyUnavailableException
 from src.fantasy.util.fantasy_league_util import FantasyLeagueUtil
-from src.common.schemas.fantasy_schemas import (
-    FantasyLeagueStatus
-)
 
 fantasy_league_util = FantasyLeagueUtil()
 
@@ -73,6 +79,73 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(expected_fantasy_league_model, returned_fantasy_league_model)
+
+    @patch(f'{BASE_CRUD_PATH}.get_leagues')
+    def test_validate_available_leagues_successful(self, mock_get_leagues):
+        # Arrange
+        riot_leagues = [
+            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
+            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
+        ]
+        mock_get_leagues.return_value = riot_leagues
+        selected_league_ids = [riot_fixtures.league_2_fixture.id]
+
+        # Act and Assert
+        try:
+            fantasy_league_util.validate_available_leagues(selected_league_ids)
+        except (LeagueNotFoundException, FantasyLeagueNotFoundException):
+            self.fail("validate_available_leagues raised an exception unexpectedly")
+
+    @patch(f'{BASE_CRUD_PATH}.get_leagues')
+    def test_validate_available_leagues_league_not_found_exception(self, mock_get_leagues):
+        # Arrange
+        riot_leagues = [
+            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
+            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
+        ]
+        mock_get_leagues.return_value = riot_leagues
+        selected_league_ids = ["badId"]
+
+        # Act and Assert
+        with self.assertRaises(LeagueNotFoundException) as context:
+            fantasy_league_util.validate_available_leagues(selected_league_ids)
+        self.assertIn("badId not found", str(context.exception))
+
+    @patch(f'{BASE_CRUD_PATH}.get_leagues')
+    def test_validate_available_leagues_single_league_fantasy_unavailable_exception(
+            self, mock_get_leagues):
+        # Arrange
+        riot_leagues = [
+            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
+            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
+        ]
+        mock_get_leagues.return_value = riot_leagues
+        selected_league_ids = [riot_fixtures.league_1_fixture.id]
+
+        # Act and Assert
+        with self.assertRaises(FantasyUnavailableException) as context:
+            fantasy_league_util.validate_available_leagues(selected_league_ids)
+        self.assertIn(f"{riot_fixtures.league_1_fixture.id} not available", str(context.exception))
+        self.assertFalse(riot_fixtures.league_1_fixture.fantasy_available)
+        self.assertTrue(riot_fixtures.league_2_fixture.fantasy_available)
+
+    @patch(f'{BASE_CRUD_PATH}.get_leagues')
+    def test_validate_available_leagues_multiple_leagues_fantasy_unavailable_exception(
+            self, mock_get_leagues):
+        # Arrange
+        riot_leagues = [
+            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
+            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
+        ]
+        mock_get_leagues.return_value = riot_leagues
+        selected_league_ids = [riot_fixtures.league_1_fixture.id, riot_fixtures.league_2_fixture.id]
+
+        # Act and Assert
+        with self.assertRaises(FantasyUnavailableException) as context:
+            fantasy_league_util.validate_available_leagues(selected_league_ids)
+        self.assertIn(f"{riot_fixtures.league_1_fixture.id} not available", str(context.exception))
+        self.assertFalse(riot_fixtures.league_1_fixture.fantasy_available)
+        self.assertTrue(riot_fixtures.league_2_fixture.fantasy_available)
 
 
 def create_fantasy_league_model(status: FantasyLeagueStatus, week: int):

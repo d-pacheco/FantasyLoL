@@ -1346,6 +1346,94 @@ class CrudTest(FantasyLolTestBase):
         # Assert
         self.assertIsNone(fantasy_league_model_from_db)
 
+    def test_update_fantasy_league_settings_name(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        updated_fantasy_league_settings = copy.deepcopy(
+            fantasy_fixtures.fantasy_league_settings_fixture
+        )
+        updated_fantasy_league_settings.name = "Updated Fantasy League name"
+
+        # Act
+        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+            fantasy_league.id, updated_fantasy_league_settings
+        )
+
+        # Assert
+        self.assertEqual(updated_fantasy_league_settings.name, updated_fantasy_league_model.name)
+        self.assertEqual(
+            updated_fantasy_league_model.number_of_teams, fantasy_league.number_of_teams
+        )
+        self.assertEqual(
+            updated_fantasy_league_model.available_leagues, fantasy_league.available_leagues
+        )
+        self.assertNotEqual(updated_fantasy_league_settings.name, fantasy_league.name)
+
+    def test_update_fantasy_league_settings_number_of_teams(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        updated_fantasy_league_settings = copy.deepcopy(
+            fantasy_fixtures.fantasy_league_settings_fixture
+        )
+        updated_fantasy_league_settings.number_of_teams = 4
+
+        # Act
+        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+            fantasy_league.id, updated_fantasy_league_settings
+        )
+
+        # Assert
+        self.assertEqual(
+            updated_fantasy_league_settings.number_of_teams,
+            updated_fantasy_league_model.number_of_teams
+        )
+        self.assertEqual(
+            updated_fantasy_league_model.name, fantasy_league.name
+        )
+        self.assertEqual(
+            updated_fantasy_league_model.available_leagues, fantasy_league.available_leagues
+        )
+        self.assertNotEqual(
+            updated_fantasy_league_settings.number_of_teams,
+            fantasy_league.number_of_teams
+        )
+
+    def test_update_fantasy_league_settings_available_leagues(self):
+        # Arrange
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        db_util.create_fantasy_league(fantasy_league)
+        updated_fantasy_league_settings = copy.deepcopy(
+            fantasy_fixtures.fantasy_league_settings_fixture
+        )
+        updated_fantasy_league_settings.available_leagues = ["RiotLeague1"]
+
+        # Act
+        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+            fantasy_league.id, updated_fantasy_league_settings
+        )
+
+        # Assert
+        self.assertEqual(
+            updated_fantasy_league_settings.available_leagues,
+            updated_fantasy_league_model.available_leagues
+        )
+        self.assertEqual(
+            updated_fantasy_league_model.name, fantasy_league.name
+        )
+        self.assertEqual(
+            updated_fantasy_league_model.number_of_teams, fantasy_league.number_of_teams
+        )
+        self.assertNotEqual(
+            updated_fantasy_league_settings.available_leagues,
+            fantasy_league.available_leagues
+        )
+
+    # --------------------------------------------------
+    # ----------- Fantasy Team Operations --------------
+    # --------------------------------------------------
+
     def test_create_fantasy_team(self):
         # Arrange
         fantasy_team = fantasy_fixtures.fantasy_team_week_1

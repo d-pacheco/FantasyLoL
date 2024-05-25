@@ -3,6 +3,7 @@ from typing import List
 
 from ...db import crud
 
+
 from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
@@ -29,13 +30,17 @@ fantasy_league_util = FantasyLeagueUtil()
 class FantasyLeagueService:
     def create_fantasy_league(
             self, owner_id: str, league_settings: FantasyLeagueSettings) -> FantasyLeague:
+        if len(league_settings.available_leagues) > 0:
+            fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
+
         fantasy_league_id = self.generate_new_valid_id()
         new_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
             owner_id=owner_id,
             status=FantasyLeagueStatus.PRE_DRAFT,
             name=league_settings.name,
-            number_of_teams=league_settings.number_of_teams
+            number_of_teams=league_settings.number_of_teams,
+            available_leagues=league_settings.available_leagues
         )
         crud.create_fantasy_league(new_fantasy_league)
 
@@ -67,7 +72,8 @@ class FantasyLeagueService:
 
         league_settings = FantasyLeagueSettings(
             name=fantasy_league_model.name,
-            number_of_teams=fantasy_league_model.number_of_teams
+            number_of_teams=fantasy_league_model.number_of_teams,
+            available_leagues=fantasy_league_model.available_leagues
         )
         return league_settings
 
@@ -93,12 +99,18 @@ class FantasyLeagueService:
                 f"members inside of the fantasy league ({accepted_member_count})"
             )
 
+        if len(updated_league_settings.available_leagues) > 0:
+            fantasy_league_util.validate_available_leagues(
+                updated_league_settings.available_leagues
+            )
+
         updated_fantasy_league_model = crud.update_fantasy_league_settings(
             league_id, updated_league_settings
         )
         updated_fantasy_league_settings = FantasyLeagueSettings(
             name=updated_fantasy_league_model.name,
-            number_of_teams=updated_fantasy_league_model.number_of_teams
+            number_of_teams=updated_fantasy_league_model.number_of_teams,
+            available_leagues=updated_league_settings.available_leagues
         )
         return updated_fantasy_league_settings
 
