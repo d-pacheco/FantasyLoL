@@ -28,7 +28,8 @@ league_1_fixture = schemas.League(
     slug="mock-challengers-league",
     region="MOCKED REGION",
     image="http//:mocked-league-image.png",
-    priority=1
+    priority=1,
+    fantasy_available=False
 )
 
 league_2_fixture = schemas.League(
@@ -37,7 +38,8 @@ league_2_fixture = schemas.League(
     slug="mock-pro-league",
     region="MOCKED REGION2",
     image="http//:mocked-league-2-image.png",
-    priority=2
+    priority=2,
+    fantasy_available=True
 )
 
 tournament_fixture = schemas.Tournament(

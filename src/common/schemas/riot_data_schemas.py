@@ -36,6 +36,11 @@ class League(BaseModel):
         description="The priority of league in list ranking order",
         examples=[300]
     )
+    fantasy_available: bool = Field(
+        default=False,
+        description="Riot league is available for use in Fantasy Leagues",
+        examples=[False]
+    )
 
 
 class TournamentStatus(str, Enum):

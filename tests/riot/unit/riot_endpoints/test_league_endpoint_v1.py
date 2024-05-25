@@ -86,6 +86,29 @@ class LeagueEndpointV1Test(FantasyLolTestBase):
             LeagueSearchParameters(region=league_fixture.region)
         )
 
+    @patch(GET_LEAGUES_MOCK_PATH)
+    def test_get_leagues_endpoint_fantasy_available_filter_existing_league(self, mock_get_leagues):
+        # Arrange
+        league_fixture = fixtures.league_1_fixture
+        expected_league_response = league_fixture.model_dump()
+        mock_get_leagues.return_value = [league_fixture]
+
+        # Act
+        response = self.client.get(
+            f"{LEAGUE_BASE_URL}?fantasy_available={league_fixture.fantasy_available}"
+        )
+
+        # Assert
+        self.assertEqual(HTTPStatus.OK, response.status_code)
+        response_json: dict = response.json()
+        leagues = response_json.get('items')
+        self.assertIsInstance(leagues, list)
+        self.assertEqual(1, len(leagues))
+        self.assertEqual(expected_league_response, leagues[0])
+        mock_get_leagues.assert_called_once_with(
+            LeagueSearchParameters(fantasy_available=league_fixture.fantasy_available)
+        )
+
     @patch(GET_LEAGUE_BY_ID_MOCK_PATH)
     def test_get_league_by_id_endpoint_successful(self, mock_get_league_by_id):
         # Arrange

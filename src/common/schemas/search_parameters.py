@@ -26,6 +26,7 @@ class MatchSearchParameters(BaseModel):
 class LeagueSearchParameters(BaseModel):
     name: Optional[str] = None
     region: Optional[str] = None
+    fantasy_available: Optional[bool] = None
 
 
 class TeamSearchParameters(BaseModel):

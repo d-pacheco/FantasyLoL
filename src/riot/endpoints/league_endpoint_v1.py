@@ -25,10 +25,12 @@ league_service = RiotLeagueService()
 )
 def get_riot_leagues(
         name: str = Query(None, description="Filter by league name"),
-        region: str = Query(None, description="Filter by league region")):
+        region: str = Query(None, description="Filter by league region"),
+        fantasy_available: bool = Query(None, description="Filter by availability in Fantasy LoL")):
     search_parameters = LeagueSearchParameters(
         name=name,
-        region=region
+        region=region,
+        fantasy_available=fantasy_available
     )
     leagues = league_service.get_leagues(search_parameters)
     return paginate(leagues)
@@ -55,3 +57,26 @@ def get_riot_leagues(
 )
 def get_riot_league_by_id(league_id: str):
     return league_service.get_league_by_id(league_id)
+
+
+@router.put(
+    path="/league/{league_id}/{new_status}",
+    description="Update league to be available for fantasy leagues",
+    tags=["Leagues"],
+    response_model=League,
+    responses={
+        200: {
+            "model": League
+        },
+        404: {
+            "description": "Not Found",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "League not found"}
+                }
+            }
+        }
+    }
+)
+def update_riot_league_fantasy_available(league_id: str, new_status: bool):
+    return league_service.update_fantasy_available(league_id, new_status)
