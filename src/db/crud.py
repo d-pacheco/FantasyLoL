@@ -1,6 +1,7 @@
 from typing import List
 from sqlalchemy import text
 from sqlalchemy import and_
+from typing import Optional
 
 from .database import DatabaseConnection
 from . import models
@@ -30,6 +31,19 @@ def get_leagues(filters: list = None) -> List[models.LeagueModel]:
 def get_league_by_id(league_id: str) -> models.LeagueModel:
     with DatabaseConnection() as db:
         return db.query(models.LeagueModel).filter(models.LeagueModel.id == league_id).first()
+
+
+def update_league_fantasy_available_status(league_id: str, new_status: bool) \
+        -> Optional[models.LeagueModel]:
+    with DatabaseConnection() as db:
+        db_league = db.query(models.LeagueModel).filter(models.LeagueModel.id == league_id).first()
+        if db_league is None:
+            return None
+        db_league.fantasy_available = new_status
+        db.merge(db_league)
+        db.commit()
+        db.refresh(db_league)
+        return db_league
 
 
 # --------------------------------------------------

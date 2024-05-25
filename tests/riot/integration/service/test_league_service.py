@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from src.riot.exceptions.league_not_found_exception import LeagueNotFoundException
 from src.riot.service.riot_league_service import RiotLeagueService
 from src.common.schemas.search_parameters import LeagueSearchParameters
@@ -11,8 +13,9 @@ def create_league_service():
     return RiotLeagueService()
 
 
-def create_league_in_db() -> schemas.League:
-    league_fixture = fixtures.league_1_fixture
+def create_league_in_db(league_fixture: schemas.League = None) -> schemas.League:
+    if league_fixture is None:
+        league_fixture = fixtures.league_1_fixture
     db_util.save_league(league_fixture)
     return league_fixture
 
@@ -44,7 +47,7 @@ class LeagueServiceTest(FantasyLolTestBase):
 
         # Assert
         self.assertIsInstance(leagues_from_db, list)
-        self.assertEqual(0, len(leagues_from_db),)
+        self.assertEqual(0, len(leagues_from_db), )
 
     def test_get_leagues_by_region_existing_league(self):
         # Arrange
@@ -71,6 +74,44 @@ class LeagueServiceTest(FantasyLolTestBase):
         # Assert
         self.assertIsInstance(leagues_from_db, list)
         self.assertEqual(0, len(leagues_from_db))
+
+    def test_get_leagues_by_fantasy_available_false_existing_league(self):
+        # Arrange
+        league_service = create_league_service()
+        league_fixture_not_available = create_league_in_db(fixtures.league_1_fixture)
+        league_fixture_available = create_league_in_db(fixtures.league_2_fixture)
+        search_parameters = LeagueSearchParameters(
+            fantasy_available=league_fixture_not_available.fantasy_available
+        )
+
+        # Act
+        leagues_from_db = league_service.get_leagues(search_parameters)
+
+        # Assert
+        self.assertEqual(False, league_fixture_not_available.fantasy_available)
+        self.assertEqual(True, league_fixture_available.fantasy_available)
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        self.assertEqual(league_fixture_not_available, leagues_from_db[0])
+
+    def test_get_leagues_by_fantasy_available_true_existing_league(self):
+        # Arrange
+        league_service = create_league_service()
+        league_fixture_not_available = create_league_in_db(fixtures.league_1_fixture)
+        league_fixture_available = create_league_in_db(fixtures.league_2_fixture)
+        search_parameters = LeagueSearchParameters(
+            fantasy_available=league_fixture_available.fantasy_available
+        )
+
+        # Act
+        leagues_from_db = league_service.get_leagues(search_parameters)
+
+        # Assert
+        self.assertEqual(False, league_fixture_not_available.fantasy_available)
+        self.assertEqual(True, league_fixture_available.fantasy_available)
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        self.assertEqual(league_fixture_available, leagues_from_db[0])
 
     def test_get_leagues_empty_query_params(self):
         # Arrange
@@ -105,3 +146,52 @@ class LeagueServiceTest(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(LeagueNotFoundException):
             league_service.get_league_by_id("777")
+
+    def test_update_fantasy_available_to_true(self):
+        # Arrange
+        league_service = create_league_service()
+        fantasy_league = fixtures.league_1_fixture
+        create_league_in_db(fantasy_league)
+        new_status = True
+        expected_updated_league = deepcopy(fantasy_league)
+        expected_updated_league.fantasy_available = new_status
+
+        # Act
+        updated_league = league_service.update_fantasy_available(fantasy_league.id, new_status)
+
+        # Assert
+        self.assertEqual(expected_updated_league, updated_league)
+        self.assertNotEqual(
+            expected_updated_league.fantasy_available,
+            fantasy_league.fantasy_available
+        )
+
+    def test_update_fantasy_available_to_false(self):
+        # Arrange
+        league_service = create_league_service()
+        fantasy_league = fixtures.league_2_fixture
+        create_league_in_db(fantasy_league)
+        new_status = False
+        expected_updated_league = deepcopy(fantasy_league)
+        expected_updated_league.fantasy_available = new_status
+
+        # Act
+        updated_league = league_service.update_fantasy_available(fantasy_league.id, new_status)
+
+        # Assert
+        self.assertEqual(expected_updated_league, updated_league)
+        self.assertNotEqual(
+            expected_updated_league.fantasy_available,
+            fantasy_league.fantasy_available
+        )
+
+    def test_update_fantasy_available_non_existing_league_exception(self):
+        # Arrange
+        league_service = create_league_service()
+        fantasy_league = fixtures.league_1_fixture
+        create_league_in_db(fantasy_league)
+        new_status = True
+
+        # Act and Assert
+        with self.assertRaises(LeagueNotFoundException):
+            league_service.update_fantasy_available("badId", new_status)

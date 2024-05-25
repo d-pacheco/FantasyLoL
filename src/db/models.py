@@ -30,6 +30,7 @@ class LeagueModel(Base):
     region = Column(String)
     image = Column(String)
     priority = Column(Integer)
+    fantasy_available = Column(Boolean)
 
 
 class TournamentModel(Base):
