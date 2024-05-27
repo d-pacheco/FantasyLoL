@@ -415,6 +415,29 @@ def update_fantasy_league_settings(
         return fantasy_league
 
 
+def update_fantasy_league_status(
+        fantasy_league_id: str,
+        new_status: f_schemas.FantasyLeagueStatus) -> models.FantasyLeagueModel:
+    with DatabaseConnection() as db:
+        fantasy_league = db.query(models.FantasyLeagueModel).filter_by(id=fantasy_league_id).first()
+
+        fantasy_league.status = new_status
+        db.commit()
+        db.refresh(fantasy_league)
+        return fantasy_league
+
+
+def update_fantasy_league_current_draft_position(
+        fantasy_league_id: str, new_current_draft_position: int) -> models.FantasyLeagueModel:
+    with DatabaseConnection() as db:
+        fantasy_league = db.query(models.FantasyLeagueModel).filter_by(id=fantasy_league_id).first()
+
+        fantasy_league.current_draft_position = new_current_draft_position
+        db.commit()
+        db.refresh(fantasy_league)
+        return fantasy_league
+
+
 # --------------------------------------------------
 # ------- Fantasy League Invite Operations ---------
 # --------------------------------------------------

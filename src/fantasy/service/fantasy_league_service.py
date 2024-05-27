@@ -19,6 +19,7 @@ from ...common.schemas.fantasy_schemas import (
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from ..exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
+from ..exceptions.fantasy_league_start_draft_exception import FantasyLeagueStartDraftException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..exceptions.draft_order_exception import DraftOrderException
@@ -299,6 +300,37 @@ class FantasyLeagueService:
             crud.update_fantasy_league_draft_order_position(
                 db_draft_position, updated_position.position
             )
+
+    @staticmethod
+    def start_fantasy_draft(user_id: str, fantasy_league_id: str):
+        fantasy_league = fantasy_league_util.validate_league(
+            fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
+        )
+        if fantasy_league.owner_id != user_id:
+            raise ForbiddenException()
+
+        pending_and_accepted_memberships = crud.get_pending_and_accepted_members_for_league(
+            fantasy_league_id
+        )
+        accepted_count = 0
+        for membership in pending_and_accepted_memberships:
+            if membership.status == FantasyLeagueMembershipStatus.ACCEPTED:
+                accepted_count += 1
+        if accepted_count != fantasy_league.number_of_teams:
+            raise FantasyLeagueStartDraftException(
+                f"Invalid member count: The fantasy league with ID {fantasy_league_id} does not "
+                f"have correct number of members to start the draft. "
+                f"Expected {fantasy_league.number_of_teams} but has {accepted_count}."
+            )
+
+        if len(fantasy_league.available_leagues) == 0:
+            raise FantasyLeagueStartDraftException(
+                f"Available leagues not set: The fantasy league with ID {fantasy_league_id} must "
+                f"have one Riot league set for players to draft from before starting the draft."
+            )
+
+        crud.update_fantasy_league_status(fantasy_league_id, FantasyLeagueStatus.DRAFT)
+        crud.update_fantasy_league_current_draft_position(fantasy_league_id, 1)
 
 
 def validate_draft_order(

@@ -6,6 +6,7 @@ from tests.test_util import db_util, fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
+    FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyLeagueMembership,
     FantasyLeagueSettings,
@@ -20,6 +21,8 @@ from src.fantasy.exceptions.draft_order_exception import DraftOrderException
 from src.fantasy.exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
 from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from src.fantasy.exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
+from src.fantasy.exceptions.fantasy_league_start_draft_exception import \
+    FantasyLeagueStartDraftException
 from src.fantasy.exceptions.fantasy_unavailable_exception import FantasyUnavailableException
 from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
     FantasyLeagueInvalidRequiredStateException
@@ -1366,6 +1369,131 @@ class FantasyLeagueServiceIntegrationTest(FantasyLolTestBase):
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 updated_draft_order
             )
+
+    # --------------------------------------------------
+    # -------------- Start Fantasy Draft ---------------
+    # --------------------------------------------------
+    def test_start_fantasy_draft_successful(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user)
+
+        create_fantasy_league_membership_for_league(
+            fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
+        for i in range(fantasy_league.number_of_teams - 1):  # -1 as we created one for user already
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, str(uuid.uuid4()), FantasyLeagueMembershipStatus.ACCEPTED
+            )
+
+        # Act and Assert
+        try:
+            fantasy_league_service.start_fantasy_draft(user.id, fantasy_league.id)
+        except FantasyLeagueStartDraftException:
+            self.fail("Start Fantasy Draft failed with an unexpected exception!")
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.DRAFT, db_fantasy_league.status)
+        self.assertEqual(1, db_fantasy_league.current_draft_position)
+
+    def test_start_fantasy_draft_no_fantasy_league_found_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        db_util.create_fantasy_league(fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            fantasy_league_service.start_fantasy_draft(user.id, "badFantasyLeagueId")
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.PRE_DRAFT, db_fantasy_league.status)
+        self.assertEqual(None, db_fantasy_league.current_draft_position)
+
+    def test_start_fantasy_draft_not_in_pre_draft_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        active_fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
+        active_fantasy_league.available_leagues = ["someRiotLeagueId"]
+        db_util.create_fantasy_league(active_fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            fantasy_league_service.start_fantasy_draft(user.id, active_fantasy_league.id)
+        db_fantasy_league = db_util.get_fantasy_league_by_id(active_fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
+        self.assertEqual(None, db_fantasy_league.current_draft_position)
+
+    def test_start_fantasy_draft_not_enough_members_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user)
+
+        for i in range(fantasy_league.number_of_teams - 1):
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, str(uuid.uuid4()), FantasyLeagueMembershipStatus.ACCEPTED
+            )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueStartDraftException) as context:
+            fantasy_league_service.start_fantasy_draft(user.id, fantasy_league.id)
+        self.assertIn("Invalid member count", str(context.exception))
+        self.assertIn(
+            f"Expected {fantasy_league.number_of_teams} but has "
+            f"{fantasy_league.number_of_teams - 1}", str(context.exception))
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.PRE_DRAFT, db_fantasy_league.status)
+        self.assertEqual(None, db_fantasy_league.current_draft_position)
+
+    def test_start_fantasy_draft_too_many__members_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user)
+
+        for i in range(fantasy_league.number_of_teams + 1):
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, str(uuid.uuid4()), FantasyLeagueMembershipStatus.ACCEPTED
+            )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueStartDraftException) as context:
+            fantasy_league_service.start_fantasy_draft(user.id, fantasy_league.id)
+        self.assertIn("Invalid member count", str(context.exception))
+        self.assertIn(
+            f"Expected {fantasy_league.number_of_teams} but has "
+            f"{fantasy_league.number_of_teams + 1}", str(context.exception))
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.PRE_DRAFT, db_fantasy_league.status)
+        self.assertEqual(None, db_fantasy_league.current_draft_position)
+
+    def test_start_fantasy_draft_no_available_leagues_set_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = []
+        db_util.create_fantasy_league(fantasy_league)
+        db_util.create_user(user)
+
+        for i in range(fantasy_league.number_of_teams):
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, str(uuid.uuid4()), FantasyLeagueMembershipStatus.ACCEPTED
+            )
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueStartDraftException) as context:
+            fantasy_league_service.start_fantasy_draft(user.id, fantasy_league.id)
+        self.assertIn("Available leagues not set", str(context.exception))
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.PRE_DRAFT, db_fantasy_league.status)
+        self.assertEqual(None, db_fantasy_league.current_draft_position)
 
 
 def create_fantasy_league_membership_for_league(
