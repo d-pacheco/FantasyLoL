@@ -46,6 +46,21 @@ def update_league_fantasy_available_status(league_id: str, new_status: bool) \
         return db_league
 
 
+def get_league_ids_for_player(player_id: str) -> List[str]:
+    sql_query = f"""
+        SELECT DISTINCT l.id
+        FROM professional_players p
+        JOIN professional_teams t ON p.team_id = t.id
+        JOIN leagues l ON t.home_league = l.name
+        WHERE p.id = '{player_id}'
+        """
+    with DatabaseConnection() as db:
+        result = db.execute(text(sql_query))
+        rows = result.fetchall()
+    league_ids = [row[0] for row in rows]
+    return league_ids
+
+
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------

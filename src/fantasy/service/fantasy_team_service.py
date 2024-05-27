@@ -18,9 +18,11 @@ from ...riot.exceptions.professional_player_not_found_exception import \
 from ..exceptions.fantasy_membership_exception import FantasyMembershipException
 from ..exceptions.fantasy_draft_exception import FantasyDraftException
 from ..util.fantasy_league_util import FantasyLeagueUtil
+from ..util.fantasty_team_util import FantasyTeamUtil
 
 
 fantasy_league_util = FantasyLeagueUtil()
+fantasy_team_util = FantasyTeamUtil()
 
 
 class FantasyTeamService:
@@ -42,8 +44,9 @@ class FantasyTeamService:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
-        validate_user_membership(user_id, fantasy_league_id)
         professional_player = get_player_from_db(player_id)
+        fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
+        validate_user_membership(user_id, fantasy_league_id)
 
         recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
         if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:
@@ -95,6 +98,7 @@ class FantasyTeamService:
         validate_user_membership(user_id, fantasy_league_id)
         pro_player_to_drop = get_player_from_db(player_to_drop_id)
         pro_player_to_pickup = get_player_from_db(player_to_pickup_id)
+        fantasy_team_util.validate_player_from_available_league(fantasy_league, player_to_pickup_id)
 
         if pro_player_to_drop.role != pro_player_to_pickup.role:
             raise FantasyDraftException(

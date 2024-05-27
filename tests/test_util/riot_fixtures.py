@@ -24,7 +24,7 @@ def generate_random_id():
 
 league_1_fixture = schemas.League(
     id=generate_random_id(),
-    name="Mock Challengers",
+    name="Mock League 1",
     slug="mock-challengers-league",
     region="MOCKED REGION",
     image="http//:mocked-league-image.png",
@@ -34,7 +34,7 @@ league_1_fixture = schemas.League(
 
 league_2_fixture = schemas.League(
     id=generate_random_id(),
-    name="Mock Pro",
+    name="Mock League 2",
     slug="mock-pro-league",
     region="MOCKED REGION2",
     image="http//:mocked-league-2-image.png",
