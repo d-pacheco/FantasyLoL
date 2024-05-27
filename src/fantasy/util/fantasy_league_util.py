@@ -36,5 +36,6 @@ class FantasyLeagueUtil:
             if league_id not in league_dict:
                 raise LeagueNotFoundException(f"Riot league with ID {league_id} not found")
             if not league_dict[league_id].fantasy_available:
-                raise FantasyUnavailableException(f"Riot league with ID {league_id} not available "
-                                                  f"to be used in Fantasy Leagues")
+                raise FantasyUnavailableException(
+                    f"Riot league with ID {league_id} not available to be used in Fantasy Leagues"
+                )

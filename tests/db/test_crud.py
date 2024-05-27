@@ -794,6 +794,37 @@ class CrudTest(FantasyLolTestBase):
         # Assert
         self.assertIsNone(league_model_from_db)
 
+    def test_get_league_ids_for_player_successful(self):
+        # Arrange
+        db_util.save_league(riot_fixtures.league_1_fixture)
+        db_util.save_league(riot_fixtures.league_2_fixture)
+        db_util.save_team(riot_fixtures.team_1_fixture)
+        db_util.save_team(riot_fixtures.team_2_fixture)
+        db_util.save_player(riot_fixtures.player_1_fixture)
+
+        # Act
+        league_ids = crud.get_league_ids_for_player(riot_fixtures.player_1_fixture.id)
+
+        # Assert
+        self.assertIsInstance(league_ids, list)
+        self.assertEqual(1, len(league_ids))
+        self.assertEqual(riot_fixtures.league_1_fixture.id, league_ids[0])
+
+    def test_get_league_ids_for_player_non_existing_player_id(self):
+        # Arrange
+        db_util.save_league(riot_fixtures.league_1_fixture)
+        db_util.save_league(riot_fixtures.league_2_fixture)
+        db_util.save_team(riot_fixtures.team_1_fixture)
+        db_util.save_team(riot_fixtures.team_2_fixture)
+        db_util.save_player(riot_fixtures.player_1_fixture)
+
+        # Act
+        league_ids = crud.get_league_ids_for_player("123")
+
+        # Assert
+        self.assertIsInstance(league_ids, list)
+        self.assertEqual(0, len(league_ids))
+
     # --------------------------------------------------
     # ------------- Tournament Operations --------------
     # --------------------------------------------------
