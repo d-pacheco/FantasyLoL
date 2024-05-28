@@ -27,17 +27,17 @@ def get_fantasy_team_weeks_for_league(
 
 
 @router.put(
-    path="/teams/{fantasy_league_id}/draft/{player_id}",
+    path="/teams/{fantasy_league_id}/pickup/{player_id}",
     tags=["Fantasy Teams"],
     dependencies=[Depends(JWTBearer())],
     response_model=FantasyTeam
 )
-def draft_player(
+def pickup_player(
         fantasy_league_id: str,
         player_id: str,
         decoded_token: dict = Depends(JWTBearer())):
     user_id = decoded_token.get("user_id")
-    return fantasy_team_service.draft_player(fantasy_league_id, user_id, player_id)
+    return fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
 
 
 @router.put(

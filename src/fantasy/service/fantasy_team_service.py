@@ -39,7 +39,7 @@ class FantasyTeamService:
         return fantasy_team_weeks
 
     @staticmethod
-    def draft_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
+    def pickup_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )

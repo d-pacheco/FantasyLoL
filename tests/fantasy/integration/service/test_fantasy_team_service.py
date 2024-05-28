@@ -145,11 +145,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 fantasy_fixtures.user_fixture.id
             )
 
-    # -------------------------------------
-    # ----------- Draft Player  -----------
-    # -------------------------------------
+    # --------------------------------------
+    # ----------- Pickup Player  -----------
+    # --------------------------------------
 
-    def test_draft_player_has_initial_fantasy_team_for_draft_league_successful(self):
+    def test_pickup_player_has_initial_fantasy_team_for_draft_league_successful(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
@@ -183,7 +183,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         expected_fantasy_team.top_player_id = riot_fixtures.player_1_fixture.id
 
         # Act
-        returned_fantasy_team = fantasy_team_service.draft_player(
+        returned_fantasy_team = fantasy_team_service.pickup_player(
             fantasy_league.id, user_1.id, riot_fixtures.player_1_fixture.id
         )
 
@@ -205,7 +205,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
 
-    def test_draft_player_has_no_initial_fantasy_team_for_draft_league_successful(self):
+    def test_pickup_player_has_no_initial_fantasy_team_for_draft_league_successful(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
@@ -235,7 +235,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         expected_fantasy_team.top_player_id = riot_fixtures.player_1_fixture.id
 
         # Act
-        returned_fantasy_team = fantasy_team_service.draft_player(
+        returned_fantasy_team = fantasy_team_service.pickup_player(
             fantasy_league.id, user_1.id, riot_fixtures.player_1_fixture.id
         )
 
@@ -257,7 +257,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
 
-    def test_draft_player_for_active_league_successful(self):
+    def test_pickup_player_for_active_league_successful(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -285,7 +285,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         expected_fantasy_team.top_player_id = riot_fixtures.player_1_fixture.id
 
         # Act
-        returned_fantasy_team = fantasy_team_service.draft_player(
+        returned_fantasy_team = fantasy_team_service.pickup_player(
             fantasy_league.id, user_1.id, riot_fixtures.player_1_fixture.id
         )
 
@@ -307,7 +307,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
 
-    def test_draft_player_not_users_current_draft_position_exception(self):
+    def test_pickup_player_not_users_current_draft_position_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
@@ -341,7 +341,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_league.id, user_1.id, riot_fixtures.player_1_fixture.id
             )
         self.assertIn("Invalid user draft position", str(context.exception))
@@ -351,7 +351,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(1, len(db_user_fantasy_teams))
         self.assertEqual(user_1_fantasy_team, FantasyTeam.model_validate(db_user_fantasy_teams[0]))
 
-    def test_draft_player_no_available_leagues_for_fantasy_league_exception(self):
+    def test_pickup_player_no_available_leagues_for_fantasy_league_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -367,14 +367,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_league.id,
                 fantasy_fixtures.user_fixture.id,
                 riot_fixtures.player_1_fixture.id
             )
         self.assertIn("Player not in available league", str(context.exception))
 
-    def test_draft_player_not_in_available_leagues_for_fantasy_league_exception(self):
+    def test_pickup_player_not_in_available_leagues_for_fantasy_league_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -390,14 +390,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_league.id,
                 fantasy_fixtures.user_fixture.id,
                 riot_fixtures.player_1_fixture.id
             )
         self.assertIn("Player not in available league", str(context.exception))
 
-    def test_draft_player_no_slot_available_to_draft_player_for_role(self):
+    def test_pickup_player_no_slot_available_to_pickup_player_for_role(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -415,14 +415,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_league.id,
                 fantasy_fixtures.user_fixture.id,
                 riot_fixtures.player_1_fixture.id
             )
         self.assertIn("Slot not available for role", str(context.exception))
 
-    def test_draft_player_already_drafted_exception(self):
+    def test_pickup_player_already_drafted_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -448,27 +448,27 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
                 riot_fixtures.player_1_fixture.id
             )
         self.assertIn("Player already drafted", str(context.exception))
 
-    def test_draft_player_fantasy_league_not_found_exception(self):
+    def test_pickup_player_fantasy_league_not_found_exception(self):
         # Arrange
         db_util.create_user(fantasy_fixtures.user_fixture)
         db_util.save_player(pro_player_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 "badFantasyLeagueId",
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id
             )
 
-    def test_draft_player_fantasy_league_not_draft_or_active_state(self):
+    def test_pickup_player_fantasy_league_not_draft_or_active_state(self):
         # Arrange
         bad_states = [
             FantasyLeagueStatus.PRE_DRAFT,
@@ -488,13 +488,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             )
             db_util.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
-                fantasy_team_service.draft_player(
+                fantasy_team_service.pickup_player(
                     bad_fantasy_league.id,
                     fantasy_fixtures.user_fixture.id,
                     pro_player_fixture.id
                 )
 
-    def test_draft_player_user_not_an_active_member_exception(self):
+    def test_pickup_player_user_not_an_active_member_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -509,13 +509,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyMembershipException):
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_league.id,
                 fantasy_fixtures.user_fixture.id,
                 riot_fixtures.player_1_fixture.id
             )
 
-    def test_draft_player_professional_player_not_found_exception(self):
+    def test_pickup_player_professional_player_not_found_exception(self):
         # Arrange
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
@@ -530,7 +530,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(ProfessionalPlayerNotFoundException):
-            fantasy_team_service.draft_player(
+            fantasy_team_service.pickup_player(
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
                 "badProPlayerId"
