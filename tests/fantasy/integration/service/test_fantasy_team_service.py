@@ -154,6 +154,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
+        fantasy_league.current_draft_position = 1
         db_util.create_fantasy_league(fantasy_league)
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
@@ -203,6 +204,10 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
         self.assertEqual(
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
+        )
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(
+            fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
         )
 
     def test_pickup_player_has_no_initial_fantasy_team_for_draft_league_successful(self):

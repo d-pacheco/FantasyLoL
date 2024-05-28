@@ -71,6 +71,9 @@ class FantasyTeamService:
             )
 
         crud.create_or_update_fantasy_team(recent_fantasy_team)
+        if fantasy_league.status == FantasyLeagueStatus.DRAFT:
+            fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
+
         return recent_fantasy_team
 
     @staticmethod
