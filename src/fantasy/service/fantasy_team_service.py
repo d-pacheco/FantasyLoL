@@ -20,7 +20,6 @@ from ..exceptions.fantasy_draft_exception import FantasyDraftException
 from ..util.fantasy_league_util import FantasyLeagueUtil
 from ..util.fantasty_team_util import FantasyTeamUtil
 
-
 fantasy_league_util = FantasyLeagueUtil()
 fantasy_team_util = FantasyTeamUtil()
 
@@ -47,6 +46,14 @@ class FantasyTeamService:
         professional_player = get_player_from_db(player_id)
         fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         validate_user_membership(user_id, fantasy_league_id)
+
+        if (fantasy_league.status == FantasyLeagueStatus.DRAFT) \
+                and not (fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id)):
+            raise FantasyDraftException(
+                f"Invalid user draft position: The draft position for the user "
+                f"with ID {user_id} is not the current draft position for fantasy league "
+                f"with ID {fantasy_league_id}"
+            )
 
         recent_fantasy_team = get_users_most_recent_fantasy_team(fantasy_league, user_id)
         if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:

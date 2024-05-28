@@ -55,12 +55,24 @@ fantasy_league_fixture = fantasy_schemas.FantasyLeague(
     current_week=None
 )
 
+fantasy_league_draft_fixture = fantasy_schemas.FantasyLeague(
+    id=str(uuid.uuid4()),
+    owner_id=user_fixture.id,
+    status=fantasy_schemas.FantasyLeagueStatus.DRAFT,
+    name=fantasy_league_settings_fixture.name,
+    number_of_teams=fantasy_league_settings_fixture.number_of_teams,
+    available_leagues=fantasy_league_settings_fixture.available_leagues,
+    current_draft_position=1,
+    current_week=0
+)
+
 fantasy_league_active_fixture = fantasy_schemas.FantasyLeague(
     id=str(uuid.uuid4()),
     owner_id=user_fixture.id,
     status=fantasy_schemas.FantasyLeagueStatus.ACTIVE,
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams,
+    available_leagues=fantasy_league_settings_fixture.available_leagues,
     current_week=1
 )
 
