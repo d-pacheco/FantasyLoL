@@ -153,7 +153,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         self.assertEqual(expected_bool, returned_bool)
 
     @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_user')
-    def test_validate_user_can_draft_player_for_role_open_spot_available(
+    def test_validate_user_can_pickup_player_for_role_open_spot_available(
             self, mock_get_all_fantasy_teams_for_user):
         # Arrange
         user_id = "someUserId"
@@ -190,7 +190,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         self.assertEqual(expected_fantasy_team, returned_fantasy_team)
 
     @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_user')
-    def test_validate_user_can_draft_player_no_fantasy_teams_yet_saved(
+    def test_validate_user_can_pickup_player_no_fantasy_teams_yet_saved(
             self, mock_get_all_fantasy_teams_for_user):
         # Arrange
         user_id = "someUserId"
