@@ -147,6 +147,49 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
         self.assertFalse(riot_fixtures.league_1_fixture.fantasy_available)
         self.assertTrue(riot_fixtures.league_2_fixture.fantasy_available)
 
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
+    def test_update_fantasy_leagues_current_draft_position_increment_by_1(
+            self, mock_update_fantasy_league_current_draft_position):
+        # Arrange
+        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league.current_draft_position = 1
+        expected_new_draft_position = fantasy_league.current_draft_position + 1
+
+        # Act and Assert
+        fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
+        mock_update_fantasy_league_current_draft_position.assert_called_once_with(
+            fantasy_league.id, expected_new_draft_position
+        )
+        self.assertTrue(expected_new_draft_position <= fantasy_league.number_of_teams)
+
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
+    def test_update_fantasy_leagues_current_draft_position_rollover_to_1(
+            self, mock_update_fantasy_league_current_draft_position):
+        # Arrange
+        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league.current_draft_position = fantasy_league.number_of_teams
+        expected_new_draft_position = 1
+
+        # Act and Assert
+        fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
+        mock_update_fantasy_league_current_draft_position.assert_called_once_with(
+            fantasy_league.id, expected_new_draft_position
+        )
+
+    @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
+    def test_update_fantasy_leagues_current_draft_position_to_max_num_of_teams(
+            self, mock_update_fantasy_league_current_draft_position):
+        # Arrange
+        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league.current_draft_position = fantasy_league.number_of_teams - 1
+        expected_new_draft_position = fantasy_league.number_of_teams
+
+        # Act and Assert
+        fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
+        mock_update_fantasy_league_current_draft_position.assert_called_once_with(
+            fantasy_league.id, expected_new_draft_position
+        )
+
 
 def create_fantasy_league_model(status: FantasyLeagueStatus, week: int):
     return FantasyLeagueModel(
@@ -155,5 +198,6 @@ def create_fantasy_league_model(status: FantasyLeagueStatus, week: int):
         status=status,
         name="Fantasy League Model Fixture",
         number_of_teams=6,
+        current_draft_position=1,
         current_week=week
     )

@@ -39,3 +39,11 @@ class FantasyLeagueUtil:
                 raise FantasyUnavailableException(
                     f"Riot league with ID {league_id} not available to be used in Fantasy Leagues"
                 )
+
+    @staticmethod
+    def update_fantasy_leagues_current_draft_position(fantasy_league: FantasyLeagueModel):
+        if fantasy_league.current_draft_position + 1 <= fantasy_league.number_of_teams:
+            new_draft_position = fantasy_league.current_draft_position + 1
+        else:
+            new_draft_position = 1
+        crud.update_fantasy_league_current_draft_position(fantasy_league.id, new_draft_position)
