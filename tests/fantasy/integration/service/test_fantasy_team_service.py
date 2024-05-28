@@ -209,6 +209,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(
             fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
         )
+        self.assertEqual(FantasyLeagueStatus.DRAFT, db_fantasy_league.status)
 
     def test_pickup_player_has_no_initial_fantasy_team_for_draft_league_successful(self):
         # Arrange
@@ -261,6 +262,55 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(
+            fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
+        )
+        self.assertEqual(FantasyLeagueStatus.DRAFT, db_fantasy_league.status)
+
+    def test_pickup_player_for_draft_league_moves_to_active_status_all_teams_fully_drafted(self):
+        # Arrange
+        setup_league_team_player_date()
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
+        fantasy_league.number_of_teams = 4
+        fantasy_league.current_week = 0
+        fantasy_league.current_draft_position = fantasy_league.number_of_teams
+        fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
+        db_util.create_fantasy_league(fantasy_league)
+
+        user_1 = fantasy_fixtures.user_fixture
+        user_2 = fantasy_fixtures.user_2_fixture
+        user_3 = fantasy_fixtures.user_3_fixture
+        user_4 = fantasy_fixtures.user_4_fixture
+        users = [user_1, user_2, user_3, user_4]
+        draft_position = 1
+        for user in users:
+            db_util.create_user(user)
+            create_fantasy_league_membership_for_league(
+                fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+            )
+            create_fantasy_league_draft_position(fantasy_league.id, user.id, draft_position)
+            draft_position += 1
+
+            user_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_full)
+            user_fantasy_team.fantasy_league_id = fantasy_league.id
+            user_fantasy_team.user_id = user.id
+            user_fantasy_team.week = fantasy_league.current_week
+
+            if user.id == user_4.id:  # Set the user 4 to have an empty spot for the draft call
+                user_fantasy_team.top_player_id = None
+            db_util.create_fantasy_team(user_fantasy_team)
+
+        # Act
+        returned_fantasy_team = fantasy_team_service.pickup_player(
+            fantasy_league.id, user_4.id, riot_fixtures.player_1_fixture.id
+        )
+
+        # Assert
+        self.assertEqual(riot_fixtures.player_1_fixture.id, returned_fantasy_team.top_player_id)
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(1, db_fantasy_league.current_draft_position)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
 
     def test_pickup_player_for_active_league_successful(self):
         # Arrange
@@ -311,6 +361,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(
             user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
         )
+        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
 
     def test_pickup_player_not_users_current_draft_position_exception(self):
         # Arrange

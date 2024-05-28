@@ -37,3 +37,30 @@ class FantasyTeamUtil:
             )
 
         return users_draft_position == fantasy_league.current_draft_position
+
+    @staticmethod
+    def all_teams_fully_drafted(fantasy_league: FantasyLeague) -> bool:
+        fantasy_league_teams = crud.get_all_fantasy_teams_for_current_week(
+            fantasy_league.id, fantasy_league.current_week
+        )
+        if len(fantasy_league_teams) != fantasy_league.number_of_teams:
+            return False
+
+        all_teams_fully_draft = True
+        for team in fantasy_league_teams:
+            if team.top_player_id is None:
+                all_teams_fully_draft = False
+                break
+            if team.jungle_player_id is None:
+                all_teams_fully_draft = False
+                break
+            if team.mid_player_id is None:
+                all_teams_fully_draft = False
+                break
+            if team.adc_player_id is None:
+                all_teams_fully_draft = False
+                break
+            if team.support_player_id is None:
+                all_teams_fully_draft = False
+                break
+        return all_teams_fully_draft

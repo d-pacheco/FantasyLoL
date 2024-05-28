@@ -73,6 +73,9 @@ class FantasyTeamService:
         crud.create_or_update_fantasy_team(recent_fantasy_team)
         if fantasy_league.status == FantasyLeagueStatus.DRAFT:
             fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
+            if fantasy_team_util.all_teams_fully_drafted(fantasy_league):
+                crud.update_fantasy_league_status(fantasy_league_id, FantasyLeagueStatus.ACTIVE)
+                # TODO: NEED TO SET THE CURRENT WEEK TO BE THE CURRENT WEEK FOR THE LEAGUE(S)
 
         return recent_fantasy_team
 

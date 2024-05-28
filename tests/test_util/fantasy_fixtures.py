@@ -1,5 +1,6 @@
 import uuid
 import bcrypt
+from random import randint
 
 from src.common.schemas import fantasy_schemas
 
@@ -36,6 +37,13 @@ user_3_fixture = fantasy_schemas.User(
     id=str(uuid.uuid4()),
     username="user3",
     email="user3@email.com",
+    password=user_hashed_password
+)
+
+user_4_fixture = fantasy_schemas.User(
+    id=str(uuid.uuid4()),
+    username="user4",
+    email="user4@email.com",
     password=user_hashed_password
 )
 
@@ -86,6 +94,17 @@ fantasy_league_scoring_settings_fixture = fantasy_schemas.FantasyLeagueScoringSe
     wards_destroyed=0.2,
     kill_participation=15,
     damage_percentage=8
+)
+
+fantasy_team_full = fantasy_schemas.FantasyTeam(
+    fantasy_league_id=fantasy_league_active_fixture.id,
+    user_id=user_fixture.id,
+    week=1,
+    top_player_id=str(randint(10000, 99999)),
+    jungle_player_id=str(randint(10000, 99999)),
+    mid_player_id=str(randint(10000, 99999)),
+    adc_player_id=str(randint(10000, 99999)),
+    support_player_id=str(randint(10000, 99999))
 )
 
 fantasy_team_week_1 = fantasy_schemas.FantasyTeam(
