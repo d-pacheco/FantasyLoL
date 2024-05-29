@@ -1,12 +1,12 @@
 from unittest.mock import patch
-import uuid
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 from tests.test_util import riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
-    FantasyLeagueStatus
+    FantasyLeagueStatus,
+    FantasyLeague
 )
 from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
 
@@ -31,16 +31,20 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_successful(self, mock_get_fantasy_league_by_id):
         # Arrange
-        expected_fantasy_league_model = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 1)
-        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
+        expected_fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
+        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
+        required_states = [FantasyLeagueStatus.DRAFT]
 
         # Act
-        returned_fantasy_league_model = fantasy_league_util.validate_league(
-            expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT]
+        returned_fantasy_league = fantasy_league_util.validate_league(
+            expected_fantasy_league.id, required_states
         )
 
         # Assert
-        self.assertEqual(expected_fantasy_league_model, returned_fantasy_league_model)
+        self.assertEqual(expected_fantasy_league, returned_fantasy_league)
+        self.assertIsInstance(returned_fantasy_league, FantasyLeague)
+        self.assertIn(expected_fantasy_league.status, required_states)
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_league_not_found_exception(self, mock_get_fantasy_league_by_id):
@@ -54,31 +58,30 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_not_in_required_state(self, mock_get_fantasy_league_by_id):
         # Arrange
-        expected_fantasy_league_model = create_fantasy_league_model(
-            FantasyLeagueStatus.PRE_DRAFT, 1
-        )
-        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
+        expected_fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
+        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
+        required_states = [FantasyLeagueStatus.DRAFT]
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
-            fantasy_league_util.validate_league(
-                expected_fantasy_league_model.id, [FantasyLeagueStatus.DRAFT]
-            )
+            fantasy_league_util.validate_league(expected_fantasy_league.id, required_states)
+        self.assertNotIn(expected_fantasy_league.status, required_states)
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_no_required_state_should_return_fantasy_league_if_it_exists(
             self, mock_get_fantasy_league_by_id):
         # Arrange
-        expected_fantasy_league_model = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 1)
-        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league_model
+        expected_fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
+        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
 
         # Act
-        returned_fantasy_league_model = fantasy_league_util.validate_league(
-            expected_fantasy_league_model.id
-        )
+        returned_fantasy_league = fantasy_league_util.validate_league(fantasy_league_model.id)
 
         # Assert
-        self.assertEqual(expected_fantasy_league_model, returned_fantasy_league_model)
+        self.assertEqual(expected_fantasy_league, returned_fantasy_league)
+        self.assertIsInstance(returned_fantasy_league, FantasyLeague)
 
     @patch(f'{BASE_CRUD_PATH}.get_leagues')
     def test_validate_available_leagues_successful(self, mock_get_leagues):
@@ -151,7 +154,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
     def test_update_fantasy_leagues_current_draft_position_increment_by_1(
             self, mock_update_fantasy_league_current_draft_position):
         # Arrange
-        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = 1
         expected_new_draft_position = fantasy_league.current_draft_position + 1
 
@@ -166,7 +169,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
     def test_update_fantasy_leagues_current_draft_position_rollover_to_1(
             self, mock_update_fantasy_league_current_draft_position):
         # Arrange
-        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = fantasy_league.number_of_teams
         expected_new_draft_position = 1
 
@@ -180,7 +183,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
     def test_update_fantasy_leagues_current_draft_position_to_max_num_of_teams(
             self, mock_update_fantasy_league_current_draft_position):
         # Arrange
-        fantasy_league = create_fantasy_league_model(FantasyLeagueStatus.DRAFT, 0)
+        fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = fantasy_league.number_of_teams - 1
         expected_new_draft_position = fantasy_league.number_of_teams
 
@@ -189,15 +192,3 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
         mock_update_fantasy_league_current_draft_position.assert_called_once_with(
             fantasy_league.id, expected_new_draft_position
         )
-
-
-def create_fantasy_league_model(status: FantasyLeagueStatus, week: int):
-    return FantasyLeagueModel(
-        id=str(uuid.uuid4()),
-        owner_id=fantasy_fixtures.user_fixture.id,
-        status=status,
-        name="Fantasy League Model Fixture",
-        number_of_teams=6,
-        current_draft_position=1,
-        current_week=week
-    )
