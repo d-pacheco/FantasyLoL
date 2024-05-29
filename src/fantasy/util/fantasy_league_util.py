@@ -1,10 +1,9 @@
 from typing import List
 
 from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
-from ...common.schemas.fantasy_schemas import FantasyLeagueStatus
+from ...common.schemas.fantasy_schemas import FantasyLeagueStatus, FantasyLeague
 
 from ...db import crud
-from ...db.models import FantasyLeagueModel
 
 from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from ..exceptions.fantasy_league_invalid_required_state_exception import \
@@ -16,7 +15,7 @@ class FantasyLeagueUtil:
     @staticmethod
     def validate_league(
             fantasy_league_id: str,
-            required_states: List[FantasyLeagueStatus] = None) -> FantasyLeagueModel:
+            required_states: List[FantasyLeagueStatus] = None) -> FantasyLeague:
         fantasy_league_model = crud.get_fantasy_league_by_id(fantasy_league_id)
         if fantasy_league_model is None:
             raise FantasyLeagueNotFoundException()
@@ -25,7 +24,8 @@ class FantasyLeagueUtil:
             raise FantasyLeagueInvalidRequiredStateException(
                 fantasy_league_id, fantasy_league_model.status, required_states
             )
-        return fantasy_league_model
+        fantasy_league = FantasyLeague.model_validate(fantasy_league_model)
+        return fantasy_league
 
     @staticmethod
     def validate_available_leagues(selected_league_ids: List[str]):
@@ -41,7 +41,7 @@ class FantasyLeagueUtil:
                 )
 
     @staticmethod
-    def update_fantasy_leagues_current_draft_position(fantasy_league: FantasyLeagueModel):
+    def update_fantasy_leagues_current_draft_position(fantasy_league: FantasyLeague):
         if fantasy_league.current_draft_position + 1 <= fantasy_league.number_of_teams:
             new_draft_position = fantasy_league.current_draft_position + 1
         else:
