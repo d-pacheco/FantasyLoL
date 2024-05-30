@@ -24,7 +24,7 @@ logger = logging.getLogger('fantasy-lol')
         }
     }
 )
-async def manual_fetch_leagues_from_riot_job_trigger():
+async def manual_fetch_leagues_from_riot_job_trigger() -> str:
     job_scheduler.trigger_league_service_job()
     return "Job triggered successfully"
 
@@ -44,7 +44,7 @@ async def manual_fetch_leagues_from_riot_job_trigger():
         }
     }
 )
-async def trigger_fetch_tournaments_from_riot_job():
+async def trigger_fetch_tournaments_from_riot_job() -> str:
     job_scheduler.trigger_tournament_service_job()
     return "Job triggered successfully"
 
@@ -64,7 +64,7 @@ async def trigger_fetch_tournaments_from_riot_job():
         }
     }
 )
-async def trigger_fetch_schedule_from_riot_job():
+async def trigger_fetch_schedule_from_riot_job() -> str:
     job_scheduler.trigger_match_service_job()
     return "Job triggered successfully"
 
@@ -84,7 +84,7 @@ async def trigger_fetch_schedule_from_riot_job():
         }
     }
 )
-async def trigger_fetch_games_from_match_ids_job():
+async def trigger_fetch_games_from_match_ids_job() -> str:
     job_scheduler.trigger_games_from_match_ids_job()
     return "Job triggered successfully"
 
@@ -104,7 +104,7 @@ async def trigger_fetch_games_from_match_ids_job():
         }
     }
 )
-async def trigger_update_game_states_job():
+async def trigger_update_game_states_job() -> str:
     job_scheduler.trigger_update_game_states_job()
     return "Job triggered successfully"
 
@@ -124,7 +124,7 @@ async def trigger_update_game_states_job():
         }
     }
 )
-async def trigger_fetch_teams_from_riot_job():
+async def trigger_fetch_teams_from_riot_job() -> str:
     job_scheduler.trigger_team_service_job()
     return "Job triggered successfully"
 
@@ -144,6 +144,6 @@ async def trigger_fetch_teams_from_riot_job():
         }
     }
 )
-async def trigger_fetch_players_from_riot_job():
+async def trigger_fetch_players_from_riot_job() -> str:
     job_scheduler.trigger_player_service_job()
     return "Job triggered successfully"

@@ -14,7 +14,8 @@ game_service = RiotGameService()
 logger = logging.getLogger('fantasy-lol')
 
 
-def validate_status_parameter(state: GameState = Query(None, description="Filter by game state")):
+def validate_status_parameter(
+        state: GameState = Query(None, description="Filter by game state")) -> GameState:
     return state
 
 
@@ -31,7 +32,7 @@ def validate_status_parameter(state: GameState = Query(None, description="Filter
 )
 def get_riot_games(
         state: GameState = Depends(validate_status_parameter),
-        match_id: str = Query(None, description="Filter by game match id")):
+        match_id: str = Query(None, description="Filter by game match id")) -> Page[Game]:
     search_parameters = GameSearchParameters(
         state=state,
         match_id=match_id
@@ -59,5 +60,5 @@ def get_riot_games(
         }
     }
 )
-def get_riot_game_by_id(game_id: str):
+def get_riot_game_by_id(game_id: str) -> Game:
     return game_service.get_game_by_id(game_id)

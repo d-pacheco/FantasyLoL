@@ -26,7 +26,7 @@ logger = logging.getLogger('fantasy-lol')
 )
 def get_riot_matches(
         league_slug: str = Query(None, description="Filter by league name"),
-        tournament_id: str = Query(None, description="Filter by tournament id")):
+        tournament_id: str = Query(None, description="Filter by tournament id")) -> Page[Match]:
     search_parameters = MatchSearchParameters(
         league_slug=league_slug,
         tournament_id=tournament_id
@@ -46,5 +46,5 @@ def get_riot_matches(
         }
     }
 )
-def get_riot_match_by_id(match_id: str):
+def get_riot_match_by_id(match_id: str) -> Match:
     return match_service.get_match_by_id(match_id)

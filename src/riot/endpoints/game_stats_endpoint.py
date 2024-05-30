@@ -27,7 +27,8 @@ logger = logging.getLogger('fantasy-lol')
 )
 def get_game_stats_for_game(
         game_id: str = Query(None, description="Game id"),
-        player_id: str = Query(None, description="The id of the player to search for")):
+        player_id: str = Query(None, description="The id of the player to search for")
+) -> Page[PlayerGameData]:
     search_parameters = PlayerGameStatsSearchParameters(
         game_id=game_id,
         player_id=player_id

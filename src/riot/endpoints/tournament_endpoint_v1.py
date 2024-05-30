@@ -13,7 +13,7 @@ tournament_service = RiotTournamentService()
 
 
 def validate_status_parameter(status: TournamentStatus = Query(
-        None, description="Status of tournament")):
+        None, description="Status of tournament")) -> TournamentStatus:
     return status
 
 
@@ -28,7 +28,8 @@ def validate_status_parameter(status: TournamentStatus = Query(
         }
     }
 )
-def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_parameter)):
+def get_riot_tournaments(
+        status: TournamentStatus = Depends(validate_status_parameter)) -> Page[Tournament]:
     search_parameters = TournamentSearchParameters(status=status)
     tournaments = tournament_service.get_tournaments(search_parameters)
     return paginate(tournaments)
@@ -53,5 +54,5 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
         }
     }
 )
-def get_riot_tournaments_by_id(tournament_id: str):
+def get_riot_tournaments_by_id(tournament_id: str) -> Tournament:
     return tournament_service.get_tournament_by_id(tournament_id)
