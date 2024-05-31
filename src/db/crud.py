@@ -81,19 +81,28 @@ def save_tournament(tournament: Tournament):
         db.commit()
 
 
-def get_tournaments(filters: list) -> List[TournamentModel]:
+def get_tournaments(filters: list) -> List[Tournament]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(TournamentModel).filter(*filters)
         else:
             query = db.query(TournamentModel)
-        return query.all()
+        tournament_models = query.all()
+        tournaments = [
+            Tournament.model_validate(tournament_model)
+            for tournament_model in tournament_models
+        ]
+        return tournaments
 
 
-def get_tournament_by_id(tournament_id: str) -> TournamentModel:
+def get_tournament_by_id(tournament_id: str) -> Optional[Tournament]:
     with DatabaseConnection() as db:
-        return db.query(TournamentModel) \
+        tournament_model = db.query(TournamentModel)\
             .filter(TournamentModel.id == tournament_id).first()
+        if tournament_model is None:
+            return None
+        else:
+            return Tournament.model_validate(tournament_model)
 
 
 # --------------------------------------------------

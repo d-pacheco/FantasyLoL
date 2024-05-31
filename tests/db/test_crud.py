@@ -854,12 +854,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(1, len(tournament_models_from_db))
-        tournament_from_db = schemas.Tournament.model_validate(tournament_models_from_db[0])
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(1, len(tournaments_from_db))
+        tournament_from_db = tournaments_from_db[0]
+        self.assertIsInstance(tournament_from_db, Tournament)
         self.assertEqual(expected_tournament, tournament_from_db)
 
     def test_get_tournaments_empty_filters_no_existing_tournaments(self):
@@ -867,11 +868,11 @@ class CrudTest(FantasyLolTestBase):
         filters = []
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(0, len(tournament_models_from_db))
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(0, len(tournaments_from_db))
 
     def test_get_tournaments_start_date_filter_existing_tournament(self):
         # Arrange
@@ -881,12 +882,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(1, len(tournament_models_from_db))
-        tournament_from_db = schemas.Tournament.model_validate(tournament_models_from_db[0])
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(1, len(tournaments_from_db))
+        tournament_from_db = tournaments_from_db[0]
+        self.assertIsInstance(tournament_from_db, Tournament)
         self.assertEqual(expected_tournament, tournament_from_db)
 
     def test_get_tournaments_start_date_filter_no_existing_tournament(self):
@@ -897,11 +899,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(0, len(tournament_models_from_db))
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(0, len(tournaments_from_db))
 
     def test_get_tournaments_end_date_filter_existing_tournament(self):
         # Arrange
@@ -911,12 +913,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(1, len(tournament_models_from_db))
-        tournament_from_db = schemas.Tournament.model_validate(tournament_models_from_db[0])
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(1, len(tournaments_from_db))
+        tournament_from_db = tournaments_from_db[0]
+        self.assertIsInstance(tournament_from_db, Tournament)
         self.assertEqual(expected_tournament, tournament_from_db)
 
     def test_get_tournaments_end_date_filter_no_existing_tournament(self):
@@ -927,11 +930,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_models_from_db = crud.get_tournaments(filters)
+        tournaments_from_db = crud.get_tournaments(filters)
 
         # Assert
-        self.assertIsInstance(tournament_models_from_db, list)
-        self.assertEqual(0, len(tournament_models_from_db))
+        self.assertIsInstance(tournaments_from_db, list)
+        self.assertEqual(0, len(tournaments_from_db))
 
     def test_get_tournament_by_id_existing_tournament(self):
         # Arrange
@@ -939,11 +942,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_tournament(expected_tournament)
 
         # Act
-        tournament_model_from_db = crud.get_tournament_by_id(expected_tournament.id)
+        tournament_from_db = crud.get_tournament_by_id(expected_tournament.id)
 
         # Assert
-        self.assertIsNotNone(tournament_model_from_db)
-        tournament_from_db = schemas.Tournament.model_validate(tournament_model_from_db)
+        self.assertIsNotNone(tournament_from_db)
+        self.assertIsInstance(tournament_from_db, Tournament)
         self.assertEqual(expected_tournament, tournament_from_db)
 
     def test_get_tournament_by_id_no_existing_tournament(self):
@@ -951,10 +954,10 @@ class CrudTest(FantasyLolTestBase):
         expected_tournament = riot_fixtures.tournament_fixture
 
         # Act
-        tournament_model_from_db = crud.get_tournament_by_id(expected_tournament.id)
+        tournament_from_db = crud.get_tournament_by_id(expected_tournament.id)
 
         # Assert
-        self.assertIsNone(tournament_model_from_db)
+        self.assertIsNone(tournament_from_db)
 
     # --------------------------------------------------
     # --------------- Match Operations -----------------
