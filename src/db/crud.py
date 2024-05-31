@@ -365,15 +365,20 @@ def get_player_game_stats(filters: list = None) -> List[PlayerGameData]:
 # --------------------------------------------------
 # --------------- Schedule Operations --------------
 # --------------------------------------------------
-def get_schedule(schedule_name: str) -> Schedule:
+def get_schedule(schedule_name: str) -> Optional[Schedule]:
     with DatabaseConnection() as db:
-        return db.query(Schedule) \
-            .filter(Schedule.schedule_name == schedule_name).first()
+        schedule_model: ScheduleModel = db.query(ScheduleModel) \
+            .filter(ScheduleModel.schedule_name == schedule_name).first()
+        if schedule_model is None:
+            return None
+        else:
+            return Schedule.model_validate(schedule_model)
 
 
-def update_schedule(schedule: Schedule):
+def update_schedule(schedule: Schedule) -> None:
+    db_schedule = ScheduleModel(**schedule.model_dump())
     with DatabaseConnection() as db:
-        db.merge(schedule)
+        db.merge(db_schedule)
         db.commit()
 
 
@@ -532,9 +537,9 @@ def get_users_fantasy_leagues_with_membership_status(
             .join(FantasyLeagueMembershipModel,
                   FantasyLeagueModel.id == FantasyLeagueMembershipModel.league_id) \
             .filter(and_(
-            FantasyLeagueMembershipModel.user_id == user_id,
-            FantasyLeagueMembershipModel.status == membership_status
-        )).all()
+                FantasyLeagueMembershipModel.user_id == user_id,
+                FantasyLeagueMembershipModel.status == membership_status
+            )).all()
 
 
 def update_fantasy_leagues_current_draft_position(

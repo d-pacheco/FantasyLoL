@@ -239,9 +239,9 @@ class RiotApiRequester:
             player_stats_from_response.append(new_player_stats)
         return player_stats_from_response
 
-    def get_pages_from_schedule(self, page_token: str = None) -> schemas.RiotSchedulePages:
+    def get_pages_from_schedule(self, page_token: str = None) -> schemas.Schedule:
         schedule = self.__get_schedule(page_token)
-        pages = schemas.RiotSchedulePages(
+        pages = schemas.Schedule(
             older=schedule['pages']['older'],
             newer=schedule['pages']['newer']
         )
