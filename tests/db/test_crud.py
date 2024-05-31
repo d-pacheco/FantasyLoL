@@ -981,12 +981,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches()
+        matches_from_db = crud.get_matches()
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(1, len(match_models_from_db))
-        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(1, len(matches_from_db))
+        match_from_db = matches_from_db[0]
+        self.assertIsInstance(match_from_db, Match)
         self.assertEqual(expected_match, match_from_db)
 
     def test_get_matches_empty_filters(self):
@@ -996,12 +997,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches(filters)
+        matches_from_db = crud.get_matches(filters)
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(1, len(match_models_from_db))
-        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(1, len(matches_from_db))
+        match_from_db = matches_from_db[0]
+        self.assertIsInstance(match_from_db, Match)
         self.assertEqual(expected_match, match_from_db)
 
     def test_get_matches_league_slug_filter_existing_match(self):
@@ -1012,12 +1014,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches(filters)
+        matches_from_db = crud.get_matches(filters)
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(1, len(match_models_from_db))
-        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(1, len(matches_from_db))
+        match_from_db = matches_from_db[0]
+        self.assertIsInstance(match_from_db, Match)
         self.assertEqual(expected_match, match_from_db)
 
     def test_get_matches_league_slug_filter_no_existing_match(self):
@@ -1028,11 +1031,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches(filters)
+        matches_from_db = crud.get_matches(filters)
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(0, len(match_models_from_db))
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(0, len(matches_from_db))
 
     def test_get_matches_tournament_id_filter_existing_match(self):
         # Arrange
@@ -1042,12 +1045,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches(filters)
+        matches_from_db = crud.get_matches(filters)
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(1, len(match_models_from_db))
-        match_from_db = schemas.Match.model_validate(match_models_from_db[0])
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(1, len(matches_from_db))
+        match_from_db = matches_from_db[0]
+        self.assertIsInstance(match_from_db, Match)
         self.assertEqual(expected_match, match_from_db)
 
     def test_get_matches_tournament_id_filter_no_existing_match(self):
@@ -1058,11 +1062,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_models_from_db = crud.get_matches(filters)
+        matches_from_db = crud.get_matches(filters)
 
         # Assert
-        self.assertIsInstance(match_models_from_db, list)
-        self.assertEqual(0, len(match_models_from_db))
+        self.assertIsInstance(matches_from_db, list)
+        self.assertEqual(0, len(matches_from_db))
 
     def test_get_match_by_id_existing_match(self):
         # Arrange
@@ -1070,11 +1074,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_match(expected_match)
 
         # Act
-        match_model_from_db = crud.get_match_by_id(expected_match.id)
+        match_from_db = crud.get_match_by_id(expected_match.id)
 
         # Assert
-        self.assertIsNotNone(match_model_from_db)
-        match_from_db = schemas.Match.model_validate(match_model_from_db)
+        self.assertIsNotNone(match_from_db)
+        self.assertIsInstance(match_from_db, Match)
         self.assertEqual(expected_match, match_from_db)
 
     def test_get_match_by_id_no_existing_match(self):
@@ -1082,10 +1086,10 @@ class CrudTest(FantasyLolTestBase):
         expected_match = riot_fixtures.match_fixture
 
         # Act
-        match_model_from_db = crud.get_match_by_id(expected_match.id)
+        match_from_db = crud.get_match_by_id(expected_match.id)
 
         # Assert
-        self.assertIsNone(match_model_from_db)
+        self.assertIsNone(match_from_db)
 
     def test_get_match_ids_without_games_matches_with_no_games(self):
         # Arrange

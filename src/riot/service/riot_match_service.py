@@ -117,14 +117,12 @@ class RiotMatchService:
             filters.append(MatchModel.league_slug == search_parameters.league_slug)
         if search_parameters.tournament_id is not None:
             filters.append(MatchModel.tournament_id == search_parameters.tournament_id)
-        matches_orms = crud.get_matches(filters)
-        matches = [Match.model_validate(match_orm) for match_orm in matches_orms]
+        matches = crud.get_matches(filters)
         return matches
 
     @staticmethod
     def get_match_by_id(match_id: str) -> Match:
-        match_orm = crud.get_match_by_id(match_id)
-        if match_orm is None:
+        match = crud.get_match_by_id(match_id)
+        if match is None:
             raise MatchNotFoundException()
-        match = Match.model_validate(match_orm)
         return match

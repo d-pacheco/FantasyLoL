@@ -115,19 +115,25 @@ def save_match(match: Match):
         db.commit()
 
 
-def get_matches(filters: list = None) -> List[MatchModel]:
+def get_matches(filters: list = None) -> List[Match]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(MatchModel).filter(*filters)
         else:
             query = db.query(MatchModel)
-        return query.all()
+        match_models = query.all()
+        matches = [Match.model_validate(match_model) for match_model in match_models]
+
+        return matches
 
 
-def get_match_by_id(match_id: str) -> MatchModel:
+def get_match_by_id(match_id: str) -> Optional[Match]:
     with DatabaseConnection() as db:
-        return db.query(MatchModel) \
-            .filter(MatchModel.id == match_id).first()
+        match_model = db.query(MatchModel).filter(MatchModel.id == match_id).first()
+        if match_model is None:
+            return None
+        else:
+            return Match.model_validate(match_model)
 
 
 def get_match_ids_without_games() -> List[str]:
