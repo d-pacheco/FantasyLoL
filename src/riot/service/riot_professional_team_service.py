@@ -48,15 +48,12 @@ class RiotProfessionalTeamService:
         if search_parameters.league is not None:
             filters.append(ProfessionalTeamModel.home_league == search_parameters.league)
 
-        professional_teams_orms = crud.get_teams(filters)
-        professional_teams = [ProfessionalTeam.model_validate(team_orm)
-                              for team_orm in professional_teams_orms]
+        professional_teams = crud.get_teams(filters)
         return professional_teams
 
     @staticmethod
     def get_team_by_id(professional_team_id: str) -> ProfessionalTeam:
-        professional_team_orm = crud.get_team_by_id(professional_team_id)
-        if professional_team_orm is None:
+        professional_team = crud.get_team_by_id(professional_team_id)
+        if professional_team is None:
             raise ProfessionalTeamNotFoundException()
-        professional_team = ProfessionalTeam.model_validate(professional_team_orm)
         return professional_team

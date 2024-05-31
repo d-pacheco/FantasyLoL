@@ -235,19 +235,26 @@ def save_team(team: ProfessionalTeam):
         db.commit()
 
 
-def get_teams(filters: list = None) -> List[ProfessionalTeamModel]:
+def get_teams(filters: list = None) -> List[ProfessionalTeam]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(ProfessionalTeamModel).filter(*filters)
         else:
             query = db.query(ProfessionalTeamModel)
-        return query.all()
+        team_models: List[ProfessionalTeamModel] = query.all()
+        teams = [ProfessionalTeam.model_validate(team_model) for team_model in team_models]
+
+        return teams
 
 
-def get_team_by_id(team_id: str) -> ProfessionalTeamModel:
+def get_team_by_id(team_id: str) -> Optional[ProfessionalTeam]:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalTeamModel) \
+        team_model: ProfessionalTeamModel = db.query(ProfessionalTeamModel)\
             .filter(ProfessionalTeamModel.id == team_id).first()
+        if team_model is None:
+            return None
+        else:
+            return ProfessionalTeam.model_validate(team_model)
 
 
 # --------------------------------------------------

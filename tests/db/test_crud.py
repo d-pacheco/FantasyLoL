@@ -1147,12 +1147,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(expected_team)
 
         # Act
-        team_models_from_db = crud.get_teams()
+        teams_from_db = crud.get_teams()
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_empty_filters(self):
@@ -1162,12 +1163,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(expected_team)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_name_filter_existing_team(self):
@@ -1179,12 +1181,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_name_filter_no_existing_team(self):
@@ -1195,11 +1198,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(0, len(team_models_from_db))
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(0, len(teams_from_db))
 
     def test_get_teams_slug_filter_existing_team(self):
         # Arrange
@@ -1210,12 +1213,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_slug_filter_no_existing_team(self):
@@ -1226,11 +1230,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(0, len(team_models_from_db))
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(0, len(teams_from_db))
 
     def test_get_teams_code_filter_existing_team(self):
         # Arrange
@@ -1241,12 +1245,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_code_filter_no_existing_team(self):
@@ -1257,11 +1262,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(0, len(team_models_from_db))
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(0, len(teams_from_db))
 
     def test_get_teams_status_filter_existing_team(self):
         # Arrange
@@ -1271,12 +1276,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(expected_team)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_status_filter_no_existing_team(self):
@@ -1286,11 +1292,11 @@ class CrudTest(FantasyLolTestBase):
         filters.append(models.ProfessionalTeamModel.status == team_1.status)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(0, len(team_models_from_db))
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(0, len(teams_from_db))
 
     def test_get_teams_league_filter_existing_team(self):
         # Arrange
@@ -1300,12 +1306,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(expected_team)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(1, len(team_models_from_db))
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_models_from_db[0])
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(1, len(teams_from_db))
+        team_from_db = teams_from_db[0]
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_teams_league_filter_no_existing_team(self):
@@ -1315,11 +1322,11 @@ class CrudTest(FantasyLolTestBase):
         filters.append(models.ProfessionalTeamModel.home_league == team_1.home_league)
 
         # Act
-        team_models_from_db = crud.get_teams(filters)
+        teams_from_db = crud.get_teams(filters)
 
         # Assert
-        self.assertIsInstance(team_models_from_db, list)
-        self.assertEqual(0, len(team_models_from_db))
+        self.assertIsInstance(teams_from_db, list)
+        self.assertEqual(0, len(teams_from_db))
 
     def test_get_team_by_id_existing_team(self):
         # Arrange
@@ -1327,11 +1334,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_team(expected_team)
 
         # Act
-        team_model_from_db = crud.get_team_by_id(expected_team.id)
+        team_from_db = crud.get_team_by_id(expected_team.id)
 
         # Assert
-        self.assertIsNotNone(team_model_from_db)
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_model_from_db)
+        self.assertIsNotNone(team_from_db)
+        self.assertIsInstance(team_from_db, ProfessionalTeam)
         self.assertEqual(expected_team, team_from_db)
 
     def test_get_team_from_id_no_existing_team(self):
@@ -1339,10 +1346,10 @@ class CrudTest(FantasyLolTestBase):
         expected_team = riot_fixtures.team_1_fixture
 
         # Act
-        team_model_from_db = crud.get_team_by_id(expected_team.id)
+        team_from_db = crud.get_team_by_id(expected_team.id)
 
         # Assert
-        self.assertIsNone(team_model_from_db)
+        self.assertIsNone(team_from_db)
 
     # --------------------------------------------------
     # ---------- Fantasy League Operations -------------
