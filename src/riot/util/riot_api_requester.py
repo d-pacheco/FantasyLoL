@@ -102,7 +102,7 @@ class RiotApiRequester:
             leagues_from_response.append(new_league)
         return leagues_from_response
 
-    def get_tournament_for_league(self, league_id: int) -> List[schemas.Tournament]:
+    def get_tournament_for_league(self, league_id: str) -> List[schemas.Tournament]:
         url = f"{self.esports_api_url}/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:

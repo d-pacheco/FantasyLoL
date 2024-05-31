@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy import text
 from sqlalchemy import and_
 from typing import Optional
@@ -21,31 +20,40 @@ def save_league(league: League):
         db.commit()
 
 
-def get_leagues(filters: list = None) -> List[LeagueModel]:
+def get_leagues(filters: list = None) -> List[League]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(LeagueModel).filter(*filters)
         else:
             query = db.query(LeagueModel)
-        return query.all()
+        league_models = query.all()
+        leagues = [League.model_validate(league_model) for league_model in league_models]
+
+        return leagues
 
 
-def get_league_by_id(league_id: str) -> LeagueModel:
-    with DatabaseConnection() as db:
-        return db.query(LeagueModel).filter(LeagueModel.id == league_id).first()
-
-
-def update_league_fantasy_available_status(league_id: str, new_status: bool) \
-        -> Optional[LeagueModel]:
+def get_league_by_id(league_id: str) -> Optional[League]:
     with DatabaseConnection() as db:
         db_league = db.query(LeagueModel).filter(LeagueModel.id == league_id).first()
+        if db_league is None:
+            return None
+        else:
+            return League.model_validate(db_league)
+
+
+def update_league_fantasy_available_status(league_id: str, new_status: bool) -> Optional[League]:
+    with DatabaseConnection() as db:
+        db_league: Optional[LeagueModel] = db.query(LeagueModel)\
+            .filter(LeagueModel.id == league_id).first()
         if db_league is None:
             return None
         db_league.fantasy_available = new_status
         db.merge(db_league)
         db.commit()
         db.refresh(db_league)
-        return db_league
+
+        league = League.model_validate(db_league)
+        return league
 
 
 def get_league_ids_for_player(player_id: str) -> List[str]:

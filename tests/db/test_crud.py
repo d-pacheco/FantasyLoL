@@ -4,6 +4,8 @@ from datetime import datetime
 
 from src.db import views
 from src.db import models, crud
+from src.common.schemas.riot_data_schemas import *
+from src.common.schemas.fantasy_schemas import *
 from src.common.schemas import fantasy_schemas, riot_data_schemas as schemas
 
 from tests.test_base import FantasyLolTestBase
@@ -686,13 +688,14 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(expected_league)
 
         # Act
-        league_models_from_db = crud.get_leagues()
+        leagues_from_db = crud.get_leagues()
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(1, len(league_models_from_db))
-        league_from_db = schemas.League.model_validate(league_models_from_db[0])
-        self.assertEqual(expected_league, league_from_db)
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        league_from_db = leagues_from_db[0]
+        self.assertIsInstance(league_from_db, League)
+        self.assertEqual(expected_league, leagues_from_db[0])
 
     def test_get_leagues_empty_filters(self):
         # Arrange
@@ -701,12 +704,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(expected_league)
 
         # Act
-        league_models_from_db = crud.get_leagues(filters)
+        leagues_from_db = crud.get_leagues(filters)
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(1, len(league_models_from_db))
-        league_from_db = schemas.League.model_validate(league_models_from_db[0])
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        league_from_db = leagues_from_db[0]
+        self.assertIsInstance(league_from_db, League)
         self.assertEqual(expected_league, league_from_db)
 
     def test_get_leagues_name_filter(self):
@@ -718,12 +722,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
-        league_models_from_db = crud.get_leagues(filters)
+        leagues_from_db = crud.get_leagues(filters)
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(1, len(league_models_from_db))
-        league_from_db = schemas.League.model_validate(league_models_from_db[0])
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        league_from_db = leagues_from_db[0]
+        self.assertIsInstance(league_from_db, League)
         self.assertEqual(expected_league, league_from_db)
 
     def test_get_leagues_name_filter_no_league(self):
@@ -734,11 +739,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
-        league_models_from_db = crud.get_leagues(filters)
+        leagues_from_db = crud.get_leagues(filters)
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(0, len(league_models_from_db))
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(0, len(leagues_from_db))
 
     def test_get_leagues_region_filter(self):
         # Arrange
@@ -749,12 +754,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
-        league_models_from_db = crud.get_leagues(filters)
+        leagues_from_db = crud.get_leagues(filters)
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(1, len(league_models_from_db))
-        league_from_db = schemas.League.model_validate(league_models_from_db[0])
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(1, len(leagues_from_db))
+        league_from_db = leagues_from_db[0]
+        self.assertIsInstance(league_from_db, League)
         self.assertEqual(expected_league, league_from_db)
 
     def test_get_leagues_region_filter_no_league(self):
@@ -765,11 +771,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
-        league_models_from_db = crud.get_leagues(filters)
+        leagues_from_db = crud.get_leagues(filters)
 
         # Assert
-        self.assertIsInstance(league_models_from_db, list)
-        self.assertEqual(0, len(league_models_from_db))
+        self.assertIsInstance(leagues_from_db, list)
+        self.assertEqual(0, len(leagues_from_db))
 
     def test_get_league_by_id_existing_league(self):
         # Arrange
@@ -777,11 +783,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_league(expected_league)
 
         # Act
-        league_model_from_db = crud.get_league_by_id(expected_league.id)
+        league_from_db = crud.get_league_by_id(expected_league.id)
 
         # Assert
-        self.assertIsNotNone(league_model_from_db)
-        league_from_db = schemas.League.model_validate(league_model_from_db)
+        self.assertIsNotNone(league_from_db)
+        self.assertIsInstance(league_from_db, League)
         self.assertEqual(expected_league, league_from_db)
 
     def test_get_league_by_id_no_existing_league(self):
@@ -789,10 +795,10 @@ class CrudTest(FantasyLolTestBase):
         expected_league = riot_fixtures.league_1_fixture
 
         # Act
-        league_model_from_db = crud.get_league_by_id(expected_league.id)
+        league_from_db = crud.get_league_by_id(expected_league.id)
 
         # Assert
-        self.assertIsNone(league_model_from_db)
+        self.assertIsNone(league_from_db)
 
     def test_get_league_ids_for_player_successful(self):
         # Arrange
