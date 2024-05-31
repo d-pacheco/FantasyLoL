@@ -442,12 +442,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_game(expected_game)
 
         # Act
-        game_models_from_db = crud.get_games()
+        games_from_db = crud.get_games()
 
         # Assert
-        self.assertIsInstance(game_models_from_db, list)
-        self.assertEqual(1, len(game_models_from_db))
-        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertIsInstance(games_from_db, list)
+        self.assertEqual(1, len(games_from_db))
+        game_from_db = games_from_db[0]
+        self.assertIsInstance(game_from_db, Game)
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_games_empty_filters(self):
@@ -457,12 +458,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_game(expected_game)
 
         # Act
-        game_models_from_db = crud.get_games(filters)
+        games_from_db = crud.get_games(filters)
 
         # Assert
-        self.assertIsInstance(game_models_from_db, list)
-        self.assertEqual(1, len(game_models_from_db))
-        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertIsInstance(games_from_db, list)
+        self.assertEqual(1, len(games_from_db))
+        game_from_db = games_from_db[0]
+        self.assertIsInstance(game_from_db, Game)
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_games_game_state_filter(self):
@@ -475,12 +477,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_game(riot_fixtures.game_3_fixture_unstarted)
 
         # Act
-        game_models_from_db = crud.get_games(filters)
+        games_from_db = crud.get_games(filters)
 
         # Assert
-        self.assertIsInstance(game_models_from_db, list)
-        self.assertEqual(1, len(game_models_from_db))
-        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertIsInstance(games_from_db, list)
+        self.assertEqual(1, len(games_from_db))
+        game_from_db = games_from_db[0]
+        self.assertIsInstance(game_from_db, Game)
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_games_match_id_filter(self):
@@ -492,12 +495,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_game(riot_fixtures.game_3_fixture_unstarted)
 
         # Act
-        game_models_from_db = crud.get_games(filters)
+        games_from_db = crud.get_games(filters)
 
         # Assert
-        self.assertIsInstance(game_models_from_db, list)
-        self.assertEqual(1, len(game_models_from_db))
-        game_from_db = schemas.Game.model_validate(game_models_from_db[0])
+        self.assertIsInstance(games_from_db, list)
+        self.assertEqual(1, len(games_from_db))
+        game_from_db = games_from_db[0]
+        self.assertIsInstance(game_from_db, Game)
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_game_by_id_existing_game(self):
@@ -506,10 +510,10 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_game(expected_game)
 
         # Act
-        game_model_from_db = crud.get_game_by_id(expected_game.id)
+        game_from_db = crud.get_game_by_id(expected_game.id)
 
         # Assert
-        game_from_db = schemas.Game.model_validate(game_model_from_db)
+        self.assertIsInstance(game_from_db, Game)
         self.assertEqual(expected_game, game_from_db)
 
     def test_get_game_by_id_no_existing_game(self):
@@ -517,10 +521,10 @@ class CrudTest(FantasyLolTestBase):
         expected_game = riot_fixtures.game_1_fixture_completed
 
         # Act
-        game_model_from_db = crud.get_game_by_id(expected_game.id)
+        game_from_db = crud.get_game_by_id(expected_game.id)
 
         # Assert
-        self.assertIsNone(game_model_from_db)
+        self.assertIsNone(game_from_db)
 
     def test_get_games_to_check_status_inprogress_game(self):
         # Arrange

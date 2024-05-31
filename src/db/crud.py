@@ -87,7 +87,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
             query = db.query(TournamentModel).filter(*filters)
         else:
             query = db.query(TournamentModel)
-        tournament_models = query.all()
+        tournament_models: List[TournamentModel] = query.all()
         tournaments = [
             Tournament.model_validate(tournament_model)
             for tournament_model in tournament_models
@@ -97,7 +97,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
 
 def get_tournament_by_id(tournament_id: str) -> Optional[Tournament]:
     with DatabaseConnection() as db:
-        tournament_model = db.query(TournamentModel)\
+        tournament_model: TournamentModel = db.query(TournamentModel)\
             .filter(TournamentModel.id == tournament_id).first()
         if tournament_model is None:
             return None
@@ -121,7 +121,7 @@ def get_matches(filters: list = None) -> List[Match]:
             query = db.query(MatchModel).filter(*filters)
         else:
             query = db.query(MatchModel)
-        match_models = query.all()
+        match_models: List[MatchModel] = query.all()
         matches = [Match.model_validate(match_model) for match_model in match_models]
 
         return matches
@@ -129,7 +129,7 @@ def get_matches(filters: list = None) -> List[Match]:
 
 def get_match_by_id(match_id: str) -> Optional[Match]:
     with DatabaseConnection() as db:
-        match_model = db.query(MatchModel).filter(MatchModel.id == match_id).first()
+        match_model: MatchModel = db.query(MatchModel).filter(MatchModel.id == match_id).first()
         if match_model is None:
             return None
         else:
@@ -163,9 +163,7 @@ def save_game(game: Game):
 
 
 def bulk_save_games(games: List[Game]):
-    db_games = []
-    for game in games:
-        db_games.append(GameModel(**game.model_dump()))
+    db_games = [GameModel(**game.model_dump()) for game in games]
     with DatabaseConnection() as db:
         db.bulk_save_objects(db_games)
         db.commit()
@@ -173,8 +171,7 @@ def bulk_save_games(games: List[Game]):
 
 def update_has_game_data(game_id: str, has_game_data: bool):
     with DatabaseConnection() as db:
-        db_game: GameModel = db.query(GameModel) \
-            .filter(GameModel.id == game_id).first()
+        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
             db_game.has_game_data = has_game_data
             db.merge(db_game)
@@ -183,21 +180,23 @@ def update_has_game_data(game_id: str, has_game_data: bool):
 
 def update_game_state(game_id: str, state: str):
     with DatabaseConnection() as db:
-        db_game: GameModel = db.query(GameModel) \
-            .filter(GameModel.id == game_id).first()
+        db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
             db_game.state = state
             db.merge(db_game)
             db.commit()
 
 
-def get_games(filters: list = None) -> List[GameModel]:
+def get_games(filters: list = None) -> List[Game]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(GameModel).filter(*filters)
         else:
             query = db.query(GameModel)
-        return query.all()
+        game_models: List[GameModel] = query.all()
+        games = [Game.model_validate(game_model) for game_model in game_models]
+
+        return games
 
 
 def get_games_to_check_state() -> List[str]:
@@ -217,10 +216,13 @@ def get_games_to_check_state() -> List[str]:
     return game_ids
 
 
-def get_game_by_id(game_id: str) -> GameModel:
+def get_game_by_id(game_id: str) -> Optional[Game]:
     with DatabaseConnection() as db:
-        return db.query(GameModel) \
-            .filter(GameModel.id == game_id).first()
+        game_model: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
+        if game_model is None:
+            return None
+        else:
+            return Game.model_validate(game_model)
 
 
 # --------------------------------------------------
