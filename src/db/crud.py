@@ -267,19 +267,26 @@ def save_player(player: ProfessionalPlayer):
         db.commit()
 
 
-def get_players(filters: list = None) -> List[ProfessionalPlayerModel]:
+def get_players(filters: list = None) -> List[ProfessionalPlayer]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(ProfessionalPlayerModel).filter(*filters)
         else:
             query = db.query(ProfessionalPlayerModel)
-        return query.all()
+        player_models: List[ProfessionalPlayer] = query.all()
+        players = [ProfessionalPlayer.model_validate(player_model)
+                   for player_model in player_models]
+        return players
 
 
-def get_player_by_id(player_id: str) -> ProfessionalPlayerModel:
+def get_player_by_id(player_id: str) -> Optional[ProfessionalPlayer]:
     with DatabaseConnection() as db:
-        return db.query(ProfessionalPlayerModel) \
+        player_model: ProfessionalPlayerModel = db.query(ProfessionalPlayerModel) \
             .filter(ProfessionalPlayerModel.id == player_id).first()
+        if player_model is None:
+            return None
+        else:
+            return ProfessionalPlayer.model_validate(player_model)
 
 
 # --------------------------------------------------

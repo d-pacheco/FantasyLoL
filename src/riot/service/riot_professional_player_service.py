@@ -42,15 +42,12 @@ class RiotProfessionalPlayerService:
         if search_parameters.role is not None:
             filters.append(ProfessionalPlayerModel.role == search_parameters.role)
 
-        professional_players_orms = crud.get_players(filters)
-        professional_players = [ProfessionalPlayer.model_validate(player_orm)
-                                for player_orm in professional_players_orms]
+        professional_players = crud.get_players(filters)
         return professional_players
 
     @staticmethod
     def get_player_by_id(professional_player_id: str) -> ProfessionalPlayer:
-        professional_player_orm = crud.get_player_by_id(professional_player_id)
-        if professional_player_orm is None:
+        professional_player = crud.get_player_by_id(professional_player_id)
+        if professional_player is None:
             raise ProfessionalPlayerNotFoundException()
-        professional_player = ProfessionalPlayer.model_validate(professional_player_orm)
         return professional_player

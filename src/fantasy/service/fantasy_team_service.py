@@ -2,10 +2,10 @@ from typing import List
 
 from ...db import crud
 from ...db.models import (
-    FantasyLeagueModel,
-    ProfessionalPlayerModel
+    FantasyLeagueModel
 )
 
+from ...common.schemas.riot_data_schemas import ProfessionalPlayer
 from ...common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
@@ -150,11 +150,11 @@ def validate_user_membership(user_id: str, fantasy_league_id: str):
         )
 
 
-def get_player_from_db(player_id: str) -> ProfessionalPlayerModel:
-    pro_player_model = crud.get_player_by_id(player_id)
-    if pro_player_model is None:
+def get_player_from_db(player_id: str) -> ProfessionalPlayer:
+    pro_player = crud.get_player_by_id(player_id)
+    if pro_player is None:
         raise ProfessionalPlayerNotFoundException()
-    return pro_player_model
+    return pro_player
 
 
 def get_users_most_recent_fantasy_team(
@@ -174,7 +174,7 @@ def get_users_most_recent_fantasy_team(
 
 
 def player_already_drafted(
-        professional_player: ProfessionalPlayerModel,
+        professional_player: ProfessionalPlayer,
         fantasy_league: FantasyLeagueModel) -> bool:
     all_fantasy_teams_for_curr_week = crud.get_all_fantasy_teams_for_current_week(
         fantasy_league.id, fantasy_league.current_week

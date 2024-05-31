@@ -36,12 +36,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(expected_player)
 
         # Act
-        player_models_from_db = crud.get_players()
+        players_from_db = crud.get_players()
 
         # Assert
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(1, len(player_models_from_db))
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(1, len(players_from_db))
+        player_from_db = players_from_db[0]
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_players_empty_filters(self):
@@ -51,12 +52,13 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(expected_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(1, len(player_models_from_db))
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(1, len(players_from_db))
+        player_from_db = players_from_db[0]
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_players_summoner_name_filter_existing_player(self):
@@ -71,13 +73,14 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(1, len(player_models_from_db))
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(1, len(players_from_db))
+        player_from_db = players_from_db[0]
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_players_summoner_name_filter_no_existing_player(self):
@@ -91,12 +94,12 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.summoner_name, other_player.summoner_name)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(0, len(player_models_from_db))
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(0, len(players_from_db))
 
     def test_get_players_team_id_filter_existing_player(self):
         # Arrange
@@ -108,13 +111,14 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(1, len(player_models_from_db))
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(1, len(players_from_db))
+        player_from_db = players_from_db[0]
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_players_team_id_filter_no_existing_player(self):
@@ -126,12 +130,12 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.team_id, other_player.team_id)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(0, len(player_models_from_db))
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(0, len(players_from_db))
 
     def test_get_players_role_filter_existing_player(self):
         # Arrange
@@ -143,13 +147,14 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(1, len(player_models_from_db))
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_models_from_db[0])
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(1, len(players_from_db))
+        player_from_db = players_from_db[0]
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_players_role_filter_no_existing_player(self):
@@ -161,12 +166,12 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(other_player)
 
         # Act
-        player_models_from_db = crud.get_players(filters)
+        players_from_db = crud.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.role, other_player.role)
-        self.assertIsInstance(player_models_from_db, list)
-        self.assertEqual(0, len(player_models_from_db))
+        self.assertIsInstance(players_from_db, list)
+        self.assertEqual(0, len(players_from_db))
 
     def test_get_player_by_id_existing_player(self):
         # Arrange
@@ -174,11 +179,11 @@ class CrudTest(FantasyLolTestBase):
         db_util.save_player(expected_player)
 
         # Act
-        player_model_from_db = crud.get_player_by_id(expected_player.id)
+        player_from_db = crud.get_player_by_id(expected_player.id)
 
         # Assert
-        self.assertIsNotNone(player_model_from_db)
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_model_from_db)
+        self.assertIsNotNone(player_from_db)
+        self.assertIsInstance(player_from_db, ProfessionalPlayer)
         self.assertEqual(expected_player, player_from_db)
 
     def test_get_player_by_id_no_existing_player(self):
@@ -186,10 +191,10 @@ class CrudTest(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
 
         # Act
-        player_model_from_db = crud.get_player_by_id(expected_player.id)
+        player_from_db = crud.get_player_by_id(expected_player.id)
 
         # Assert
-        self.assertIsNone(player_model_from_db)
+        self.assertIsNone(player_from_db)
 
     # --------------------------------------------------
     # ----------- Player Metadata Operations -----------
