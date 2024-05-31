@@ -13,14 +13,14 @@ from .views import PlayerGameView
 # --------------------------------------------------
 # --------------- League Operations ----------------
 # --------------------------------------------------
-def save_league(league: League):
+def save_league(league: League) -> None:
     db_league = LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
         db.commit()
 
 
-def get_leagues(filters: list = None) -> List[League]:
+def get_leagues(filters: Optional[list] = None) -> List[League]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(LeagueModel).filter(*filters)
@@ -74,7 +74,7 @@ def get_league_ids_for_player(player_id: str) -> List[str]:
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------
-def save_tournament(tournament: Tournament):
+def save_tournament(tournament: Tournament) -> None:
     db_tournament = TournamentModel(**tournament.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_tournament)
@@ -108,14 +108,14 @@ def get_tournament_by_id(tournament_id: str) -> Optional[Tournament]:
 # --------------------------------------------------
 # --------------- Match Operations -----------------
 # --------------------------------------------------
-def save_match(match: Match):
+def save_match(match: Match) -> None:
     db_match = MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
         db.commit()
 
 
-def get_matches(filters: list = None) -> List[Match]:
+def get_matches(filters: Optional[list] = None) -> List[Match]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(MatchModel).filter(*filters)
@@ -155,21 +155,21 @@ def get_match_ids_without_games() -> List[str]:
 # --------------------------------------------------
 # ---------------- Game Operations -----------------
 # --------------------------------------------------
-def save_game(game: Game):
+def save_game(game: Game) -> None:
     db_game = GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
         db.commit()
 
 
-def bulk_save_games(games: List[Game]):
+def bulk_save_games(games: List[Game]) -> None:
     db_games = [GameModel(**game.model_dump()) for game in games]
     with DatabaseConnection() as db:
         db.bulk_save_objects(db_games)
         db.commit()
 
 
-def update_has_game_data(game_id: str, has_game_data: bool):
+def update_has_game_data(game_id: str, has_game_data: bool) -> None:
     with DatabaseConnection() as db:
         db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
@@ -178,7 +178,7 @@ def update_has_game_data(game_id: str, has_game_data: bool):
             db.commit()
 
 
-def update_game_state(game_id: str, state: str):
+def update_game_state(game_id: str, state: str) -> None:
     with DatabaseConnection() as db:
         db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
@@ -187,7 +187,7 @@ def update_game_state(game_id: str, state: str):
             db.commit()
 
 
-def get_games(filters: list = None) -> List[Game]:
+def get_games(filters: Optional[list] = None) -> List[Game]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(GameModel).filter(*filters)
@@ -228,14 +228,14 @@ def get_game_by_id(game_id: str) -> Optional[Game]:
 # --------------------------------------------------
 # ---------------- Team Operations ----------------
 # --------------------------------------------------
-def save_team(team: ProfessionalTeam):
+def save_team(team: ProfessionalTeam) -> None:
     db_team = ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
         db.commit()
 
 
-def get_teams(filters: list = None) -> List[ProfessionalTeam]:
+def get_teams(filters: Optional[list] = None) -> List[ProfessionalTeam]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(ProfessionalTeamModel).filter(*filters)
@@ -260,14 +260,14 @@ def get_team_by_id(team_id: str) -> Optional[ProfessionalTeam]:
 # --------------------------------------------------
 # --------------- Player Operations ----------------
 # --------------------------------------------------
-def save_player(player: ProfessionalPlayer):
+def save_player(player: ProfessionalPlayer) -> None:
     db_player = ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
         db.commit()
 
 
-def get_players(filters: list = None) -> List[ProfessionalPlayer]:
+def get_players(filters: Optional[list] = None) -> List[ProfessionalPlayer]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(ProfessionalPlayerModel).filter(*filters)
@@ -292,14 +292,14 @@ def get_player_by_id(player_id: str) -> Optional[ProfessionalPlayer]:
 # --------------------------------------------------
 # ----------- Player Metadata Operations -----------
 # --------------------------------------------------
-def save_player_metadata(player_metadata: PlayerGameMetadata):
+def save_player_metadata(player_metadata: PlayerGameMetadata) -> None:
     db_player_metadata = PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_metadata)
         db.commit()
 
 
-def get_game_ids_without_player_metadata():
+def get_game_ids_without_player_metadata() -> List[str]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
@@ -313,7 +313,7 @@ def get_game_ids_without_player_metadata():
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    game_ids = []
+    game_ids: List[str] = []
     for row in rows:
         game_ids.append(row[0])
     return game_ids
