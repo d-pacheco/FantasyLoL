@@ -43,7 +43,7 @@ def get_league_by_id(league_id: str) -> Optional[League]:
 
 def update_league_fantasy_available_status(league_id: str, new_status: bool) -> Optional[League]:
     with DatabaseConnection() as db:
-        db_league: Optional[LeagueModel] = db.query(LeagueModel)\
+        db_league: Optional[LeagueModel] = db.query(LeagueModel) \
             .filter(LeagueModel.id == league_id).first()
         if db_league is None:
             return None
@@ -97,7 +97,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
 
 def get_tournament_by_id(tournament_id: str) -> Optional[Tournament]:
     with DatabaseConnection() as db:
-        tournament_model: TournamentModel = db.query(TournamentModel)\
+        tournament_model: TournamentModel = db.query(TournamentModel) \
             .filter(TournamentModel.id == tournament_id).first()
         if tournament_model is None:
             return None
@@ -249,7 +249,7 @@ def get_teams(filters: Optional[list] = None) -> List[ProfessionalTeam]:
 
 def get_team_by_id(team_id: str) -> Optional[ProfessionalTeam]:
     with DatabaseConnection() as db:
-        team_model: ProfessionalTeamModel = db.query(ProfessionalTeamModel)\
+        team_model: ProfessionalTeamModel = db.query(ProfessionalTeamModel) \
             .filter(ProfessionalTeamModel.id == team_id).first()
         if team_model is None:
             return None
@@ -322,14 +322,14 @@ def get_game_ids_without_player_metadata() -> List[str]:
 # --------------------------------------------------
 # ------------- Player Stats Operations ------------
 # --------------------------------------------------
-def save_player_stats(player_stats: PlayerGameStats):
+def save_player_stats(player_stats: PlayerGameStats) -> None:
     db_player_stats = PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
 
 
-def get_game_ids_to_fetch_player_stats_for():
+def get_game_ids_to_fetch_player_stats_for() -> List[str]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
@@ -343,19 +343,23 @@ def get_game_ids_to_fetch_player_stats_for():
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    game_ids = []
+    game_ids: List[str] = []
     for row in rows:
         game_ids.append(row[0])
     return game_ids
 
 
-def get_player_game_stats(filters: list = None) -> List[PlayerGameView]:
+def get_player_game_stats(filters: list = None) -> List[PlayerGameData]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(PlayerGameView).filter(*filters)
         else:
             query = db.query(PlayerGameView)
-        return query.all()
+
+        player_game_stat_models: List[PlayerGameView] = query.all()
+        player_game_data = [PlayerGameData.model_validate(player_game_stat_model)
+                            for player_game_stat_model in player_game_stat_models]
+        return player_game_data
 
 
 # --------------------------------------------------
@@ -522,21 +526,21 @@ def get_user_membership_for_fantasy_league(
 def get_users_fantasy_leagues_with_membership_status(
         user_id: str,
         membership_status: FantasyLeagueMembershipStatus) \
-            -> List[FantasyLeagueModel]:
+        -> List[FantasyLeagueModel]:
     with DatabaseConnection() as db:
         return db.query(FantasyLeagueModel) \
             .join(FantasyLeagueMembershipModel,
                   FantasyLeagueModel.id == FantasyLeagueMembershipModel.league_id) \
             .filter(and_(
-                FantasyLeagueMembershipModel.user_id == user_id,
-                FantasyLeagueMembershipModel.status == membership_status
-            )).all()
+            FantasyLeagueMembershipModel.user_id == user_id,
+            FantasyLeagueMembershipModel.status == membership_status
+        )).all()
 
 
 def update_fantasy_leagues_current_draft_position(
         fantasy_league_id: str, new_draft_position: int) -> FantasyLeagueModel:
     with DatabaseConnection() as db:
-        fantasy_league_db: FantasyLeagueModel = db.query(FantasyLeagueModel)\
+        fantasy_league_db: FantasyLeagueModel = db.query(FantasyLeagueModel) \
             .filter(FantasyLeagueModel.id == fantasy_league_id).first()
         if fantasy_league_db is not None:
             fantasy_league_db.current_draft_position = new_draft_position
