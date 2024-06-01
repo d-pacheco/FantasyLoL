@@ -1386,13 +1386,10 @@ class CrudTest(FantasyLolTestBase):
         db_util.create_fantasy_league(fantasy_league)
 
         # Act
-        fantasy_league_model_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
+        fantasy_league_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
 
         # Assert
-        self.assertIsNotNone(fantasy_league_model_from_db)
-        fantasy_league_from_db = fantasy_schemas.FantasyLeague.model_validate(
-            fantasy_league_model_from_db
-        )
+        self.assertIsNotNone(fantasy_league_from_db)
         self.assertEqual(fantasy_league, fantasy_league_from_db)
 
     def test_get_fantasy_league_by_id_no_existing_fantasy_league(self):
@@ -1400,10 +1397,10 @@ class CrudTest(FantasyLolTestBase):
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
 
         # Act
-        fantasy_league_model_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
+        fantasy_league_from_db = crud.get_fantasy_league_by_id(fantasy_league.id)
 
         # Assert
-        self.assertIsNone(fantasy_league_model_from_db)
+        self.assertIsNone(fantasy_league_from_db)
 
     def test_update_fantasy_league_settings_name(self):
         # Arrange
@@ -1415,18 +1412,14 @@ class CrudTest(FantasyLolTestBase):
         updated_fantasy_league_settings.name = "Updated Fantasy League name"
 
         # Act
-        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+        updated_fantasy_league = crud.update_fantasy_league_settings(
             fantasy_league.id, updated_fantasy_league_settings
         )
 
         # Assert
-        self.assertEqual(updated_fantasy_league_settings.name, updated_fantasy_league_model.name)
-        self.assertEqual(
-            updated_fantasy_league_model.number_of_teams, fantasy_league.number_of_teams
-        )
-        self.assertEqual(
-            updated_fantasy_league_model.available_leagues, fantasy_league.available_leagues
-        )
+        self.assertEqual(updated_fantasy_league_settings.name, updated_fantasy_league.name)
+        self.assertEqual(updated_fantasy_league.number_of_teams, fantasy_league.number_of_teams)
+        self.assertEqual(updated_fantasy_league.available_leagues, fantasy_league.available_leagues)
         self.assertNotEqual(updated_fantasy_league_settings.name, fantasy_league.name)
 
     def test_update_fantasy_league_settings_number_of_teams(self):
@@ -1439,25 +1432,21 @@ class CrudTest(FantasyLolTestBase):
         updated_fantasy_league_settings.number_of_teams = 4
 
         # Act
-        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+        updated_fantasy_league = crud.update_fantasy_league_settings(
             fantasy_league.id, updated_fantasy_league_settings
         )
 
         # Assert
         self.assertEqual(
             updated_fantasy_league_settings.number_of_teams,
-            updated_fantasy_league_model.number_of_teams
-        )
-        self.assertEqual(
-            updated_fantasy_league_model.name, fantasy_league.name
-        )
-        self.assertEqual(
-            updated_fantasy_league_model.available_leagues, fantasy_league.available_leagues
+            updated_fantasy_league.number_of_teams
         )
         self.assertNotEqual(
             updated_fantasy_league_settings.number_of_teams,
             fantasy_league.number_of_teams
         )
+        self.assertEqual(updated_fantasy_league.name, fantasy_league.name)
+        self.assertEqual(updated_fantasy_league.available_leagues, fantasy_league.available_leagues)
 
     def test_update_fantasy_league_settings_available_leagues(self):
         # Arrange
@@ -1469,25 +1458,21 @@ class CrudTest(FantasyLolTestBase):
         updated_fantasy_league_settings.available_leagues = ["RiotLeague1"]
 
         # Act
-        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+        updated_fantasy_league = crud.update_fantasy_league_settings(
             fantasy_league.id, updated_fantasy_league_settings
         )
 
         # Assert
         self.assertEqual(
             updated_fantasy_league_settings.available_leagues,
-            updated_fantasy_league_model.available_leagues
-        )
-        self.assertEqual(
-            updated_fantasy_league_model.name, fantasy_league.name
-        )
-        self.assertEqual(
-            updated_fantasy_league_model.number_of_teams, fantasy_league.number_of_teams
+            updated_fantasy_league.available_leagues
         )
         self.assertNotEqual(
             updated_fantasy_league_settings.available_leagues,
             fantasy_league.available_leagues
         )
+        self.assertEqual(updated_fantasy_league.name, fantasy_league.name)
+        self.assertEqual(updated_fantasy_league.number_of_teams, fantasy_league.number_of_teams)
 
     # --------------------------------------------------
     # ----------- Fantasy Team Operations --------------

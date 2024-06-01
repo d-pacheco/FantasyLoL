@@ -5,14 +5,14 @@ import copy
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from src.fantasy.exceptions.forbidden_exception import ForbiddenException
-from src.fantasy.service.fantasy_league_service import FantasyLeagueService
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueStatus
 )
+from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
+from src.fantasy.exceptions.forbidden_exception import ForbiddenException
+from src.fantasy.service.fantasy_league_service import FantasyLeagueService
 
 FANTASY_LEAGUE_SERV_PATH = 'src.fantasy.service.fantasy_league_service.FantasyLeagueService'
 BASE_CRUD_PATH = 'src.db.crud'
@@ -23,10 +23,11 @@ class TestFantasyLeagueService(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     @patch(f'{FANTASY_LEAGUE_SERV_PATH}.generate_new_valid_id')
     @patch(f'{BASE_CRUD_PATH}.create_fantasy_league')
-    def test_create_fantasy_league(self,
-                                   mock_create_fantasy_league,
-                                   mock_generate_new_valid_id,
-                                   mock_get_fantasy_league_by_id):
+    def test_create_fantasy_league(
+            self,
+            mock_create_fantasy_league: MagicMock,
+            mock_generate_new_valid_id: MagicMock,
+            mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         fantasy_league_id = str(uuid.uuid4())
         owner_id = str(uuid.uuid4())
@@ -53,7 +54,8 @@ class TestFantasyLeagueService(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id', side_effect=[MagicMock(), None])
     @patch('uuid.uuid4', side_effect=['id1', 'id2'])
-    def test_generate_new_valid_id(self, mock_uuid4, mock_get_fantasy_league_by_id):
+    def test_generate_new_valid_id(
+            self, mock_uuid4: MagicMock, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         fantasy_league_service = FantasyLeagueService()
 
@@ -69,7 +71,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         mock_get_fantasy_league_by_id.assert_called_with('id2')
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_get_fantasy_league_settings_successful(self, mock_get_fantasy_league_by_id):
+    def test_get_fantasy_league_settings_successful(self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         expected_fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
@@ -89,7 +91,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_get_fantasy_league_settings_no_league_found_exception(
-            self, mock_get_fantasy_league_by_id):
+            self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = None
@@ -104,7 +106,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_get_fantasy_league_settings_forbidden_exception(
-            self, mock_get_fantasy_league_by_id):
+            self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = fantasy_league
@@ -120,7 +122,9 @@ class TestFantasyLeagueService(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_update_fantasy_league_settings_successful(
-            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+            self,
+            mock_get_fantasy_league_by_id: MagicMock,
+            mock_update_fantasy_league_settings: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = fantasy_league
@@ -153,7 +157,9 @@ class TestFantasyLeagueService(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_update_fantasy_league_settings_league_not_found_exception(
-            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+            self,
+            mock_get_fantasy_league_by_id: MagicMock,
+            mock_update_fantasy_league_settings: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = None
@@ -178,7 +184,9 @@ class TestFantasyLeagueService(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_settings')
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_update_fantasy_league_settings_forbidden_exception(
-            self, mock_get_fantasy_league_by_id, mock_update_fantasy_league_settings):
+            self,
+            mock_get_fantasy_league_by_id: MagicMock,
+            mock_update_fantasy_league_settings: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = fantasy_league
