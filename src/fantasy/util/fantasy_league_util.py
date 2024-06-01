@@ -16,15 +16,14 @@ class FantasyLeagueUtil:
     def validate_league(
             fantasy_league_id: str,
             required_states: List[FantasyLeagueStatus] = None) -> FantasyLeague:
-        fantasy_league_model = crud.get_fantasy_league_by_id(fantasy_league_id)
-        if fantasy_league_model is None:
+        fantasy_league = crud.get_fantasy_league_by_id(fantasy_league_id)
+        if fantasy_league is None:
             raise FantasyLeagueNotFoundException()
-
-        if (required_states is not None) and (fantasy_league_model.status not in required_states):
+        if (required_states is not None) and (fantasy_league.status not in required_states):
             raise FantasyLeagueInvalidRequiredStateException(
-                fantasy_league_id, fantasy_league_model.status, required_states
+                fantasy_league_id, fantasy_league.status, required_states
             )
-        fantasy_league = FantasyLeague.model_validate(fantasy_league_model)
+
         return fantasy_league
 
     @staticmethod

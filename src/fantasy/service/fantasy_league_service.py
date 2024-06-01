@@ -105,12 +105,12 @@ class FantasyLeagueService:
                 updated_league_settings.available_leagues
             )
 
-        updated_fantasy_league_model = crud.update_fantasy_league_settings(
+        updated_fantasy_league = crud.update_fantasy_league_settings(
             league_id, updated_league_settings
         )
         updated_fantasy_league_settings = FantasyLeagueSettings(
-            name=updated_fantasy_league_model.name,
-            number_of_teams=updated_fantasy_league_model.number_of_teams,
+            name=updated_fantasy_league.name,
+            number_of_teams=updated_fantasy_league.number_of_teams,
             available_leagues=updated_league_settings.available_leagues
         )
         return updated_fantasy_league_settings
@@ -120,8 +120,8 @@ class FantasyLeagueService:
         fantasy_league_model = fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
-        scoring_settings_model = crud.get_fantasy_league_scoring_settings_by_id(league_id)
-        return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
+        scoring_settings = crud.get_fantasy_league_scoring_settings_by_id(league_id)
+        return scoring_settings
 
     @staticmethod
     def update_scoring_settings(
@@ -370,8 +370,8 @@ def update_draft_order_on_player_leave(user_id: str, league_id: str):
 
 
 def create_draft_order_entry(user_id: str, league_id: str):
-    fantasy_league_model = crud.get_fantasy_league_by_id(league_id)
-    if fantasy_league_model is None:
+    fantasy_league = crud.get_fantasy_league_by_id(league_id)
+    if fantasy_league is None:
         raise FantasyLeagueNotFoundException()
 
     current_draft_order = crud.get_fantasy_league_draft_order(league_id)
