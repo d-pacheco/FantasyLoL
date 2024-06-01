@@ -90,10 +90,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertIsInstance(returned_fantasy_team_weeks, list)
         self.assertEqual(len(expected_fantasy_team_weeks), len(returned_fantasy_team_weeks))
         for i in range(len(expected_fantasy_team_weeks)):
-            self.assertEqual(
-                expected_fantasy_team_weeks[i],
-                FantasyTeam.model_validate(returned_fantasy_team_weeks[i])
-            )
+            self.assertEqual(expected_fantasy_team_weeks[i], returned_fantasy_team_weeks[i])
 
     def test_get_all_fantasy_team_weeks_league_not_found_exception(self):
         # Arrange
@@ -194,17 +191,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league.id, user_1.id
         )
         self.assertEqual(1, len(user_1_fantasy_teams_from_db))
-        self.assertEqual(
-            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(expected_fantasy_team, user_1_fantasy_teams_from_db[0])
         # Check that user 2's fantasy team didn't update
         user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
             fantasy_league.id, user_2.id
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
         db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(
             fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
@@ -251,17 +244,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league.id, user_1.id
         )
         self.assertEqual(1, len(user_1_fantasy_teams_from_db))
-        self.assertEqual(
-            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(expected_fantasy_team, user_1_fantasy_teams_from_db[0])
         # Check that user 2's fantasy team didn't update
         user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
             fantasy_league.id, user_2.id
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
         db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(
             fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
@@ -350,17 +339,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league.id, user_1.id
         )
         self.assertEqual(1, len(user_1_fantasy_teams_from_db))
-        self.assertEqual(
-            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(expected_fantasy_team, user_1_fantasy_teams_from_db[0])
         # Check that user 2's fantasy team didn't update
         user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
             fantasy_league.id, user_2.id
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
         db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
 
@@ -406,7 +391,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         self.assertIn(f"fantasy league with ID {fantasy_league.id}", str(context.exception))
         db_user_fantasy_teams = crud.get_all_fantasy_teams_for_user(fantasy_league.id, user_1.id)
         self.assertEqual(1, len(db_user_fantasy_teams))
-        self.assertEqual(user_1_fantasy_team, FantasyTeam.model_validate(db_user_fantasy_teams[0]))
+        self.assertEqual(user_1_fantasy_team, db_user_fantasy_teams[0])
 
     def test_pickup_player_no_available_leagues_for_fantasy_league_exception(self):
         # Arrange
@@ -638,17 +623,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_fixtures.fantasy_league_active_fixture.id, fantasy_fixtures.user_fixture.id
         )
         self.assertEqual(1, len(user_1_fantasy_teams_from_db))
-        self.assertEqual(
-            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(expected_fantasy_team, user_1_fantasy_teams_from_db[0])
         # Check that user 2's fantasy team didn't update
         user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
             fantasy_fixtures.fantasy_league_active_fixture.id, fantasy_fixtures.user_2_fixture.id
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
 
     def test_drop_player_user_does_not_have_player_drafted_exception(self):
         # Arrange
@@ -800,17 +781,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_league.id, fantasy_fixtures.user_fixture.id
         )
         self.assertEqual(1, len(user_1_fantasy_teams_from_db))
-        self.assertEqual(
-            expected_fantasy_team, FantasyTeam.model_validate(user_1_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(expected_fantasy_team, user_1_fantasy_teams_from_db[0])
         # Check that user 2's fantasy team didn't update
         user_2_fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
             fantasy_league.id, fantasy_fixtures.user_2_fixture.id
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(user_2_fantasy_teams_from_db[0])
-        )
+        self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
         self.assertEqual(jungle_player_1.role, jungle_player_2.role)
 
     def test_swap_players_mismatched_player_roles_exception(self):
@@ -910,17 +887,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         self.assertIsInstance(db_user_1_fantasy_teams, list)
         self.assertEqual(1, len(db_user_1_fantasy_teams))
-        self.assertEqual(
-            user_1_fantasy_team, FantasyTeam.model_validate(db_user_1_fantasy_teams[0])
-        )
+        self.assertEqual(user_1_fantasy_team, db_user_1_fantasy_teams[0])
         db_user_2_fantasy_teams = crud.get_all_fantasy_teams_for_user(
             fantasy_league.id, user_2.id
         )
         self.assertIsInstance(db_user_2_fantasy_teams, list)
         self.assertEqual(1, len(db_user_2_fantasy_teams))
-        self.assertEqual(
-            user_2_fantasy_team, FantasyTeam.model_validate(db_user_2_fantasy_teams[0])
-        )
+        self.assertEqual(user_2_fantasy_team, db_user_2_fantasy_teams[0])
 
     def test_swap_players_player_to_pickup_not_in_available_leagues_exception(self):
         # Arrange

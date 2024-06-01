@@ -662,25 +662,29 @@ def update_fantasy_league_draft_order_position(
 # --------------------------------------------------
 # ------------ Fantasy Team Operations -------------
 # --------------------------------------------------
-def create_or_update_fantasy_team(fantasy_team: FantasyTeam):
+def create_or_update_fantasy_team(fantasy_team: FantasyTeam) -> None:
     db_fantasy_team = FantasyTeamModel(**fantasy_team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_fantasy_team)
         db.commit()
 
 
-def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) \
-        -> List[FantasyTeamModel]:
+def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
-        return db.query(FantasyTeamModel) \
+        fantasy_team_models: List[FantasyTeamModel] = db.query(FantasyTeamModel)\
             .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
                     FantasyTeamModel.user_id == user_id).all()
+        fantasy_teams = [FantasyTeam.model_validate(fantasy_team_model)
+                         for fantasy_team_model in fantasy_team_models]
+        return fantasy_teams
 
 
-# Need to add a test for this:
-def get_all_fantasy_teams_for_current_week(fantasy_league_id: str, week: int) \
-        -> List[FantasyTeamModel]:
+# TODO: !!! NEED TESTS FOR THIS METHOD !!!
+def get_all_fantasy_teams_for_current_week(fantasy_league_id: str, week: int) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
-        return db.query(FantasyTeamModel) \
+        fantasy_team_models: List[FantasyTeamModel] = db.query(FantasyTeamModel) \
             .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
                     FantasyTeamModel.week == week).all()
+        fantasy_teams = [FantasyTeam.model_validate(fantasy_team_model)
+                         for fantasy_team_model in fantasy_team_models]
+        return fantasy_teams
