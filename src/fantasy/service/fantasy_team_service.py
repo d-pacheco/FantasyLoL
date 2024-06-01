@@ -1,15 +1,15 @@
 from typing import List
 
 from ...db import crud
-from ...db.models import (
-    FantasyLeagueModel
-)
 
 from ...common.schemas.riot_data_schemas import ProfessionalPlayer
 from ...common.schemas.fantasy_schemas import (
+    FantasyLeague,
+    FantasyLeagueID,
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
-    FantasyTeam
+    FantasyTeam,
+    UserID
 )
 
 from ...riot.exceptions.professional_player_not_found_exception import \
@@ -26,7 +26,8 @@ fantasy_team_util = FantasyTeamUtil()
 
 class FantasyTeamService:
     @staticmethod
-    def get_all_fantasy_team_weeks(fantasy_league_id: str, user_id: str) -> List[FantasyTeam]:
+    def get_all_fantasy_team_weeks(
+            fantasy_league_id: FantasyLeagueID, user_id: UserID) -> List[FantasyTeam]:
         fantasy_league_util.validate_league(
             fantasy_league_id,
             [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
@@ -39,7 +40,8 @@ class FantasyTeamService:
         return fantasy_team_weeks
 
     @staticmethod
-    def pickup_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
+    def pickup_player(
+            fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: str) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
@@ -80,7 +82,8 @@ class FantasyTeamService:
         return recent_fantasy_team
 
     @staticmethod
-    def drop_player(fantasy_league_id: str, user_id: str, player_id: str) -> FantasyTeam:
+    def drop_player(
+            fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: str) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
@@ -101,8 +104,8 @@ class FantasyTeamService:
 
     @staticmethod
     def swap_players(
-            fantasy_league_id: str,
-            user_id: str,
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID,
             player_to_drop_id: str,
             player_to_pickup_id: str) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
@@ -142,7 +145,7 @@ class FantasyTeamService:
         return recent_fantasy_team
 
 
-def validate_user_membership(user_id: str, fantasy_league_id: str):
+def validate_user_membership(user_id: UserID, fantasy_league_id: FantasyLeagueID) -> None:
     user_membership = crud.get_user_membership_for_fantasy_league(user_id, fantasy_league_id)
     if user_membership is None or user_membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
         raise FantasyMembershipException(
@@ -158,8 +161,8 @@ def get_player_from_db(player_id: str) -> ProfessionalPlayer:
 
 
 def get_users_most_recent_fantasy_team(
-        fantasy_league: FantasyLeagueModel,
-        user_id: str) -> FantasyTeam:
+        fantasy_league: FantasyLeague,
+        user_id: UserID) -> FantasyTeam:
     fantasy_teams_by_week = crud.get_all_fantasy_teams_for_user(fantasy_league.id, user_id)
     if len(fantasy_teams_by_week) != 0:
         fantasy_teams_by_week.sort(key=lambda x: x.week)
@@ -175,7 +178,7 @@ def get_users_most_recent_fantasy_team(
 
 def player_already_drafted(
         professional_player: ProfessionalPlayer,
-        fantasy_league: FantasyLeagueModel) -> bool:
+        fantasy_league: FantasyLeague) -> bool:
     all_fantasy_teams_for_curr_week = crud.get_all_fantasy_teams_for_current_week(
         fantasy_league.id, fantasy_league.current_week
     )

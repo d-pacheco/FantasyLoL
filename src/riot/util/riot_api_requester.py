@@ -242,8 +242,8 @@ class RiotApiRequester:
     def get_pages_from_schedule(self, page_token: str = None) -> schemas.Schedule:
         schedule = self.__get_schedule(page_token)
         pages = schemas.Schedule(
-            older=schedule['pages']['older'],
-            newer=schedule['pages']['newer']
+            older_token_key=schedule['pages']['older'],
+            current_token_key=schedule['pages']['newer']
         )
         return pages
 

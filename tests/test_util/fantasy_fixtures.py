@@ -3,6 +3,7 @@ import bcrypt
 from random import randint
 
 from src.common.schemas import fantasy_schemas
+from src.common.schemas.fantasy_schemas import FantasyLeagueID, UserID
 
 user_password = "WeakTestPw"
 salt = bcrypt.gensalt()
@@ -20,28 +21,28 @@ user_login_fixture = fantasy_schemas.UserLogin(
 )
 
 user_fixture = fantasy_schemas.User(
-    id=str(uuid.uuid4()),
+    id=UserID(str(uuid.uuid4())),
     username=user_create_fixture.username,
     email=user_create_fixture.email,
     password=user_hashed_password
 )
 
 user_2_fixture = fantasy_schemas.User(
-    id=str(uuid.uuid4()),
+    id=UserID(str(uuid.uuid4())),
     username="user2",
     email="user2@email.com",
     password=user_hashed_password
 )
 
 user_3_fixture = fantasy_schemas.User(
-    id=str(uuid.uuid4()),
+    id=UserID(str(uuid.uuid4())),
     username="user3",
     email="user3@email.com",
     password=user_hashed_password
 )
 
 user_4_fixture = fantasy_schemas.User(
-    id=str(uuid.uuid4()),
+    id=UserID(str(uuid.uuid4())),
     username="user4",
     email="user4@email.com",
     password=user_hashed_password
@@ -54,7 +55,7 @@ fantasy_league_settings_fixture = fantasy_schemas.FantasyLeagueSettings(
 )
 
 fantasy_league_fixture = fantasy_schemas.FantasyLeague(
-    id=str(uuid.uuid4()),
+    id=FantasyLeagueID(str(uuid.uuid4())),
     owner_id=user_fixture.id,
     status=fantasy_schemas.FantasyLeagueStatus.PRE_DRAFT,
     name=fantasy_league_settings_fixture.name,
@@ -64,7 +65,7 @@ fantasy_league_fixture = fantasy_schemas.FantasyLeague(
 )
 
 fantasy_league_draft_fixture = fantasy_schemas.FantasyLeague(
-    id=str(uuid.uuid4()),
+    id=FantasyLeagueID(str(uuid.uuid4())),
     owner_id=user_fixture.id,
     status=fantasy_schemas.FantasyLeagueStatus.DRAFT,
     name=fantasy_league_settings_fixture.name,
@@ -75,7 +76,7 @@ fantasy_league_draft_fixture = fantasy_schemas.FantasyLeague(
 )
 
 fantasy_league_active_fixture = fantasy_schemas.FantasyLeague(
-    id=str(uuid.uuid4()),
+    id=FantasyLeagueID(str(uuid.uuid4())),
     owner_id=user_fixture.id,
     status=fantasy_schemas.FantasyLeagueStatus.ACTIVE,
     name=fantasy_league_settings_fixture.name,

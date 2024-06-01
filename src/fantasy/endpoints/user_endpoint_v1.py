@@ -14,7 +14,7 @@ user_service = UserService()
     path="/user/signup",
     tags=["Users"]
 )
-def user_signup(user: UserCreate = Body(...)):
+def user_signup(user: UserCreate = Body(...)) -> dict:
     return user_service.user_signup(user)
 
 
@@ -22,5 +22,5 @@ def user_signup(user: UserCreate = Body(...)):
     path="/user/login",
     tags=["Users"]
 )
-def user_login(credentials: UserLogin = Body(...)):
+def user_login(credentials: UserLogin = Body(...)) -> dict:
     return user_service.login_user(credentials)
