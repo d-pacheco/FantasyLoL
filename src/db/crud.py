@@ -620,32 +620,42 @@ def get_users_fantasy_leagues_with_membership_status(
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------
-def create_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder):
+# TODO: !!! NEED TESTS FOR THIS METHOD !!!
+def create_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
     db_draft_order = FantasyLeagueDraftOrderModel(**draft_order.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_draft_order)
         db.commit()
 
 
-def get_fantasy_league_draft_order(league_id: str) -> List[FantasyLeagueDraftOrderModel]:
+# TODO: !!! NEED TESTS FOR THIS METHOD !!!
+def get_fantasy_league_draft_order(league_id: str) -> List[FantasyLeagueDraftOrder]:
     with DatabaseConnection() as db:
-        return db.query(FantasyLeagueDraftOrderModel) \
-            .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == league_id) \
+        draft_order_models: List[FantasyLeagueDraftOrderModel] = db\
+            .query(FantasyLeagueDraftOrderModel)\
+            .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == league_id)\
             .all()
+        draft_orders = [FantasyLeagueDraftOrder.model_validate(draft_order_model)
+                        for draft_order_model in draft_order_models]
+        return draft_orders
 
 
-def delete_fantasy_league_draft_order(draft_order_model: FantasyLeagueDraftOrderModel):
+# TODO: !!! NEED TESTS FOR THIS METHOD !!!
+def delete_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
+    db_draft_order = FantasyLeagueDraftOrderModel(**draft_order.model_dump())
     with DatabaseConnection() as db:
-        db.delete(draft_order_model)
+        db.delete(db_draft_order)
         db.commit()
 
 
+# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_draft_order_position(
-        draft_order_model: FantasyLeagueDraftOrderModel,
-        new_position: int):
+        draft_order: FantasyLeagueDraftOrder,
+        new_position: int) -> None:
+    draft_order.position = new_position
+    db_draft_order = FantasyLeagueDraftOrderModel(**draft_order.model_dump())
     with DatabaseConnection() as db:
-        draft_order_model.position = new_position
-        db.merge(draft_order_model)
+        db.merge(db_draft_order)
         db.commit()
 
 

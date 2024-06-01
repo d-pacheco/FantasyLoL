@@ -279,16 +279,13 @@ class FantasyLeagueService:
         if fantasy_league_model.owner_id != user_id:
             raise ForbiddenException()
 
-        current_draft_order = []
-        current_draft_order_models = crud.get_fantasy_league_draft_order(league_id)
-        for draft_order_model in current_draft_order_models:
-            current_draft_order.append(FantasyLeagueDraftOrder.model_validate(draft_order_model))
+        current_draft_order = crud.get_fantasy_league_draft_order(league_id)
         validate_draft_order(current_draft_order, updated_draft_order)
 
         for updated_position in updated_draft_order:
             db_draft_position = next((
                 db_model
-                for db_model in current_draft_order_models
+                for db_model in current_draft_order
                 if db_model.user_id == updated_position.user_id), None
             )
             if db_draft_position is None:
