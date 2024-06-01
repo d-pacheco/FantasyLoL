@@ -4,6 +4,7 @@ from typing import Optional, List
 
 from ..common.schemas.fantasy_schemas import (
     FantasyLeague,
+    FantasyLeagueID,
     FantasyLeagueDraftOrder,
     FantasyLeagueScoringSettings,
     FantasyLeagueStatus,
@@ -11,7 +12,8 @@ from ..common.schemas.fantasy_schemas import (
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
     FantasyTeam,
-    User
+    User,
+    UserID
 )
 from ..common.schemas.riot_data_schemas import (
     League,
@@ -433,7 +435,7 @@ def create_user(user: User) -> None:
 
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_user_by_id(user_id: str) -> Optional[User]:
+def get_user_by_id(user_id: UserID) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
         if user_model is None:
@@ -472,7 +474,7 @@ def create_fantasy_league(fantasy_league: FantasyLeague) -> None:
         db.commit()
 
 
-def get_fantasy_league_by_id(fantasy_league_id: str) -> Optional[FantasyLeague]:
+def get_fantasy_league_by_id(fantasy_league_id: FantasyLeagueID) -> Optional[FantasyLeague]:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel) \
             .filter(FantasyLeagueModel.id == fantasy_league_id).first()
@@ -491,12 +493,12 @@ def create_fantasy_league_scoring_settings(
 
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_fantasy_league_scoring_settings_by_id(league_id: str) \
+def get_fantasy_league_scoring_settings_by_id(fantasy_league_id: FantasyLeagueID) \
         -> Optional[FantasyLeagueScoringSettings]:
     with DatabaseConnection() as db:
         scoring_settings_model: Optional[FantasyLeagueScoringSettingModel] = db.query(
             FantasyLeagueScoringSettingModel) \
-            .filter(FantasyLeagueScoringSettingModel.fantasy_league_id == league_id) \
+            .filter(FantasyLeagueScoringSettingModel.fantasy_league_id == fantasy_league_id) \
             .first()
         if scoring_settings_model is None:
             return None
@@ -513,7 +515,7 @@ def update_fantasy_league_scoring_settings(
 
 
 def update_fantasy_league_settings(
-        fantasy_league_id: str,
+        fantasy_league_id: FantasyLeagueID,
         settings: FantasyLeagueSettings) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
@@ -530,7 +532,7 @@ def update_fantasy_league_settings(
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_status(
-        fantasy_league_id: str,
+        fantasy_league_id: FantasyLeagueID,
         new_status: FantasyLeagueStatus) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
@@ -544,7 +546,7 @@ def update_fantasy_league_status(
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_current_draft_position(
-        fantasy_league_id: str, new_current_draft_position: int) -> FantasyLeague:
+        fantasy_league_id: FantasyLeagueID, new_current_draft_position: int) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
@@ -568,11 +570,12 @@ def create_fantasy_league_membership(fantasy_league_membership: FantasyLeagueMem
 
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_pending_and_accepted_members_for_league(league_id: str) -> List[FantasyLeagueMembership]:
+def get_pending_and_accepted_members_for_league(
+        fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
         membership_models = db\
             .query(FantasyLeagueMembershipModel).\
-            filter(and_(FantasyLeagueMembershipModel.league_id == league_id,
+            filter(and_(FantasyLeagueMembershipModel.league_id == fantasy_league_id,
                         FantasyLeagueMembershipModel.status.in_(
                             [FantasyLeagueMembershipStatus.PENDING,
                              FantasyLeagueMembershipStatus.ACCEPTED]))
@@ -595,7 +598,7 @@ def update_fantasy_league_membership_status(
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_membership_for_fantasy_league(
-        user_id: str, fantasy_league_id: str) -> Optional[FantasyLeagueMembership]:
+        user_id: UserID, fantasy_league_id: FantasyLeagueID) -> Optional[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
         membership_model = db.query(FantasyLeagueMembershipModel) \
             .filter(FantasyLeagueMembershipModel.league_id == fantasy_league_id,
@@ -608,7 +611,7 @@ def get_user_membership_for_fantasy_league(
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_users_fantasy_leagues_with_membership_status(
-        user_id: str,
+        user_id: UserID,
         membership_status: FantasyLeagueMembershipStatus) \
         -> List[FantasyLeague]:
     with DatabaseConnection() as db:
@@ -636,11 +639,12 @@ def create_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> N
 
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_fantasy_league_draft_order(league_id: str) -> List[FantasyLeagueDraftOrder]:
+def get_fantasy_league_draft_order(
+        fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueDraftOrder]:
     with DatabaseConnection() as db:
         draft_order_models = db\
             .query(FantasyLeagueDraftOrderModel)\
-            .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == league_id)\
+            .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == fantasy_league_id)\
             .all()
         draft_orders = [FantasyLeagueDraftOrder.model_validate(draft_order_model)
                         for draft_order_model in draft_order_models]
@@ -678,7 +682,8 @@ def create_or_update_fantasy_team(fantasy_team: FantasyTeam) -> None:
         db.commit()
 
 
-def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) -> List[FantasyTeam]:
+def get_all_fantasy_teams_for_user(
+        fantasy_league_id: FantasyLeagueID, user_id: UserID) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
         fantasy_team_models = db.query(FantasyTeamModel)\
             .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
@@ -689,7 +694,8 @@ def get_all_fantasy_teams_for_user(fantasy_league_id: str, user_id: str) -> List
 
 
 # TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_all_fantasy_teams_for_current_week(fantasy_league_id: str, week: int) -> List[FantasyTeam]:
+def get_all_fantasy_teams_for_current_week(
+        fantasy_league_id: FantasyLeagueID, week: int) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
         fantasy_team_models = db.query(FantasyTeamModel) \
             .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
