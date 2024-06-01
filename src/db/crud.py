@@ -425,29 +425,41 @@ def update_schedule(schedule: Schedule) -> None:
 # --------------------------------------------------
 # ----------------- User Operations ----------------
 # --------------------------------------------------
-def create_user(user: User):
+def create_user(user: User) -> None:
     db_user = UserModel(**user.model_dump())
     with DatabaseConnection() as db:
         db.add(db_user)
         db.commit()
 
 
-def get_user_by_id(user_id: str) -> UserModel:
+# !!! NEED TESTS FOR THIS METHOD !!!
+def get_user_by_id(user_id: str) -> Optional[User]:
     with DatabaseConnection() as db:
-        return db.query(UserModel) \
-            .filter(UserModel.id == user_id).first()
+        user_model: UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
+        if user_model is None:
+            return None
+        else:
+            return User.model_validate(user_model)
 
 
-def get_user_by_username(username: str) -> UserModel:
+# !!! NEED TESTS FOR THIS METHOD !!!
+def get_user_by_username(username: str) -> Optional[User]:
     with DatabaseConnection() as db:
-        return db.query(UserModel) \
-            .filter(UserModel.username == username).first()
+        user_model: UserModel = db.query(UserModel).filter(UserModel.username == username).first()
+        if user_model is None:
+            return None
+        else:
+            return User.model_validate(user_model)
 
 
-def get_user_by_email(email: str) -> UserModel:
+# !!! NEED TESTS FOR THIS METHOD !!!
+def get_user_by_email(email: str) -> Optional[User]:
     with DatabaseConnection() as db:
-        return db.query(UserModel) \
-            .filter(UserModel.email == email).first()
+        user_model: UserModel = db.query(UserModel).filter(UserModel.email == email).first()
+        if user_model is None:
+            return None
+        else:
+            return User.model_validate(user_model)
 
 
 # --------------------------------------------------

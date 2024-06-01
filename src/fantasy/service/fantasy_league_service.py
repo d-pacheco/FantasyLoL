@@ -165,13 +165,11 @@ class FantasyLeagueService:
         if len(pending_and_active_members) >= fantasy_league_model.number_of_teams:
             raise FantasyLeagueInviteException("Invite exceeds maximum players for the league")
 
-        user_model = crud.get_user_by_username(username)
-        if user_model is None:
+        user = crud.get_user_by_username(username)
+        if user is None:
             raise UserNotFoundException()
 
-        create_fantasy_league_membership(
-            league_id, user_model.id, FantasyLeagueMembershipStatus.PENDING
-        )
+        create_fantasy_league_membership(league_id, user.id, FantasyLeagueMembershipStatus.PENDING)
 
     @staticmethod
     def join_fantasy_league(user_id: str, league_id: str):
