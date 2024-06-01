@@ -93,9 +93,7 @@ class RiotGameStatsService:
             filters.append(PlayerGameView.game_id == search_parameters.game_id)
         if search_parameters.player_id is not None:
             filters.append(PlayerGameView.player_id == search_parameters.player_id)
-        player_game_stats_orms = crud.get_player_game_stats(filters)
-        player_game_stats = [PlayerGameData.model_validate(game_stats_orm)
-                             for game_stats_orm in player_game_stats_orms]
+        player_game_stats = crud.get_player_game_stats(filters)
         sorted_player_game_stats = sorted(player_game_stats,
                                           key=lambda x: (x.game_id, x.participant_id))
         return sorted_player_game_stats

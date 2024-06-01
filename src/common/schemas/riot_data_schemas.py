@@ -410,6 +410,7 @@ class PlayerGameData(BaseModel):
     )
 
 
-class RiotSchedulePages(BaseModel):
-    older: Optional[str] = Field(default=None)
-    newer: Optional[str] = Field(default=None)
+class Schedule(BaseModel):
+    schedule_name: Optional[str] = Field(default=None)
+    older_token_key: Optional[str] = Field(default=None)
+    current_token_key: Optional[str] = Field(default=None)

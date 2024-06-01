@@ -50,9 +50,7 @@ class RiotTournamentService:
         if search_parameters.status == TournamentStatus.UPCOMING:
             filters.append(TournamentModel.start_date > current_date)
 
-        tournament_orms = crud.get_tournaments(filters)
-        tournaments = [Tournament.model_validate(tournament_orm)
-                       for tournament_orm in tournament_orms]
+        tournaments = crud.get_tournaments(filters)
         return tournaments
 
     @staticmethod

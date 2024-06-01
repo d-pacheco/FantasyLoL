@@ -624,7 +624,7 @@ player_10_game_data_fixture = schemas.PlayerGameData(
     wards_destroyed=player_10_game_stats_fixture.wards_destroyed
 )
 
-riot_schedule_pages_fixture = schemas.RiotSchedulePages(
+riot_schedule_pages_fixture = schemas.Schedule(
     older="olderToken",
     newer="newerToken"
 )

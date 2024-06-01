@@ -60,8 +60,7 @@ class RiotGameService:
             filters.append(GameModel.state == search_parameters.state)
         if search_parameters.match_id is not None:
             filters.append(GameModel.match_id == search_parameters.match_id)
-        game_orms = crud.get_games(filters)
-        games = [Game.model_validate(game_orm) for game_orm in game_orms]
+        games = crud.get_games(filters)
         return games
 
     @staticmethod

@@ -130,7 +130,7 @@ class PlayerGameStatsModel(Base):
     )
 
 
-class Schedule(Base):
+class ScheduleModel(Base):
     __tablename__ = "schedule"
 
     schedule_name = Column(String, primary_key=True)

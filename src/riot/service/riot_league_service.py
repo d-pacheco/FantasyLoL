@@ -40,22 +40,20 @@ class RiotLeagueService:
             filters.append(LeagueModel.region == search_parameters.region)
         if search_parameters.fantasy_available is not None:
             filters.append(LeagueModel.fantasy_available == search_parameters.fantasy_available)
-        orm_leagues = crud.get_leagues(filters)
-        leagues = [schemas.League.model_validate(league_orm) for league_orm in orm_leagues]
+        leagues = crud.get_leagues(filters)
+
         return leagues
 
     @staticmethod
     def get_league_by_id(league_id: str) -> schemas.League:
-        league_orm = crud.get_league_by_id(league_id)
-        if league_orm is None:
+        league = crud.get_league_by_id(league_id)
+        if league is None:
             raise LeagueNotFoundException()
-        league = schemas.League.model_validate(league_orm)
         return league
 
     @staticmethod
     def update_fantasy_available(league_id: str, status: bool) -> schemas.League:
-        league_orm = crud.update_league_fantasy_available_status(league_id, status)
-        if league_orm is None:
+        league = crud.update_league_fantasy_available_status(league_id, status)
+        if league is None:
             raise LeagueNotFoundException()
-        league = schemas.League.model_validate(league_orm)
         return league
