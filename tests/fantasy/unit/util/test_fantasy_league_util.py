@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
@@ -9,11 +9,6 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeague
 )
 from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
-
-from src.db.models import (
-    FantasyLeagueModel,
-    LeagueModel
-)
 
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException
@@ -29,11 +24,10 @@ BASE_CRUD_PATH = 'src.db.crud'
 
 class TestFantasyLeagueUtil(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_successful(self, mock_get_fantasy_league_by_id):
+    def test_validate_league_successful(self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         expected_fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
-        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
-        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
+        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league
         required_states = [FantasyLeagueStatus.DRAFT]
 
         # Act
@@ -47,7 +41,8 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
         self.assertIn(expected_fantasy_league.status, required_states)
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_league_not_found_exception(self, mock_get_fantasy_league_by_id):
+    def test_validate_league_league_not_found_exception(
+            self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         mock_get_fantasy_league_by_id.return_value = None
 
@@ -56,11 +51,10 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
             fantasy_league_util.validate_league("someId", [FantasyLeagueStatus.DRAFT])
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
-    def test_validate_league_not_in_required_state(self, mock_get_fantasy_league_by_id):
+    def test_validate_league_not_in_required_state(self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         expected_fantasy_league = fantasy_fixtures.fantasy_league_fixture
-        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
-        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
+        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league
         required_states = [FantasyLeagueStatus.DRAFT]
 
         # Act and Assert
@@ -70,26 +64,22 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_no_required_state_should_return_fantasy_league_if_it_exists(
-            self, mock_get_fantasy_league_by_id):
+            self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
         expected_fantasy_league = fantasy_fixtures.fantasy_league_fixture
-        fantasy_league_model = FantasyLeagueModel(**expected_fantasy_league.model_dump())
-        mock_get_fantasy_league_by_id.return_value = fantasy_league_model
+        mock_get_fantasy_league_by_id.return_value = expected_fantasy_league
 
         # Act
-        returned_fantasy_league = fantasy_league_util.validate_league(fantasy_league_model.id)
+        returned_fantasy_league = fantasy_league_util.validate_league(expected_fantasy_league.id)
 
         # Assert
         self.assertEqual(expected_fantasy_league, returned_fantasy_league)
         self.assertIsInstance(returned_fantasy_league, FantasyLeague)
 
     @patch(f'{BASE_CRUD_PATH}.get_leagues')
-    def test_validate_available_leagues_successful(self, mock_get_leagues):
+    def test_validate_available_leagues_successful(self, mock_get_leagues: MagicMock):
         # Arrange
-        riot_leagues = [
-            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
-            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
-        ]
+        riot_leagues = [riot_fixtures.league_1_fixture, riot_fixtures.league_2_fixture]
         mock_get_leagues.return_value = riot_leagues
         selected_league_ids = [riot_fixtures.league_2_fixture.id]
 
@@ -100,12 +90,10 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
             self.fail("validate_available_leagues raised an exception unexpectedly")
 
     @patch(f'{BASE_CRUD_PATH}.get_leagues')
-    def test_validate_available_leagues_league_not_found_exception(self, mock_get_leagues):
+    def test_validate_available_leagues_league_not_found_exception(
+            self, mock_get_leagues: MagicMock):
         # Arrange
-        riot_leagues = [
-            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
-            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
-        ]
+        riot_leagues = [riot_fixtures.league_1_fixture, riot_fixtures.league_2_fixture]
         mock_get_leagues.return_value = riot_leagues
         selected_league_ids = ["badId"]
 
@@ -116,12 +104,9 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_leagues')
     def test_validate_available_leagues_single_league_fantasy_unavailable_exception(
-            self, mock_get_leagues):
+            self, mock_get_leagues: MagicMock):
         # Arrange
-        riot_leagues = [
-            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
-            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
-        ]
+        riot_leagues = [riot_fixtures.league_1_fixture, riot_fixtures.league_2_fixture]
         mock_get_leagues.return_value = riot_leagues
         selected_league_ids = [riot_fixtures.league_1_fixture.id]
 
@@ -134,12 +119,9 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_leagues')
     def test_validate_available_leagues_multiple_leagues_fantasy_unavailable_exception(
-            self, mock_get_leagues):
+            self, mock_get_leagues: MagicMock):
         # Arrange
-        riot_leagues = [
-            LeagueModel(**riot_fixtures.league_1_fixture.model_dump()),
-            LeagueModel(**riot_fixtures.league_2_fixture.model_dump())
-        ]
+        riot_leagues = [riot_fixtures.league_1_fixture, riot_fixtures.league_2_fixture]
         mock_get_leagues.return_value = riot_leagues
         selected_league_ids = [riot_fixtures.league_1_fixture.id, riot_fixtures.league_2_fixture.id]
 
@@ -152,7 +134,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
     def test_update_fantasy_leagues_current_draft_position_increment_by_1(
-            self, mock_update_fantasy_league_current_draft_position):
+            self, mock_update_fantasy_league_current_draft_position: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = 1
@@ -167,7 +149,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
     def test_update_fantasy_leagues_current_draft_position_rollover_to_1(
-            self, mock_update_fantasy_league_current_draft_position):
+            self, mock_update_fantasy_league_current_draft_position: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = fantasy_league.number_of_teams
@@ -181,7 +163,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.update_fantasy_league_current_draft_position')
     def test_update_fantasy_leagues_current_draft_position_to_max_num_of_teams(
-            self, mock_update_fantasy_league_current_draft_position):
+            self, mock_update_fantasy_league_current_draft_position: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
         fantasy_league.current_draft_position = fantasy_league.number_of_teams - 1

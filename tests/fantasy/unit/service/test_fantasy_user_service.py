@@ -1,10 +1,8 @@
 from unittest.mock import patch, MagicMock
-import copy
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from src.db.models import UserModel
 from src.fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
 from src.fantasy.exceptions.invalid_username_password_exception import\
     InvalidUsernameOrPasswordException
@@ -22,7 +20,10 @@ class UserServiceTest(FantasyLolTestBase):
     @patch(f'{BASE_USER_SERVICE_PATH}.create_new_user')
     @patch(f'{BASE_CRUD_PATH}.create_user')
     def test_user_signup(
-            self, mock_create_user, mock_create_new_user, mock_validate_username_and_email):
+            self,
+            mock_create_user: MagicMock,
+            mock_create_new_user: MagicMock,
+            mock_validate_username_and_email: MagicMock):
         # Arrange
         create_user_fixture = fantasy_fixtures.user_create_fixture
         mock_create_new_user.return_value = fantasy_fixtures.user_fixture
@@ -41,7 +42,7 @@ class UserServiceTest(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username', return_value=None)
     @patch(f'{BASE_CRUD_PATH}.get_user_by_email', return_value=None)
     def test_validate_username_and_email_no_error_thrown(
-            self, mock_get_user_by_email, mock_get_user_by_username):
+            self, mock_get_user_by_email: MagicMock, mock_get_user_by_username: MagicMock):
         # Arrange
         user_service = UserService()
 
@@ -57,40 +58,43 @@ class UserServiceTest(FantasyLolTestBase):
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username', return_value=MagicMock())
     @patch(f'{BASE_CRUD_PATH}.get_user_by_email', return_value=None)
     def test_validate_username_and_email_exception_username_in_use(
-            self, mock_get_user_by_email, mock_get_user_by_username):
+            self, mock_get_user_by_email: MagicMock, mock_get_user_by_username: MagicMock):
         # Arrange
         user_service = UserService()
+        user_username = 'existingUser'
+        user_email = 'newEmail@example.com'
 
         # Act and Assert
         with self.assertRaises(UserAlreadyExistsException) as context:
             user_service.validate_username_and_email(
-                username='existinguser', email='newuser@example.com'
+                username=user_username, email=user_email
             )
-
         self.assertIn('Username already in use', str(context.exception))
-        mock_get_user_by_username.assert_called_once_with('existinguser')
+        mock_get_user_by_username.assert_called_once_with(user_username)
         mock_get_user_by_email.assert_not_called()
 
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username', return_value=None)
     @patch(f'{BASE_CRUD_PATH}.get_user_by_email', return_value=MagicMock())
     def test_validate_username_and_email_exception_email_in_use(
-            self, mock_get_user_by_email, mock_get_user_by_username):
+            self, mock_get_user_by_email: MagicMock, mock_get_user_by_username: MagicMock):
         # Arrange
         user_service = UserService()
+        user_username = 'newUser'
+        user_email = 'existingEmail@example.com'
 
         # Act and Assert
         with self.assertRaises(UserAlreadyExistsException) as context:
             user_service.validate_username_and_email(
-                username='newuser', email='existinguser@example.com'
+                username=user_username, email=user_email
             )
-
         self.assertIn('Email already in use', str(context.exception))
-        mock_get_user_by_username.assert_called_once_with('newuser')
-        mock_get_user_by_email.assert_called_once_with('existinguser@example.com')
+        mock_get_user_by_username.assert_called_once_with(user_username)
+        mock_get_user_by_email.assert_called_once_with(user_email)
 
     @patch(f'{BASE_USER_SERVICE_PATH}.generate_new_valid_id')
     @patch(f'{BASE_USER_SERVICE_PATH}.hash_password')
-    def test_create_new_user(self, mock_hash_password, mock_generate_new_valid_id):
+    def test_create_new_user(
+            self, mock_hash_password: MagicMock, mock_generate_new_valid_id: MagicMock):
         # Arrange
         user_create_fixture = fantasy_fixtures.user_create_fixture
         user_fixture = fantasy_fixtures.user_fixture
@@ -108,7 +112,7 @@ class UserServiceTest(FantasyLolTestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_user_by_id', side_effect=[MagicMock(), None, None, None])
     @patch('uuid.uuid4', side_effect=['id1', 'id2', 'id3', 'id4'])
-    def test_generate_new_valid_id(self, mock_uuid4, mock_get_user_by_id):
+    def test_generate_new_valid_id(self, mock_uuid4: MagicMock, mock_get_user_by_id: MagicMock):
         # Arrange
         user_service = UserService()
 
@@ -125,7 +129,7 @@ class UserServiceTest(FantasyLolTestBase):
 
     @patch('bcrypt.gensalt', return_value=b'$2b$12$abcdefghijklmnopqrstuv')
     @patch('bcrypt.hashpw', return_value=b'hashed_password')
-    def test_hash_password(self, mock_hashpw, mock_gensalt):
+    def test_hash_password(self, mock_hashpw: MagicMock, mock_gensalt: MagicMock):
         # Arrange
         user_service = UserService()
         password = "secure_password"
@@ -142,9 +146,10 @@ class UserServiceTest(FantasyLolTestBase):
 
     @patch(SIGN_JWT_PATH)
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username')
-    def test_user_login_successful(self, mock_get_user_by_username, mock_sign_jwt):
+    def test_user_login_successful(
+            self, mock_get_user_by_username: MagicMock, mock_sign_jwt: MagicMock):
         # Arrange
-        user = UserModel(**fantasy_fixtures.user_fixture.model_dump())
+        user = fantasy_fixtures.user_fixture
         mock_get_user_by_username.return_value = user
         mock_token_response = token_response("mock-token")
         mock_sign_jwt.return_value = mock_token_response
@@ -159,7 +164,7 @@ class UserServiceTest(FantasyLolTestBase):
         self.assertEqual(mock_token_response, token)
 
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username', return_value=None)
-    def test_user_login_invalid_username(self, mock_get_user_by_username):
+    def test_user_login_invalid_username(self, mock_get_user_by_username: MagicMock):
         # Arrange
         user_login = fantasy_fixtures.user_login_fixture
         user_service = UserService()
@@ -172,11 +177,11 @@ class UserServiceTest(FantasyLolTestBase):
         mock_get_user_by_username.assert_called_once_with(user_login.username)
 
     @patch(f'{BASE_CRUD_PATH}.get_user_by_username')
-    def test_user_login_invalid_password(self, mock_get_user_by_username):
+    def test_user_login_invalid_password(self, mock_get_user_by_username: MagicMock):
         # Arrange
-        user = UserModel(**fantasy_fixtures.user_fixture.model_dump())
+        user = fantasy_fixtures.user_fixture
         mock_get_user_by_username.return_value = user
-        user_login = copy.deepcopy(fantasy_fixtures.user_login_fixture)
+        user_login = fantasy_fixtures.user_login_fixture.model_copy(deep=True)
         user_login.password = "badPassword"
         user_service = UserService()
 
