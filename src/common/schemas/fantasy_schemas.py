@@ -129,6 +129,8 @@ class FantasyLeagueMembershipStatus(str, Enum):
 
 
 class FantasyLeagueMembership(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     league_id: str
     user_id: str
     status: FantasyLeagueMembershipStatus

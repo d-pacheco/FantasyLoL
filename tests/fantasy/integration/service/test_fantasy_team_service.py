@@ -4,11 +4,9 @@ from copy import deepcopy
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import db_util, fantasy_fixtures, riot_fixtures
 
-from src.common.schemas.fantasy_schemas import FantasyTeam
 from src.common.schemas.fantasy_schemas import FantasyLeagueMembership
 from src.common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
 from src.common.schemas.fantasy_schemas import FantasyLeagueStatus
-from src.common.schemas.fantasy_schemas import FantasyLeague
 from src.common.schemas.fantasy_schemas import FantasyLeagueDraftOrder
 from src.common.schemas.riot_data_schemas import PlayerRole
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer
@@ -522,12 +520,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         for bad_state in bad_states:
-            bad_fantasy_league = FantasyLeague(
-                id=str(uuid.uuid4()),
-                owner_id=fantasy_fixtures.user_fixture.id,
-                status=bad_state,
-                current_week=1
-            )
+            bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
+            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.status = bad_state
             db_util.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.pickup_player(
@@ -680,12 +675,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         for bad_state in bad_states:
-            bad_fantasy_league = FantasyLeague(
-                id=str(uuid.uuid4()),
-                owner_id=fantasy_fixtures.user_fixture.id,
-                status=bad_state,
-                current_week=1
-            )
+            bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
+            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.status = bad_state
             db_util.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.drop_player(
@@ -950,12 +942,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Act and Assert
         for bad_state in bad_states:
-            bad_fantasy_league = FantasyLeague(
-                id=str(uuid.uuid4()),
-                owner_id=fantasy_fixtures.user_fixture.id,
-                status=bad_state,
-                current_week=1
-            )
+            bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
+            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.status = bad_state
             db_util.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.swap_players(
