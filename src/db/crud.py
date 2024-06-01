@@ -1,12 +1,52 @@
 from sqlalchemy import text
 from sqlalchemy import and_
-from typing import Optional
+from typing import Optional, List
 
-from ..common.schemas.fantasy_schemas import *
-from ..common.schemas.riot_data_schemas import *
+from ..common.schemas.fantasy_schemas import (
+    FantasyLeague,
+    FantasyLeagueDraftOrder,
+    FantasyLeagueScoringSettings,
+    FantasyLeagueStatus,
+    FantasyLeagueSettings,
+    FantasyLeagueMembership,
+    FantasyLeagueMembershipStatus,
+    FantasyTeam,
+    User
+)
+from ..common.schemas.riot_data_schemas import (
+    League,
+    ProfessionalPlayer,
+    ProfessionalTeam,
+    Tournament,
+    Match,
+    Game,
+    PlayerGameMetadata,
+    PlayerGameData,
+    PlayerGameStats,
+    Schedule
+)
 
 from .database import DatabaseConnection
-from .models import *
+from .models import (
+    # Riot Models
+    LeagueModel,
+    TournamentModel,
+    MatchModel,
+    GameModel,
+    ProfessionalTeamModel,
+    ProfessionalPlayerModel,
+    PlayerGameMetadataModel,
+    PlayerGameStatsModel,
+    ScheduleModel,
+
+    # Fantasy Models
+    UserModel,
+    FantasyLeagueDraftOrderModel,
+    FantasyLeagueScoringSettingModel,
+    FantasyLeagueModel,
+    FantasyLeagueMembershipModel,
+    FantasyTeamModel
+)
 from .views import PlayerGameView
 
 

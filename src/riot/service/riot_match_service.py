@@ -5,7 +5,7 @@ from ...common.schemas.riot_data_schemas import Match, Schedule
 from ...common.schemas.search_parameters import MatchSearchParameters
 
 from ...db import crud
-from ...db.models import MatchModel, ScheduleModel
+from ...db.models import MatchModel
 
 from ..exceptions.match_not_found_exception import MatchNotFoundException
 from ..util.riot_api_requester import RiotApiRequester

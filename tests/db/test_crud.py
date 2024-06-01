@@ -2,10 +2,23 @@ from sqlalchemy.exc import IntegrityError
 import copy
 from datetime import datetime
 
-from src.db import views
-from src.db import models, crud
-from src.common.schemas.riot_data_schemas import *
-from src.common.schemas.fantasy_schemas import *
+from src.db import views, crud
+from src.db.models import (
+    LeagueModel,
+    TournamentModel,
+    MatchModel,
+    GameModel,
+    ProfessionalTeamModel,
+    ProfessionalPlayerModel
+)
+from src.common.schemas.riot_data_schemas import (
+    League,
+    ProfessionalPlayer,
+    ProfessionalTeam,
+    Tournament,
+    Match,
+    Game
+)
 from src.common.schemas import fantasy_schemas, riot_data_schemas as schemas
 
 from tests.test_base import FantasyLolTestBase
@@ -66,9 +79,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
-        filters.append(
-            models.ProfessionalPlayerModel.summoner_name == expected_player.summoner_name
-        )
+        filters.append(ProfessionalPlayerModel.summoner_name == expected_player.summoner_name)
         db_util.save_player(expected_player)
         db_util.save_player(other_player)
 
@@ -88,9 +99,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
-        filters.append(
-            models.ProfessionalPlayerModel.summoner_name == expected_player.summoner_name
-        )
+        filters.append(ProfessionalPlayerModel.summoner_name == expected_player.summoner_name)
         db_util.save_player(other_player)
 
         # Act
@@ -106,7 +115,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
-        filters.append(models.ProfessionalPlayerModel.team_id == expected_player.team_id)
+        filters.append(ProfessionalPlayerModel.team_id == expected_player.team_id)
         db_util.save_player(expected_player)
         db_util.save_player(other_player)
 
@@ -126,7 +135,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
-        filters.append(models.ProfessionalPlayerModel.team_id == expected_player.team_id)
+        filters.append(ProfessionalPlayerModel.team_id == expected_player.team_id)
         db_util.save_player(other_player)
 
         # Act
@@ -142,7 +151,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_7_fixture
-        filters.append(models.ProfessionalPlayerModel.role == expected_player.role)
+        filters.append(ProfessionalPlayerModel.role == expected_player.role)
         db_util.save_player(expected_player)
         db_util.save_player(other_player)
 
@@ -162,7 +171,7 @@ class CrudTest(FantasyLolTestBase):
         filters = []
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_7_fixture
-        filters.append(models.ProfessionalPlayerModel.role == expected_player.role)
+        filters.append(ProfessionalPlayerModel.role == expected_player.role)
         db_util.save_player(other_player)
 
         # Act
@@ -466,7 +475,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_game = riot_fixtures.game_1_fixture_completed
-        filters.append(models.GameModel.state == expected_game.state)
+        filters.append(GameModel.state == expected_game.state)
         db_util.save_game(expected_game)
         db_util.save_game(riot_fixtures.game_2_fixture_inprogress)
         db_util.save_game(riot_fixtures.game_3_fixture_unstarted)
@@ -485,7 +494,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_game = riot_fixtures.game_1_fixture_unstarted_future_match
-        filters.append(models.GameModel.match_id == expected_game.match_id)
+        filters.append(GameModel.match_id == expected_game.match_id)
         db_util.save_game(expected_game)
         db_util.save_game(riot_fixtures.game_3_fixture_unstarted)
 
@@ -716,7 +725,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_league = riot_fixtures.league_1_fixture
-        filters.append(models.LeagueModel.name == expected_league.name)
+        filters.append(LeagueModel.name == expected_league.name)
         db_util.save_league(expected_league)
         db_util.save_league(riot_fixtures.league_2_fixture)
 
@@ -734,7 +743,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_league = riot_fixtures.league_1_fixture
-        filters.append(models.LeagueModel.name == expected_league.name)
+        filters.append(LeagueModel.name == expected_league.name)
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
@@ -748,7 +757,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_league = riot_fixtures.league_1_fixture
-        filters.append(models.LeagueModel.region == expected_league.region)
+        filters.append(LeagueModel.region == expected_league.region)
         db_util.save_league(expected_league)
         db_util.save_league(riot_fixtures.league_2_fixture)
 
@@ -766,7 +775,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_league = riot_fixtures.league_1_fixture
-        filters.append(models.LeagueModel.region == expected_league.region)
+        filters.append(LeagueModel.region == expected_league.region)
         db_util.save_league(riot_fixtures.league_2_fixture)
 
         # Act
@@ -876,7 +885,7 @@ class CrudTest(FantasyLolTestBase):
     def test_get_tournaments_start_date_filter_existing_tournament(self):
         # Arrange
         current_date = datetime.now()
-        filters = [models.TournamentModel.start_date < current_date]
+        filters = [TournamentModel.start_date < current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         db_util.save_tournament(expected_tournament)
 
@@ -893,7 +902,7 @@ class CrudTest(FantasyLolTestBase):
     def test_get_tournaments_start_date_filter_no_existing_tournament(self):
         # Arrange
         current_date = datetime.now()
-        filters = [models.TournamentModel.start_date > current_date]
+        filters = [TournamentModel.start_date > current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         db_util.save_tournament(expected_tournament)
 
@@ -907,7 +916,7 @@ class CrudTest(FantasyLolTestBase):
     def test_get_tournaments_end_date_filter_existing_tournament(self):
         # Arrange
         current_date = datetime.now()
-        filters = [models.TournamentModel.end_date < current_date]
+        filters = [TournamentModel.end_date < current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         db_util.save_tournament(expected_tournament)
 
@@ -924,7 +933,7 @@ class CrudTest(FantasyLolTestBase):
     def test_get_tournaments_end_date_filter_no_existing_tournament(self):
         # Arrange
         current_date = datetime.now()
-        filters = [models.TournamentModel.end_date > current_date]
+        filters = [TournamentModel.end_date > current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         db_util.save_tournament(expected_tournament)
 
@@ -1009,7 +1018,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(models.MatchModel.league_slug == expected_match.league_slug)
+        filters.append(MatchModel.league_slug == expected_match.league_slug)
         db_util.save_match(expected_match)
 
         # Act
@@ -1026,7 +1035,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(models.MatchModel.league_slug == "badFilter")
+        filters.append(MatchModel.league_slug == "badFilter")
         db_util.save_match(expected_match)
 
         # Act
@@ -1040,7 +1049,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(models.MatchModel.tournament_id == expected_match.tournament_id)
+        filters.append(MatchModel.tournament_id == expected_match.tournament_id)
         db_util.save_match(expected_match)
 
         # Act
@@ -1057,7 +1066,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(models.MatchModel.tournament_id == "badFilter")
+        filters.append(MatchModel.tournament_id == "badFilter")
         db_util.save_match(expected_match)
 
         # Act
@@ -1171,7 +1180,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.name == expected_team.name)
+        filters.append(ProfessionalTeamModel.name == expected_team.name)
         db_util.save_team(expected_team)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
@@ -1189,7 +1198,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.name == team_1.name)
+        filters.append(ProfessionalTeamModel.name == team_1.name)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
@@ -1203,7 +1212,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.slug == expected_team.slug)
+        filters.append(ProfessionalTeamModel.slug == expected_team.slug)
         db_util.save_team(expected_team)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
@@ -1221,7 +1230,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.slug == team_1.slug)
+        filters.append(ProfessionalTeamModel.slug == team_1.slug)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
@@ -1235,7 +1244,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.code == expected_team.code)
+        filters.append(ProfessionalTeamModel.code == expected_team.code)
         db_util.save_team(expected_team)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
@@ -1253,7 +1262,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.code == team_1.code)
+        filters.append(ProfessionalTeamModel.code == team_1.code)
         db_util.save_team(riot_fixtures.team_2_fixture)
 
         # Act
@@ -1267,7 +1276,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.status == expected_team.status)
+        filters.append(ProfessionalTeamModel.status == expected_team.status)
         db_util.save_team(expected_team)
 
         # Act
@@ -1284,7 +1293,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.status == team_1.status)
+        filters.append(ProfessionalTeamModel.status == team_1.status)
 
         # Act
         teams_from_db = crud.get_teams(filters)
@@ -1297,7 +1306,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.home_league == expected_team.home_league)
+        filters.append(ProfessionalTeamModel.home_league == expected_team.home_league)
         db_util.save_team(expected_team)
 
         # Act
@@ -1314,7 +1323,7 @@ class CrudTest(FantasyLolTestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(models.ProfessionalTeamModel.home_league == team_1.home_league)
+        filters.append(ProfessionalTeamModel.home_league == team_1.home_league)
 
         # Act
         teams_from_db = crud.get_teams(filters)
