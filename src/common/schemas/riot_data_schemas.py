@@ -1,12 +1,19 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, NewType
 from pydantic import BaseModel, Field, ConfigDict
+
+RiotLeagueID = NewType('RiotLeagueID', str)
+RiotTournamentID = NewType('RiotTournamentID', str)
+RiotMatchID = NewType('RiotMatchID', str)
+RiotGameID = NewType('RiotGameID', str)
+ProTeamID = NewType('ProTeamID', str)
+ProPlayerID = NewType('ProPlayerID', str)
 
 
 class League(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: RiotLeagueID = Field(
         default=None,
         description="The ID of the league",
         examples=["98767975604431411"]
@@ -52,7 +59,7 @@ class TournamentStatus(str, Enum):
 class Tournament(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: RiotTournamentID = Field(
         default=None,
         description="The ID of the tournament",
         examples=["110852926142971547"]
@@ -72,7 +79,7 @@ class Tournament(BaseModel):
         description="The end date of the tournament",
         examples=["2023-11-19"]
     )
-    league_id: str = Field(
+    league_id: RiotLeagueID = Field(
         default=None,
         description="The ID of the league the tournament is being held in",
         examples=["98767975604431411"]
@@ -82,7 +89,7 @@ class Tournament(BaseModel):
 class Match(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: RiotMatchID = Field(
         default=None,
         description="The ID of the match",
         examples=["110853020184706765"]
@@ -112,7 +119,7 @@ class Match(BaseModel):
         description="The number of games for the strategy type",
         examples=[5]
     )
-    tournament_id: str = Field(
+    tournament_id: RiotTournamentID = Field(
         default=None,
         description="The id of the tournament the match is taking place in",
         examples=["110852926142971547"]
@@ -139,7 +146,7 @@ class GameState(str, Enum):
 class Game(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: RiotGameID = Field(
         default=None,
         description="The ID of the game",
         examples=["110853020184706766"]
@@ -154,7 +161,7 @@ class Game(BaseModel):
         description="The game number within the strategy type and count",
         examples=[1]
     )
-    match_id: str = Field(
+    match_id: RiotMatchID = Field(
         default=None,
         description="The ID of the match that the game is in",
         examples=["110853020184706765"]
@@ -167,14 +174,14 @@ class Game(BaseModel):
 
 
 class GetGamesResponseSchema(BaseModel):
-    id: str = Field()
+    id: RiotGameID = Field()
     state: GameState = Field()
 
 
 class ProfessionalTeam(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: ProTeamID = Field(
         default=None,
         description="The ID of the team",
         examples=["98767991853197861"]
@@ -233,7 +240,7 @@ class PlayerRole(str, Enum):
 class ProfessionalPlayer(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(
+    id: ProPlayerID = Field(
         default=None,
         description="The esports id of the player given by RIOT",
         examples=["98767991747728851"]
@@ -248,12 +255,12 @@ class ProfessionalPlayer(BaseModel):
         description="The url for the players image",
         examples=["http://static.lolesports.com/players/1686475867148_T1_Faker.png"]
     )
-    role: str = Field(
+    role: PlayerRole = Field(
         default=None,
         description="The role that the player plays",
         examples=["mid"]
     )
-    team_id: str = Field(
+    team_id: ProTeamID = Field(
         default=None,
         description="The id of the team that the player is on",
         examples=["98767991853197861"]
@@ -263,11 +270,11 @@ class ProfessionalPlayer(BaseModel):
 class PlayerGameMetadata(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    game_id: str = Field(
+    game_id: RiotGameID = Field(
         default=None,
         description="The id of the game this players metadata is for"
     )
-    player_id: str = Field(
+    player_id: ProPlayerID = Field(
         default=None,
         description="The id of the player given by riot"
     )
@@ -288,7 +295,7 @@ class PlayerGameMetadata(BaseModel):
 class PlayerGameStats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    game_id: str = Field(
+    game_id: RiotGameID = Field(
         default=None,
         description="The id of the game this players metadata is for"
     )
@@ -337,12 +344,12 @@ class PlayerGameStats(BaseModel):
 class PlayerGameData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    game_id: str = Field(
+    game_id: RiotGameID = Field(
         default=None,
         description="The id of the game this players metadata is for",
         examples=["110853020184706766"]
     )
-    player_id: str = Field(
+    player_id: ProPlayerID = Field(
         default=None,
         description="The id of the player given by riot",
         examples=["98767991747728851"]

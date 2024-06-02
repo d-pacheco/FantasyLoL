@@ -17,11 +17,18 @@ from ..common.schemas.fantasy_schemas import (
 )
 from ..common.schemas.riot_data_schemas import (
     League,
+    RiotLeagueID,
     ProfessionalPlayer,
+    ProPlayerID,
     ProfessionalTeam,
+    ProTeamID,
     Tournament,
+    RiotTournamentID,
     Match,
+    RiotMatchID,
     Game,
+    RiotGameID,
+    GameState,
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
@@ -74,7 +81,7 @@ def get_leagues(filters: Optional[list] = None) -> List[League]:
         return leagues
 
 
-def get_league_by_id(league_id: str) -> Optional[League]:
+def get_league_by_id(league_id: RiotLeagueID) -> Optional[League]:
     with DatabaseConnection() as db:
         db_league = db.query(LeagueModel).filter(LeagueModel.id == league_id).first()
         if db_league is None:
@@ -83,7 +90,8 @@ def get_league_by_id(league_id: str) -> Optional[League]:
             return League.model_validate(db_league)
 
 
-def update_league_fantasy_available_status(league_id: str, new_status: bool) -> Optional[League]:
+def update_league_fantasy_available_status(
+        league_id: RiotLeagueID, new_status: bool) -> Optional[League]:
     with DatabaseConnection() as db:
         db_league: Optional[LeagueModel] = db.query(LeagueModel) \
             .filter(LeagueModel.id == league_id).first()
@@ -98,7 +106,7 @@ def update_league_fantasy_available_status(league_id: str, new_status: bool) -> 
         return league
 
 
-def get_league_ids_for_player(player_id: str) -> List[str]:
+def get_league_ids_for_player(player_id: ProPlayerID) -> List[RiotLeagueID]:
     sql_query = f"""
         SELECT DISTINCT l.id
         FROM professional_players p
@@ -109,7 +117,7 @@ def get_league_ids_for_player(player_id: str) -> List[str]:
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    league_ids = [row[0] for row in rows]
+    league_ids = [RiotLeagueID(row[0]) for row in rows]
     return league_ids
 
 
@@ -137,7 +145,7 @@ def get_tournaments(filters: list) -> List[Tournament]:
         return tournaments
 
 
-def get_tournament_by_id(tournament_id: str) -> Optional[Tournament]:
+def get_tournament_by_id(tournament_id: RiotTournamentID) -> Optional[Tournament]:
     with DatabaseConnection() as db:
         tournament_model: TournamentModel = db.query(TournamentModel) \
             .filter(TournamentModel.id == tournament_id).first()
@@ -169,7 +177,7 @@ def get_matches(filters: Optional[list] = None) -> List[Match]:
         return matches
 
 
-def get_match_by_id(match_id: str) -> Optional[Match]:
+def get_match_by_id(match_id: RiotMatchID) -> Optional[Match]:
     with DatabaseConnection() as db:
         match_model: MatchModel = db.query(MatchModel).filter(MatchModel.id == match_id).first()
         if match_model is None:
@@ -178,7 +186,7 @@ def get_match_by_id(match_id: str) -> Optional[Match]:
             return Match.model_validate(match_model)
 
 
-def get_match_ids_without_games() -> List[str]:
+def get_match_ids_without_games() -> List[RiotMatchID]:
     sql_query = """
         SELECT matches.id
         FROM matches
@@ -188,10 +196,8 @@ def get_match_ids_without_games() -> List[str]:
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    match_ids = []
-    for row in rows:
-        match_ids.append(row[0])
-    return match_ids
+        match_ids = [RiotMatchID(row[0]) for row in rows]
+        return match_ids
 
 
 # --------------------------------------------------
@@ -211,7 +217,7 @@ def bulk_save_games(games: List[Game]) -> None:
         db.commit()
 
 
-def update_has_game_data(game_id: str, has_game_data: bool) -> None:
+def update_has_game_data(game_id: RiotGameID, has_game_data: bool) -> None:
     with DatabaseConnection() as db:
         db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
@@ -220,7 +226,7 @@ def update_has_game_data(game_id: str, has_game_data: bool) -> None:
             db.commit()
 
 
-def update_game_state(game_id: str, state: str) -> None:
+def update_game_state(game_id: RiotGameID, state: GameState) -> None:
     with DatabaseConnection() as db:
         db_game: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if db_game is not None:
@@ -241,7 +247,7 @@ def get_games(filters: Optional[list] = None) -> List[Game]:
         return games
 
 
-def get_games_to_check_state() -> List[str]:
+def get_games_to_check_state() -> List[RiotGameID]:
     sql_query = """
         SELECT games.id
         FROM games
@@ -252,13 +258,11 @@ def get_games_to_check_state() -> List[str]:
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    game_ids = []
-    for row in rows:
-        game_ids.append(row[0])
-    return game_ids
+        game_ids = [RiotGameID(row[0]) for row in rows]
+        return game_ids
 
 
-def get_game_by_id(game_id: str) -> Optional[Game]:
+def get_game_by_id(game_id: RiotGameID) -> Optional[Game]:
     with DatabaseConnection() as db:
         game_model: GameModel = db.query(GameModel).filter(GameModel.id == game_id).first()
         if game_model is None:
@@ -289,7 +293,7 @@ def get_teams(filters: Optional[list] = None) -> List[ProfessionalTeam]:
         return teams
 
 
-def get_team_by_id(team_id: str) -> Optional[ProfessionalTeam]:
+def get_team_by_id(team_id: ProTeamID) -> Optional[ProfessionalTeam]:
     with DatabaseConnection() as db:
         team_model: ProfessionalTeamModel = db.query(ProfessionalTeamModel) \
             .filter(ProfessionalTeamModel.id == team_id).first()
@@ -321,7 +325,7 @@ def get_players(filters: Optional[list] = None) -> List[ProfessionalPlayer]:
         return players
 
 
-def get_player_by_id(player_id: str) -> Optional[ProfessionalPlayer]:
+def get_player_by_id(player_id: ProPlayerID) -> Optional[ProfessionalPlayer]:
     with DatabaseConnection() as db:
         player_model: ProfessionalPlayerModel = db.query(ProfessionalPlayerModel) \
             .filter(ProfessionalPlayerModel.id == player_id).first()
@@ -341,7 +345,7 @@ def save_player_metadata(player_metadata: PlayerGameMetadata) -> None:
         db.commit()
 
 
-def get_game_ids_without_player_metadata() -> List[str]:
+def get_game_ids_without_player_metadata() -> List[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
@@ -355,10 +359,8 @@ def get_game_ids_without_player_metadata() -> List[str]:
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    game_ids: List[str] = []
-    for row in rows:
-        game_ids.append(row[0])
-    return game_ids
+        game_ids = [RiotGameID(row[0]) for row in rows]
+        return game_ids
 
 
 # --------------------------------------------------
@@ -371,7 +373,7 @@ def save_player_stats(player_stats: PlayerGameStats) -> None:
         db.commit()
 
 
-def get_game_ids_to_fetch_player_stats_for() -> List[str]:
+def get_game_ids_to_fetch_player_stats_for() -> List[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
@@ -385,10 +387,8 @@ def get_game_ids_to_fetch_player_stats_for() -> List[str]:
     with DatabaseConnection() as db:
         result = db.execute(text(sql_query))
         rows = result.fetchall()
-    game_ids: List[str] = []
-    for row in rows:
-        game_ids.append(row[0])
-    return game_ids
+        game_ids = [RiotGameID(row[0]) for row in rows]
+        return game_ids
 
 
 def get_player_game_stats(filters: list = None) -> List[PlayerGameData]:
