@@ -1,9 +1,15 @@
 from fastapi import HTTPException
 from http import HTTPStatus
+from typing import List
+
+from ...common.schemas.fantasy_schemas import FantasyLeagueID, FantasyLeagueStatus
 
 
 class FantasyLeagueInvalidRequiredStateException(HTTPException):
-    def __init__(self, fantasy_league_id, current_state, required_states):
+    def __init__(self,
+                 fantasy_league_id: FantasyLeagueID,
+                 current_state: FantasyLeagueStatus,
+                 required_states: List[FantasyLeagueStatus]) -> None:
         super().__init__(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=f"Invalid fantasy league state: Fantasy league ({fantasy_league_id}) is"

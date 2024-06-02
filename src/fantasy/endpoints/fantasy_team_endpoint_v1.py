@@ -3,7 +3,7 @@ from typing import List
 
 from ...auth.auth_bearer import JWTBearer
 
-from ...common.schemas.fantasy_schemas import FantasyTeam
+from ...common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 
 from ..service.fantasy_team_service import FantasyTeamService
 
@@ -20,9 +20,9 @@ fantasy_team_service = FantasyTeamService()
     response_model=List[FantasyTeam]
 )
 def get_fantasy_team_weeks_for_league(
-        fantasy_league_id: str,
-        decoded_token: dict = Depends(JWTBearer())):
-    user_id = decoded_token.get("user_id")
+        fantasy_league_id: FantasyLeagueID,
+        decoded_token: dict = Depends(JWTBearer())) -> List[FantasyTeam]:
+    user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
 
 
@@ -33,10 +33,10 @@ def get_fantasy_team_weeks_for_league(
     response_model=FantasyTeam
 )
 def pickup_player(
-        fantasy_league_id: str,
+        fantasy_league_id: FantasyLeagueID,
         player_id: str,
-        decoded_token: dict = Depends(JWTBearer())):
-    user_id = decoded_token.get("user_id")
+        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+    user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
 
 
@@ -47,10 +47,10 @@ def pickup_player(
     response_model=FantasyTeam
 )
 def drop_player(
-        fantasy_league_id: str,
+        fantasy_league_id: FantasyLeagueID,
         player_id: str,
-        decoded_token: dict = Depends(JWTBearer())):
-    user_id = decoded_token.get("user_id")
+        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+    user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.drop_player(fantasy_league_id, user_id, player_id)
 
 
@@ -61,11 +61,11 @@ def drop_player(
     response_model=FantasyTeam
 )
 def swap_players(
-        fantasy_league_id: str,
+        fantasy_league_id: FantasyLeagueID,
         player_to_drop_id: str,
         player_to_pickup_id: str,
-        decoded_token: dict = Depends(JWTBearer())):
-    user_id = decoded_token.get("user_id")
+        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+    user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.swap_players(
         fantasy_league_id, user_id, player_to_drop_id, player_to_pickup_id
     )

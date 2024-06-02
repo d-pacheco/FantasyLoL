@@ -1,12 +1,16 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional, List
+from typing import Optional, List, NewType
+
+
+UserID = NewType('UserID', str)
+FantasyLeagueID = NewType('FantasyLeagueID', str)
 
 
 class UserCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    username: str
+    username: UserID
     email: str
     password: str
 
@@ -21,7 +25,7 @@ class UserLogin(BaseModel):
 class User(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
+    id: UserID
     username: str
     email: str
     password: str
@@ -30,7 +34,7 @@ class User(BaseModel):
 class FantasyLeagueScoringSettings(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    fantasy_league_id: Optional[str] = Field(
+    fantasy_league_id: Optional[FantasyLeagueID] = Field(
         description="The id of the fantasy league. This field is ignored in update requests",
         examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc'],
         default=None
@@ -114,8 +118,8 @@ class FantasyLeagueStatus(str, Enum):
 class FantasyLeague(FantasyLeagueSettings):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
-    owner_id: str
+    id: FantasyLeagueID
+    owner_id: UserID
     status: FantasyLeagueStatus
     current_week: Optional[int] = None
     current_draft_position: Optional[int] = None
@@ -131,8 +135,8 @@ class FantasyLeagueMembershipStatus(str, Enum):
 class FantasyLeagueMembership(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    league_id: str
-    user_id: str
+    league_id: FantasyLeagueID
+    user_id: UserID
     status: FantasyLeagueMembershipStatus
 
 
@@ -146,13 +150,13 @@ class UsersFantasyLeagues(BaseModel):
 class FantasyLeagueDraftOrder(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    fantasy_league_id: str
-    user_id: str
+    fantasy_league_id: FantasyLeagueID
+    user_id: UserID
     position: int
 
 
 class FantasyLeagueDraftOrderResponse(BaseModel):
-    user_id: str
+    user_id: UserID
     username: str
     position: int
 
@@ -160,8 +164,8 @@ class FantasyLeagueDraftOrderResponse(BaseModel):
 class FantasyTeam(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    fantasy_league_id: str
-    user_id: str
+    fantasy_league_id: FantasyLeagueID
+    user_id: UserID
     week: int
     top_player_id: Optional[str] = None
     jungle_player_id: Optional[str] = None

@@ -625,6 +625,6 @@ player_10_game_data_fixture = schemas.PlayerGameData(
 )
 
 riot_schedule_pages_fixture = schemas.Schedule(
-    older="olderToken",
-    newer="newerToken"
+    older_token_key="olderToken",
+    current_token_key="newerToken"
 )

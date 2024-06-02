@@ -1,4 +1,4 @@
-from ...common.schemas.fantasy_schemas import FantasyLeague
+from ...common.schemas.fantasy_schemas import FantasyLeague, UserID
 
 from ...db import crud
 
@@ -22,7 +22,7 @@ class FantasyTeamUtil:
             )
 
     @staticmethod
-    def is_users_position_to_draft(fantasy_league: FantasyLeague, user_id: str) -> bool:
+    def is_users_position_to_draft(fantasy_league: FantasyLeague, user_id: UserID) -> bool:
         draft_order = crud.get_fantasy_league_draft_order(fantasy_league.id)
         users_draft_position = None
         for draft_position in draft_order:

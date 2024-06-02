@@ -3,8 +3,8 @@ from typing import List
 
 from ...db import crud
 
-
 from ...common.schemas.fantasy_schemas import (
+    FantasyLeagueID,
     FantasyLeague,
     FantasyLeagueSettings,
     FantasyLeagueStatus,
@@ -13,7 +13,8 @@ from ...common.schemas.fantasy_schemas import (
     UsersFantasyLeagues,
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrder,
-    FantasyLeagueDraftOrderResponse
+    FantasyLeagueDraftOrderResponse,
+    UserID
 )
 
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
@@ -30,7 +31,7 @@ fantasy_league_util = FantasyLeagueUtil()
 
 class FantasyLeagueService:
     def create_fantasy_league(
-            self, owner_id: str, league_settings: FantasyLeagueSettings) -> FantasyLeague:
+            self, owner_id: UserID, league_settings: FantasyLeagueSettings) -> FantasyLeague:
         if len(league_settings.available_leagues) > 0:
             fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 
@@ -58,15 +59,17 @@ class FantasyLeagueService:
         return new_fantasy_league
 
     @staticmethod
-    def generate_new_valid_id() -> str:
+    def generate_new_valid_id() -> FantasyLeagueID:
         while True:
             new_id = str(uuid.uuid4())
             if not crud.get_fantasy_league_by_id(new_id):
                 break
-        return new_id
+        return FantasyLeagueID(new_id)
 
     @staticmethod
-    def get_fantasy_league_settings(owner_id: str, league_id: str) -> FantasyLeagueSettings:
+    def get_fantasy_league_settings(
+            owner_id: UserID,
+            league_id: FantasyLeagueID) -> FantasyLeagueSettings:
         fantasy_league_model = fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
@@ -80,8 +83,8 @@ class FantasyLeagueService:
 
     @staticmethod
     def update_fantasy_league_settings(
-            owner_id: str,
-            league_id: str,
+            owner_id: UserID,
+            league_id: FantasyLeagueID,
             updated_league_settings: FantasyLeagueSettings) -> FantasyLeagueSettings:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
@@ -116,7 +119,9 @@ class FantasyLeagueService:
         return updated_fantasy_league_settings
 
     @staticmethod
-    def get_scoring_settings(owner_id: str, league_id: str) -> FantasyLeagueScoringSettings:
+    def get_scoring_settings(
+            owner_id: UserID,
+            league_id: FantasyLeagueID) -> FantasyLeagueScoringSettings:
         fantasy_league_model = fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
@@ -125,8 +130,8 @@ class FantasyLeagueService:
 
     @staticmethod
     def update_scoring_settings(
-            fantasy_league_id: str,
-            user_id: str,
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID,
             scoring_settings: FantasyLeagueScoringSettings) -> FantasyLeagueScoringSettings:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
@@ -140,7 +145,7 @@ class FantasyLeagueService:
         return scoring_settings
 
     @staticmethod
-    def get_users_pending_and_accepted_fantasy_leagues(user_id: str) -> UsersFantasyLeagues:
+    def get_users_pending_and_accepted_fantasy_leagues(user_id: UserID) -> UsersFantasyLeagues:
         pending_fantasy_leagues = crud.get_users_fantasy_leagues_with_membership_status(
             user_id, FantasyLeagueMembershipStatus.PENDING
         )
@@ -154,7 +159,8 @@ class FantasyLeagueService:
         return users_fantasy_leagues
 
     @staticmethod
-    def send_fantasy_league_invite(owner_id: str, league_id: str, username: str):
+    def send_fantasy_league_invite(
+            owner_id: UserID, league_id: FantasyLeagueID, username: str) -> None:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -172,7 +178,7 @@ class FantasyLeagueService:
         create_fantasy_league_membership(league_id, user.id, FantasyLeagueMembershipStatus.PENDING)
 
     @staticmethod
-    def join_fantasy_league(user_id: str, league_id: str):
+    def join_fantasy_league(user_id: UserID, league_id: FantasyLeagueID) -> None:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -204,7 +210,7 @@ class FantasyLeagueService:
         create_draft_order_entry(user_id, league_id)
 
     @staticmethod
-    def leave_fantasy_league(user_id: str, league_id: str):
+    def leave_fantasy_league(user_id: UserID, league_id: FantasyLeagueID) -> None:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -224,7 +230,10 @@ class FantasyLeagueService:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
 
     @staticmethod
-    def revoke_from_fantasy_league(fantasy_league_id: str, user_id: str, user_to_remove_id: str):
+    def revoke_from_fantasy_league(
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID,
+            user_to_remove_id: UserID) -> None:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -252,8 +261,9 @@ class FantasyLeagueService:
         update_draft_order_on_player_leave(user_to_remove_id, fantasy_league_id)
 
     @staticmethod
-    def get_fantasy_league_draft_order(user_id: str, league_id: str)\
-            -> List[FantasyLeagueDraftOrderResponse]:
+    def get_fantasy_league_draft_order(
+            user_id: UserID,
+            league_id: FantasyLeagueID) -> List[FantasyLeagueDraftOrderResponse]:
         fantasy_league_model = fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != user_id:
             raise ForbiddenException()
@@ -270,9 +280,9 @@ class FantasyLeagueService:
 
     @staticmethod
     def update_fantasy_league_draft_order(
-            user_id: str,
-            league_id: str,
-            updated_draft_order: List[FantasyLeagueDraftOrderResponse]):
+            user_id: UserID,
+            league_id: FantasyLeagueID,
+            updated_draft_order: List[FantasyLeagueDraftOrderResponse]) -> None:
         fantasy_league_model = fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -297,7 +307,7 @@ class FantasyLeagueService:
             )
 
     @staticmethod
-    def start_fantasy_draft(user_id: str, fantasy_league_id: str):
+    def start_fantasy_draft(user_id: UserID, fantasy_league_id: FantasyLeagueID) -> None:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -330,7 +340,7 @@ class FantasyLeagueService:
 
 def validate_draft_order(
         current_draft_order: List[FantasyLeagueDraftOrder],
-        updated_draft_order: List[FantasyLeagueDraftOrderResponse]):
+        updated_draft_order: List[FantasyLeagueDraftOrderResponse]) -> None:
     member_ids = [draft_position.user_id for draft_position in current_draft_order]
 
     if len(updated_draft_order) != len(current_draft_order):
@@ -347,7 +357,7 @@ def validate_draft_order(
         raise DraftOrderException("The positions given in the updated draft order are not valid")
 
 
-def update_draft_order_on_player_leave(user_id: str, league_id: str):
+def update_draft_order_on_player_leave(user_id: UserID, league_id: FantasyLeagueID) -> None:
     current_draft_order = crud.get_fantasy_league_draft_order(league_id)
 
     draft_position_to_delete = None
@@ -366,7 +376,7 @@ def update_draft_order_on_player_leave(user_id: str, league_id: str):
             )
 
 
-def create_draft_order_entry(user_id: str, league_id: str):
+def create_draft_order_entry(user_id: UserID, league_id: FantasyLeagueID) -> None:
     fantasy_league = crud.get_fantasy_league_by_id(league_id)
     if fantasy_league is None:
         raise FantasyLeagueNotFoundException()
@@ -388,7 +398,9 @@ def create_draft_order_entry(user_id: str, league_id: str):
 
 
 def create_fantasy_league_membership(
-        league_id: str, user_id: str, status: FantasyLeagueMembershipStatus):
+        league_id: FantasyLeagueID,
+        user_id: UserID,
+        status: FantasyLeagueMembershipStatus) -> None:
     fantasy_league_membership = FantasyLeagueMembership(
         league_id=league_id,
         user_id=user_id,
