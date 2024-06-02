@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import League
+from ...common.schemas.riot_data_schemas import League, RiotLeagueID
 from ...common.schemas.search_parameters import LeagueSearchParameters
 
 from ..service.riot_league_service import RiotLeagueService
@@ -26,7 +26,8 @@ league_service = RiotLeagueService()
 def get_riot_leagues(
         name: str = Query(None, description="Filter by league name"),
         region: str = Query(None, description="Filter by league region"),
-        fantasy_available: bool = Query(None, description="Filter by availability in Fantasy LoL")):
+        fantasy_available: bool = Query(None, description="Filter by availability in Fantasy LoL")
+) -> Page[League]:
     search_parameters = LeagueSearchParameters(
         name=name,
         region=region,
@@ -55,7 +56,7 @@ def get_riot_leagues(
         }
     }
 )
-def get_riot_league_by_id(league_id: str):
+def get_riot_league_by_id(league_id: RiotLeagueID) -> League:
     return league_service.get_league_by_id(league_id)
 
 
@@ -78,5 +79,5 @@ def get_riot_league_by_id(league_id: str):
         }
     }
 )
-def update_riot_league_fantasy_available(league_id: str, new_status: bool):
+def update_riot_league_fantasy_available(league_id: RiotLeagueID, new_status: bool) -> League:
     return league_service.update_fantasy_available(league_id, new_status)

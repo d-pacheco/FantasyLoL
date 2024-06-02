@@ -2,8 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import Game
-from ...common.schemas.riot_data_schemas import GameState
+from ...common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 from ...common.schemas.search_parameters import GameSearchParameters
 
 from ..service.riot_game_service import RiotGameService
@@ -31,7 +30,7 @@ def validate_status_parameter(state: GameState = Query(None, description="Filter
 )
 def get_riot_games(
         state: GameState = Depends(validate_status_parameter),
-        match_id: str = Query(None, description="Filter by game match id")):
+        match_id: RiotMatchID = Query(None, description="Filter by game match id")) -> Page[Game]:
     search_parameters = GameSearchParameters(
         state=state,
         match_id=match_id
@@ -59,5 +58,5 @@ def get_riot_games(
         }
     }
 )
-def get_riot_game_by_id(game_id: str):
+def get_riot_game_by_id(game_id: RiotGameID) -> Game:
     return game_service.get_game_by_id(game_id)

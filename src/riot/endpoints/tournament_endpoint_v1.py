@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import Tournament
-from ...common.schemas.riot_data_schemas import TournamentStatus
+from ...common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from ...common.schemas.search_parameters import TournamentSearchParameters
 
 from ..service.riot_tournament_service import RiotTournamentService
@@ -28,7 +27,9 @@ def validate_status_parameter(status: TournamentStatus = Query(
         }
     }
 )
-def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_parameter)):
+def get_riot_tournaments(
+        status: TournamentStatus = Depends(validate_status_parameter)
+) -> Page[Tournament]:
     search_parameters = TournamentSearchParameters(status=status)
     tournaments = tournament_service.get_tournaments(search_parameters)
     return paginate(tournaments)
@@ -53,5 +54,5 @@ def get_riot_tournaments(status: TournamentStatus = Depends(validate_status_para
         }
     }
 )
-def get_riot_tournaments_by_id(tournament_id: str):
+def get_riot_tournaments_by_id(tournament_id: RiotTournamentID) -> Tournament:
     return tournament_service.get_tournament_by_id(tournament_id)
