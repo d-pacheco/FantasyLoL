@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from ...common.schemas.search_parameters import GameSearchParameters
-from ...common.schemas.riot_data_schemas import Game
+from ...common.schemas.riot_data_schemas import Game, RiotGameID, RiotMatchID
 
 from ...db import crud
 from ...db.models import GameModel
@@ -32,9 +32,9 @@ class RiotGameService:
             batch = match_ids[i:i + batch_size]
             self.process_batch_match_ids(batch)
 
-    def process_batch_match_ids(self, match_ids: List[str]):
+    def process_batch_match_ids(self, match_ids: List[RiotMatchID]):
         logger.debug(f"Processes batch of match ids: {match_ids}")
-        all_fetched_games = []
+        all_fetched_games: List[Game] = []
         for match_id in match_ids:
             fetched_games = self.riot_api_requester.get_games_from_event_details(match_id)
             all_fetched_games = all_fetched_games + fetched_games
@@ -64,9 +64,8 @@ class RiotGameService:
         return games
 
     @staticmethod
-    def get_game_by_id(game_id: str) -> Game:
-        game_orm = crud.get_game_by_id(game_id)
-        if game_orm is None:
+    def get_game_by_id(game_id: RiotGameID) -> Game:
+        game = crud.get_game_by_id(game_id)
+        if game is None:
             raise GameNotFoundException()
-        game = Game.model_validate(game_orm)
         return game

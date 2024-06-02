@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from ...common.schemas.riot_data_schemas import Match, Schedule
+from ...common.schemas.riot_data_schemas import Match, Schedule, RiotMatchID
 from ...common.schemas.search_parameters import MatchSearchParameters
 
 from ...db import crud
@@ -111,7 +111,7 @@ class RiotMatchService:
         return matches
 
     @staticmethod
-    def get_match_by_id(match_id: str) -> Match:
+    def get_match_by_id(match_id: RiotMatchID) -> Match:
         match = crud.get_match_by_id(match_id)
         if match is None:
             raise MatchNotFoundException()

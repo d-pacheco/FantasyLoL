@@ -3,7 +3,7 @@ import logging
 from typing import List
 
 from ...common.schemas.search_parameters import PlayerGameStatsSearchParameters
-from ...common.schemas.riot_data_schemas import PlayerGameData
+from ...common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
 
 from ...db import crud
 from ...db.views import PlayerGameView
@@ -40,7 +40,7 @@ class RiotGameStatsService:
         for game_id in game_ids:
             self.fetch_and_store_player_metadata_for_game(game_id)
 
-    def fetch_and_store_player_metadata_for_game(self, game_id: str):
+    def fetch_and_store_player_metadata_for_game(self, game_id: RiotGameID):
         logger.debug(f"Fetching player metadata for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
@@ -68,7 +68,7 @@ class RiotGameStatsService:
         for game_id in game_ids:
             self.fetch_and_store_player_stats_for_game(game_id)
 
-    def fetch_and_store_player_stats_for_game(self, game_id: str):
+    def fetch_and_store_player_stats_for_game(self, game_id: RiotGameID):
         logger.debug(f"Fetching player stats for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
