@@ -3,7 +3,16 @@ from datetime import datetime, timedelta
 import pytz
 
 from src.common.schemas import riot_data_schemas as schemas
-from src.common.schemas.riot_data_schemas import GameState
+from src.common.schemas.riot_data_schemas import (
+    GameState,
+    PlayerRole,
+    RiotGameID,
+    RiotMatchID,
+    RiotLeagueID,
+    RiotTournamentID,
+    ProPlayerID,
+    ProTeamID
+)
 
 past_start_date = datetime.now(pytz.utc) - timedelta(days=5)
 formatted_past_start_date = past_start_date.strftime("%Y-%m-%d")
@@ -23,7 +32,7 @@ def generate_random_id():
 
 
 league_1_fixture = schemas.League(
-    id=generate_random_id(),
+    id=RiotLeagueID(generate_random_id()),
     name="Mock League 1",
     slug="mock-challengers-league",
     region="MOCKED REGION",
@@ -33,7 +42,7 @@ league_1_fixture = schemas.League(
 )
 
 league_2_fixture = schemas.League(
-    id=generate_random_id(),
+    id=RiotLeagueID(generate_random_id()),
     name="Mock League 2",
     slug="mock-pro-league",
     region="MOCKED REGION2",
@@ -43,7 +52,7 @@ league_2_fixture = schemas.League(
 )
 
 tournament_fixture = schemas.Tournament(
-    id=generate_random_id(),
+    id=RiotTournamentID(generate_random_id()),
     slug="mock_slug_2023",
     start_date="2023-01-01",
     end_date="2023-02-03",
@@ -51,7 +60,7 @@ tournament_fixture = schemas.Tournament(
 )
 
 future_tournament_fixture = schemas.Tournament(
-    id=generate_random_id(),
+    id=RiotTournamentID(generate_random_id()),
     slug="future_slug",
     start_date=formatted_future_start_date,
     end_date=formatted_future_end_date,
@@ -59,7 +68,7 @@ future_tournament_fixture = schemas.Tournament(
 )
 
 active_tournament_fixture = schemas.Tournament(
-    id=generate_random_id(),
+    id=RiotTournamentID(generate_random_id()),
     slug="active_slug",
     start_date=formatted_past_start_date,
     end_date=formatted_future_end_date,
@@ -67,7 +76,7 @@ active_tournament_fixture = schemas.Tournament(
 )
 
 team_1_fixture = schemas.ProfessionalTeam(
-    id=generate_random_id(),
+    id=ProTeamID(generate_random_id()),
     slug="mock-team-1",
     name="Mock Team 1",
     code="T1",
@@ -79,7 +88,7 @@ team_1_fixture = schemas.ProfessionalTeam(
 )
 
 team_2_fixture = schemas.ProfessionalTeam(
-    id=generate_random_id(),
+    id=ProTeamID(generate_random_id()),
     slug="mock-team-2",
     name="Mock Team 2",
     code="T2",
@@ -91,7 +100,7 @@ team_2_fixture = schemas.ProfessionalTeam(
 )
 
 match_fixture = schemas.Match(
-    id=generate_random_id(),
+    id=RiotMatchID(generate_random_id()),
     start_time="2023-01-03T15:00:00Z",
     block_name="mockBlockName",
     league_slug=league_1_fixture.slug,
@@ -103,7 +112,7 @@ match_fixture = schemas.Match(
 )
 
 future_match_fixture = schemas.Match(
-    id=generate_random_id(),
+    id=RiotMatchID(generate_random_id()),
     start_time=formatted_future_match_datetime,
     block_name="futureBlockName",
     league_slug=league_1_fixture.slug,
@@ -115,7 +124,7 @@ future_match_fixture = schemas.Match(
 )
 
 game_1_fixture_completed = schemas.Game(
-    id=generate_random_id(),
+    id=RiotGameID(generate_random_id()),
     state=GameState.COMPLETED,
     number=1,
     match_id=match_fixture.id
@@ -127,110 +136,110 @@ get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
 )
 
 game_2_fixture_inprogress = schemas.Game(
-    id=generate_random_id(),
+    id=RiotGameID(generate_random_id()),
     state=GameState.INPROGRESS,
     number=2,
     match_id=match_fixture.id
 )
 
 game_3_fixture_unstarted = schemas.Game(
-    id=generate_random_id(),
+    id=RiotGameID(generate_random_id()),
     state=GameState.UNSTARTED,
     number=3,
     match_id=match_fixture.id
 )
 
 game_4_fixture_unneeded = schemas.Game(
-    id=generate_random_id(),
+    id=RiotGameID(generate_random_id()),
     state=GameState.UNNEEDED,
     number=4,
     match_id=match_fixture.id
 )
 
 game_1_fixture_unstarted_future_match = schemas.Game(
-    id=generate_random_id(),
+    id=RiotGameID(generate_random_id()),
     state=GameState.UNSTARTED,
     number=3,
     match_id=future_match_fixture.id
 )
 
 player_1_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer1",
     image="http://mocked-player-1.png",
-    role="top",
+    role=PlayerRole.TOP,
     team_id=team_1_fixture.id
 )
 
 player_2_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer2",
     image="http://mocked-player-2.png",
-    role="jungle",
+    role=PlayerRole.JUNGLE,
     team_id=team_1_fixture.id
 )
 
 player_3_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer3",
     image="http://mocked-player-3.png",
-    role="mid",
+    role=PlayerRole.MID,
     team_id=team_1_fixture.id
 )
 
 player_4_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer4",
     image="http://mocked-player-4.png",
-    role="bottom",
+    role=PlayerRole.BOTTOM,
     team_id=team_1_fixture.id
 )
 
 player_5_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer5",
     image="http://mocked-player-5.png",
-    role="support",
+    role=PlayerRole.SUPPORT,
     team_id=team_1_fixture.id
 )
 
 player_6_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer6",
     image="http://mocked-player-6.png",
-    role="top",
+    role=PlayerRole.TOP,
     team_id=team_2_fixture.id
 )
 
 player_7_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer7",
     image="http://mocked-player-7.png",
-    role="jungle",
+    role=PlayerRole.JUNGLE,
     team_id=team_2_fixture.id
 )
 
 player_8_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer8",
     image="http://mocked-player-8.png",
-    role="mid",
+    role=PlayerRole.MID,
     team_id=team_2_fixture.id
 )
 
 player_9_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer9",
     image="http://mocked-player-9.png",
-    role="bottom",
+    role=PlayerRole.BOTTOM,
     team_id=team_2_fixture.id
 )
 
 player_10_fixture = schemas.ProfessionalPlayer(
-    id=generate_random_id(),
+    id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer10",
     image="http://mocked-player-10.png",
-    role="support",
+    role=PlayerRole.SUPPORT,
     team_id=team_2_fixture.id
 )
 
@@ -239,7 +248,7 @@ player_1_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_1_fixture.id,
     participant_id=1,
     champion_id="champion1",
-    role="top"
+    role=PlayerRole.TOP
 )
 
 player_2_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -247,7 +256,7 @@ player_2_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_2_fixture.id,
     participant_id=2,
     champion_id="champion2",
-    role="jungle"
+    role=PlayerRole.JUNGLE
 )
 
 player_3_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -255,7 +264,7 @@ player_3_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_3_fixture.id,
     participant_id=3,
     champion_id="champion3",
-    role="mid"
+    role=PlayerRole.MID
 )
 
 player_4_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -263,7 +272,7 @@ player_4_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_4_fixture.id,
     participant_id=4,
     champion_id="champion4",
-    role="bottom"
+    role=PlayerRole.BOTTOM
 )
 
 player_5_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -271,7 +280,7 @@ player_5_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_5_fixture.id,
     participant_id=5,
     champion_id="champion5",
-    role="support"
+    role=PlayerRole.SUPPORT
 )
 
 player_6_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -279,7 +288,7 @@ player_6_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_6_fixture.id,
     participant_id=6,
     champion_id="champion6",
-    role="top"
+    role=PlayerRole.TOP
 )
 
 player_7_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -287,7 +296,7 @@ player_7_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_7_fixture.id,
     participant_id=7,
     champion_id="champion7",
-    role="jungle"
+    role=PlayerRole.JUNGLE
 )
 
 player_8_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -295,7 +304,7 @@ player_8_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_8_fixture.id,
     participant_id=8,
     champion_id="champion8",
-    role="mid"
+    role=PlayerRole.MID
 )
 
 player_9_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -303,7 +312,7 @@ player_9_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_9_fixture.id,
     participant_id=9,
     champion_id="champion9",
-    role="bottom"
+    role=PlayerRole.BOTTOM
 )
 
 player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -311,7 +320,7 @@ player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_10_fixture.id,
     participant_id=10,
     champion_id="champion10",
-    role="support"
+    role=PlayerRole.SUPPORT
 )
 
 player_1_game_stats_fixture = schemas.PlayerGameStats(

@@ -2,6 +2,8 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional, List, NewType
 
+from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole
+
 
 UserID = NewType('UserID', str)
 FantasyLeagueID = NewType('FantasyLeagueID', str)
@@ -92,7 +94,7 @@ class FantasyLeagueSettings(BaseModel):
         description="Number of teams in the fantasy league\n"
                     "Allowed values: 4, 6, 8, 10"
     )
-    available_leagues: list = Field(
+    available_leagues: List[RiotLeagueID] = Field(
         default=[],
         description="The IDs for the riot leagues available for drafting players from",
         examples=[["98767991310872058"]]
@@ -167,34 +169,34 @@ class FantasyTeam(BaseModel):
     fantasy_league_id: FantasyLeagueID
     user_id: UserID
     week: int
-    top_player_id: Optional[str] = None
-    jungle_player_id: Optional[str] = None
-    mid_player_id: Optional[str] = None
-    adc_player_id: Optional[str] = None
-    support_player_id: Optional[str] = None
+    top_player_id: Optional[ProPlayerID] = None
+    jungle_player_id: Optional[ProPlayerID] = None
+    mid_player_id: Optional[ProPlayerID] = None
+    adc_player_id: Optional[ProPlayerID] = None
+    support_player_id: Optional[ProPlayerID] = None
 
-    def get_player_id_for_role(self, role: str) -> str:
-        role = role.lower()
-        if role == 'top':
+    def get_player_id_for_role(self, role: PlayerRole) -> Optional[ProPlayerID]:
+        if role == PlayerRole.TOP:
             return self.top_player_id
-        if role == 'jungle':
+        if role == PlayerRole.JUNGLE:
             return self.jungle_player_id
-        if role == 'mid':
+        if role == PlayerRole.MID:
             return self.mid_player_id
-        if role == 'adc':
+        if role == PlayerRole.BOTTOM:
             return self.adc_player_id
-        if role == 'support':
+        if role == PlayerRole.SUPPORT:
             return self.support_player_id
+        else:
+            return None
 
-    def set_player_id_for_role(self, player_id: Optional[str], role: str):
-        role = role.lower()
-        if role == 'top':
+    def set_player_id_for_role(self, player_id: Optional[ProPlayerID], role: PlayerRole) -> None:
+        if role == PlayerRole.TOP:
             self.top_player_id = player_id
-        if role == 'jungle':
+        if role == PlayerRole.JUNGLE:
             self.jungle_player_id = player_id
-        if role == 'mid':
+        if role == PlayerRole.MID:
             self.mid_player_id = player_id
-        if role == 'adc':
+        if role == PlayerRole.BOTTOM:
             self.adc_player_id = player_id
-        if role == 'support':
+        if role == PlayerRole.SUPPORT:
             self.support_player_id = player_id

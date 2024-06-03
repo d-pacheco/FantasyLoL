@@ -4,13 +4,14 @@ from random import randint
 
 from src.common.schemas import fantasy_schemas
 from src.common.schemas.fantasy_schemas import FantasyLeagueID, UserID
+from src.common.schemas.riot_data_schemas import ProPlayerID
 
 user_password = "WeakTestPw"
 salt = bcrypt.gensalt()
 user_hashed_password = bcrypt.hashpw(str.encode(user_password), salt)
 
 user_create_fixture = fantasy_schemas.UserCreate(
-    username="MyUsername",
+    username=UserID("MyUsername"),
     email="MyEmail@gmail.com",
     password=user_password
 )
@@ -101,11 +102,11 @@ fantasy_team_full = fantasy_schemas.FantasyTeam(
     fantasy_league_id=fantasy_league_active_fixture.id,
     user_id=user_fixture.id,
     week=1,
-    top_player_id=str(randint(10000, 99999)),
-    jungle_player_id=str(randint(10000, 99999)),
-    mid_player_id=str(randint(10000, 99999)),
-    adc_player_id=str(randint(10000, 99999)),
-    support_player_id=str(randint(10000, 99999))
+    top_player_id=ProPlayerID(str((randint(10000, 99999)))),
+    jungle_player_id=ProPlayerID(str((randint(10000, 99999)))),
+    mid_player_id=ProPlayerID(str((randint(10000, 99999)))),
+    adc_player_id=ProPlayerID(str((randint(10000, 99999)))),
+    support_player_id=ProPlayerID(str((randint(10000, 99999))))
 )
 
 fantasy_team_week_1 = fantasy_schemas.FantasyTeam(

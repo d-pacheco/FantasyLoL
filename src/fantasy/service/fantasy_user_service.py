@@ -41,10 +41,10 @@ class UserService:
     @staticmethod
     def generate_new_valid_id() -> UserID:
         while True:
-            new_id = str(uuid.uuid4())
+            new_id = UserID(str(uuid.uuid4()))
             if not crud.get_user_by_id(new_id):
                 break
-        return UserID(new_id)
+        return new_id
 
     @staticmethod
     def hash_password(password) -> bytes:

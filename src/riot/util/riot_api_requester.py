@@ -1,7 +1,7 @@
 from http import HTTPStatus
 import cloudscraper
 import logging
-from typing import List
+from typing import List, Optional
 
 import pydantic
 from requests import Response
@@ -12,6 +12,7 @@ from ...common.schemas.riot_data_schemas import (
     ProfessionalPlayer,
     ProfessionalTeam,
     Tournament,
+    RiotTournamentID,
     Match,
     RiotMatchID,
     GetGamesResponseSchema,
@@ -192,7 +193,7 @@ class RiotApiRequester:
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
-                [{HTTPStatus.OK}, HTTPStatus.NO_CONTENT],
+                [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
                 response.status_code,
                 url
             )
@@ -218,7 +219,7 @@ class RiotApiRequester:
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
-                [{HTTPStatus.OK}, HTTPStatus.NO_CONTENT],
+                [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
                 response.status_code,
                 url
             )
@@ -226,7 +227,7 @@ class RiotApiRequester:
             return []
 
         res_json = response.json()
-        player_stats_from_response = []
+        player_stats_from_response: List[PlayerGameStats] = []
         frames = res_json.get("frames", [])
         if len(frames) < 1:
             logger.error(
@@ -253,7 +254,7 @@ class RiotApiRequester:
             player_stats_from_response.append(new_player_stats)
         return player_stats_from_response
 
-    def get_pages_from_schedule(self, page_token: str = None) -> Schedule:
+    def get_pages_from_schedule(self, page_token: Optional[str] = None) -> Schedule:
         schedule = self.__get_schedule(page_token)
         pages = Schedule(
             older_token_key=schedule['pages']['older'],
@@ -261,7 +262,7 @@ class RiotApiRequester:
         )
         return pages
 
-    def get_matches_from_schedule(self, page_token: str = None) -> List[Match]:
+    def get_matches_from_schedule(self, page_token: Optional[str] = None) -> List[Match]:
         schedule = self.__get_schedule(page_token)
         matches_from_response = []
         events = schedule.get("events", [])
@@ -283,16 +284,16 @@ class RiotApiRequester:
             matches_from_response.append(new_match)
         return matches_from_response
 
-    def get_tournament_id_for_match(self, match_id: RiotMatchID) -> str:
+    def get_tournament_id_for_match(self, match_id: RiotMatchID) -> RiotTournamentID:
         url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
             raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
-        return res_json['data']['event']['tournament']['id']
+        return RiotTournamentID(res_json['data']['event']['tournament']['id'])
 
-    def __get_schedule(self, page_token: str = None) -> dict:
+    def __get_schedule(self, page_token: Optional[str] = None) -> dict:
         if page_token is None:
             url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
         else:

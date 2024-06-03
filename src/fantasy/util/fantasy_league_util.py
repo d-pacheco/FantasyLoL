@@ -6,6 +6,7 @@ from ...common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     FantasyLeagueStatus
 )
+from ...common.schemas.riot_data_schemas import RiotLeagueID
 
 from ...db import crud
 
@@ -31,7 +32,7 @@ class FantasyLeagueUtil:
         return fantasy_league
 
     @staticmethod
-    def validate_available_leagues(selected_league_ids: List[str]) -> None:
+    def validate_available_leagues(selected_league_ids: List[RiotLeagueID]) -> None:
         riot_leagues = crud.get_leagues()
         league_dict = {league.id: league for league in riot_leagues}
 

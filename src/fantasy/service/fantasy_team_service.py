@@ -2,7 +2,7 @@ from typing import List
 
 from ...db import crud
 
-from ...common.schemas.riot_data_schemas import ProfessionalPlayer
+from ...common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
@@ -27,7 +27,9 @@ fantasy_team_util = FantasyTeamUtil()
 class FantasyTeamService:
     @staticmethod
     def get_all_fantasy_team_weeks(
-            fantasy_league_id: FantasyLeagueID, user_id: UserID) -> List[FantasyTeam]:
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID
+    ) -> List[FantasyTeam]:
         fantasy_league_util.validate_league(
             fantasy_league_id,
             [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
@@ -41,7 +43,10 @@ class FantasyTeamService:
 
     @staticmethod
     def pickup_player(
-            fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: str) -> FantasyTeam:
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID,
+            player_id: ProPlayerID
+    ) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
@@ -83,7 +88,9 @@ class FantasyTeamService:
 
     @staticmethod
     def drop_player(
-            fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: str) -> FantasyTeam:
+            fantasy_league_id: FantasyLeagueID,
+            user_id: UserID, player_id: ProPlayerID
+    ) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
@@ -106,8 +113,9 @@ class FantasyTeamService:
     def swap_players(
             fantasy_league_id: FantasyLeagueID,
             user_id: UserID,
-            player_to_drop_id: str,
-            player_to_pickup_id: str) -> FantasyTeam:
+            player_to_drop_id: ProPlayerID,
+            player_to_pickup_id: ProPlayerID
+    ) -> FantasyTeam:
         fantasy_league = fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
@@ -153,7 +161,7 @@ def validate_user_membership(user_id: UserID, fantasy_league_id: FantasyLeagueID
         )
 
 
-def get_player_from_db(player_id: str) -> ProfessionalPlayer:
+def get_player_from_db(player_id: ProPlayerID) -> ProfessionalPlayer:
     pro_player = crud.get_player_by_id(player_id)
     if pro_player is None:
         raise ProfessionalPlayerNotFoundException()

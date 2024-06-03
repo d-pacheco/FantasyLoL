@@ -391,7 +391,7 @@ def get_game_ids_to_fetch_player_stats_for() -> List[RiotGameID]:
         return game_ids
 
 
-def get_player_game_stats(filters: list = None) -> List[PlayerGameData]:
+def get_player_game_stats(filters: Optional[list] = None) -> List[PlayerGameData]:
     with DatabaseConnection() as db:
         if filters:
             query = db.query(PlayerGameView).filter(*filters)
