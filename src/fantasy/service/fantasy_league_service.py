@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from ...db import crud
 
@@ -61,10 +61,10 @@ class FantasyLeagueService:
     @staticmethod
     def generate_new_valid_id() -> FantasyLeagueID:
         while True:
-            new_id = str(uuid.uuid4())
+            new_id = FantasyLeagueID(str(uuid.uuid4()))
             if not crud.get_fantasy_league_by_id(new_id):
                 break
-        return FantasyLeagueID(new_id)
+        return new_id
 
     @staticmethod
     def get_fantasy_league_settings(
@@ -183,22 +183,19 @@ class FantasyLeagueService:
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
 
+        user_membership: Optional[FantasyLeagueMembership] = None
+        accepted_member_count = 0
         fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
-        user_membership = [membership for membership in fantasy_league_members
-                           if membership.user_id == user_id]
-        if user_membership:
-            user_membership = user_membership[0]
-        else:
-            raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
+        for membership in fantasy_league_members:
+            if membership.status == FantasyLeagueMembershipStatus.ACCEPTED:
+                accepted_member_count += 1
+            if membership.user_id == user_id:
+                user_membership = membership
 
-        if (user_membership.status == FantasyLeagueMembershipStatus.DECLINED or
+        if (user_membership is None or
+                user_membership.status == FantasyLeagueMembershipStatus.DECLINED or
                 user_membership.status == FantasyLeagueMembershipStatus.REVOKED):
             raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
-
-        accepted_member_count = 0
-        for member in fantasy_league_members:
-            if member.status == FantasyLeagueMembershipStatus.ACCEPTED:
-                accepted_member_count += 1
 
         if (user_membership.status == FantasyLeagueMembershipStatus.PENDING and
                 fantasy_league_model.number_of_teams < accepted_member_count + 1):
@@ -218,12 +215,10 @@ class FantasyLeagueService:
         if fantasy_league_model.owner_id == user_id:
             raise FantasyLeagueInviteException("Cannot leave a fantasy league that you own")
 
-        fantasy_league_members = crud.get_pending_and_accepted_members_for_league(league_id)
-        user_membership = [membership for membership in fantasy_league_members
-                           if membership.user_id == user_id]
-        if user_membership and user_membership[0].status == FantasyLeagueMembershipStatus.ACCEPTED:
+        user_membership = crud.get_user_membership_for_fantasy_league(user_id, league_id)
+        if user_membership and user_membership.status == FantasyLeagueMembershipStatus.ACCEPTED:
             crud.update_fantasy_league_membership_status(
-                user_membership[0], FantasyLeagueMembershipStatus.DECLINED
+                user_membership, FantasyLeagueMembershipStatus.DECLINED
             )
             update_draft_order_on_player_leave(user_id, league_id)
         else:

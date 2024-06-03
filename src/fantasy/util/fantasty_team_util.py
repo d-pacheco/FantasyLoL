@@ -1,4 +1,5 @@
 from ...common.schemas.fantasy_schemas import FantasyLeague, UserID
+from ...common.schemas.riot_data_schemas import ProPlayerID
 
 from ...db import crud
 
@@ -7,7 +8,10 @@ from ..exceptions.fantasy_draft_exception import FantasyDraftException
 
 class FantasyTeamUtil:
     @staticmethod
-    def validate_player_from_available_league(fantasy_league: FantasyLeague, player_id: str):
+    def validate_player_from_available_league(
+            fantasy_league: FantasyLeague,
+            player_id: ProPlayerID
+    ) -> None:
         player_league_ids = crud.get_league_ids_for_player(player_id)
         in_allowed_league = False
         for available_league_id in fantasy_league.available_leagues:

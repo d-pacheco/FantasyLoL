@@ -1,12 +1,27 @@
-import cloudscraper
 from http import HTTPStatus
+import cloudscraper
 import logging
+from typing import List, Optional
 
 import pydantic
 from requests import Response
-from typing import List
 
-from ...common.schemas import riot_data_schemas as schemas
+from ...common.schemas.riot_data_schemas import (
+    League,
+    RiotLeagueID,
+    ProfessionalPlayer,
+    ProfessionalTeam,
+    Tournament,
+    RiotTournamentID,
+    Match,
+    RiotMatchID,
+    GetGamesResponseSchema,
+    Game,
+    RiotGameID,
+    PlayerGameMetadata,
+    PlayerGameStats,
+    Schedule
+)
 from ...common.config import Config
 
 from ..exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
@@ -37,12 +52,12 @@ class RiotApiRequester:
             headers = self.default_headers
         return self.client.get(url, headers=headers)
 
-    def get_games_from_event_details(self, match_id: str) -> List[schemas.Game]:
+    def get_games_from_event_details(self, match_id: RiotMatchID) -> List[Game]:
         event_details_url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(event_details_url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
-                f"{HTTPStatus.OK} or {HTTPStatus.NO_CONTENT}",
+                [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
                 response.status_code,
                 event_details_url
             )
@@ -55,7 +70,7 @@ class RiotApiRequester:
 
         games_from_response = []
         for game in games:
-            new_game = schemas.Game(
+            new_game = Game(
                 id=game['id'],
                 state=game['state'],
                 number=game['number'],
@@ -64,34 +79,34 @@ class RiotApiRequester:
             games_from_response.append(new_game)
         return games_from_response
 
-    def get_games(self, game_ids: List[str]) -> List[schemas.GetGamesResponseSchema]:
+    def get_games(self, game_ids: List[RiotGameID]) -> List[GetGamesResponseSchema]:
         game_ids_str = ','.join(map(str, game_ids))
         url = f"{self.esports_api_url}/getGames?hl=en-GB&id={game_ids_str}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         games = res_json['data']['games']
         games_from_response = []
         for game in games:
-            game_response = schemas.GetGamesResponseSchema(
+            game_response = GetGamesResponseSchema(
                 id=game['id'],
                 state=game['state']
             )
             games_from_response.append(game_response)
         return games_from_response
 
-    def get_leagues(self) -> List[schemas.League]:
+    def get_leagues(self) -> List[League]:
         url = f"{self.esports_api_url}/getLeagues?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         leagues_from_response = []
         for league in res_json['data']['leagues']:
-            new_league = schemas.League(
+            new_league = League(
                 id=league['id'],
                 slug=league['slug'],
                 name=league['name'],
@@ -102,17 +117,17 @@ class RiotApiRequester:
             leagues_from_response.append(new_league)
         return leagues_from_response
 
-    def get_tournament_for_league(self, league_id: str) -> List[schemas.Tournament]:
+    def get_tournament_for_league(self, league_id: RiotLeagueID) -> List[Tournament]:
         url = f"{self.esports_api_url}/getTournamentsForLeague?hl=en-GB&leagueId={league_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         tournaments_from_response = []
         tournaments = res_json['data']['leagues'][0]['tournaments']
         for tournament in tournaments:
-            new_tournament = schemas.Tournament(
+            new_tournament = Tournament(
                 id=tournament['id'],
                 slug=tournament['slug'],
                 start_date=tournament['startDate'],
@@ -122,11 +137,11 @@ class RiotApiRequester:
             tournaments_from_response.append(new_tournament)
         return tournaments_from_response
 
-    def get_teams(self) -> List[schemas.ProfessionalTeam]:
+    def get_teams(self) -> List[ProfessionalTeam]:
         url = f"{self.esports_api_url}/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         teams_from_response = []
@@ -138,7 +153,7 @@ class RiotApiRequester:
             if team['homeLeague'] != 'None':
                 team['homeLeague'] = team['homeLeague']['name']
 
-            new_team = schemas.ProfessionalTeam(
+            new_team = ProfessionalTeam(
                 id=team['id'],
                 slug=team['slug'],
                 name=team['name'],
@@ -152,17 +167,17 @@ class RiotApiRequester:
             teams_from_response.append(new_team)
         return teams_from_response
 
-    def get_players(self) -> List[schemas.ProfessionalPlayer]:
+    def get_players(self) -> List[ProfessionalPlayer]:
         url = f"{self.esports_api_url}/getTeams?hl=en-GB"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         players_from_response = []
         for team in res_json['data']['teams']:
             for player in team['players']:
-                new_player = schemas.ProfessionalPlayer(
+                new_player = ProfessionalPlayer(
                     id=player['id'],
                     summoner_name=player['summonerName'],
                     image=player['image'],
@@ -172,13 +187,13 @@ class RiotApiRequester:
                 players_from_response.append(new_player)
         return players_from_response
 
-    def get_player_metadata_for_game(self, game_id: str, time_stamp: str) \
-            -> List[schemas.PlayerGameMetadata]:
+    def get_player_metadata_for_game(self, game_id: RiotGameID, time_stamp: str) \
+            -> List[PlayerGameMetadata]:
         url = f"{self.esports_feed_url}/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
-                f"{HTTPStatus.OK} or {HTTPStatus.NO_CONTENT}",
+                [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
                 response.status_code,
                 url
             )
@@ -198,13 +213,13 @@ class RiotApiRequester:
         player_metadata_from_response = blue_team_player_metadata + red_team_player_metadata
         return player_metadata_from_response
 
-    def get_player_stats_for_game(self, game_id: str, time_stamp: str) \
-            -> List[schemas.PlayerGameStats]:
+    def get_player_stats_for_game(self, game_id: RiotGameID, time_stamp: str) \
+            -> List[PlayerGameStats]:
         url = f"{self.esports_feed_url}/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK and response.status_code != HTTPStatus.NO_CONTENT:
             raise RiotApiStatusCodeAssertException(
-                f"{HTTPStatus.OK} or {HTTPStatus.NO_CONTENT}",
+                [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
                 response.status_code,
                 url
             )
@@ -212,7 +227,7 @@ class RiotApiRequester:
             return []
 
         res_json = response.json()
-        player_stats_from_response = []
+        player_stats_from_response: List[PlayerGameStats] = []
         frames = res_json.get("frames", [])
         if len(frames) < 1:
             logger.error(
@@ -223,7 +238,7 @@ class RiotApiRequester:
         last_frame = frames[len(frames) - 1]
         participants = last_frame.get("participants", [])
         for participant in participants:
-            new_player_stats = schemas.PlayerGameStats(
+            new_player_stats = PlayerGameStats(
                 game_id=game_id,
                 participant_id=participant['participantId'],
                 kills=participant['kills'],
@@ -239,15 +254,15 @@ class RiotApiRequester:
             player_stats_from_response.append(new_player_stats)
         return player_stats_from_response
 
-    def get_pages_from_schedule(self, page_token: str = None) -> schemas.Schedule:
+    def get_pages_from_schedule(self, page_token: Optional[str] = None) -> Schedule:
         schedule = self.__get_schedule(page_token)
-        pages = schemas.Schedule(
+        pages = Schedule(
             older_token_key=schedule['pages']['older'],
             current_token_key=schedule['pages']['newer']
         )
         return pages
 
-    def get_matches_from_schedule(self, page_token: str = None) -> List[schemas.Match]:
+    def get_matches_from_schedule(self, page_token: Optional[str] = None) -> List[Match]:
         schedule = self.__get_schedule(page_token)
         matches_from_response = []
         events = schedule.get("events", [])
@@ -255,7 +270,7 @@ class RiotApiRequester:
             if event['type'] != 'match':
                 continue
             match = event['match']
-            new_match = schemas.Match(
+            new_match = Match(
                 id=match['id'],
                 start_time=event['startTime'],
                 block_name=event['blockName'],
@@ -269,34 +284,34 @@ class RiotApiRequester:
             matches_from_response.append(new_match)
         return matches_from_response
 
-    def get_tournament_id_for_match(self, match_id: str) -> str:
+    def get_tournament_id_for_match(self, match_id: RiotMatchID) -> RiotTournamentID:
         url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
-        return res_json['data']['event']['tournament']['id']
+        return RiotTournamentID(res_json['data']['event']['tournament']['id'])
 
-    def __get_schedule(self, page_token: str = None) -> dict:
+    def __get_schedule(self, page_token: Optional[str] = None) -> dict:
         if page_token is None:
             url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
         else:
             url = f"{self.esports_api_url}/getSchedule?hl=en-GB&pageToken={page_token}"
         response = self.make_request(url)
         if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException(HTTPStatus.OK, response.status_code, url)
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         return res_json["data"].get("schedule", {})
 
 
-def parse_team_metadata(team_metadata: dict, game_id: str) \
-        -> List[schemas.PlayerGameMetadata]:
+def parse_team_metadata(team_metadata: dict, game_id: RiotGameID) \
+        -> List[PlayerGameMetadata]:
     participant_metadata = team_metadata.get("participantMetadata", [])
     player_metadata_for_team = []
     for participant in participant_metadata:
-        new_player_metadata = schemas.PlayerGameMetadata(
+        new_player_metadata = PlayerGameMetadata(
             game_id=game_id,
             participant_id=participant['participantId'],
             champion_id=participant['championId'],

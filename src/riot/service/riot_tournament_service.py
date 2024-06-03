@@ -2,8 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
-from ...common.schemas.riot_data_schemas import Tournament
-from ...common.schemas.riot_data_schemas import TournamentStatus
+from ...common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from ...common.schemas.search_parameters import TournamentSearchParameters
 
 from ...db import crud
@@ -54,7 +53,7 @@ class RiotTournamentService:
         return tournaments
 
     @staticmethod
-    def get_tournament_by_id(tournament_id: str) -> Tournament:
+    def get_tournament_by_id(tournament_id: RiotTournamentID) -> Tournament:
         tournament_orm = crud.get_tournament_by_id(tournament_id)
         if tournament_orm is None:
             raise TournamentNotFoundException()

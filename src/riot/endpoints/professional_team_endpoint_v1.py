@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import ProfessionalTeam
+from ...common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 from ...common.schemas.search_parameters import TeamSearchParameters
 
 from ..service.riot_professional_team_service import RiotProfessionalTeamService
@@ -27,7 +27,8 @@ def get_riot_professional_teams(
         name: str = Query(None, description="Filter by professional teams name"),
         code: str = Query(None, description="Filter by professional teams code"),
         status: str = Query(None, description="Filter by professional teams status"),
-        league: str = Query(None, description="Filter by professional teams home league")):
+        league: str = Query(None, description="Filter by professional teams home league")
+) -> Page[ProfessionalTeam]:
     search_parameters = TeamSearchParameters(
         slug=slug,
         name=name,
@@ -58,5 +59,5 @@ def get_riot_professional_teams(
         }
     }
 )
-def get_professional_team_by_id(professional_team_id: str):
+def get_professional_team_by_id(professional_team_id: ProTeamID) -> ProfessionalTeam:
     return professional_team_service.get_team_by_id(professional_team_id)

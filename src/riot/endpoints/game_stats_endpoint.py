@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import PlayerGameData
+from ...common.schemas.riot_data_schemas import PlayerGameData, RiotGameID, ProPlayerID
 from ...common.schemas.search_parameters import PlayerGameStatsSearchParameters
 
 from ..service.riot_game_stats_service import RiotGameStatsService
@@ -26,8 +26,9 @@ logger = logging.getLogger('fantasy-lol')
     }
 )
 def get_game_stats_for_game(
-        game_id: str = Query(None, description="Game id"),
-        player_id: str = Query(None, description="The id of the player to search for")):
+        game_id: RiotGameID = Query(None, description="Game id"),
+        player_id: ProPlayerID = Query(None, description="The id of the player to search for")
+) -> Page[PlayerGameData]:
     search_parameters = PlayerGameStatsSearchParameters(
         game_id=game_id,
         player_id=player_id

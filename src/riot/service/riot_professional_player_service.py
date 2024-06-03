@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from ...common.schemas.search_parameters import PlayerSearchParameters
-from ...common.schemas.riot_data_schemas import ProfessionalPlayer
+from ...common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 
 from ...db import crud
 from ...db.models import ProfessionalPlayerModel
@@ -46,7 +46,7 @@ class RiotProfessionalPlayerService:
         return professional_players
 
     @staticmethod
-    def get_player_by_id(professional_player_id: str) -> ProfessionalPlayer:
+    def get_player_by_id(professional_player_id: ProPlayerID) -> ProfessionalPlayer:
         professional_player = crud.get_player_by_id(professional_player_id)
         if professional_player is None:
             raise ProfessionalPlayerNotFoundException()

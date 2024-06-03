@@ -4,6 +4,7 @@ from typing import List
 from ...auth.auth_bearer import JWTBearer
 
 from ...common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
+from ...common.schemas.riot_data_schemas import ProPlayerID
 
 from ..service.fantasy_team_service import FantasyTeamService
 
@@ -34,7 +35,7 @@ def get_fantasy_team_weeks_for_league(
 )
 def pickup_player(
         fantasy_league_id: FantasyLeagueID,
-        player_id: str,
+        player_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
@@ -48,7 +49,7 @@ def pickup_player(
 )
 def drop_player(
         fantasy_league_id: FantasyLeagueID,
-        player_id: str,
+        player_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.drop_player(fantasy_league_id, user_id, player_id)
@@ -62,8 +63,8 @@ def drop_player(
 )
 def swap_players(
         fantasy_league_id: FantasyLeagueID,
-        player_to_drop_id: str,
-        player_to_pickup_id: str,
+        player_to_drop_id: ProPlayerID,
+        player_to_pickup_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))
     return fantasy_team_service.swap_players(

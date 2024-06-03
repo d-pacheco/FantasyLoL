@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
-from ...common.schemas import riot_data_schemas as schemas
+from ...common.schemas.riot_data_schemas import League, RiotLeagueID
 from ...common.schemas.search_parameters import LeagueSearchParameters
 
 from ...db import crud
@@ -32,7 +32,7 @@ class RiotLeagueService:
             crud.save_league(league)
 
     @staticmethod
-    def get_leagues(search_parameters: LeagueSearchParameters) -> List[schemas.League]:
+    def get_leagues(search_parameters: LeagueSearchParameters) -> List[League]:
         filters = []
         if search_parameters.name is not None:
             filters.append(LeagueModel.name == search_parameters.name)
@@ -45,14 +45,14 @@ class RiotLeagueService:
         return leagues
 
     @staticmethod
-    def get_league_by_id(league_id: str) -> schemas.League:
+    def get_league_by_id(league_id: RiotLeagueID) -> League:
         league = crud.get_league_by_id(league_id)
         if league is None:
             raise LeagueNotFoundException()
         return league
 
     @staticmethod
-    def update_fantasy_available(league_id: str, status: bool) -> schemas.League:
+    def update_fantasy_available(league_id: RiotLeagueID, status: bool) -> League:
         league = crud.update_league_fantasy_available_status(league_id, status)
         if league is None:
             raise LeagueNotFoundException()

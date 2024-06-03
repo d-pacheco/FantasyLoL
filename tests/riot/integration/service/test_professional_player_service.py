@@ -57,7 +57,7 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
         # Arrange
         professional_player_service = create_professional_player_service()
         riot_data_util.create_professional_player_in_db()
-        search_parameters = PlayerSearchParameters(role="badRole")
+        search_parameters = PlayerSearchParameters(role="none")
 
         # Act
         players_from_db = professional_player_service.get_players(search_parameters)

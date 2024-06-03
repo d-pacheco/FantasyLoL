@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from ...common.schemas.search_parameters import TeamSearchParameters
-from ...common.schemas.riot_data_schemas import ProfessionalTeam
+from ...common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 
 from ...db import crud
 from ...db.models import ProfessionalTeamModel
@@ -52,7 +52,7 @@ class RiotProfessionalTeamService:
         return professional_teams
 
     @staticmethod
-    def get_team_by_id(professional_team_id: str) -> ProfessionalTeam:
+    def get_team_by_id(professional_team_id: ProTeamID) -> ProfessionalTeam:
         professional_team = crud.get_team_by_id(professional_team_id)
         if professional_team is None:
             raise ProfessionalTeamNotFoundException()

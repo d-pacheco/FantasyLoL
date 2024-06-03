@@ -1,26 +1,37 @@
 from pydantic import BaseModel
 from typing import Optional
 
+from .riot_data_schemas import (
+    GameState,
+    RiotGameID,
+    RiotMatchID,
+    RiotTournamentID,
+    ProPlayerID,
+    ProTeamID,
+    PlayerRole,
+    TournamentStatus
+)
+
 
 class PlayerSearchParameters(BaseModel):
     summoner_name: Optional[str] = None
-    role: Optional[str] = None
-    team_id: Optional[str] = None
+    role: Optional[PlayerRole] = None
+    team_id: Optional[ProTeamID] = None
 
 
 class GameSearchParameters(BaseModel):
-    state: Optional[str] = None
-    match_id: Optional[str] = None
+    state: Optional[GameState] = None
+    match_id: Optional[RiotMatchID] = None
 
 
 class PlayerGameStatsSearchParameters(BaseModel):
-    game_id: Optional[str] = None
-    player_id: Optional[str] = None
+    game_id: Optional[RiotGameID] = None
+    player_id: Optional[ProPlayerID] = None
 
 
 class MatchSearchParameters(BaseModel):
     league_slug: Optional[str] = None
-    tournament_id: Optional[str] = None
+    tournament_id: Optional[RiotTournamentID] = None
 
 
 class LeagueSearchParameters(BaseModel):
@@ -38,4 +49,4 @@ class TeamSearchParameters(BaseModel):
 
 
 class TournamentSearchParameters(BaseModel):
-    status: Optional[str] = None
+    status: Optional[TournamentStatus] = None

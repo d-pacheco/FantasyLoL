@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import ProfessionalPlayer
+from ...common.schemas.riot_data_schemas import (
+    ProfessionalPlayer,
+    PlayerRole,
+    ProPlayerID,
+    ProTeamID
+)
 from ...common.schemas.search_parameters import PlayerSearchParameters
-from ...common.schemas.riot_data_schemas import PlayerRole
 
 from ..service.riot_professional_player_service import RiotProfessionalPlayerService
 
@@ -12,7 +16,8 @@ router = APIRouter(prefix=f"/{VERSION}")
 professional_player_service = RiotProfessionalPlayerService()
 
 
-def validate_role_parameter(role: PlayerRole = Query(None, description="Filter by players role")):
+def validate_role_parameter(
+        role: PlayerRole = Query(None, description="Filter by players role")) -> PlayerRole:
     return role
 
 
@@ -29,8 +34,9 @@ def validate_role_parameter(role: PlayerRole = Query(None, description="Filter b
 )
 def get_riot_professional_players(
         summoner_name: str = Query(None, description="Filter by players summoner name"),
-        role: str = Depends(validate_role_parameter),
-        team_id: str = Query(None, description="Filter by players team id")):
+        role: PlayerRole = Depends(validate_role_parameter),
+        team_id: ProTeamID = Query(None, description="Filter by players team id")
+) -> Page[ProfessionalPlayer]:
     search_params = PlayerSearchParameters(
         summoner_name=summoner_name,
         role=role,
@@ -59,5 +65,5 @@ def get_riot_professional_players(
         }
     }
 )
-def get_professional_team_by_id(professional_player_id: str):
+def get_professional_team_by_id(professional_player_id: ProPlayerID) -> ProfessionalPlayer:
     return professional_player_service.get_player_by_id(professional_player_id)

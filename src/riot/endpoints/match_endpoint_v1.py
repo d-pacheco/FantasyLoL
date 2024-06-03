@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import Match
+from ...common.schemas.riot_data_schemas import Match, RiotMatchID, RiotTournamentID
 from ...common.schemas.search_parameters import MatchSearchParameters
 
 from ..service.riot_match_service import RiotMatchService
@@ -26,7 +26,8 @@ logger = logging.getLogger('fantasy-lol')
 )
 def get_riot_matches(
         league_slug: str = Query(None, description="Filter by league name"),
-        tournament_id: str = Query(None, description="Filter by tournament id")):
+        tournament_id: RiotTournamentID = Query(None, description="Filter by tournament id")
+) -> Page[Match]:
     search_parameters = MatchSearchParameters(
         league_slug=league_slug,
         tournament_id=tournament_id
@@ -46,5 +47,5 @@ def get_riot_matches(
         }
     }
 )
-def get_riot_match_by_id(match_id: str):
+def get_riot_match_by_id(match_id: RiotMatchID) -> Match:
     return match_service.get_match_by_id(match_id)
