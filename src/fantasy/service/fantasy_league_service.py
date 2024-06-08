@@ -12,18 +12,15 @@ from ...common.schemas.fantasy_schemas import (
     FantasyLeagueMembershipStatus,
     UsersFantasyLeagues,
     FantasyLeagueScoringSettings,
-    FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
     UserID
 )
 
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
-from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from ..exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
 from ..exceptions.fantasy_league_start_draft_exception import FantasyLeagueStartDraftException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
-from ..exceptions.draft_order_exception import DraftOrderException
 from ..util.fantasy_league_util import FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
@@ -54,7 +51,7 @@ class FantasyLeagueService:
         create_fantasy_league_membership(
             fantasy_league_id, owner_id, FantasyLeagueMembershipStatus.ACCEPTED
         )
-        create_draft_order_entry(owner_id, fantasy_league_id)
+        fantasy_league_util.create_draft_order_entry(owner_id, fantasy_league_id)
 
         return new_fantasy_league
 
@@ -204,7 +201,7 @@ class FantasyLeagueService:
         crud.update_fantasy_league_membership_status(
             user_membership, FantasyLeagueMembershipStatus.ACCEPTED
         )
-        create_draft_order_entry(user_id, league_id)
+        fantasy_league_util.create_draft_order_entry(user_id, league_id)
 
     @staticmethod
     def leave_fantasy_league(user_id: UserID, league_id: FantasyLeagueID) -> None:
@@ -220,7 +217,7 @@ class FantasyLeagueService:
             crud.update_fantasy_league_membership_status(
                 user_membership, FantasyLeagueMembershipStatus.DECLINED
             )
-            update_draft_order_on_player_leave(user_id, league_id)
+            fantasy_league_util.update_draft_order_on_player_leave(user_id, league_id)
         else:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
 
@@ -253,7 +250,7 @@ class FantasyLeagueService:
         crud.update_fantasy_league_membership_status(
             user_to_remove_membership, FantasyLeagueMembershipStatus.REVOKED
         )
-        update_draft_order_on_player_leave(user_to_remove_id, fantasy_league_id)
+        fantasy_league_util.update_draft_order_on_player_leave(user_to_remove_id, fantasy_league_id)
 
     @staticmethod
     def get_fantasy_league_draft_order(
@@ -285,7 +282,7 @@ class FantasyLeagueService:
             raise ForbiddenException()
 
         current_draft_order = crud.get_fantasy_league_draft_order(league_id)
-        validate_draft_order(current_draft_order, updated_draft_order)
+        fantasy_league_util.validate_draft_order(current_draft_order, updated_draft_order)
 
         for updated_position in updated_draft_order:
             db_draft_position = next((
@@ -331,65 +328,6 @@ class FantasyLeagueService:
 
         crud.update_fantasy_league_status(fantasy_league_id, FantasyLeagueStatus.DRAFT)
         crud.update_fantasy_league_current_draft_position(fantasy_league_id, 1)
-
-
-def validate_draft_order(
-        current_draft_order: List[FantasyLeagueDraftOrder],
-        updated_draft_order: List[FantasyLeagueDraftOrderResponse]) -> None:
-    member_ids = [draft_position.user_id for draft_position in current_draft_order]
-
-    if len(updated_draft_order) != len(current_draft_order):
-        raise DraftOrderException("Draft order contains more or less players than current draft")
-
-    for draft_order in updated_draft_order:
-        if draft_order.user_id not in member_ids:
-            raise DraftOrderException(f"User {draft_order.user_id} is not in current draft")
-
-    positions = [draft_position.position for draft_position in updated_draft_order]
-    positions.sort()
-    expected_positions = list(range(1, len(current_draft_order) + 1))
-    if positions != expected_positions:
-        raise DraftOrderException("The positions given in the updated draft order are not valid")
-
-
-def update_draft_order_on_player_leave(user_id: UserID, league_id: FantasyLeagueID) -> None:
-    current_draft_order = crud.get_fantasy_league_draft_order(league_id)
-
-    draft_position_to_delete = None
-    for draft_position in current_draft_order:
-        if draft_position.user_id == user_id:
-            draft_position_to_delete = draft_position
-            break
-    if draft_position_to_delete is None:
-        raise Exception(f"User {user_id} doesn't have a draft position in league {league_id}")
-
-    crud.delete_fantasy_league_draft_order(draft_position_to_delete)
-    for draft_position in current_draft_order:
-        if draft_position.position > draft_position_to_delete.position:
-            crud.update_fantasy_league_draft_order_position(
-                draft_position, draft_position.position - 1
-            )
-
-
-def create_draft_order_entry(user_id: UserID, league_id: FantasyLeagueID) -> None:
-    fantasy_league = crud.get_fantasy_league_by_id(league_id)
-    if fantasy_league is None:
-        raise FantasyLeagueNotFoundException()
-
-    current_draft_order = crud.get_fantasy_league_draft_order(league_id)
-    if len(current_draft_order) == 0:
-        max_position = 0
-    else:
-        max_position = max(
-            current_draft_order, key=lambda draft_position: draft_position.position
-        ).position
-
-    new_draft_position = FantasyLeagueDraftOrder(
-        fantasy_league_id=league_id,
-        user_id=user_id,
-        position=max_position + 1
-    )
-    crud.create_fantasy_league_draft_order(new_draft_position)
 
 
 def create_fantasy_league_membership(
