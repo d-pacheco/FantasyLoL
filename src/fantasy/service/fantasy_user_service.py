@@ -35,7 +35,7 @@ class UserService:
             id=new_id,
             username=user_create.username,
             email=user_create.email,
-            password=hashed_password
+            password=str(hashed_password)
         )
 
     @staticmethod

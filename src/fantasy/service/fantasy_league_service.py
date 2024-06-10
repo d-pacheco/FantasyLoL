@@ -19,6 +19,7 @@ from ...common.schemas.fantasy_schemas import (
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
 from ..exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
 from ..exceptions.fantasy_league_start_draft_exception import FantasyLeagueStartDraftException
+from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..util.fantasy_league_util import FantasyLeagueUtil
@@ -123,6 +124,7 @@ class FantasyLeagueService:
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
         scoring_settings = crud.get_fantasy_league_scoring_settings_by_id(league_id)
+        assert (scoring_settings is not None)
         return scoring_settings
 
     @staticmethod
@@ -264,6 +266,8 @@ class FantasyLeagueService:
         current_draft_order = crud.get_fantasy_league_draft_order(league_id)
         for draft_position in current_draft_order:
             user = crud.get_user_by_id(draft_position.user_id)
+            if user is None:
+                raise UserNotFoundException()
             new_draft_order_response = FantasyLeagueDraftOrderResponse(
                 user_id=user.id, username=user.username, position=draft_position.position
             )

@@ -44,6 +44,7 @@ class FantasyTeamUtil:
 
     @staticmethod
     def all_teams_fully_drafted(fantasy_league: FantasyLeague) -> bool:
+        assert (fantasy_league.current_week is not None)
         fantasy_league_teams = crud.get_all_fantasy_teams_for_week(
             fantasy_league.id, fantasy_league.current_week
         )

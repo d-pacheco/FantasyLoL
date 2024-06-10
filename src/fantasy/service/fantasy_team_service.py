@@ -176,10 +176,11 @@ def get_users_most_recent_fantasy_team(
         fantasy_teams_by_week.sort(key=lambda x: x.week)
         recent_fantasy_team = FantasyTeam.model_validate(fantasy_teams_by_week[-1])
     else:
+        current_week = fantasy_league.current_week if fantasy_league.current_week is not None else 0
         recent_fantasy_team = FantasyTeam(
             fantasy_league_id=fantasy_league.id,
             user_id=user_id,
-            week=fantasy_league.current_week
+            week=current_week
         )
     return recent_fantasy_team
 
@@ -187,6 +188,7 @@ def get_users_most_recent_fantasy_team(
 def player_already_drafted(
         professional_player: ProfessionalPlayer,
         fantasy_league: FantasyLeague) -> bool:
+    assert (fantasy_league.current_week is not None)
     all_fantasy_teams_for_curr_week = crud.get_all_fantasy_teams_for_week(
         fantasy_league.id, fantasy_league.current_week
     )
