@@ -14,3 +14,4 @@ pytz
 bcrypt
 PyJWT
 python-decouple
+mypy
