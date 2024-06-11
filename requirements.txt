@@ -15,3 +15,4 @@ bcrypt
 PyJWT
 python-decouple
 mypy
+types-pytz

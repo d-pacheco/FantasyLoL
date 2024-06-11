@@ -1,4 +1,5 @@
 from tests.test_util import riot_fixtures
+from typing import Dict, List, Any
 
 get_leagues_mock_response = {
     "data": {
@@ -193,7 +194,7 @@ get_event_details_response = {
     }
 }
 
-get_games_response = {
+get_games_response: Dict[str, Dict[str, List[Dict[str, Any]]]] = {
     "data": {
         "games": [
             {
@@ -979,7 +980,7 @@ get_live_stats_details_response = {
     ]
 }
 
-get_live_stats_details_empty_frames_response = {
+get_live_stats_details_empty_frames_response: Dict[str, list] = {
     "frames": []
 }
 

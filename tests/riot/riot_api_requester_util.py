@@ -324,15 +324,14 @@ class RiotApiRequestUtil:
         return response
 
     def create_mock_league(self) -> LeagueModel:
-        mock_league_attrs = {
-            "id": int(self.mock_league_id),
-            "slug": self.mock_league_slug,
-            "name": self.mock_league_name,
-            "region": self.mock_league_region,
-            "image": self.mock_league_image,
-            "priority": 1  # Adjust the attribute name if needed
-        }
-        return LeagueModel(**mock_league_attrs)
+        return LeagueModel(
+            id=self.mock_league_id,
+            slug=self.mock_league_slug,
+            name=self.mock_league_name,
+            region=self.mock_league_region,
+            image=self.mock_league_image,
+            priority=1  # Adjust the attribute name if needed
+        )
 
     def create_mock_league_response(self):
         response = {
