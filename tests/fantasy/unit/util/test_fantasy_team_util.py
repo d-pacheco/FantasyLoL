@@ -1,10 +1,17 @@
 from copy import deepcopy
+from typing import List
 from unittest.mock import patch, MagicMock
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from src.common.schemas.fantasy_schemas import FantasyLeagueDraftOrder, FantasyTeam
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueID,
+    FantasyLeagueDraftOrder,
+    FantasyTeam,
+    UserID
+)
+from src.common.schemas.riot_data_schemas import RiotLeagueID, ProPlayerID
 
 from src.fantasy.util.fantasty_team_util import FantasyTeamUtil
 from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
@@ -19,8 +26,8 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
     def test_validate_player_from_available_league_successful(
             self, mock_get_league_ids_for_player: MagicMock):
         # Arrange
-        player_id = "321"
-        league_ids = ["1234"]
+        player_id = ProPlayerID("321")
+        league_ids = [RiotLeagueID("1234")]
         mock_get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = league_ids
@@ -35,9 +42,9 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
     def test_validate_player_from_available_league_player_not_in_available_league_exception(
             self, mock_get_league_ids_for_player: MagicMock):
         # Arrange
-        player_id = "321"
-        league_ids = ["1234"]
-        available_league_ids = ["4321"]
+        player_id = ProPlayerID("321")
+        league_ids = [RiotLeagueID("1234")]
+        available_league_ids = [RiotLeagueID("4321")]
         mock_get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = available_league_ids
@@ -52,9 +59,9 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
     def test_validate_player_from_available_league_no_league_ids_returned_exception(
             self, mock_get_league_ids_for_player: MagicMock):
         # Arrange
-        player_id = "321"
-        league_ids = []
-        available_league_ids = ["4321"]
+        player_id = ProPlayerID("321")
+        league_ids: List[RiotLeagueID] = []
+        available_league_ids = [RiotLeagueID("4321")]
         mock_get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = available_league_ids
@@ -75,7 +82,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
         other_user_draft_position = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id, user_id="someOtherUser", position=2
+            fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
         mock_get_fantasy_league_draft_order.return_value = draft_order
@@ -98,7 +105,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
         other_user_draft_position = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id, user_id="someOtherUser", position=2
+            fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
         mock_get_fantasy_league_draft_order.return_value = draft_order
@@ -122,14 +129,14 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
         other_user_draft_position = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id, user_id="someOtherUser", position=2
+            fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
         mock_get_fantasy_league_draft_order.return_value = draft_order
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_util.is_users_position_to_draft(fantasy_league, "notFoundUserId")
+            fantasy_team_util.is_users_position_to_draft(fantasy_league, UserID("notFoundUserId"))
         self.assertIn("Could not find draft position", str(context.exception))
         mock_get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
 
@@ -138,8 +145,11 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams)
         ]
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -159,8 +169,11 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -181,8 +194,11 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
         # !!!!!!!!!  THIS SHOULD NEVER HAPPEN  !!!!!!!!!!
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams + 1)
         ]
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -202,12 +218,15 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         missing_top_player_team = create_fantasy_team(
-            fantasy_league.id, "123", fantasy_league.current_week, set_top_player_id=False
+            fantasy_league.id, UserID("123"), fantasy_league.current_week, set_top_player_id=False
         )
         fantasy_teams.append(missing_top_player_team)
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -228,12 +247,18 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         missing_jungle_player_team = create_fantasy_team(
-            fantasy_league.id, "123", fantasy_league.current_week, set_jungle_player_id=False
+            fantasy_league.id,
+            UserID("123"),
+            fantasy_league.current_week,
+            set_jungle_player_id=False
         )
         fantasy_teams.append(missing_jungle_player_team)
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -254,12 +279,15 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         missing_mid_player_team = create_fantasy_team(
-            fantasy_league.id, "123", fantasy_league.current_week, set_mid_player_id=False
+            fantasy_league.id, UserID("123"), fantasy_league.current_week, set_mid_player_id=False
         )
         fantasy_teams.append(missing_mid_player_team)
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -280,12 +308,15 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         missing_adc_player_team = create_fantasy_team(
-            fantasy_league.id, "123", fantasy_league.current_week, set_adc_player_id=False
+            fantasy_league.id, UserID("123"), fantasy_league.current_week, set_adc_player_id=False
         )
         fantasy_teams.append(missing_adc_player_team)
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -306,12 +337,18 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
+        assert fantasy_league.current_week is not None, "current_week should not be None"
         fantasy_teams = [
-            create_fantasy_team(fantasy_league.id, str(user_id), fantasy_league.current_week)
+            create_fantasy_team(
+                fantasy_league.id, UserID(str(user_id)), fantasy_league.current_week
+            )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
         missing_support_player_team = create_fantasy_team(
-            fantasy_league.id, "123", fantasy_league.current_week, set_support_player_id=False
+            fantasy_league.id,
+            UserID("123"),
+            fantasy_league.current_week,
+            set_support_player_id=False
         )
         fantasy_teams.append(missing_support_player_team)
         mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
@@ -329,8 +366,8 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
 
 
 def create_fantasy_team(
-        fantasy_league_id: str,
-        user_id: str,
+        fantasy_league_id: FantasyLeagueID,
+        user_id: UserID,
         week: int,
         set_top_player_id: bool = True,
         set_jungle_player_id: bool = True,
@@ -341,9 +378,9 @@ def create_fantasy_team(
         fantasy_league_id=fantasy_league_id,
         user_id=user_id,
         week=week,
-        top_player_id=f"topId{user_id}" if set_top_player_id else None,
-        jungle_player_id=f"jungleId{user_id}" if set_jungle_player_id else None,
-        mid_player_id=f"midId{user_id}" if set_mid_player_id else None,
-        adc_player_id=f"adcId{user_id}" if set_adc_player_id else None,
-        support_player_id=f"supportId{user_id}" if set_support_player_id else None,
+        top_player_id=ProPlayerID(f"topId{user_id}") if set_top_player_id else None,
+        jungle_player_id=ProPlayerID(f"jungleId{user_id}") if set_jungle_player_id else None,
+        mid_player_id=ProPlayerID(f"midId{user_id}") if set_mid_player_id else None,
+        adc_player_id=ProPlayerID(f"adcId{user_id}") if set_adc_player_id else None,
+        support_player_id=ProPlayerID(f"supportId{user_id}") if set_support_player_id else None,
     )
