@@ -30,7 +30,7 @@ class RiotProfessionalPlayerService:
     def fetch_professional_players_from_riot_job(self):
         fetched_players = self.riot_api_requester.get_players()
         for player in fetched_players:
-            crud.save_player(player)
+            crud.put_player(player)
 
     @staticmethod
     def get_players(search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:

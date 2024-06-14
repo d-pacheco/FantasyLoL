@@ -31,7 +31,7 @@ class RiotProfessionalTeamService:
         fetched_teams = self.riot_api_requester.get_teams()
 
         for team in fetched_teams:
-            crud.save_team(team)
+            crud.put_team(team)
         return fetched_teams
 
     @staticmethod

@@ -418,6 +418,8 @@ class PlayerGameData(BaseModel):
 
 
 class Schedule(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     schedule_name: Optional[str] = Field(default=None)
     older_token_key: Optional[str] = Field(default=None)
     current_token_key: Optional[str] = Field(default=None)

@@ -29,7 +29,7 @@ class RiotLeagueService:
     def fetch_leagues_from_riot_job(self):
         fetched_leagues = self.riot_api_requester.get_leagues()
         for league in fetched_leagues:
-            crud.save_league(league)
+            crud.put_league(league)
 
     @staticmethod
     def get_leagues(search_parameters: LeagueSearchParameters) -> List[League]:
