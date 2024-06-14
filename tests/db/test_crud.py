@@ -17,7 +17,8 @@ from src.common.schemas.riot_data_schemas import (
     ProfessionalTeam,
     Tournament,
     Match,
-    Game
+    Game,
+    RiotLeagueID
 )
 from src.common.schemas import fantasy_schemas, riot_data_schemas as schemas
 
@@ -30,18 +31,31 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # --------------- Player Operations ----------------
     # --------------------------------------------------
-    def test_save_player(self):
+    def test_put_player_no_existing_player(self):
         # Arrange
-        expected_player = riot_fixtures.player_1_fixture
+        player = riot_fixtures.player_1_fixture
 
-        # Act
-        crud.save_player(expected_player)
+        # Act and Assert
+        player_before_put = crud.get_player_by_id(player.id)
+        self.assertIsNone(player_before_put)
+        crud.put_player(player)
+        player_after_put = crud.get_player_by_id(player.id)
+        self.assertEqual(player, player_after_put)
 
-        # Assert
-        player_model_from_db = db_util.get_player_by_id(expected_player.id)
-        self.assertIsNotNone(player_model_from_db)
-        player_from_db = schemas.ProfessionalPlayer.model_validate(player_model_from_db)
-        self.assertEqual(expected_player, player_from_db)
+    def test_put_player_existing_player(self):
+        # Arrange
+        player = riot_fixtures.player_1_fixture
+        crud.put_player(player)
+        updated_player = player.model_copy(deep=True)
+        updated_player.image = "updatedImage"
+
+        # Act and Assert
+        player_before_put = crud.get_player_by_id(player.id)
+        self.assertEqual(player, player_before_put)
+        self.assertEqual(player.id, updated_player.id)
+        crud.put_player(updated_player)
+        player_after_put = crud.get_player_by_id(player.id)
+        self.assertEqual(updated_player, player_after_put)
 
     def test_get_players_no_filters(self):
         # Arrange
@@ -208,6 +222,41 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ----------- Player Metadata Operations -----------
     # --------------------------------------------------
+    def test_put_player_metadata_no_existing_player_metadata(self):
+        # Arrange
+        player_metadata = riot_fixtures.player_1_game_metadata_fixture
+
+        # Act and Assert
+        player_metadata_before_put = db_util.get_player_metadata(
+            player_metadata.player_id, player_metadata.game_id
+        )
+        self.assertIsNone(player_metadata_before_put)
+        crud.put_player_metadata(player_metadata)
+        player_metadata_after_put = db_util.get_player_metadata(
+            player_metadata.player_id, player_metadata.game_id
+        )
+        self.assertEqual(player_metadata, player_metadata_after_put)
+
+    def test_put_player_metadata_existing_player_metadata(self):
+        # Arrange
+        player_metadata = riot_fixtures.player_1_game_metadata_fixture
+        crud.put_player_metadata(player_metadata)
+        updated_player_metadata = player_metadata.model_copy(deep=True)
+        updated_player_metadata.champion_id = "updatedChampionId"
+
+        # Act and Assert
+        player_metadata_before_put = db_util.get_player_metadata(
+            player_metadata.player_id, player_metadata.game_id
+        )
+        self.assertEqual(player_metadata, player_metadata_before_put)
+        self.assertEqual(player_metadata.player_id, updated_player_metadata.player_id)
+        self.assertEqual(player_metadata.game_id, updated_player_metadata.game_id)
+        crud.put_player_metadata(updated_player_metadata)
+        player_metadata_after_put = db_util.get_player_metadata(
+            player_metadata.player_id, player_metadata.game_id
+        )
+        self.assertEqual(updated_player_metadata, player_metadata_after_put)
+
     def test_get_games_without_player_metadata_completed_game_without_10_rows(self):
         game = riot_data_util.create_completed_game_in_db()
         game_ids = crud.get_game_ids_without_player_metadata()
@@ -247,6 +296,41 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ------------- Player Stats Operations ------------
     # --------------------------------------------------
+    def test_put_player_stats_no_existing_stats(self):
+        # Arrange
+        player_stats = riot_fixtures.player_1_game_stats_fixture
+
+        # Act and Assert
+        player_stats_before_put = db_util.get_player_stats(
+            player_stats.game_id, player_stats.participant_id
+        )
+        self.assertIsNone(player_stats_before_put)
+        crud.put_player_stats(player_stats)
+        player_stats_after_put = db_util.get_player_stats(
+            player_stats.game_id, player_stats.participant_id
+        )
+        self.assertEqual(player_stats, player_stats_after_put)
+
+    def test_put_player_stats_existing_stats(self):
+        # Arrange
+        player_stats = riot_fixtures.player_1_game_stats_fixture
+        crud.put_player_stats(player_stats)
+        updated_player_stats = player_stats.model_copy(deep=True)
+        updated_player_stats.wards_placed += 1
+
+        # Act and Assert
+        player_stats_before_put = db_util.get_player_stats(
+            player_stats.game_id, player_stats.participant_id
+        )
+        self.assertEqual(player_stats, player_stats_before_put)
+        self.assertEqual(player_stats.game_id, updated_player_stats.game_id)
+        self.assertEqual(player_stats.participant_id, updated_player_stats.participant_id)
+        crud.put_player_stats(updated_player_stats)
+        player_stats_after_put = db_util.get_player_stats(
+            player_stats.game_id, player_stats.participant_id
+        )
+        self.assertEqual(updated_player_stats, player_stats_after_put)
+
     def test_get_game_ids_to_fetch_player_stats_for_completed_game_without_10_rows(self):
         game = riot_data_util.create_completed_game_in_db()
         game_ids = crud.get_game_ids_to_fetch_player_stats_for()
@@ -406,17 +490,31 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ---------------- Game Operations -----------------
     # --------------------------------------------------
-    def test_save_game(self):
+    def test_put_game_no_existing_game(self):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
 
-        # Act
-        crud.save_game(game)
+        # Act and Assert
+        game_before_put = crud.get_game_by_id(game.id)
+        self.assertIsNone(game_before_put)
+        crud.put_game(game)
+        game_after_put = crud.get_game_by_id(game.id)
+        self.assertEqual(game, game_after_put)
 
-        # Assert
-        game_model_from_db = db_util.get_game(game.id)
-        game_from_db = schemas.Game.model_validate(game_model_from_db)
-        self.assertEqual(game, game_from_db)
+    def test_put_game_existing_game(self):
+        # Arrange
+        game = riot_fixtures.game_1_fixture_completed
+        crud.put_game(game)
+        updated_game = game.model_copy(deep=True)
+        updated_game.has_game_data = not game.has_game_data
+
+        # Act and Assert
+        game_before_put = crud.get_game_by_id(game.id)
+        self.assertEqual(game, game_before_put)
+        self.assertEqual(game.id, updated_game.id)
+        crud.put_game(updated_game)
+        game_after_put = crud.get_game_by_id(game.id)
+        self.assertEqual(updated_game, game_after_put)
 
     def test_bulk_save_games(self):
         # Arrange
@@ -678,17 +776,31 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # --------------- League Operations ----------------
     # --------------------------------------------------
-    def test_save_league(self):
+    def test_put_league_no_existing_league(self):
         # Arrange
-        expected_league = riot_fixtures.league_1_fixture
+        league = riot_fixtures.league_1_fixture
 
-        # Act
-        crud.save_league(expected_league)
+        # Act and Assert
+        league_before_put = crud.get_league_by_id(league.id)
+        self.assertIsNone(league_before_put)
+        crud.put_league(league)
+        league_after_put = crud.get_league_by_id(league.id)
+        self.assertEqual(league, league_after_put)
 
-        # Assert
-        league_model_from_db = db_util.get_league_by_id(expected_league.id)
-        league_from_db = schemas.League.model_validate(league_model_from_db)
-        self.assertEqual(expected_league, league_from_db)
+    def test_put_league_existing_league(self):
+        # Arrange
+        league = riot_fixtures.league_1_fixture
+        crud.put_league(league)
+        updated_league = league.model_copy(deep=True)
+        updated_league.priority = league.priority + 1
+
+        # Act and Assert
+        league_before_put = crud.get_league_by_id(league.id)
+        self.assertEqual(league, league_before_put)
+        self.assertEqual(league.id, updated_league.id)
+        crud.put_league(updated_league)
+        league_after_put = crud.get_league_by_id(league.id)
+        self.assertEqual(updated_league, league_after_put)
 
     def test_get_leagues_no_filters(self):
         # Arrange
@@ -808,6 +920,38 @@ class CrudTest(FantasyLolTestBase):
         # Assert
         self.assertIsNone(league_from_db)
 
+    def test_update_league_fantasy_available_status_existing_league(self):
+        # Arrange
+        league = riot_fixtures.league_1_fixture
+        crud.put_league(league)
+        new_status = not league.fantasy_available
+        expected_updated_league = league.model_copy(deep=True)
+        expected_updated_league.fantasy_available = new_status
+
+        # Act
+        updated_league = crud.update_league_fantasy_available_status(league.id, new_status)
+
+        # Assert
+        self.assertNotEqual(new_status, league.fantasy_available)
+        self.assertEqual(expected_updated_league, updated_league)
+        league_from_db = crud.get_league_by_id(league.id)
+        self.assertEqual(expected_updated_league, league_from_db)
+
+    def test_update_league_fantasy_available_status_no_existing_league(self):
+        # Arrange
+        league = riot_fixtures.league_1_fixture
+        crud.put_league(league)
+        new_status = not league.fantasy_available
+
+        # Act
+        updated_league = crud.update_league_fantasy_available_status(
+            RiotLeagueID("badLeagueId"), new_status
+        )
+
+        # Assert
+        self.assertNotEqual(new_status, league.fantasy_available)
+        self.assertIsNone(updated_league)
+
     def test_get_league_ids_for_player_successful(self):
         # Arrange
         db_util.save_league(riot_fixtures.league_1_fixture)
@@ -842,18 +986,31 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ------------- Tournament Operations --------------
     # --------------------------------------------------
-    def test_save_tournament(self):
+    def test_put_tournament_no_existing_tournament(self):
         # Arrange
-        expected_tournament = riot_fixtures.tournament_fixture
+        tournament = riot_fixtures.tournament_fixture
 
-        # Act
-        crud.save_tournament(expected_tournament)
+        # Act and Assert
+        tournament_before_put = crud.get_tournament_by_id(tournament.id)
+        self.assertIsNone(tournament_before_put)
+        crud.put_tournament(tournament)
+        tournament_after_put = crud.get_tournament_by_id(tournament.id)
+        self.assertEqual(tournament, tournament_after_put)
 
-        # Assert
-        tournament_model_from_db = db_util.get_tournament_by_id(expected_tournament.id)
-        self.assertIsNotNone(tournament_model_from_db)
-        tournament_from_db = schemas.Tournament.model_validate(tournament_model_from_db)
-        self.assertEqual(expected_tournament, tournament_from_db)
+    def test_put_tournament_existing_tournament(self):
+        # Arrange
+        tournament = riot_fixtures.tournament_fixture
+        crud.put_tournament(tournament)
+        updated_tournament = tournament.model_copy(deep=True)
+        updated_tournament.end_date = "2070-02-03"
+
+        # Act and Assert
+        tournament_before_put = crud.get_tournament_by_id(tournament.id)
+        self.assertEqual(tournament_before_put, tournament)
+        crud.put_tournament(updated_tournament)
+        self.assertEqual(tournament.id, updated_tournament.id)
+        tournament_after_put = crud.get_tournament_by_id(tournament.id)
+        self.assertEqual(updated_tournament, tournament_after_put)
 
     def test_get_tournaments_empty_filters_existing_tournaments(self):
         # Arrange
@@ -970,18 +1127,31 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # --------------- Match Operations -----------------
     # --------------------------------------------------
-    def test_save_match(self):
+    def test_put_match_no_existing_match(self):
         # Arrange
-        expected_match = riot_fixtures.match_fixture
+        match = riot_fixtures.match_fixture
 
-        # Act
-        crud.save_match(expected_match)
+        # Act and Assert
+        match_before_put = crud.get_match_by_id(match.id)
+        self.assertIsNone(match_before_put)
+        crud.put_match(match)
+        match_after_put = crud.get_match_by_id(match.id)
+        self.assertEqual(match, match_after_put)
 
-        # Assert
-        match_model_from_db = db_util.get_match_by_id(expected_match.id)
-        self.assertIsNotNone(match_model_from_db)
-        match_from_db = schemas.Match.model_validate(match_model_from_db)
-        self.assertEqual(expected_match, match_from_db)
+    def test_put_match_existing_match(self):
+        # Arrange
+        match = riot_fixtures.match_fixture
+        crud.put_match(match)
+        updated_match = match.model_copy(deep=True)
+        updated_match.strategy_count = match.strategy_count + 2
+
+        # Act and Assert
+        match_before_put = crud.get_match_by_id(match.id)
+        self.assertEqual(match, match_before_put)
+        self.assertEqual(match.id, updated_match.id)
+        crud.put_match(updated_match)
+        match_after_put = crud.get_match_by_id(match.id)
+        self.assertEqual(updated_match, match_after_put)
 
     def test_get_matches_no_filters(self):
         # Arrange
@@ -1133,17 +1303,32 @@ class CrudTest(FantasyLolTestBase):
     # --------------------------------------------------
     # ---------------- Team Operations ----------------
     # --------------------------------------------------
-    def test_save_team(self):
+    def test_put_team_no_existing_team(self):
         # Arrange
-        expected_team = riot_fixtures.team_1_fixture
+        team = riot_fixtures.team_1_fixture
 
-        # Act
-        crud.save_team(expected_team)
+        # Act and Assert
+        team_before_put = crud.get_team_by_id(team.id)
+        self.assertIsNone(team_before_put)
+        crud.put_team(team)
+        team_after_put = crud.get_team_by_id(team.id)
+        self.assertEqual(team, team_after_put)
 
-        # Assert
-        team_model_from_db = db_util.get_team_by_id(expected_team.id)
-        team_from_db = schemas.ProfessionalTeam.model_validate(team_model_from_db)
-        self.assertEqual(expected_team, team_from_db)
+    def test_put_team_existing_team(self):
+        # Arrange
+        team = riot_fixtures.team_1_fixture
+        crud.put_team(team)
+        updated_team = team.model_copy(deep=True)
+        updated_team.status = "inactive"
+
+        # Act and Assert
+        team_before_put = crud.get_team_by_id(team.id)
+        self.assertEqual(team, team_before_put)
+        self.assertEqual(team.id, updated_team.id)
+        self.assertNotEqual(team.status, updated_team.status)
+        crud.put_team(updated_team)
+        team_after_put = crud.get_team_by_id(team.id)
+        self.assertEqual(updated_team, team_after_put)
 
     def test_get_teams_no_filters(self):
         # Arrange
@@ -1354,6 +1539,58 @@ class CrudTest(FantasyLolTestBase):
 
         # Assert
         self.assertIsNone(team_from_db)
+
+    # --------------------------------------------------
+    # --------------- Schedule Operations --------------
+    # --------------------------------------------------
+    def test_get_schedule_exists(self):
+        # Arrange
+        schedule = riot_fixtures.riot_schedule_fixture
+        crud.update_schedule(schedule)
+
+        # Act
+        schedule_from_db = crud.get_schedule(schedule.schedule_name)
+
+        # Assert
+        self.assertEqual(schedule, schedule_from_db)
+
+    def test_get_schedule_does_not_exist(self):
+        # Arrange
+        schedule = riot_fixtures.riot_schedule_fixture
+        crud.update_schedule(schedule)
+
+        # Act
+        schedule_from_db = crud.get_schedule("bad_schedule_name")
+
+        # Assert
+        self.assertIsNone(schedule_from_db)
+
+    def test_update_schedule_no_existing_schedule(self):
+        # Arrange
+        schedule = riot_fixtures.riot_schedule_fixture
+
+        # Act and Assert
+        schedule_from_db_before_update_call = crud.get_schedule(schedule.schedule_name)
+        self.assertIsNone(schedule_from_db_before_update_call)
+        crud.update_schedule(schedule)
+        schedule_from_db_after_update_call = crud.get_schedule(schedule.schedule_name)
+        self.assertEqual(schedule, schedule_from_db_after_update_call)
+
+    def test_update_schedule_with_existing_schedule(self):
+        # Arrange
+        schedule = riot_fixtures.riot_schedule_fixture
+        crud.update_schedule(schedule)
+        updated_schedule = schedule.model_copy(deep=True)
+        updated_schedule.current_token_key = "updated_current_token"
+        updated_schedule.older_token_key = "updated_older_token"
+
+        # Act and Assert
+        schedule_from_db_before_update_call = crud.get_schedule(schedule.schedule_name)
+        self.assertEqual(schedule, schedule_from_db_before_update_call)
+        crud.update_schedule(updated_schedule)
+        schedule_from_db_after_update_call = crud.get_schedule(schedule.schedule_name)
+        self.assertEqual(updated_schedule, schedule_from_db_after_update_call)
+        self.assertEqual(schedule.schedule_name, updated_schedule.schedule_name)
 
     # --------------------------------------------------
     # ---------- Fantasy League Operations -------------

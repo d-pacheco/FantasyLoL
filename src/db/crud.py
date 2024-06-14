@@ -62,7 +62,7 @@ from .views import PlayerGameView
 # --------------------------------------------------
 # --------------- League Operations ----------------
 # --------------------------------------------------
-def save_league(league: League) -> None:
+def put_league(league: League) -> None:
     db_league = LeagueModel(**league.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_league)
@@ -124,7 +124,7 @@ def get_league_ids_for_player(player_id: ProPlayerID) -> List[RiotLeagueID]:
 # --------------------------------------------------
 # ------------- Tournament Operations --------------
 # --------------------------------------------------
-def save_tournament(tournament: Tournament) -> None:
+def put_tournament(tournament: Tournament) -> None:
     db_tournament = TournamentModel(**tournament.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_tournament)
@@ -158,7 +158,7 @@ def get_tournament_by_id(tournament_id: RiotTournamentID) -> Optional[Tournament
 # --------------------------------------------------
 # --------------- Match Operations -----------------
 # --------------------------------------------------
-def save_match(match: Match) -> None:
+def put_match(match: Match) -> None:
     db_match = MatchModel(**match.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_match)
@@ -203,7 +203,7 @@ def get_match_ids_without_games() -> List[RiotMatchID]:
 # --------------------------------------------------
 # ---------------- Game Operations -----------------
 # --------------------------------------------------
-def save_game(game: Game) -> None:
+def put_game(game: Game) -> None:
     db_game = GameModel(**game.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_game)
@@ -274,7 +274,7 @@ def get_game_by_id(game_id: RiotGameID) -> Optional[Game]:
 # --------------------------------------------------
 # ---------------- Team Operations ----------------
 # --------------------------------------------------
-def save_team(team: ProfessionalTeam) -> None:
+def put_team(team: ProfessionalTeam) -> None:
     db_team = ProfessionalTeamModel(**team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_team)
@@ -306,7 +306,7 @@ def get_team_by_id(team_id: ProTeamID) -> Optional[ProfessionalTeam]:
 # --------------------------------------------------
 # --------------- Player Operations ----------------
 # --------------------------------------------------
-def save_player(player: ProfessionalPlayer) -> None:
+def put_player(player: ProfessionalPlayer) -> None:
     db_player = ProfessionalPlayerModel(**player.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player)
@@ -338,7 +338,7 @@ def get_player_by_id(player_id: ProPlayerID) -> Optional[ProfessionalPlayer]:
 # --------------------------------------------------
 # ----------- Player Metadata Operations -----------
 # --------------------------------------------------
-def save_player_metadata(player_metadata: PlayerGameMetadata) -> None:
+def put_player_metadata(player_metadata: PlayerGameMetadata) -> None:
     db_player_metadata = PlayerGameMetadataModel(**player_metadata.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_metadata)
@@ -366,7 +366,7 @@ def get_game_ids_without_player_metadata() -> List[RiotGameID]:
 # --------------------------------------------------
 # ------------- Player Stats Operations ------------
 # --------------------------------------------------
-def save_player_stats(player_stats: PlayerGameStats) -> None:
+def put_player_stats(player_stats: PlayerGameStats) -> None:
     db_player_stats = PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)

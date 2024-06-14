@@ -127,7 +127,8 @@ game_1_fixture_completed = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.COMPLETED,
     number=1,
-    match_id=match_fixture.id
+    match_id=match_fixture.id,
+    has_game_data=True
 )
 
 get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
@@ -633,7 +634,8 @@ player_10_game_data_fixture = schemas.PlayerGameData(
     wards_destroyed=player_10_game_stats_fixture.wards_destroyed
 )
 
-riot_schedule_pages_fixture = schemas.Schedule(
+riot_schedule_fixture = schemas.Schedule(
+    schedule_name="test_riot_schedule",
     older_token_key="olderToken",
     current_token_key="newerToken"
 )

@@ -532,7 +532,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_pages_from_schedule_successful(self, mock_cloud_scraper):
         # Arrange
-        expected_page_tokens = riot_fixtures.riot_schedule_pages_fixture
+        expected_page_tokens = riot_fixtures.riot_schedule_fixture.model_copy(deep=True)
+        expected_page_tokens.schedule_name = None
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
         mock_response.json.return_value = riot_api_requester_util.get_schedule_response
