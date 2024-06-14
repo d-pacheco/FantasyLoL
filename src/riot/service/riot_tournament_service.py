@@ -34,7 +34,7 @@ class RiotTournamentService:
         for league in stored_leagues:
             tournaments = self.riot_api_requester.get_tournament_for_league(league.id)
             for tournament in tournaments:
-                crud.save_tournament(tournament)
+                crud.put_tournament(tournament)
                 fetched_tournaments.append(tournament)
 
     @staticmethod

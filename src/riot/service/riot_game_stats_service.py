@@ -51,7 +51,7 @@ class RiotGameStatsService:
                 crud.update_has_game_data(game_id, False)
 
             for player_metadata in fetched_player_metadata:
-                crud.save_player_metadata(player_metadata)
+                crud.put_player_metadata(player_metadata)
         except Exception as e:
             logger.error(f"Error getting player metadata for game with id {game_id}: {str(e)}")
             raise e
@@ -80,7 +80,7 @@ class RiotGameStatsService:
                 crud.update_has_game_data(game_id, False)
 
             for player_stats in fetched_player_stats:
-                crud.save_player_stats(player_stats)
+                crud.put_player_stats(player_stats)
         except Exception as e:
             logger.error(f"Error getting player stats for game with id {game_id}: {str(e)}")
             raise e

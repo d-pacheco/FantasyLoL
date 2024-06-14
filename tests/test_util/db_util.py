@@ -1,8 +1,9 @@
 from sqlalchemy import and_
-from typing import List
+from typing import List, Optional
 
 from src.db.database import DatabaseConnection
 from src.db import models
+from src.common.schemas.riot_data_schemas import ProPlayerID, RiotGameID
 from src.common.schemas import fantasy_schemas, riot_data_schemas as schemas
 
 
@@ -158,11 +159,37 @@ def save_player_metadata(player_metadata: schemas.PlayerGameMetadata):
         db.commit()
 
 
+def get_player_metadata(
+        player_id: ProPlayerID, game_id: RiotGameID
+) -> Optional[schemas.PlayerGameMetadata]:
+    with DatabaseConnection() as db:
+        player_metadata = db.query(models.PlayerGameMetadataModel) \
+            .filter(models.PlayerGameMetadataModel.player_id == player_id,
+                    models.PlayerGameMetadataModel.game_id == game_id).first()
+        if player_metadata is None:
+            return None
+        else:
+            return schemas.PlayerGameMetadata.model_validate(player_metadata)
+
+
 def save_player_stats(player_stats: schemas.PlayerGameStats):
     db_player_stats = models.PlayerGameStatsModel(**player_stats.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
+
+
+def get_player_stats(
+        game_id: RiotGameID, participant_id: int
+) -> Optional[schemas.PlayerGameStats]:
+    with DatabaseConnection() as db:
+        player_game_stats = db.query(models.PlayerGameStatsModel) \
+            .filter(models.PlayerGameStatsModel.game_id == game_id,
+                    models.PlayerGameStatsModel.participant_id == participant_id).first()
+        if player_game_stats is None:
+            return None
+        else:
+            return schemas.PlayerGameStats.model_validate(player_game_stats)
 
 
 def get_all_fantasy_teams() -> List[models.FantasyTeamModel]:

@@ -44,7 +44,7 @@ class RiotMatchService:
 
             fetched_matches = self.riot_api_requester.get_matches_from_schedule(newer_page_token)
             for match in fetched_matches:
-                crud.save_match(match)
+                crud.put_match(match)
 
             riot_schedule.older_token_key = schedule_pages.older_token_key
             riot_schedule.current_token_key = newer_page_token
@@ -60,7 +60,7 @@ class RiotMatchService:
             # Save the starting schedule into the database
             fetched_matches = self.riot_api_requester.get_matches_from_schedule()
             for match in fetched_matches:
-                crud.save_match(match)
+                crud.put_match(match)
 
             schedule_pages = self.riot_api_requester.get_pages_from_schedule()
             riot_schedule = Schedule(
@@ -92,7 +92,7 @@ class RiotMatchService:
                 continue
             fetched_matches = self.riot_api_requester.get_matches_from_schedule(older_page_token)
             for match in fetched_matches:
-                crud.save_match(match)
+                crud.put_match(match)
             schedule_pages = self.riot_api_requester.get_pages_from_schedule(older_page_token)
             older_page_token = schedule_pages.older_token_key
 
