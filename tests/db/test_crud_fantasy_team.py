@@ -71,7 +71,7 @@ class TestCrudFantasyTeam(FantasyLolTestBase):
 
         # Act
         fantasy_teams_from_db = crud.get_all_fantasy_teams_for_user(
-           FantasyLeagueID("badLeagueId"), user.id
+            FantasyLeagueID("badLeagueId"), user.id
         )
 
         # Assert
@@ -114,4 +114,3 @@ class TestCrudFantasyTeam(FantasyLolTestBase):
 
         week_3_fantasy_teams = crud.get_all_fantasy_teams_for_week(fantasy_league.id, 3)
         self.assertEqual(0, len(week_3_fantasy_teams))
-

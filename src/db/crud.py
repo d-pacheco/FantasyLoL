@@ -508,7 +508,7 @@ def update_fantasy_league_settings(
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
-        assert(fantasy_league_model is not None)
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.name = settings.name
         fantasy_league_model.number_of_teams = settings.number_of_teams
@@ -525,7 +525,7 @@ def update_fantasy_league_status(
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
-        assert(fantasy_league_model is not None)
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.status = new_status
         db.commit()
@@ -538,7 +538,7 @@ def update_fantasy_league_current_draft_position(
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
-        assert(fantasy_league_model is not None)
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.current_draft_position = new_current_draft_position
         db.commit()
@@ -639,7 +639,7 @@ def delete_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> N
         db_draft_order = db.query(FantasyLeagueDraftOrderModel)\
             .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == draft_order.fantasy_league_id,
                     FantasyLeagueDraftOrderModel.user_id == draft_order.user_id).first()
-        assert(db_draft_order is not None)
+        assert (db_draft_order is not None)
         db.delete(db_draft_order)
         db.commit()
 

@@ -66,7 +66,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         with self.assertRaises(ProfessionalPlayerNotFoundException):
             get_player_from_db(pro_player.id)
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_player_already_drafted_false(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -102,7 +102,7 @@ class TestFantasyTeamService(FantasyLolTestBase):
         # Assert
         self.assertFalse(returned_bool)
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_player_already_drafted_true(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange

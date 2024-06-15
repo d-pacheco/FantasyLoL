@@ -71,7 +71,7 @@ def update_fantasy_league_settings(
         decoded_token: dict = Depends(JWTBearer())) -> FantasyLeagueSettings:
     owner_id = UserID(decoded_token.get("user_id"))
     return fantasy_league_service.update_fantasy_league_settings(
-                                    owner_id, fantasy_league_id, fantasy_league_settings)
+        owner_id, fantasy_league_id, fantasy_league_settings)
 
 
 @router.get(
