@@ -427,7 +427,6 @@ def update_schedule(schedule: Schedule) -> None:
 # --------------------------------------------------
 # ----------------- User Operations ----------------
 # --------------------------------------------------
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def create_user(user: User) -> None:
     db_user = UserModel(**user.model_dump())
     with DatabaseConnection() as db:
@@ -435,7 +434,6 @@ def create_user(user: User) -> None:
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_id(user_id: UserID) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
@@ -445,7 +443,6 @@ def get_user_by_id(user_id: UserID) -> Optional[User]:
             return User.model_validate(user_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_username(username: str) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.username == username).first()
@@ -455,7 +452,6 @@ def get_user_by_username(username: str) -> Optional[User]:
             return User.model_validate(user_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_email(email: str) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.email == email).first()
