@@ -77,7 +77,7 @@ class FantasyTeamService:
                 f" in the current week"
             )
 
-        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        crud.put_fantasy_team(recent_fantasy_team)
         if fantasy_league.status == FantasyLeagueStatus.DRAFT:
             fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
             if fantasy_team_util.all_teams_fully_drafted(fantasy_league):
@@ -106,7 +106,7 @@ class FantasyTeamService:
             )
         recent_fantasy_team.set_player_id_for_role(None, professional_player.role)
 
-        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        crud.put_fantasy_team(recent_fantasy_team)
         return recent_fantasy_team
 
     @staticmethod
@@ -149,7 +149,7 @@ class FantasyTeamService:
             pro_player_to_pickup.id, pro_player_to_pickup.role
         )
 
-        crud.create_or_update_fantasy_team(recent_fantasy_team)
+        crud.put_fantasy_team(recent_fantasy_team)
         return recent_fantasy_team
 
 
@@ -187,7 +187,7 @@ def get_users_most_recent_fantasy_team(
 def player_already_drafted(
         professional_player: ProfessionalPlayer,
         fantasy_league: FantasyLeague) -> bool:
-    all_fantasy_teams_for_curr_week = crud.get_all_fantasy_teams_for_current_week(
+    all_fantasy_teams_for_curr_week = crud.get_all_fantasy_teams_for_week(
         fantasy_league.id, fantasy_league.current_week
     )
     for fantasy_team_db_model in all_fantasy_teams_for_curr_week:

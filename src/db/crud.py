@@ -657,7 +657,7 @@ def update_fantasy_league_draft_order_position(
 # --------------------------------------------------
 # ------------ Fantasy Team Operations -------------
 # --------------------------------------------------
-def create_or_update_fantasy_team(fantasy_team: FantasyTeam) -> None:
+def put_fantasy_team(fantasy_team: FantasyTeam) -> None:
     db_fantasy_team = FantasyTeamModel(**fantasy_team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_fantasy_team)
@@ -675,8 +675,7 @@ def get_all_fantasy_teams_for_user(
         return fantasy_teams
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_all_fantasy_teams_for_current_week(
+def get_all_fantasy_teams_for_week(
         fantasy_league_id: FantasyLeagueID, week: int) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
         fantasy_team_models = db.query(FantasyTeamModel) \
