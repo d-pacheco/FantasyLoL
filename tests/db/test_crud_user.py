@@ -30,7 +30,7 @@ class TestCrudUser(FantasyLolTestBase):
         # Act and Assert
         with self.assertRaises(IntegrityError) as context:
             crud.create_user(user_2)
-        self.assertIn('UNIQUE constraint failed: users.emai', str(context.exception))
+        self.assertIn('UNIQUE constraint failed: users.email', str(context.exception))
 
     def test_create_user_with_existing_username_error(self):
         # Arrange

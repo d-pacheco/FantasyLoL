@@ -547,18 +547,17 @@ def update_fantasy_league_current_draft_position(
 
 
 # --------------------------------------------------
-# ------- Fantasy League Invite Operations ---------
+# ------ Fantasy League Membership Operations ------
 # --------------------------------------------------
 def create_fantasy_league_membership(fantasy_league_membership: FantasyLeagueMembership) -> None:
     db_fantasy_league_membership = FantasyLeagueMembershipModel(
         **fantasy_league_membership.model_dump()
     )
     with DatabaseConnection() as db:
-        db.merge(db_fantasy_league_membership)
+        db.add(db_fantasy_league_membership)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_pending_and_accepted_members_for_league(
         fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
@@ -574,7 +573,6 @@ def get_pending_and_accepted_members_for_league(
         return memberships
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_membership_status(
         membership: FantasyLeagueMembership,
         new_status: FantasyLeagueMembershipStatus) -> None:
@@ -585,7 +583,6 @@ def update_fantasy_league_membership_status(
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_membership_for_fantasy_league(
         user_id: UserID, fantasy_league_id: FantasyLeagueID) -> Optional[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
@@ -598,7 +595,6 @@ def get_user_membership_for_fantasy_league(
             return FantasyLeagueMembership.model_validate(membership_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_users_fantasy_leagues_with_membership_status(
         user_id: UserID,
         membership_status: FantasyLeagueMembershipStatus) \
