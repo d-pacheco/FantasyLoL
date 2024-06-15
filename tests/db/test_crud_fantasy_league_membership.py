@@ -164,4 +164,3 @@ class TestCrudFantasyLeagueMembership(FantasyLolTestBase):
             user.id, FantasyLeagueMembershipStatus.DECLINED
         )
         self.assertEqual(0, len(fantasy_leagues_declined))
-

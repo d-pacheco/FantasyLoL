@@ -615,15 +615,13 @@ def get_users_fantasy_leagues_with_membership_status(
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def create_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
     db_draft_order = FantasyLeagueDraftOrderModel(**draft_order.model_dump())
     with DatabaseConnection() as db:
-        db.merge(db_draft_order)
+        db.add(db_draft_order)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_fantasy_league_draft_order(
         fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueDraftOrder]:
     with DatabaseConnection() as db:
@@ -636,17 +634,16 @@ def get_fantasy_league_draft_order(
         return draft_orders
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def delete_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
     with DatabaseConnection() as db:
         db_draft_order = db.query(FantasyLeagueDraftOrderModel)\
             .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == draft_order.fantasy_league_id,
                     FantasyLeagueDraftOrderModel.user_id == draft_order.user_id).first()
+        assert(db_draft_order is not None)
         db.delete(db_draft_order)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_draft_order_position(
         draft_order: FantasyLeagueDraftOrder,
         new_position: int) -> None:
