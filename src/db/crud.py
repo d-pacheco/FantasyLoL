@@ -434,7 +434,6 @@ def create_user(user: User) -> None:
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_id(user_id: UserID) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
@@ -444,7 +443,6 @@ def get_user_by_id(user_id: UserID) -> Optional[User]:
             return User.model_validate(user_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_username(username: str) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.username == username).first()
@@ -454,7 +452,6 @@ def get_user_by_username(username: str) -> Optional[User]:
             return User.model_validate(user_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_by_email(email: str) -> Optional[User]:
     with DatabaseConnection() as db:
         user_model: UserModel = db.query(UserModel).filter(UserModel.email == email).first()
@@ -484,15 +481,14 @@ def get_fantasy_league_by_id(fantasy_league_id: FantasyLeagueID) -> Optional[Fan
             return FantasyLeague.model_validate(fantasy_league_model)
 
 
-def create_fantasy_league_scoring_settings(
+def put_fantasy_league_scoring_settings(
         scoring_settings: FantasyLeagueScoringSettings) -> None:
     db_scoring_settings = FantasyLeagueScoringSettingModel(**scoring_settings.model_dump())
     with DatabaseConnection() as db:
-        db.add(db_scoring_settings)
+        db.merge(db_scoring_settings)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_fantasy_league_scoring_settings_by_id(fantasy_league_id: FantasyLeagueID) \
         -> Optional[FantasyLeagueScoringSettings]:
     with DatabaseConnection() as db:
@@ -506,20 +502,13 @@ def get_fantasy_league_scoring_settings_by_id(fantasy_league_id: FantasyLeagueID
             return FantasyLeagueScoringSettings.model_validate(scoring_settings_model)
 
 
-def update_fantasy_league_scoring_settings(
-        scoring_settings: FantasyLeagueScoringSettings) -> None:
-    db_scoring_settings = FantasyLeagueScoringSettingModel(**scoring_settings.model_dump())
-    with DatabaseConnection() as db:
-        db.merge(db_scoring_settings)
-        db.commit()
-
-
 def update_fantasy_league_settings(
         fantasy_league_id: FantasyLeagueID,
         settings: FantasyLeagueSettings) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.name = settings.name
         fantasy_league_model.number_of_teams = settings.number_of_teams
@@ -530,13 +519,13 @@ def update_fantasy_league_settings(
         return FantasyLeague.model_validate(fantasy_league_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_status(
         fantasy_league_id: FantasyLeagueID,
         new_status: FantasyLeagueStatus) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.status = new_status
         db.commit()
@@ -544,12 +533,12 @@ def update_fantasy_league_status(
         return FantasyLeague.model_validate(fantasy_league_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_current_draft_position(
         fantasy_league_id: FantasyLeagueID, new_current_draft_position: int) -> FantasyLeague:
     with DatabaseConnection() as db:
         fantasy_league_model: Optional[FantasyLeagueModel] = db.query(FantasyLeagueModel)\
             .filter_by(id=fantasy_league_id).first()
+        assert (fantasy_league_model is not None)
 
         fantasy_league_model.current_draft_position = new_current_draft_position
         db.commit()
@@ -558,18 +547,17 @@ def update_fantasy_league_current_draft_position(
 
 
 # --------------------------------------------------
-# ------- Fantasy League Invite Operations ---------
+# ------ Fantasy League Membership Operations ------
 # --------------------------------------------------
 def create_fantasy_league_membership(fantasy_league_membership: FantasyLeagueMembership) -> None:
     db_fantasy_league_membership = FantasyLeagueMembershipModel(
         **fantasy_league_membership.model_dump()
     )
     with DatabaseConnection() as db:
-        db.merge(db_fantasy_league_membership)
+        db.add(db_fantasy_league_membership)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_pending_and_accepted_members_for_league(
         fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
@@ -585,7 +573,6 @@ def get_pending_and_accepted_members_for_league(
         return memberships
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_membership_status(
         membership: FantasyLeagueMembership,
         new_status: FantasyLeagueMembershipStatus) -> None:
@@ -596,7 +583,6 @@ def update_fantasy_league_membership_status(
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_user_membership_for_fantasy_league(
         user_id: UserID, fantasy_league_id: FantasyLeagueID) -> Optional[FantasyLeagueMembership]:
     with DatabaseConnection() as db:
@@ -609,7 +595,6 @@ def get_user_membership_for_fantasy_league(
             return FantasyLeagueMembership.model_validate(membership_model)
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_users_fantasy_leagues_with_membership_status(
         user_id: UserID,
         membership_status: FantasyLeagueMembershipStatus) \
@@ -630,15 +615,13 @@ def get_users_fantasy_leagues_with_membership_status(
 # --------------------------------------------------
 # ----- Fantasy League Draft Order Operations ------
 # --------------------------------------------------
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def create_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
     db_draft_order = FantasyLeagueDraftOrderModel(**draft_order.model_dump())
     with DatabaseConnection() as db:
-        db.merge(db_draft_order)
+        db.add(db_draft_order)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def get_fantasy_league_draft_order(
         fantasy_league_id: FantasyLeagueID) -> List[FantasyLeagueDraftOrder]:
     with DatabaseConnection() as db:
@@ -651,17 +634,16 @@ def get_fantasy_league_draft_order(
         return draft_orders
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def delete_fantasy_league_draft_order(draft_order: FantasyLeagueDraftOrder) -> None:
     with DatabaseConnection() as db:
         db_draft_order = db.query(FantasyLeagueDraftOrderModel)\
             .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == draft_order.fantasy_league_id,
                     FantasyLeagueDraftOrderModel.user_id == draft_order.user_id).first()
+        assert (db_draft_order is not None)
         db.delete(db_draft_order)
         db.commit()
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
 def update_fantasy_league_draft_order_position(
         draft_order: FantasyLeagueDraftOrder,
         new_position: int) -> None:
@@ -675,7 +657,7 @@ def update_fantasy_league_draft_order_position(
 # --------------------------------------------------
 # ------------ Fantasy Team Operations -------------
 # --------------------------------------------------
-def create_or_update_fantasy_team(fantasy_team: FantasyTeam) -> None:
+def put_fantasy_team(fantasy_team: FantasyTeam) -> None:
     db_fantasy_team = FantasyTeamModel(**fantasy_team.model_dump())
     with DatabaseConnection() as db:
         db.merge(db_fantasy_team)
@@ -693,8 +675,7 @@ def get_all_fantasy_teams_for_user(
         return fantasy_teams
 
 
-# TODO: !!! NEED TESTS FOR THIS METHOD !!!
-def get_all_fantasy_teams_for_current_week(
+def get_all_fantasy_teams_for_week(
         fantasy_league_id: FantasyLeagueID, week: int) -> List[FantasyTeam]:
     with DatabaseConnection() as db:
         fantasy_team_models = db.query(FantasyTeamModel) \

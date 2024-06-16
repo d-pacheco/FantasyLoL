@@ -46,7 +46,7 @@ class FantasyLeagueService:
         fantasy_league_scoring_settings = FantasyLeagueScoringSettings(
             fantasy_league_id=fantasy_league_id
         )
-        crud.create_fantasy_league_scoring_settings(fantasy_league_scoring_settings)
+        crud.put_fantasy_league_scoring_settings(fantasy_league_scoring_settings)
 
         create_fantasy_league_membership(
             fantasy_league_id, owner_id, FantasyLeagueMembershipStatus.ACCEPTED
@@ -138,7 +138,7 @@ class FantasyLeagueService:
 
         # Ensure that fantasy_league_id for the scoring settings is the one called by the endpoint
         scoring_settings.fantasy_league_id = fantasy_league_id
-        crud.update_fantasy_league_scoring_settings(scoring_settings)
+        crud.put_fantasy_league_scoring_settings(scoring_settings)
         return scoring_settings
 
     @staticmethod

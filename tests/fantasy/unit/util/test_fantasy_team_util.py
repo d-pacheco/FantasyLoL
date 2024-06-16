@@ -133,7 +133,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
         self.assertIn("Could not find draft position", str(context.exception))
         mock_get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_true(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -154,7 +154,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_too_few_fantasy_teams(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -175,7 +175,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_too_many_fantasy_teams(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # !!!!!!!!!  THIS SHOULD NEVER HAPPEN  !!!!!!!!!!
@@ -197,7 +197,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_team_missing_top_player(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -223,7 +223,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_team_missing_jungle_player(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -249,7 +249,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_team_missing_mid_player(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -275,7 +275,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_team_missing_adc_player(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
@@ -301,7 +301,7 @@ class TestFantasyTeamUtil(FantasyLolTestBase):
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_current_week')
+    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
     def test_all_teams_fully_drafted_team_missing_support_player(
             self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
         # Arrange
