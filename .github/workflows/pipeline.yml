@@ -31,6 +31,14 @@ jobs:
         run: |
           python -m flake8
 
+      - name: Check typing in src
+        run: |
+          python -m mypy src
+
+      - name: Check typing in tests
+        run: |
+          python -m mypy tests
+
   test:
     name: Run Python tests
     runs-on: ubuntu-latest

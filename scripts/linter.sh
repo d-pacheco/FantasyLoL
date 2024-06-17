@@ -11,4 +11,6 @@ elif [ "$1" == "--format" ]; then
 # Default case: run flake8 for static code analysis
 else
     python -m flake8
+    python -m mypy src
+    python -m mypy tests
 fi
