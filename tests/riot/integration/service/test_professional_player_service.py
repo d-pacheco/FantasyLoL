@@ -5,6 +5,7 @@ from src.riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 from src.riot.service.riot_professional_player_service import RiotProfessionalPlayerService
 from src.common.schemas.search_parameters import PlayerSearchParameters
+from src.common.schemas.riot_data_schemas import ProPlayerID
 
 
 def create_professional_player_service():
@@ -111,4 +112,4 @@ class ProfessionalPlayerServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(ProfessionalPlayerNotFoundException):
-            professional_player_service.get_player_by_id("777")
+            professional_player_service.get_player_by_id(ProPlayerID("777"))

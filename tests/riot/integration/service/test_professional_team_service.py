@@ -5,6 +5,7 @@ from src.riot.exceptions.professional_team_not_found_exception import \
     ProfessionalTeamNotFoundException
 from src.riot.service.riot_professional_team_service import RiotProfessionalTeamService
 from src.common.schemas.search_parameters import TeamSearchParameters
+from src.common.schemas.riot_data_schemas import ProTeamID
 
 
 def create_professional_team_service():
@@ -179,4 +180,4 @@ class ProfessionalTeamServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(ProfessionalTeamNotFoundException):
-            professional_team_service.get_team_by_id("777")
+            professional_team_service.get_team_by_id(ProTeamID("777"))

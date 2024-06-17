@@ -3,7 +3,7 @@ from tests.test_util import riot_data_util
 
 from src.riot.exceptions.game_not_found_exception import GameNotFoundException
 from src.riot.service.riot_game_service import RiotGameService
-from src.common.schemas.riot_data_schemas import GameState
+from src.common.schemas.riot_data_schemas import GameState, RiotGameID
 from src.common.schemas.search_parameters import GameSearchParameters
 
 
@@ -185,4 +185,4 @@ class GameServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(GameNotFoundException):
-            game_service.get_game_by_id("777")
+            game_service.get_game_by_id(RiotGameID("777"))

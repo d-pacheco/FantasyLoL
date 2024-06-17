@@ -7,8 +7,10 @@ from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
+    FantasyLeagueID,
     FantasyLeagueSettings,
-    FantasyLeagueStatus
+    FantasyLeagueStatus,
+    UserID
 )
 from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
 from src.fantasy.exceptions.forbidden_exception import ForbiddenException
@@ -29,8 +31,8 @@ class TestFantasyLeagueService(FantasyLolTestBase):
             mock_generate_new_valid_id: MagicMock,
             mock_get_fantasy_league_by_id: MagicMock):
         # Arrange
-        fantasy_league_id = str(uuid.uuid4())
-        owner_id = str(uuid.uuid4())
+        fantasy_league_id = FantasyLeagueID(str(uuid.uuid4()))
+        owner_id = UserID(str(uuid.uuid4()))
         fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
         expected_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
@@ -110,7 +112,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = fantasy_league
-        owner_id = str(uuid.uuid4())
+        owner_id = UserID(str(uuid.uuid4()))
         league_id = fantasy_league.id
         fantasy_league_service = FantasyLeagueService()
 
@@ -190,7 +192,7 @@ class TestFantasyLeagueService(FantasyLolTestBase):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         mock_get_fantasy_league_by_id.return_value = fantasy_league
-        owner_id = str(uuid.uuid4())
+        owner_id = UserID(str(uuid.uuid4()))
         league_id = fantasy_league.id
 
         updated_league_settings = FantasyLeagueSettings(

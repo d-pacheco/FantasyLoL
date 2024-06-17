@@ -1,6 +1,7 @@
 from src.riot.exceptions.match_not_found_exception import MatchNotFoundException
 from src.riot.service.riot_match_service import RiotMatchService
 from src.common.schemas.search_parameters import MatchSearchParameters
+from src.common.schemas.riot_data_schemas import RiotMatchID
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
@@ -97,4 +98,4 @@ class MatchServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(MatchNotFoundException):
-            match_service.get_match_by_id("777")
+            match_service.get_match_by_id(RiotMatchID("777"))

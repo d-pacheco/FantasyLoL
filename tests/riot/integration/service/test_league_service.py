@@ -1,22 +1,24 @@
 from copy import deepcopy
+from typing import Optional
 
 from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
-from src.riot.service.riot_league_service import RiotLeagueService
 from src.common.schemas.search_parameters import LeagueSearchParameters
-from src.common.schemas import riot_data_schemas as schemas
+from src.common.schemas.riot_data_schemas import League, RiotLeagueID
+from src.db import crud
+from src.riot.service.riot_league_service import RiotLeagueService
 
 from tests.test_base import FantasyLolTestBase
-from tests.test_util import db_util, riot_fixtures as fixtures
+from tests.test_util import riot_fixtures as fixtures
 
 
 def create_league_service():
     return RiotLeagueService()
 
 
-def create_league_in_db(league_fixture: schemas.League = None) -> schemas.League:
+def create_league_in_db(league_fixture: Optional[League] = None) -> League:
     if league_fixture is None:
         league_fixture = fixtures.league_1_fixture
-    db_util.save_league(league_fixture)
+    crud.put_league(league_fixture)
     return league_fixture
 
 
@@ -145,7 +147,7 @@ class LeagueServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(LeagueNotFoundException):
-            league_service.get_league_by_id("777")
+            league_service.get_league_by_id(RiotLeagueID("777"))
 
     def test_update_fantasy_available_to_true(self):
         # Arrange
@@ -194,4 +196,4 @@ class LeagueServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(LeagueNotFoundException):
-            league_service.update_fantasy_available("badId", new_status)
+            league_service.update_fantasy_available(RiotLeagueID("badId"), new_status)

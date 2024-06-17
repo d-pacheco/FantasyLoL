@@ -2,14 +2,23 @@ import uuid
 from copy import deepcopy
 
 from tests.test_base import FantasyLolTestBase
-from tests.test_util import db_util, fantasy_fixtures, riot_fixtures
+from tests.test_util import fantasy_fixtures, riot_fixtures
 
-from src.common.schemas.fantasy_schemas import FantasyLeagueMembership
-from src.common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
-from src.common.schemas.fantasy_schemas import FantasyLeagueStatus
-from src.common.schemas.fantasy_schemas import FantasyLeagueDraftOrder
-from src.common.schemas.riot_data_schemas import PlayerRole
-from src.common.schemas.riot_data_schemas import ProfessionalPlayer
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueID,
+    FantasyLeagueMembership,
+    FantasyLeagueMembershipStatus,
+    FantasyLeagueStatus,
+    FantasyLeagueDraftOrder,
+    UserID
+)
+
+from src.common.schemas.riot_data_schemas import (
+    PlayerRole,
+    ProfessionalPlayer,
+    ProPlayerID,
+    ProTeamID
+)
 
 from src.db import crud
 
@@ -25,16 +34,16 @@ from src.riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
 
 pro_player_fixture = ProfessionalPlayer(
-    id=str(uuid.uuid4()),
-    team_id=str(uuid.uuid4()),
+    id=ProPlayerID(str(uuid.uuid4())),
+    team_id=ProTeamID(str(uuid.uuid4())),
     summoner_name="summonerName1",
     image="imageUrl",
     role=PlayerRole.JUNGLE
 )
 
 pro_player_2_fixture = ProfessionalPlayer(
-    id=str(uuid.uuid4()),
-    team_id=str(uuid.uuid4()),
+    id=ProPlayerID(str(uuid.uuid4())),
+    team_id=ProTeamID(str(uuid.uuid4())),
     summoner_name="summonerName2",
     image="imageUrl2",
     role=PlayerRole.JUNGLE
@@ -49,9 +58,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
     # -------------------------------------
     def test_get_all_fantasy_team_weeks_successful(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -64,17 +73,17 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team_week_1 = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team_week_1.jungle_player_id = pro_player_fixture.id
-        db_util.create_fantasy_team(user_1_fantasy_team_week_1)
+        crud.put_fantasy_team(user_1_fantasy_team_week_1)
 
         user_1_fantasy_team_week_2 = deepcopy(fantasy_fixtures.fantasy_team_week_2)
         user_1_fantasy_team_week_2.jungle_player_id = pro_player_2_fixture.id
-        db_util.create_fantasy_team(user_1_fantasy_team_week_2)
+        crud.put_fantasy_team(user_1_fantasy_team_week_2)
 
         user_2_fantasy_team_week_1 = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team_week_1.user_id = fantasy_fixtures.user_2_fixture.id
-        db_util.create_fantasy_team(user_2_fantasy_team_week_1)
-        db_util.save_player(pro_player_fixture)
-        db_util.save_player(pro_player_2_fixture)
+        crud.put_fantasy_team(user_2_fantasy_team_week_1)
+        crud.put_player(pro_player_fixture)
+        crud.put_player(pro_player_2_fixture)
 
         expected_fantasy_team_weeks = [user_1_fantasy_team_week_1, user_1_fantasy_team_week_2]
 
@@ -92,17 +101,17 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_get_all_fantasy_team_weeks_league_not_found_exception(self):
         # Arrange
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_team_service.get_all_fantasy_team_weeks(
-                "badFantasyLeagueId", fantasy_fixtures.user_fixture.id
+                FantasyLeagueID("badFantasyLeagueId"), fantasy_fixtures.user_fixture.id
             )
 
     def test_get_all_fantasy_team_weeks_not_valid_required_fantasy_league_state(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
@@ -113,8 +122,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_get_all_fantasy_team_weeks_user_not_an_active_member(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -130,8 +139,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_get_all_fantasy_team_weeks_user_has_no_membership(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyMembershipException):
@@ -150,11 +159,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
         fantasy_league.current_draft_position = 1
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
-        db_util.create_user(user_1)
-        db_util.create_user(user_2)
+        crud.create_user(user_1)
+        crud.create_user(user_2)
         create_fantasy_league_membership_for_league(
             fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
         )
@@ -167,11 +176,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.fantasy_league_id = fantasy_league.id
         user_1_fantasy_team.week = fantasy_league.current_week
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(user_1_fantasy_team)
         user_2_fantasy_team.user_id = user_2.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         expected_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         expected_fantasy_team.fantasy_league_id = fantasy_league.id
@@ -196,7 +205,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
         self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
-        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        db_fantasy_league = crud.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(
             fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
         )
@@ -207,11 +216,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
-        db_util.create_user(user_1)
-        db_util.create_user(user_2)
+        crud.create_user(user_1)
+        crud.create_user(user_2)
         create_fantasy_league_membership_for_league(
             fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
         )
@@ -224,7 +233,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team.fantasy_league_id = fantasy_league.id
         user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         expected_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         expected_fantasy_team.fantasy_league_id = fantasy_league.id
@@ -249,7 +258,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
         self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
-        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        db_fantasy_league = crud.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(
             fantasy_league.current_draft_position + 1, db_fantasy_league.current_draft_position
         )
@@ -263,7 +272,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         fantasy_league.current_week = 0
         fantasy_league.current_draft_position = fantasy_league.number_of_teams
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
 
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
@@ -272,7 +281,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         users = [user_1, user_2, user_3, user_4]
         draft_position = 1
         for user in users:
-            db_util.create_user(user)
+            crud.create_user(user)
             create_fantasy_league_membership_for_league(
                 fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
             )
@@ -286,7 +295,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
             if user.id == user_4.id:  # Set the user 4 to have an empty spot for the draft call
                 user_fantasy_team.top_player_id = None
-            db_util.create_fantasy_team(user_fantasy_team)
+            crud.put_fantasy_team(user_fantasy_team)
 
         # Act
         returned_fantasy_team = fantasy_team_service.pickup_player(
@@ -295,7 +304,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
         # Assert
         self.assertEqual(riot_fixtures.player_1_fixture.id, returned_fantasy_team.top_player_id)
-        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        db_fantasy_league = crud.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(1, db_fantasy_league.current_draft_position)
         self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
 
@@ -304,11 +313,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
-        db_util.create_user(user_1)
-        db_util.create_user(user_2)
+        crud.create_user(user_1)
+        crud.create_user(user_2)
         create_fantasy_league_membership_for_league(
             fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
         )
@@ -317,11 +326,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
 
         user_1_fantasy_team = fantasy_fixtures.fantasy_team_week_1
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(user_1_fantasy_team)
         user_2_fantasy_team.user_id = user_2.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         expected_fantasy_team = deepcopy(user_1_fantasy_team)
         expected_fantasy_team.top_player_id = riot_fixtures.player_1_fixture.id
@@ -344,7 +353,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         self.assertEqual(1, len(user_2_fantasy_teams_from_db))
         self.assertEqual(user_2_fantasy_team, user_2_fantasy_teams_from_db[0])
-        db_fantasy_league = db_util.get_fantasy_league_by_id(fantasy_league.id)
+        db_fantasy_league = crud.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(FantasyLeagueStatus.ACTIVE, db_fantasy_league.status)
 
     def test_pickup_player_not_users_current_draft_position_exception(self):
@@ -353,12 +362,12 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
         fantasy_league.current_draft_position = 2
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
 
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
-        db_util.create_user(user_1)
-        db_util.create_user(user_2)
+        crud.create_user(user_1)
+        crud.create_user(user_2)
 
         create_fantasy_league_membership_for_league(
             fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
@@ -373,11 +382,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.fantasy_league_id = fantasy_league.id
         user_1_fantasy_team.week = fantasy_league.current_week
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(user_1_fantasy_team)
         user_2_fantasy_team.user_id = user_2.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -396,14 +405,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = []
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
             FantasyLeagueMembershipStatus.ACCEPTED
         )
-        db_util.create_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
+        crud.put_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -419,14 +428,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_2_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
             FantasyLeagueMembershipStatus.ACCEPTED
         )
-        db_util.create_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
+        crud.put_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -442,8 +451,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -451,7 +460,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.top_player_id = "somePlayerId"
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -467,9 +476,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -480,11 +489,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_fixtures.user_2_fixture.id,
             FantasyLeagueMembershipStatus.ACCEPTED
         )
-        db_util.create_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
+        crud.put_fantasy_team(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
         user_2_fantasy_team.top_player_id = riot_fixtures.player_1_fixture.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -497,13 +506,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_pickup_player_fantasy_league_not_found_exception(self):
         # Arrange
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_team_service.pickup_player(
-                "badFantasyLeagueId",
+                FantasyLeagueID("badFantasyLeagueId"),
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id
             )
@@ -515,15 +524,15 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             FantasyLeagueStatus.COMPLETED,
             FantasyLeagueStatus.DELETED
         ]
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
 
         # Act and Assert
         for bad_state in bad_states:
             bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
-            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.id = FantasyLeagueID(str(uuid.uuid4()))
             bad_fantasy_league.status = bad_state
-            db_util.create_fantasy_league(bad_fantasy_league)
+            crud.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.pickup_player(
                     bad_fantasy_league.id,
@@ -536,8 +545,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -557,8 +566,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -570,7 +579,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_team_service.pickup_player(
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
-                "badProPlayerId"
+                ProPlayerID("badProPlayerId")
             )
 
     # -------------------------------------
@@ -579,9 +588,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_drop_player_successful(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -594,13 +603,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = pro_player_fixture.id
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
         user_2_fantasy_team.jungle_player_id = "someOtherPlayerId"
-        db_util.create_fantasy_team(user_2_fantasy_team)
-        db_util.save_player(pro_player_fixture)
+        crud.put_fantasy_team(user_2_fantasy_team)
+        crud.put_player(pro_player_fixture)
 
         expected_fantasy_team = deepcopy(user_1_fantasy_team)
         expected_fantasy_team.jungle_player_id = None
@@ -628,8 +637,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_drop_player_user_does_not_have_player_drafted_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -637,8 +646,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = "someOtherPlayerId"
-        db_util.create_fantasy_team(user_1_fantasy_team)
-        db_util.save_player(pro_player_fixture)
+        crud.put_fantasy_team(user_1_fantasy_team)
+        crud.put_player(pro_player_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -651,13 +660,13 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_drop_player_fantasy_league_not_found_exception(self):
         # Arrange
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_team_service.drop_player(
-                "badFantasyLeagueId",
+                FantasyLeagueID("badFantasyLeagueId"),
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id
             )
@@ -670,15 +679,15 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             FantasyLeagueStatus.COMPLETED,
             FantasyLeagueStatus.DELETED
         ]
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
 
         # Act and Assert
         for bad_state in bad_states:
             bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
-            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.id = FantasyLeagueID(str(uuid.uuid4()))
             bad_fantasy_league.status = bad_state
-            db_util.create_fantasy_league(bad_fantasy_league)
+            crud.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.drop_player(
                     bad_fantasy_league.id,
@@ -688,9 +697,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_drop_player_user_not_an_active_member_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -707,8 +716,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_drop_player_professional_player_not_found_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -720,7 +729,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_team_service.drop_player(
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
-                "badProPlayerId"
+                ProPlayerID("badProPlayerId")
             )
 
     # -------------------------------------
@@ -732,9 +741,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.create_user(fantasy_fixtures.user_2_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -749,12 +758,12 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         jungle_player_2 = riot_fixtures.player_7_fixture
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = jungle_player_1.id
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team.user_id = fantasy_fixtures.user_2_fixture.id
         user_2_fantasy_team.jungle_player_id = "someOtherJunglePlayerId"
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         expected_fantasy_team = deepcopy(user_1_fantasy_team)
         expected_fantasy_team.jungle_player_id = jungle_player_2.id
@@ -787,8 +796,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -798,7 +807,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         player_2 = riot_fixtures.player_2_fixture
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = player_2.id
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -816,8 +825,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -827,7 +836,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         jungle_player_2 = riot_fixtures.player_7_fixture
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = "someOtherPlayerId"
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -845,11 +854,11 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = [riot_fixtures.league_1_fixture.id]
-        db_util.create_fantasy_league(fantasy_league)
+        crud.create_fantasy_league(fantasy_league)
         user_1 = fantasy_fixtures.user_fixture
         user_2 = fantasy_fixtures.user_2_fixture
-        db_util.create_user(user_1)
-        db_util.create_user(user_2)
+        crud.create_user(user_1)
+        crud.create_user(user_2)
         create_fantasy_league_membership_for_league(
             fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
         )
@@ -858,12 +867,12 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = riot_fixtures.player_2_fixture.id
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         user_2_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_2_fantasy_team.user_id = user_2.id
         user_2_fantasy_team.jungle_player_id = riot_fixtures.player_7_fixture.id
-        db_util.create_fantasy_team(user_2_fantasy_team)
+        crud.put_fantasy_team(user_2_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -892,8 +901,8 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         setup_league_team_player_date()
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         fantasy_league.available_leagues = ["12345"]
-        db_util.create_fantasy_league(fantasy_league)
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_fantasy_league(fantasy_league)
+        crud.create_user(fantasy_fixtures.user_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_league.id,
             fantasy_fixtures.user_fixture.id,
@@ -901,7 +910,7 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
         )
         user_1_fantasy_team = deepcopy(fantasy_fixtures.fantasy_team_week_1)
         user_1_fantasy_team.jungle_player_id = riot_fixtures.player_2_fixture.id
-        db_util.create_fantasy_team(user_1_fantasy_team)
+        crud.put_fantasy_team(user_1_fantasy_team)
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
@@ -915,14 +924,14 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_swap_players_fantasy_league_not_found_exception(self):
         # Arrange
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
-        db_util.save_player(pro_player_2_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
+        crud.put_player(pro_player_2_fixture)
 
         # Act and Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             fantasy_team_service.swap_players(
-                "badFantasyLeagueId",
+                FantasyLeagueID("badFantasyLeagueId"),
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id,
                 pro_player_2_fixture.id
@@ -936,16 +945,16 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             FantasyLeagueStatus.COMPLETED,
             FantasyLeagueStatus.DELETED
         ]
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
-        db_util.save_player(pro_player_2_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
+        crud.put_player(pro_player_2_fixture)
 
         # Act and Assert
         for bad_state in bad_states:
             bad_fantasy_league = fantasy_fixtures.fantasy_league_fixture.model_copy(deep=True)
-            bad_fantasy_league.id = str(uuid.uuid4())
+            bad_fantasy_league.id = FantasyLeagueID(str(uuid.uuid4()))
             bad_fantasy_league.status = bad_state
-            db_util.create_fantasy_league(bad_fantasy_league)
+            crud.create_fantasy_league(bad_fantasy_league)
             with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
                 fantasy_team_service.swap_players(
                     bad_fantasy_league.id,
@@ -956,10 +965,10 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_swap_players_user_not_an_active_member_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
-        db_util.save_player(pro_player_2_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
+        crud.put_player(pro_player_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -977,9 +986,9 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
 
     def test_swap_players_professional_player_to_drop_not_found_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_2_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_2_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -991,15 +1000,15 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
             fantasy_team_service.swap_players(
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
-                "badProPlayerId",
+                ProPlayerID("badProPlayerId"),
                 pro_player_2_fixture.id
             )
 
     def test_swap_players_professional_player_to_pickup_not_found_exception(self):
         # Arrange
-        db_util.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
-        db_util.create_user(fantasy_fixtures.user_fixture)
-        db_util.save_player(pro_player_fixture)
+        crud.create_fantasy_league(fantasy_fixtures.fantasy_league_active_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
+        crud.put_player(pro_player_fixture)
         create_fantasy_league_membership_for_league(
             fantasy_fixtures.fantasy_league_active_fixture.id,
             fantasy_fixtures.user_fixture.id,
@@ -1012,34 +1021,35 @@ class FantasyTeamServiceIntegrationTest(FantasyLolTestBase):
                 fantasy_fixtures.fantasy_league_active_fixture.id,
                 fantasy_fixtures.user_fixture.id,
                 pro_player_fixture.id,
-                "badProPlayerId"
+                ProPlayerID("badProPlayerId")
             )
 
 
 def create_fantasy_league_membership_for_league(
-        league_id: str, user_id: str, status: FantasyLeagueMembershipStatus):
+        league_id: FantasyLeagueID, user_id: UserID, status: FantasyLeagueMembershipStatus):
     fantasy_league_membership = FantasyLeagueMembership(
         league_id=league_id,
         user_id=user_id,
         status=status
     )
-    db_util.create_fantasy_league_membership(fantasy_league_membership)
+    crud.create_fantasy_league_membership(fantasy_league_membership)
 
 
-def create_fantasy_league_draft_position(fantasy_league_id: str, user_id: str, position: int):
+def create_fantasy_league_draft_position(
+        fantasy_league_id: FantasyLeagueID, user_id: UserID, position: int):
     fantasy_league_draft_order = FantasyLeagueDraftOrder(
         fantasy_league_id=fantasy_league_id,
         user_id=user_id,
         position=position
     )
-    db_util.create_fantasy_league_draft_order(fantasy_league_draft_order)
+    crud.create_fantasy_league_draft_order(fantasy_league_draft_order)
 
 
 def setup_league_team_player_date():
-    db_util.save_league(riot_fixtures.league_1_fixture)
-    db_util.save_league(riot_fixtures.league_2_fixture)
-    db_util.save_team(riot_fixtures.team_1_fixture)
-    db_util.save_team(riot_fixtures.team_2_fixture)
-    db_util.save_player(riot_fixtures.player_1_fixture)
-    db_util.save_player(riot_fixtures.player_2_fixture)
-    db_util.save_player(riot_fixtures.player_7_fixture)
+    crud.put_league(riot_fixtures.league_1_fixture)
+    crud.put_league(riot_fixtures.league_2_fixture)
+    crud.put_team(riot_fixtures.team_1_fixture)
+    crud.put_team(riot_fixtures.team_2_fixture)
+    crud.put_player(riot_fixtures.player_1_fixture)
+    crud.put_player(riot_fixtures.player_2_fixture)
+    crud.put_player(riot_fixtures.player_7_fixture)
