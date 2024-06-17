@@ -3,7 +3,9 @@ import uuid
 import copy
 
 from tests.test_base import FantasyLolTestBase
-from tests.test_util import db_util, fantasy_fixtures
+from tests.test_util import fantasy_fixtures
+
+from src.db import crud
 
 from src.fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
 from src.fantasy.exceptions.invalid_username_password_exception import \
@@ -22,7 +24,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         user_service.user_signup(user_create_fixture)
 
         # Assert
-        user_model_from_db = db_util.get_user_by_username(user_create_fixture.username)
+        user_model_from_db = crud.get_user_by_username(user_create_fixture.username)
         self.assertIsNotNone(user_model_from_db)
         user_from_db = fantasy_schemas.User.model_validate(user_model_from_db)
         self.assertTrue(uuid.UUID(user_from_db.id, version=4))
@@ -37,7 +39,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         modified_user_create = copy.deepcopy(fantasy_fixtures.user_create_fixture)
         modified_user_create.email = "random_email@email.com"
         user_fixture = fantasy_fixtures.user_fixture
-        db_util.create_user(user_fixture)
+        crud.create_user(user_fixture)
         user_service = UserService()
 
         # Act and Assert
@@ -51,7 +53,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         modified_user_create = copy.deepcopy(fantasy_fixtures.user_create_fixture)
         modified_user_create.username = "randomUsername"
         user_fixture = fantasy_fixtures.user_fixture
-        db_util.create_user(user_fixture)
+        crud.create_user(user_fixture)
         user_service = UserService()
 
         # Act and Assert
@@ -63,7 +65,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
     def test_user_login_successful(self):
         # Arrange
         login_credentials = fantasy_fixtures.user_login_fixture
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         user_service = UserService
 
         # Act
@@ -77,7 +79,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         # Arrange
         login_credentials = copy.deepcopy(fantasy_fixtures.user_login_fixture)
         login_credentials.username = "badUsername"
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         user_service = UserService()
 
         # Act and Assert
@@ -89,7 +91,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         # Arrange
         login_credentials = copy.deepcopy(fantasy_fixtures.user_login_fixture)
         login_credentials.password = "badPassword"
-        db_util.create_user(fantasy_fixtures.user_fixture)
+        crud.create_user(fantasy_fixtures.user_fixture)
         user_service = UserService()
 
         # Act and Assert

@@ -4,9 +4,11 @@ from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueID,
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
-    FantasyTeam
+    FantasyTeam,
+    UserID
 )
 from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
 from src.fantasy.service.fantasy_team_service import (
@@ -29,20 +31,24 @@ class TestFantasyTeamService(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyMembershipException):
-            validate_user_membership("someUserId", "someId")
+            validate_user_membership(UserID("someUserId"), FantasyLeagueID("someId"))
 
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
     def test_validate_user_membership_no_active_membership(
             self, mock_get_user_membership: MagicMock):
         # Arrange
+        fantasy_league_id = FantasyLeagueID("someFantasyLeagueId")
+        user_id = UserID("someUserId")
         user_membership = FantasyLeagueMembership(
-            league_id="someId", user_id="someUserId", status=FantasyLeagueMembershipStatus.PENDING
+            league_id=fantasy_league_id,
+            user_id=user_id,
+            status=FantasyLeagueMembershipStatus.PENDING
         )
         mock_get_user_membership.return_value = user_membership
 
         # Act and Assert
         with self.assertRaises(FantasyMembershipException):
-            validate_user_membership("someUserId", "someId")
+            validate_user_membership(user_id, fantasy_league_id)
 
     @patch(f'{BASE_CRUD_PATH}.get_player_by_id')
     def test_get_player_from_db_successful(self, mock_get_player_by_id: MagicMock):

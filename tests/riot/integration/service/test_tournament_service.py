@@ -3,7 +3,7 @@ from tests.test_util import riot_data_util
 
 from src.riot.exceptions.tournament_not_found_exception import TournamentNotFoundException
 from src.riot.service.riot_tournament_service import RiotTournamentService
-from src.common.schemas.riot_data_schemas import TournamentStatus
+from src.common.schemas.riot_data_schemas import TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
 
 
@@ -135,4 +135,4 @@ class TournamentServiceTest(FantasyLolTestBase):
 
         # Act and Assert
         with self.assertRaises(TournamentNotFoundException):
-            tournament_service.get_tournament_by_id("777")
+            tournament_service.get_tournament_by_id(RiotTournamentID("777"))
