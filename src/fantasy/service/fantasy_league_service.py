@@ -19,7 +19,6 @@ from ...common.schemas.fantasy_schemas import (
 from ..exceptions.fantasy_league_invite_exception import FantasyLeagueInviteException
 from ..exceptions.fantasy_league_settings_exception import FantasyLeagueSettingsException
 from ..exceptions.fantasy_league_start_draft_exception import FantasyLeagueStartDraftException
-from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..exceptions.forbidden_exception import ForbiddenException
 from ..exceptions.user_not_found_exception import UserNotFoundException
 from ..util.fantasy_league_util import FantasyLeagueUtil
