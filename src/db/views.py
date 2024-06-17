@@ -7,7 +7,7 @@ from ..common.schemas.riot_data_schemas import PlayerRole
 Base = declarative_base()
 
 
-class PlayerGameView(Base):
+class PlayerGameView(Base):  # type: ignore
     __tablename__ = "player_game_view"
 
     game_id = Column(String, primary_key=True)
