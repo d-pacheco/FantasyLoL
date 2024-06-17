@@ -22,7 +22,7 @@ Base = declarative_base()
 # --------------------------------------------------
 # ---------------- Riot Data Models ----------------
 # --------------------------------------------------
-class LeagueModel(Base):
+class LeagueModel(Base):  # type: ignore
     __tablename__ = "leagues"
 
     id = Column(String, primary_key=True, index=True)
@@ -34,7 +34,7 @@ class LeagueModel(Base):
     fantasy_available = Column(Boolean)
 
 
-class TournamentModel(Base):
+class TournamentModel(Base):  # type: ignore
     __tablename__ = "tournaments"
 
     id = Column(String, primary_key=True, index=True)
@@ -44,7 +44,7 @@ class TournamentModel(Base):
     league_id = Column(String, ForeignKey("leagues.id"))
 
 
-class MatchModel(Base):
+class MatchModel(Base):  # type: ignore
     __tablename__ = "matches"
 
     id = Column(String, primary_key=True, index=True)
@@ -58,7 +58,7 @@ class MatchModel(Base):
     team_2_name = Column(String)
 
 
-class GameModel(Base):
+class GameModel(Base):  # type: ignore
     __tablename__ = "games"
 
     id = Column(String, primary_key=True, index=True)
@@ -68,7 +68,7 @@ class GameModel(Base):
     has_game_data = Column(Boolean, default=True)
 
 
-class ProfessionalTeamModel(Base):
+class ProfessionalTeamModel(Base):  # type: ignore
     __tablename__ = "professional_teams"
 
     id = Column(String, primary_key=True, index=True)
@@ -82,7 +82,7 @@ class ProfessionalTeamModel(Base):
     home_league = Column(String)
 
 
-class ProfessionalPlayerModel(Base):
+class ProfessionalPlayerModel(Base):  # type: ignore
     __tablename__ = "professional_players"
 
     id = Column(String, primary_key=True)
@@ -96,7 +96,7 @@ class ProfessionalPlayerModel(Base):
     )
 
 
-class PlayerGameMetadataModel(Base):
+class PlayerGameMetadataModel(Base):  # type: ignore
     __tablename__ = "player_game_metadata"
 
     game_id = Column(String, primary_key=True)
@@ -110,7 +110,7 @@ class PlayerGameMetadataModel(Base):
     )
 
 
-class PlayerGameStatsModel(Base):
+class PlayerGameStatsModel(Base):  # type: ignore
     __tablename__ = "player_game_stats"
 
     game_id = Column(String, primary_key=True)
@@ -130,7 +130,7 @@ class PlayerGameStatsModel(Base):
     )
 
 
-class ScheduleModel(Base):
+class ScheduleModel(Base):  # type: ignore
     __tablename__ = "schedule"
 
     schedule_name = Column(String, primary_key=True)
@@ -141,7 +141,7 @@ class ScheduleModel(Base):
 # --------------------------------------------------
 # ----------------- Fantasy Models -----------------
 # --------------------------------------------------
-class UserModel(Base):
+class UserModel(Base):  # type: ignore
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()),
@@ -151,7 +151,7 @@ class UserModel(Base):
     password = Column(String, nullable=False)
 
 
-class FantasyLeagueModel(Base):
+class FantasyLeagueModel(Base):  # type: ignore
     __tablename__ = "fantasy_leagues"
 
     id = Column(String, primary_key=True, unique=True, nullable=False)
@@ -164,7 +164,7 @@ class FantasyLeagueModel(Base):
     available_leagues = Column(JSON)
 
 
-class FantasyLeagueMembershipModel(Base):
+class FantasyLeagueMembershipModel(Base):  # type: ignore
     __tablename__ = "fantasy_league_memberships"
 
     league_id = Column(String, primary_key=True, nullable=False)
@@ -176,7 +176,7 @@ class FantasyLeagueMembershipModel(Base):
     )
 
 
-class FantasyLeagueScoringSettingModel(Base):
+class FantasyLeagueScoringSettingModel(Base):  # type: ignore
     __tablename__ = "fantasy_league_scoring_settings"
 
     fantasy_league_id = Column(String, primary_key=True, nullable=False)
@@ -190,7 +190,7 @@ class FantasyLeagueScoringSettingModel(Base):
     damage_percentage = Column(Integer, nullable=False)
 
 
-class FantasyLeagueDraftOrderModel(Base):
+class FantasyLeagueDraftOrderModel(Base):  # type: ignore
     __tablename__ = "fantasy_league_draft_order"
 
     fantasy_league_id = Column(String, primary_key=True, nullable=False)
@@ -202,7 +202,7 @@ class FantasyLeagueDraftOrderModel(Base):
     )
 
 
-class FantasyTeamModel(Base):
+class FantasyTeamModel(Base):  # type: ignore
     __tablename__ = "fantasy_teams"
 
     fantasy_league_id = Column(String, primary_key=True, nullable=False)

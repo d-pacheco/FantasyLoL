@@ -345,6 +345,18 @@ def put_player_metadata(player_metadata: PlayerGameMetadata) -> None:
         db.commit()
 
 
+def get_player_metadata(
+        player_id: ProPlayerID, game_id: RiotGameID) -> Optional[PlayerGameMetadata]:
+    with DatabaseConnection() as db:
+        player_metadata = db.query(PlayerGameMetadataModel) \
+            .filter(PlayerGameMetadataModel.player_id == player_id,
+                    PlayerGameMetadataModel.game_id == game_id).first()
+        if player_metadata is None:
+            return None
+        else:
+            return PlayerGameMetadata.model_validate(player_metadata)
+
+
 def get_game_ids_without_player_metadata() -> List[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
@@ -371,6 +383,17 @@ def put_player_stats(player_stats: PlayerGameStats) -> None:
     with DatabaseConnection() as db:
         db.merge(db_player_stats)
         db.commit()
+
+
+def get_player_stats(game_id: RiotGameID, participant_id: int) -> Optional[PlayerGameStats]:
+    with DatabaseConnection() as db:
+        player_game_stats = db.query(PlayerGameStatsModel) \
+            .filter(PlayerGameStatsModel.game_id == game_id,
+                    PlayerGameStatsModel.participant_id == participant_id).first()
+        if player_game_stats is None:
+            return None
+        else:
+            return PlayerGameStats.model_validate(player_game_stats)
 
 
 def get_game_ids_to_fetch_player_stats_for() -> List[RiotGameID]:
