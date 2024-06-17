@@ -62,15 +62,6 @@ class RiotApiRequestUtil:
     mocked_player_4_id = str(random.randint(100000, 999999))
     mocked_player_5_id = str(random.randint(100000, 999999))
 
-    def create_mock_game(self):
-        mock_game_attrs = {
-            "id": int(self.mock_game_2_id),
-            "state": "inProgress",
-            "number": 2,
-            "match_id": int(self.mock_match_id),
-        }
-        return GameModel(**mock_game_attrs)
-
     def create_mock_live_game_response(self):
         response = {
             "data": {

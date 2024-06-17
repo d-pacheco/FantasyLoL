@@ -29,13 +29,20 @@ class AppConfig:
     ESPORTS_FEED_URL: str = "https://feed.lolesports.com/livestats/v1"
 
     # Job schedules:
-    LEAGUE_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "00"}'
-    TOURNAMENT_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "05"}'
-    TEAM_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "10"}'
-    PLAYER_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "hour": "10", "minute": "15"}'
-    MATCH_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "30"}'
-    GAME_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "45"}'
-    GAME_STATS_SERVICE_SCHEDULE: dict = '{"trigger": "cron", "minute": "*/5"}'
+    LEAGUE_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "hour": "10", "minute": "00"}'  # type: ignore
+    TOURNAMENT_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "hour": "10", "minute": "05"}'  # type: ignore
+    TEAM_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "hour": "10", "minute": "10"}'  # type: ignore
+    PLAYER_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "hour": "10", "minute": "15"}'  # type: ignore
+    MATCH_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "minute": "30"}'  # type: ignore
+    GAME_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "minute": "45"}'  # type: ignore
+    GAME_STATS_SERVICE_SCHEDULE: dict = \
+        '{"trigger": "cron", "minute": "*/5"}'  # type: ignore
 
     def __init__(self, env):
         for field in self.__annotations__:

@@ -18,7 +18,7 @@ class FantasyLolTestBase(unittest.TestCase):
             def setUpOverride(self, *args, **kwargs):
                 FantasyLolTestBase.setUp(self)
                 return orig_setUp(self, *args, **kwargs)
-            cls.setUp = setUpOverride
+            cls.setUp = setUpOverride  # type: ignore
 
     def setUp(self):
         logging.disable()

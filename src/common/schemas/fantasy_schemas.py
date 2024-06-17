@@ -30,7 +30,7 @@ class User(BaseModel):
     id: UserID
     username: str
     email: str
-    password: str
+    password: bytes
 
 
 class FantasyLeagueScoringSettings(BaseModel):
