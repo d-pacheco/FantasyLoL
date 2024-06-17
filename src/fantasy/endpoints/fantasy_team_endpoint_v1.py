@@ -23,7 +23,7 @@ fantasy_team_service = FantasyTeamService()
 def get_fantasy_team_weeks_for_league(
         fantasy_league_id: FantasyLeagueID,
         decoded_token: dict = Depends(JWTBearer())) -> List[FantasyTeam]:
-    user_id = UserID(decoded_token.get("user_id"))
+    user_id = UserID(decoded_token.get("user_id"))  # type: ignore
     return fantasy_team_service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
 
 
@@ -37,7 +37,7 @@ def pickup_player(
         fantasy_league_id: FantasyLeagueID,
         player_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
-    user_id = UserID(decoded_token.get("user_id"))
+    user_id = UserID(decoded_token.get("user_id"))  # type: ignore
     return fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
 
 
@@ -51,7 +51,7 @@ def drop_player(
         fantasy_league_id: FantasyLeagueID,
         player_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
-    user_id = UserID(decoded_token.get("user_id"))
+    user_id = UserID(decoded_token.get("user_id"))  # type: ignore
     return fantasy_team_service.drop_player(fantasy_league_id, user_id, player_id)
 
 
@@ -66,7 +66,7 @@ def swap_players(
         player_to_drop_id: ProPlayerID,
         player_to_pickup_id: ProPlayerID,
         decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
-    user_id = UserID(decoded_token.get("user_id"))
+    user_id = UserID(decoded_token.get("user_id"))  # type: ignore
     return fantasy_team_service.swap_players(
         fantasy_league_id, user_id, player_to_drop_id, player_to_pickup_id
     )

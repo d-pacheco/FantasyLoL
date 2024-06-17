@@ -123,6 +123,7 @@ class FantasyLeagueService:
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
         scoring_settings = crud.get_fantasy_league_scoring_settings_by_id(league_id)
+        assert (scoring_settings is not None)
         return scoring_settings
 
     @staticmethod
@@ -264,6 +265,8 @@ class FantasyLeagueService:
         current_draft_order = crud.get_fantasy_league_draft_order(league_id)
         for draft_position in current_draft_order:
             user = crud.get_user_by_id(draft_position.user_id)
+            if user is None:
+                raise UserNotFoundException()
             new_draft_order_response = FantasyLeagueDraftOrderResponse(
                 user_id=user.id, username=user.username, position=draft_position.position
             )

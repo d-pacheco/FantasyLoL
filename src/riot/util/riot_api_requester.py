@@ -1,5 +1,5 @@
 from http import HTTPStatus
-import cloudscraper
+import cloudscraper  # type: ignore
 import logging
 from typing import List, Optional
 

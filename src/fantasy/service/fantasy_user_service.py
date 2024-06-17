@@ -59,7 +59,7 @@ class UserService:
             raise InvalidUsernameOrPasswordException()
 
         passwords_match = bcrypt.checkpw(
-            user_credentials.password.encode(), str.encode(user.password)
+            user_credentials.password.encode(), user.password
         )
         if not passwords_match:
             raise InvalidUsernameOrPasswordException()

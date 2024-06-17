@@ -6,8 +6,6 @@ fastapi_pagination
 uvicorn
 httpx==0.23.2
 python-dotenv
-flake8==6.1.0
-autopep8==2.0.4
 requests
 pydantic
 pytz

@@ -50,6 +50,7 @@ class FantasyLeagueUtil:
 
     @staticmethod
     def update_fantasy_leagues_current_draft_position(fantasy_league: FantasyLeague) -> None:
+        assert (fantasy_league.current_draft_position is not None)
         if fantasy_league.current_draft_position + 1 <= fantasy_league.number_of_teams:
             new_draft_position = fantasy_league.current_draft_position + 1
         else:

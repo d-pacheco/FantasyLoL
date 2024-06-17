@@ -9,7 +9,8 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
     FantasyLeagueStatus,
-    FantasyLeagueID
+    FantasyLeagueID,
+    UserID
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID
 from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
@@ -223,7 +224,7 @@ class TestFantasyLeagueUtil(FantasyLolTestBase):
         mock_get_fantasy_league_by_id.return_value = fantasy_league
         mock_get_fantasy_league_draft_order.return_value = [
             FantasyLeagueDraftOrder(
-                fantasy_league_id=fantasy_league.id, user_id="someOtherId", position=1
+                fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherId"), position=1
             )
         ]
         expected_draft_order_entry = FantasyLeagueDraftOrder(

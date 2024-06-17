@@ -31,7 +31,7 @@ class UserServiceIntegrationTest(FantasyLolTestBase):
         self.assertEqual(user_from_db.username, user_create_fixture.username)
         self.assertEqual(user_from_db.email, user_create_fixture.email)
         self.assertTrue(bcrypt.checkpw(
-            str.encode(user_create_fixture.password), str.encode(user_from_db.password)
+            str.encode(user_create_fixture.password), user_from_db.password
         ))
 
     def test_user_signup_username_already_in_use_exception(self):

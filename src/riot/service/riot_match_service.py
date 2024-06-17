@@ -83,6 +83,7 @@ class RiotMatchService:
 
     def backprop_older_schedules(self):
         entire_schedule = crud.get_schedule("entire_schedule")
+        assert (entire_schedule is not None)
         older_page_token = entire_schedule.older_token_key
 
         no_more_schedules = False
@@ -94,6 +95,7 @@ class RiotMatchService:
             for match in fetched_matches:
                 crud.put_match(match)
             schedule_pages = self.riot_api_requester.get_pages_from_schedule(older_page_token)
+            assert (schedule_pages is not None)
             older_page_token = schedule_pages.older_token_key
 
             entire_schedule.older_token_key = older_page_token
