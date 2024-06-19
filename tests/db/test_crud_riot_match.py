@@ -221,5 +221,3 @@ class TestCrudRiotMatch(FantasyLolTestBase):
 
         with self.assertRaises(AssertionError):
             crud.update_match_has_games(RiotMatchID("123"), new_has_games)
-
-

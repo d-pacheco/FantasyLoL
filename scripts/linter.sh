@@ -8,7 +8,11 @@ if [ "$1" == "--files" ]; then
 elif [ "$1" == "--format" ]; then
     # Run autopep8 in place to format files
     python -m autopep8 --in-place --recursive .
-# Default case: run flake8 for static code analysis
+elif [ "$1" == "--flake8" ]; then
+    python -m flake8
+elif [ "$1" == "--mypy" ]; then
+    python -m mypy src
+    python -m mypy tests
 else
     python -m flake8
     python -m mypy src

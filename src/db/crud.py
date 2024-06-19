@@ -636,9 +636,9 @@ def get_users_fantasy_leagues_with_membership_status(
             .join(FantasyLeagueMembershipModel,
                   FantasyLeagueModel.id == FantasyLeagueMembershipModel.league_id) \
             .filter(and_(
-            FantasyLeagueMembershipModel.user_id == user_id,
-            FantasyLeagueMembershipModel.status == membership_status
-        )).all()
+                FantasyLeagueMembershipModel.user_id == user_id,
+                FantasyLeagueMembershipModel.status == membership_status
+            )).all()
         fantasy_leagues = [FantasyLeague.model_validate(fantasy_league_model)
                            for fantasy_league_model in fantasy_league_models]
         return fantasy_leagues
