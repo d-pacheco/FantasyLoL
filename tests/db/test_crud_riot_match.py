@@ -1,4 +1,4 @@
-from src.common.schemas.riot_data_schemas import Match
+from src.common.schemas.riot_data_schemas import Match, RiotMatchID
 from src.db import crud
 from src.db.models import MatchModel
 from tests.test_base import FantasyLolTestBase
@@ -150,31 +150,74 @@ class TestCrudRiotMatch(FantasyLolTestBase):
 
     def test_get_match_ids_without_games_matches_with_no_games(self):
         # Arrange
-        expected_match = riot_fixtures.match_fixture
+        match_with_has_games = riot_fixtures.match_fixture.model_copy(deep=True)
+        match_with_has_games.has_games = True
+        crud.put_match(match_with_has_games)
+
+        match_without_has_games = match_with_has_games.model_copy(deep=True)
+        match_without_has_games.id = RiotMatchID("123")
+        match_without_has_games.has_games = False
+        crud.put_match(match_without_has_games)
+
         game_for_future_match = riot_fixtures.game_1_fixture_unstarted_future_match
-        crud.put_match(expected_match)
         crud.put_game(game_for_future_match)
 
         # Act
         match_ids_without_games = crud.get_match_ids_without_games()
 
         # Assert
-        self.assertNotEqual(game_for_future_match.match_id, expected_match.id)
+        self.assertNotEqual(game_for_future_match.match_id, match_with_has_games.id)
+        self.assertNotEqual(game_for_future_match.match_id, match_without_has_games.id)
         self.assertIsInstance(match_ids_without_games, list)
         self.assertEqual(1, len(match_ids_without_games))
-        self.assertEqual(expected_match.id, match_ids_without_games[0])
+        self.assertEqual(match_with_has_games.id, match_ids_without_games[0])
 
     def test_get_match_ids_without_games_matches_with_games(self):
         # Arrange
-        expected_match = riot_fixtures.match_fixture
-        crud.put_match(expected_match)
-        game = riot_fixtures.game_1_fixture_completed
-        crud.put_game(game)
+        match_with_has_games = riot_fixtures.match_fixture.model_copy(deep=True)
+        match_with_has_games.has_games = True
+        crud.put_match(match_with_has_games)
+
+        match_without_has_games = match_with_has_games.model_copy(deep=True)
+        match_without_has_games.id = RiotMatchID("123")
+        match_without_has_games.has_games = False
+        crud.put_match(match_without_has_games)
+
+        match_1_game = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
+        match_1_game.match_id = match_with_has_games.id
+        crud.put_game(match_1_game)
+
+        match_2_game = riot_fixtures.game_2_fixture_inprogress.model_copy(deep=True)
+        match_2_game.match_id = match_without_has_games.id
+        crud.put_game(match_2_game)
 
         # Act
         match_ids_without_games = crud.get_match_ids_without_games()
 
         # Assert
-        self.assertEqual(game.match_id, expected_match.id)
+        self.assertEqual(match_1_game.match_id, match_with_has_games.id)
+        self.assertEqual(match_2_game.match_id, match_without_has_games.id)
         self.assertIsInstance(match_ids_without_games, list)
         self.assertEqual(0, len(match_ids_without_games))
+
+    def test_update_match_has_games(self):
+        # Arrange
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.has_games = True
+        crud.put_match(match)
+
+        new_has_games = not match.has_games
+        updated_match = match.model_copy(deep=True)
+        updated_match.has_games = new_has_games
+
+        # Act and Assert
+        self.assertEqual(match.id, updated_match.id)
+        self.assertNotEqual(match.has_games, new_has_games)
+        match_before_update = crud.get_match_by_id(match.id)
+        self.assertEqual(match, match_before_update)
+        crud.update_match_has_games(match.id, new_has_games)
+        match_after_update = crud.get_match_by_id(match.id)
+        self.assertEqual(updated_match, match_after_update)
+
+        with self.assertRaises(AssertionError):
+            crud.update_match_has_games(RiotMatchID("123"), new_has_games)

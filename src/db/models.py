@@ -56,6 +56,7 @@ class MatchModel(Base):  # type: ignore
     tournament_id = Column(String)
     team_1_name = Column(String)
     team_2_name = Column(String)
+    has_games = Column(Boolean, default=True)
 
 
 class GameModel(Base):  # type: ignore
