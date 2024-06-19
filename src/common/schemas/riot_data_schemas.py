@@ -134,6 +134,11 @@ class Match(BaseModel):
         description="The name of the second team participating in the match",
         examples=["T1"]
     )
+    has_games: bool = Field(
+        default=True,
+        description="If this match has game data available",
+        examples=[True]
+    )
 
 
 class GameState(str, Enum):

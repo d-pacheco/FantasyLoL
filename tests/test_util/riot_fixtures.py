@@ -108,7 +108,8 @@ match_fixture = schemas.Match(
     strategy_count=3,
     tournament_id=tournament_fixture.id,
     team_1_name=team_1_fixture.name,
-    team_2_name=team_2_fixture.name
+    team_2_name=team_2_fixture.name,
+    has_games=True
 )
 
 future_match_fixture = schemas.Match(
@@ -120,7 +121,8 @@ future_match_fixture = schemas.Match(
     strategy_count=3,
     tournament_id=tournament_fixture.id,
     team_1_name=team_1_fixture.name,
-    team_2_name=team_2_fixture.name
+    team_2_name=team_2_fixture.name,
+    has_games=True
 )
 
 game_1_fixture_completed = schemas.Game(

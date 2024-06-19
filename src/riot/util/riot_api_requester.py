@@ -1,6 +1,7 @@
 from http import HTTPStatus
 import cloudscraper  # type: ignore
 import logging
+import certifi
 from typing import List, Optional
 
 import pydantic
@@ -50,7 +51,7 @@ class RiotApiRequester:
     def make_request(self, url, headers=None) -> Response:
         if headers is None:
             headers = self.default_headers
-        return self.client.get(url, headers=headers)
+        return self.client.get(url, headers=headers, verify=certifi.where())
 
     def get_games_from_event_details(self, match_id: RiotMatchID) -> List[Game]:
         event_details_url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
@@ -64,9 +65,14 @@ class RiotApiRequester:
         if response.status_code == HTTPStatus.NO_CONTENT:
             return []
 
-        res_json = response.json()
-        event = res_json['data']['event']
-        games = event['match']['games']
+        try:
+            res_json = response.json()
+            data = res_json['data']
+            event = data['event']
+            match = event['match']
+            games = match['games']
+        except TypeError:
+            return []
 
         games_from_response = []
         for game in games:

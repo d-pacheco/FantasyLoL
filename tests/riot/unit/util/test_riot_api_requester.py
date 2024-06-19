@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from src.riot.util.riot_api_requester import RiotApiRequester
 from src.riot.exceptions.riot_api_status_code_assert_exception import \
@@ -18,7 +18,7 @@ RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH = \
 class RiotApiRequesterTest(FantasyLolTestBase):
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_leagues_successful(self, mock_cloud_scraper):
+    def test_get_leagues_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_league = riot_fixtures.league_1_fixture
 
@@ -39,7 +39,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_league, leagues[0])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_leagues_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_leagues_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
@@ -53,7 +53,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_leagues()
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_tournaments_for_league_successful(self, mock_cloud_scraper):
+    def test_get_tournaments_for_league_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_tournament = riot_fixtures.tournament_fixture
 
@@ -75,7 +75,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_tournament, tournaments[0])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_tournaments_for_league_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_tournaments_for_league_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
@@ -90,7 +90,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_tournament_for_league(league_fixture.id)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_teams_successful(self, mock_cloud_scraper):
+    def test_get_teams_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_tournament = riot_fixtures.tournament_fixture
 
@@ -112,7 +112,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_tournament, tournaments[0])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_teams_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_teams_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
@@ -126,7 +126,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_teams()
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_players_successful(self, mock_cloud_scraper):
+    def test_get_players_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_players = [
             riot_fixtures.player_1_fixture,
@@ -158,7 +158,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_players[4], players[4])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_players_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_players_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
@@ -172,7 +172,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_players()
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_games_from_event_details_successful(self, mock_cloud_scraper):
+    def test_get_games_from_event_details_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_games = [
             riot_fixtures.game_1_fixture_completed,
@@ -200,7 +200,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_games[2], games[2])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_games_from_event_details_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_games_from_event_details_status_code_assertion(
+            self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
@@ -215,7 +216,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_games_from_event_details(match_fixture.id)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_games_from_event_details_no_content_status_code(self, mock_cloud_scraper):
+    def test_get_games_from_event_details_no_content_status_code(
+            self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.NO_CONTENT
@@ -233,7 +235,26 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(0, len(games))
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_games_successful(self, mock_cloud_scraper):
+    def test_get_games_from_event_details_event_data_is_none(self, mock_cloud_scraper: MagicMock):
+        # Arrange
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.return_value = {"data": {"event": {None}}}
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        match_fixture = riot_fixtures.match_fixture
+        riot_api_requester = RiotApiRequester()
+        games = riot_api_requester.get_games_from_event_details(match_fixture.id)
+
+        # Assert
+        self.assertIsInstance(games, list)
+        self.assertEqual(0, len(games))
+
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_games_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_get_games_response = riot_fixtures.get_games_response_game_1_fixture
         game_ids_to_get = [riot_fixtures.game_1_fixture_completed.id]
@@ -255,7 +276,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_get_games_response, get_games_responses[0])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_games_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_games_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         game_ids_to_get = [riot_fixtures.game_1_fixture_completed.id]
 
@@ -271,7 +292,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_games(game_ids_to_get)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_metadata_for_game_successful(self, mock_cloud_scraper):
+    def test_get_player_metadata_for_game_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -315,7 +336,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_player_metadata[9], get_player_metadata_response[9])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_metadata_for_game_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_player_metadata_for_game_status_code_assertion(
+            self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -332,7 +354,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_player_metadata_for_game(game.id, time_stamp)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_metadata_for_game_no_content_status_code(self, mock_cloud_scraper):
+    def test_get_player_metadata_for_game_no_content_status_code(
+            self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -353,7 +376,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(0, len(get_player_metadata_response))
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_stats_for_game_successful(self, mock_cloud_scraper):
+    def test_get_player_stats_for_game_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -397,7 +420,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_player_stats[9], get_player_stats_response[9])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_stats_for_game_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_player_stats_for_game_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -414,7 +437,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_player_stats_for_game(game.id, time_stamp)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_stats_for_game_no_content_status_code(self, mock_cloud_scraper):
+    def test_get_player_stats_for_game_no_content_status_code(self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -435,7 +458,8 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(0, len(get_player_stats_response))
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_player_stats_for_game_empty_frames_in_response(self, mock_cloud_scraper):
+    def test_get_player_stats_for_game_empty_frames_in_response(
+            self, mock_cloud_scraper: MagicMock):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
         time_stamp = "randomTimeStamp"
@@ -458,7 +482,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(0, len(get_player_stats_response))
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_tournament_id_for_match_successful(self, mock_cloud_scraper):
+    def test_get_tournament_id_for_match_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_tournament_id = riot_fixtures.tournament_fixture.id
         match = riot_fixtures.match_fixture
@@ -478,7 +502,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_tournament_id, tournament_id)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_tournament_id_for_match_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_tournament_id_for_match_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         match = riot_fixtures.match_fixture
         mock_response = Mock()
@@ -495,7 +519,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH)
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_matches_from_schedule_successful(
-            self, mock_cloud_scraper, mock_get_tournament_id_for_match):
+            self, mock_cloud_scraper: MagicMock, mock_get_tournament_id_for_match: MagicMock):
         # Arrange
         expected_match = riot_fixtures.match_fixture
         mock_get_tournament_id_for_match.return_value = riot_fixtures.tournament_fixture.id
@@ -516,7 +540,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_match, matches[0])
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_matches_from_schedule_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_matches_from_schedule_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.NO_CONTENT
@@ -530,7 +554,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
             riot_api_requester.get_matches_from_schedule()
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_pages_from_schedule_successful(self, mock_cloud_scraper):
+    def test_get_pages_from_schedule_successful(self, mock_cloud_scraper: MagicMock):
         # Arrange
         expected_page_tokens = riot_fixtures.riot_schedule_fixture.model_copy(deep=True)
         expected_page_tokens.schedule_name = None
@@ -549,7 +573,7 @@ class RiotApiRequesterTest(FantasyLolTestBase):
         self.assertEqual(expected_page_tokens, pages)
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_pages_from_schedule_status_code_assertion(self, mock_cloud_scraper):
+    def test_get_pages_from_schedule_status_code_assertion(self, mock_cloud_scraper: MagicMock):
         # Arrange
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.NO_CONTENT

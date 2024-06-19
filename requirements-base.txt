@@ -12,3 +12,4 @@ pytz
 bcrypt
 PyJWT
 python-decouple
+certifi
