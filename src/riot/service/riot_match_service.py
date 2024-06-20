@@ -32,22 +32,29 @@ class RiotMatchService:
             logging.warning("Riot schedule not found in db. Fetching entire schedule. "
                             "This should only occur on new deployments")
             return self.fetch_entire_schedule()
-        newer_page_token = riot_schedule.current_token_key
+        current_page_token = riot_schedule.current_token_key
+        last_fetched_page_token = None
 
         no_new_schedule = False
         while not no_new_schedule:
-            schedule_pages = self.riot_api_requester.get_pages_from_schedule(newer_page_token)
-            newer_page_token = schedule_pages.current_token_key
-            if newer_page_token is None:
+            schedule_pages = self.riot_api_requester.get_pages_from_schedule(current_page_token)
+            if schedule_pages.current_token_key is None and last_fetched_page_token is None:
                 no_new_schedule = True
                 continue
 
-            fetched_matches = self.riot_api_requester.get_matches_from_schedule(newer_page_token)
+            fetched_matches = self.riot_api_requester.get_matches_from_schedule(current_page_token)
             for match in fetched_matches:
                 crud.put_match(match)
 
-            riot_schedule.older_token_key = schedule_pages.older_token_key
-            riot_schedule.current_token_key = newer_page_token
+            if schedule_pages.current_token_key is None:
+                no_new_schedule = True
+                continue
+
+            last_fetched_page_token = current_page_token
+            current_page_token = schedule_pages.current_token_key
+
+            riot_schedule.older_token_key = last_fetched_page_token
+            riot_schedule.current_token_key = current_page_token
             crud.update_schedule(riot_schedule)
 
     def fetch_entire_schedule(self):
