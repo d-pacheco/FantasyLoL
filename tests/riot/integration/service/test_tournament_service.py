@@ -1,8 +1,8 @@
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from src.riot.exceptions.tournament_not_found_exception import TournamentNotFoundException
-from src.riot.service.riot_tournament_service import RiotTournamentService
+from src.riot.exceptions import TournamentNotFoundException
+from src.riot.service import RiotTournamentService
 from src.common.schemas.riot_data_schemas import TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
 

@@ -6,9 +6,8 @@ from http import HTTPStatus
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.riot.exceptions.professional_team_not_found_exception import \
-    ProfessionalTeamNotFoundException
 from src.common.schemas.search_parameters import TeamSearchParameters
+from src.riot.exceptions import ProfessionalTeamNotFoundException
 from src.riot import app
 
 PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"

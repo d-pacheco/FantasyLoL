@@ -1,9 +1,8 @@
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from src.riot.exceptions.professional_team_not_found_exception import \
-    ProfessionalTeamNotFoundException
-from src.riot.service.riot_professional_team_service import RiotProfessionalTeamService
+from src.riot.exceptions import ProfessionalTeamNotFoundException
+from src.riot.service import RiotProfessionalTeamService
 from src.common.schemas.search_parameters import TeamSearchParameters
 from src.common.schemas.riot_data_schemas import ProTeamID
 

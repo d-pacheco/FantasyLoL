@@ -1,8 +1,8 @@
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from src.riot.exceptions.game_not_found_exception import GameNotFoundException
-from src.riot.service.riot_game_service import RiotGameService
+from src.riot.exceptions import GameNotFoundException
+from src.riot.service import RiotGameService
 from src.common.schemas.riot_data_schemas import GameState, RiotGameID
 from src.common.schemas.search_parameters import GameSearchParameters
 

@@ -1,9 +1,8 @@
 from http import HTTPStatus
 from unittest.mock import MagicMock, Mock, patch
 
-from src.riot.util.riot_api_requester import RiotApiRequester
-from src.riot.exceptions.riot_api_status_code_assert_exception import \
-    RiotApiStatusCodeAssertException
+from src.riot.util import RiotApiRequester
+from src.riot.exceptions import RiotApiStatusCodeAssertException
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_api_requester_util, riot_fixtures

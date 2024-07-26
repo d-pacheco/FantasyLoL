@@ -6,10 +6,9 @@ from http import HTTPStatus
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.riot.exceptions.tournament_not_found_exception import \
-    TournamentNotFoundException
 from src.common.schemas.riot_data_schemas import TournamentStatus
 from src.common.schemas.search_parameters import TournamentSearchParameters
+from src.riot.exceptions import TournamentNotFoundException
 from src.riot import app
 
 

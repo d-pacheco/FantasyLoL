@@ -6,9 +6,9 @@ from unittest.mock import patch
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.riot.exceptions.game_not_found_exception import GameNotFoundException
 from src.common.schemas.riot_data_schemas import GameState
 from src.common.schemas.search_parameters import GameSearchParameters
+from src.riot.exceptions import GameNotFoundException
 from src.riot import app
 
 GAME_BASE_URL = "/riot/v1/game"

@@ -6,7 +6,7 @@ from unittest.mock import patch
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.riot.exceptions.match_not_found_exception import MatchNotFoundException
+from src.riot.exceptions import MatchNotFoundException
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.riot import app
 
