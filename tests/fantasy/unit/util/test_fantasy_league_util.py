@@ -1,8 +1,7 @@
 from unittest.mock import patch, MagicMock, call
 
 from tests.test_base import FantasyLolTestBase
-from tests.test_util import fantasy_fixtures
-from tests.test_util import riot_fixtures
+from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -15,13 +14,13 @@ from src.common.schemas.fantasy_schemas import (
 from src.common.schemas.riot_data_schemas import RiotLeagueID
 from src.common.exceptions import LeagueNotFoundException
 
-from src.fantasy.exceptions.fantasy_league_not_found_exception import \
-    FantasyLeagueNotFoundException
-from src.fantasy.exceptions.draft_order_exception import DraftOrderException
-from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
-    FantasyLeagueInvalidRequiredStateException
-from src.fantasy.exceptions.fantasy_unavailable_exception import FantasyUnavailableException
-from src.fantasy.util.fantasy_league_util import FantasyLeagueUtil
+from src.fantasy.exceptions import (
+    DraftOrderException,
+    FantasyLeagueNotFoundException,
+    FantasyLeagueInvalidRequiredStateException,
+    FantasyUnavailableException
+)
+from src.fantasy.util import FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
 

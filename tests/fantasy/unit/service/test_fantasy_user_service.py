@@ -3,10 +3,8 @@ from unittest.mock import patch, MagicMock
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from src.fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from src.fantasy.exceptions.invalid_username_password_exception import\
-    InvalidUsernameOrPasswordException
-from src.fantasy.service.fantasy_user_service import UserService
+from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
+from src.fantasy.service import UserService
 from src.auth import token_response
 
 BASE_USER_SERVICE_PATH = 'src.fantasy.service.fantasy_user_service.UserService'

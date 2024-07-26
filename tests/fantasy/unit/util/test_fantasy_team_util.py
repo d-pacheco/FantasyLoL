@@ -13,8 +13,8 @@ from src.common.schemas.fantasy_schemas import (
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID, ProPlayerID
 
-from src.fantasy.util.fantasty_team_util import FantasyTeamUtil
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
+from src.fantasy.util import FantasyTeamUtil
+from src.fantasy.exceptions import FantasyDraftException
 
 BASE_CRUD_PATH = 'src.db.crud'
 
