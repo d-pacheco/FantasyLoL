@@ -1,7 +1,7 @@
 import uuid
 import bcrypt
 
-from ...auth.auth_handler import sign_jwt
+from ...auth import sign_jwt
 
 from ...common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
 

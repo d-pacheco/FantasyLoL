@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import List
 
-from ...auth.auth_bearer import JWTBearer
+from ...auth import JWTBearer
 
 from ...common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 from ...common.schemas.riot_data_schemas import ProPlayerID

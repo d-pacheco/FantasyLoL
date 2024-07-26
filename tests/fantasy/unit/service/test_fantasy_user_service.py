@@ -7,7 +7,7 @@ from src.fantasy.exceptions.user_already_exists_exception import UserAlreadyExis
 from src.fantasy.exceptions.invalid_username_password_exception import\
     InvalidUsernameOrPasswordException
 from src.fantasy.service.fantasy_user_service import UserService
-from src.auth.auth_handler import token_response
+from src.auth import token_response
 
 BASE_USER_SERVICE_PATH = 'src.fantasy.service.fantasy_user_service.UserService'
 BASE_CRUD_PATH = 'src.db.crud'
