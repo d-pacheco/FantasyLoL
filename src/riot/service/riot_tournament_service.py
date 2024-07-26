@@ -8,9 +8,8 @@ from ...common.schemas.search_parameters import TournamentSearchParameters
 from ...db import crud
 from ...db.models import TournamentModel
 
-from ..exceptions.tournament_not_found_exception import TournamentNotFoundException
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from ..exceptions import TournamentNotFoundException
+from ..util import RiotApiRequester, JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

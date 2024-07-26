@@ -1,0 +1,7 @@
+from .riot_game_service import RiotGameService
+from .riot_game_stats_service import RiotGameStatsService
+from .riot_league_service import RiotLeagueService
+from .riot_match_service import RiotMatchService
+from .riot_professional_player_service import RiotProfessionalPlayerService
+from .riot_professional_team_service import RiotProfessionalTeamService
+from . riot_tournament_service import RiotTournamentService

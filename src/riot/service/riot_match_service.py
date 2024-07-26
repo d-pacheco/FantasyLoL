@@ -7,9 +7,8 @@ from ...common.schemas.search_parameters import MatchSearchParameters
 from ...db import crud
 from ...db.models import MatchModel
 
-from ..exceptions.match_not_found_exception import MatchNotFoundException
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from ..exceptions import MatchNotFoundException
+from ..util import RiotApiRequester, JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

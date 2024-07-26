@@ -8,8 +8,7 @@ from ...common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
 from ...db import crud
 from ...db.views import PlayerGameView
 
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from ..util import RiotApiRequester, JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

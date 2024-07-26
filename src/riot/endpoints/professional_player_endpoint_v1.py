@@ -9,7 +9,7 @@ from ...common.schemas.riot_data_schemas import (
 )
 from ...common.schemas.search_parameters import PlayerSearchParameters
 
-from ..service.riot_professional_player_service import RiotProfessionalPlayerService
+from ..service import RiotProfessionalPlayerService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

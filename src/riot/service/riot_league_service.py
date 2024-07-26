@@ -8,8 +8,7 @@ from ...common.schemas.search_parameters import LeagueSearchParameters
 from ...db import crud
 from ...db.models import LeagueModel
 
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from ..util import RiotApiRequester, JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

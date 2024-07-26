@@ -5,7 +5,7 @@ from fastapi_pagination import paginate, Page
 from ...common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 from ...common.schemas.search_parameters import GameSearchParameters
 
-from ..service.riot_game_service import RiotGameService
+from ..service import RiotGameService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

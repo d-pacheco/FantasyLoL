@@ -9,14 +9,16 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # type: ignore
 
 from ...common import Config
 
-from ..exceptions.JobConfigException import JobConfigException
-from ..service.riot_league_service import RiotLeagueService
-from ..service.riot_tournament_service import RiotTournamentService
-from ..service.riot_professional_team_service import RiotProfessionalTeamService
-from ..service.riot_professional_player_service import RiotProfessionalPlayerService
-from ..service.riot_match_service import RiotMatchService
-from ..service.riot_game_service import RiotGameService
-from ..service.riot_game_stats_service import RiotGameStatsService
+from ..exceptions import JobConfigException
+from ..service import (
+    RiotLeagueService,
+    RiotTournamentService,
+    RiotProfessionalTeamService,
+    RiotProfessionalPlayerService,
+    RiotMatchService,
+    RiotGameService,
+    RiotGameStatsService
+)
 
 logger = logging.getLogger('fantasy-lol')
 

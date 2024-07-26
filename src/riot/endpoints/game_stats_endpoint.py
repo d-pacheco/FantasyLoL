@@ -5,7 +5,7 @@ from fastapi_pagination import paginate, Page
 from ...common.schemas.riot_data_schemas import PlayerGameData, RiotGameID, ProPlayerID
 from ...common.schemas.search_parameters import PlayerGameStatsSearchParameters
 
-from ..service.riot_game_stats_service import RiotGameStatsService
+from ..service import RiotGameStatsService
 
 
 VERSION = "v1"

@@ -4,7 +4,7 @@ from fastapi_pagination import paginate, Page
 from ...common.schemas.riot_data_schemas import League, RiotLeagueID
 from ...common.schemas.search_parameters import LeagueSearchParameters
 
-from ..service.riot_league_service import RiotLeagueService
+from ..service import RiotLeagueService
 
 
 VERSION = "v1"

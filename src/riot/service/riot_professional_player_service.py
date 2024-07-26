@@ -7,10 +7,8 @@ from ...common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from ...db import crud
 from ...db.models import ProfessionalPlayerModel
 
-from ..exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from ..exceptions import ProfessionalPlayerNotFoundException
+from ..util import RiotApiRequester, JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

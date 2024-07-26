@@ -7,9 +7,8 @@ from ...common.schemas.riot_data_schemas import Game, RiotGameID, RiotMatchID
 from ...db import crud
 from ...db.models import GameModel
 
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
-from ..exceptions.game_not_found_exception import GameNotFoundException
+from ..util import RiotApiRequester, JobRunner
+from ..exceptions import GameNotFoundException
 
 logger = logging.getLogger('fantasy-lol')
 
