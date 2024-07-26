@@ -13,7 +13,7 @@ from src.common.schemas.fantasy_schemas import (
     UserID
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID
-from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
+from src.common.exceptions import LeagueNotFoundException
 
 from src.fantasy.exceptions.fantasy_league_not_found_exception import \
     FantasyLeagueNotFoundException

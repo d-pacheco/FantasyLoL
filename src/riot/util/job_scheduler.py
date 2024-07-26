@@ -7,7 +7,7 @@ from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # type: ignore
 
-from ...common.config import Config
+from ...common import Config
 
 from ..exceptions.JobConfigException import JobConfigException
 from ..service.riot_league_service import RiotLeagueService

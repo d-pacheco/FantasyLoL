@@ -5,7 +5,7 @@ import secrets
 from dotenv import load_dotenv
 from typing import get_type_hints
 
-from .exceptions.AppConfigException import AppConfigException
+from .exceptions import AppConfigException
 
 load_dotenv()
 

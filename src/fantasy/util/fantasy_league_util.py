@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
+from ...common.exceptions import LeagueNotFoundException
 from ...common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueDraftOrder,

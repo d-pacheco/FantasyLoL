@@ -23,7 +23,7 @@ from ...common.schemas.riot_data_schemas import (
     PlayerGameStats,
     Schedule
 )
-from ...common.config import Config
+from ...common import Config
 
 from ..exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
 

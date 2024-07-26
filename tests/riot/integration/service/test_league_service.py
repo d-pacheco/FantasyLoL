@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Optional
 
-from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
+from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.search_parameters import LeagueSearchParameters
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.db import crud

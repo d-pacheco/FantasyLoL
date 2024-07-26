@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
+from ...common.exceptions import LeagueNotFoundException
 from ...common.schemas.riot_data_schemas import League, RiotLeagueID
 from ...common.schemas.search_parameters import LeagueSearchParameters
 

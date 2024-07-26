@@ -4,7 +4,7 @@ from pathlib import Path
 
 from . import views
 from . import models
-from ..common.config import Config
+from ..common import Config
 
 Path("./database/").mkdir(parents=True, exist_ok=True)
 PRODUCTION_DATABASE_URL = Config.DATABASE_URL
