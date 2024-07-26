@@ -14,11 +14,8 @@ from ...common.schemas.fantasy_schemas import (
 
 from ...riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
-
-from ..exceptions.fantasy_membership_exception import FantasyMembershipException
-from ..exceptions.fantasy_draft_exception import FantasyDraftException
-from ..util.fantasy_league_util import FantasyLeagueUtil
-from ..util.fantasty_team_util import FantasyTeamUtil
+from ..exceptions import FantasyMembershipException, FantasyDraftException
+from ..util import FantasyTeamUtil, FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
 fantasy_team_util = FantasyTeamUtil()

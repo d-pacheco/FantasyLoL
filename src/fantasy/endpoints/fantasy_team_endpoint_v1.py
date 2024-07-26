@@ -6,7 +6,7 @@ from ...auth.auth_bearer import JWTBearer
 from ...common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 from ...common.schemas.riot_data_schemas import ProPlayerID
 
-from ..service.fantasy_team_service import FantasyTeamService
+from ..service import FantasyTeamService
 
 
 VERSION = "v1"

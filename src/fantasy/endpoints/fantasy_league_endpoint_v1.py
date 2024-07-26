@@ -13,7 +13,7 @@ from ...common.schemas.fantasy_schemas import (
     UserID
 )
 
-from ..service.fantasy_league_service import FantasyLeagueService
+from ..service import FantasyLeagueService
 
 
 VERSION = "v1"

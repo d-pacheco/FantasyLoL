@@ -7,9 +7,8 @@ from ...common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserI
 
 from ...db import crud
 
-from ..exceptions.user_already_exists_exception import UserAlreadyExistsException
-from ..exceptions.invalid_username_password_exception import\
-    InvalidUsernameOrPasswordException
+from ..exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
+
 
 
 class UserService:

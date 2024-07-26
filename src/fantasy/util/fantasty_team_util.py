@@ -3,7 +3,7 @@ from ...common.schemas.riot_data_schemas import ProPlayerID
 
 from ...db import crud
 
-from ..exceptions.fantasy_draft_exception import FantasyDraftException
+from ..exceptions import FantasyDraftException
 
 
 class FantasyTeamUtil:

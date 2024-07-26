@@ -13,11 +13,12 @@ from ...common.schemas.riot_data_schemas import RiotLeagueID
 
 from ...db import crud
 
-from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from ..exceptions.fantasy_league_invalid_required_state_exception import \
-    FantasyLeagueInvalidRequiredStateException
-from ..exceptions.fantasy_unavailable_exception import FantasyUnavailableException
-from ..exceptions.draft_order_exception import DraftOrderException
+from ..exceptions import (
+    FantasyLeagueNotFoundException,
+    FantasyLeagueInvalidRequiredStateException,
+    FantasyUnavailableException,
+    DraftOrderException
+)
 
 
 class FantasyLeagueUtil:
