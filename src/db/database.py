@@ -2,8 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 
-from . import views
-from . import models
+from . import views, models
 from ..common import Config
 
 Path("./database/").mkdir(parents=True, exist_ok=True)

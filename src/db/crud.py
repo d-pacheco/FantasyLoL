@@ -1,5 +1,4 @@
-from sqlalchemy import text
-from sqlalchemy import and_
+from sqlalchemy import text, and_
 from typing import Optional, List
 
 from ..common.schemas.fantasy_schemas import (
