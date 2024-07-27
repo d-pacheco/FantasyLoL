@@ -2,13 +2,14 @@ from datetime import datetime, timezone, timedelta
 import logging
 from typing import List
 
-from ...common.schemas.search_parameters import PlayerGameStatsSearchParameters
-from ...common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
+from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
+from src.common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
 
-from ...db import crud
-from ...db.views import PlayerGameView
+from src.db import crud
+from src.db.views import PlayerGameView
 
-from ..util import RiotApiRequester, JobRunner
+from src.riot.util import RiotApiRequester
+from src.riot.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

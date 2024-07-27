@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import League, RiotLeagueID
-from ...common.schemas.search_parameters import LeagueSearchParameters
+from src.common.schemas.riot_data_schemas import League, RiotLeagueID
+from src.common.schemas.search_parameters import LeagueSearchParameters
 
-from ..service import RiotLeagueService
+from src.riot.service import RiotLeagueService
 
 
 VERSION = "v1"

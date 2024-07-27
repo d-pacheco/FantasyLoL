@@ -1,7 +1,7 @@
 from sqlalchemy import text, and_
 from typing import Optional, List
 
-from ..common.schemas.fantasy_schemas import (
+from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
     FantasyLeagueDraftOrder,
@@ -14,7 +14,7 @@ from ..common.schemas.fantasy_schemas import (
     User,
     UserID
 )
-from ..common.schemas.riot_data_schemas import (
+from src.common.schemas.riot_data_schemas import (
     League,
     RiotLeagueID,
     ProfessionalPlayer,

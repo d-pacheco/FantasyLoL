@@ -3,7 +3,7 @@ from typing import Dict
 import jwt
 import logging
 
-from ..common import Config
+from src.common import Config
 
 logger = logging.getLogger('fantasy-lol')
 

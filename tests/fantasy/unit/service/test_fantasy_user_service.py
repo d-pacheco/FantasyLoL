@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
@@ -8,7 +8,6 @@ from src.fantasy.service import UserService
 from src.auth import token_response
 
 BASE_USER_SERVICE_PATH = 'src.fantasy.service.fantasy_user_service.UserService'
-BASE_CRUD_PATH = 'src.db.crud'
 SIGN_JWT_PATH = 'src.fantasy.service.fantasy_user_service.sign_jwt'
 
 

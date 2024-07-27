@@ -2,10 +2,10 @@ import logging
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
-from ...common.schemas.search_parameters import GameSearchParameters
+from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
+from src.common.schemas.search_parameters import GameSearchParameters
 
-from ..service import RiotGameService
+from src.riot.service import RiotGameService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

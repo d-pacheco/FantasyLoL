@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 
 from . import views, models
-from ..common import Config
+from src.common import Config
 
 Path("./database/").mkdir(parents=True, exist_ok=True)
 PRODUCTION_DATABASE_URL = Config.DATABASE_URL

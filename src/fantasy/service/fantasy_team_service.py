@@ -1,9 +1,9 @@
 from typing import List
 
-from ...db import crud
+from src.db import crud
 
-from ...common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
-from ...common.schemas.fantasy_schemas import (
+from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
+from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
     FantasyLeagueStatus,
@@ -12,10 +12,10 @@ from ...common.schemas.fantasy_schemas import (
     UserID
 )
 
-from ...riot.exceptions.professional_player_not_found_exception import \
+from src.riot.exceptions.professional_player_not_found_exception import \
     ProfessionalPlayerNotFoundException
-from ..exceptions import FantasyMembershipException, FantasyDraftException
-from ..util import FantasyTeamUtil, FantasyLeagueUtil
+from src.fantasy.exceptions import FantasyMembershipException, FantasyDraftException
+from src.fantasy.util import FantasyTeamUtil, FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
 fantasy_team_util = FantasyTeamUtil()

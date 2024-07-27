@@ -1,13 +1,13 @@
 import uuid
 import bcrypt
 
-from ...auth import sign_jwt
+from src.auth import sign_jwt
 
-from ...common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
+from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
 
-from ...db import crud
+from src.db import crud
 
-from ..exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
+from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
 
 
 

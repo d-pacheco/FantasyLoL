@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock, call
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -23,8 +23,6 @@ from src.fantasy.exceptions import (
 from src.fantasy.util import FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
-
-BASE_CRUD_PATH = 'src.db.crud'
 
 
 class TestFantasyLeagueUtil(FantasyLolTestBase):

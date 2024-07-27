@@ -8,6 +8,8 @@ from src.db import models
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
     'src.riot.util.riot_api_requester.cloudscraper.create_scraper'
 
+BASE_CRUD_PATH = 'src.db.crud'
+
 
 class FantasyLolTestBase(unittest.TestCase):
     @classmethod

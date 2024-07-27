@@ -12,8 +12,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
-from ..common.schemas.riot_data_schemas import GameState, PlayerRole
-from ..common.schemas.fantasy_schemas import FantasyLeagueStatus, FantasyLeagueMembershipStatus
+from src.common.schemas.riot_data_schemas import GameState, PlayerRole
+from src.common.schemas.fantasy_schemas import FantasyLeagueStatus, FantasyLeagueMembershipStatus
 
 
 Base = declarative_base()

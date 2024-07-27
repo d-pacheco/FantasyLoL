@@ -1,9 +1,9 @@
 import uuid
 from typing import List, Optional
 
-from ...db import crud
+from src.db import crud
 
-from ...common.schemas.fantasy_schemas import (
+from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     FantasyLeague,
     FantasyLeagueSettings,
@@ -16,7 +16,7 @@ from ...common.schemas.fantasy_schemas import (
     UserID
 )
 
-from ..exceptions import (
+from src.fantasy.exceptions import (
     FantasyLeagueInviteException,
     FantasyLeagueSettingsException,
     FantasyLeagueStartDraftException,
@@ -24,7 +24,7 @@ from ..exceptions import (
     UserNotFoundException
 )
 
-from ..util import FantasyLeagueUtil
+from src.fantasy.util import FantasyLeagueUtil
 
 fantasy_league_util = FantasyLeagueUtil()
 

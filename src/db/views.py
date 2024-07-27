@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Enum, Integer, String, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 
-from ..common.schemas.riot_data_schemas import PlayerRole
+from src.common.schemas.riot_data_schemas import PlayerRole
 
 Base = declarative_base()
 

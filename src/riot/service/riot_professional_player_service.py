@@ -1,14 +1,15 @@
 import logging
 from typing import List
 
-from ...common.schemas.search_parameters import PlayerSearchParameters
-from ...common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
+from src.common.schemas.search_parameters import PlayerSearchParameters
+from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 
-from ...db import crud
-from ...db.models import ProfessionalPlayerModel
+from src.db import crud
+from src.db.models import ProfessionalPlayerModel
 
-from ..exceptions import ProfessionalPlayerNotFoundException
-from ..util import RiotApiRequester, JobRunner
+from src.riot.exceptions import ProfessionalPlayerNotFoundException
+from src.riot.util import RiotApiRequester
+from src.riot.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 
