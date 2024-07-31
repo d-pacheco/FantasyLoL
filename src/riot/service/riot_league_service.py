@@ -1,15 +1,15 @@
 import logging
 from typing import List
 
-from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
-from ...common.schemas.riot_data_schemas import League, RiotLeagueID
-from ...common.schemas.search_parameters import LeagueSearchParameters
+from src.common.exceptions import LeagueNotFoundException
+from src.common.schemas.riot_data_schemas import League, RiotLeagueID
+from src.common.schemas.search_parameters import LeagueSearchParameters
 
-from ...db import crud
-from ...db.models import LeagueModel
+from src.db import crud
+from src.db.models import LeagueModel
 
-from ..util.riot_api_requester import RiotApiRequester
-from ..util.job_runner import JobRunner
+from src.riot.util import RiotApiRequester
+from src.riot.job_runner import JobRunner
 
 logger = logging.getLogger('fantasy-lol')
 

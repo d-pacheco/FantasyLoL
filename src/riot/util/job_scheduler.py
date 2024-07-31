@@ -7,16 +7,18 @@ from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # type: ignore
 
-from ...common.config import Config
+from src.common import Config
 
-from ..exceptions.JobConfigException import JobConfigException
-from ..service.riot_league_service import RiotLeagueService
-from ..service.riot_tournament_service import RiotTournamentService
-from ..service.riot_professional_team_service import RiotProfessionalTeamService
-from ..service.riot_professional_player_service import RiotProfessionalPlayerService
-from ..service.riot_match_service import RiotMatchService
-from ..service.riot_game_service import RiotGameService
-from ..service.riot_game_stats_service import RiotGameStatsService
+from src.riot.exceptions import JobConfigException
+from src.riot.service import (
+    RiotLeagueService,
+    RiotTournamentService,
+    RiotProfessionalTeamService,
+    RiotProfessionalPlayerService,
+    RiotMatchService,
+    RiotGameService,
+    RiotGameStatsService
+)
 
 logger = logging.getLogger('fantasy-lol')
 

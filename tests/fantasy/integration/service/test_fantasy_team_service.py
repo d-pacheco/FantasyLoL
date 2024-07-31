@@ -12,26 +12,21 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrder,
     UserID
 )
-
 from src.common.schemas.riot_data_schemas import (
     PlayerRole,
     ProfessionalPlayer,
     ProPlayerID,
     ProTeamID
 )
-
 from src.db import crud
-
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
-from src.fantasy.exceptions.fantasy_league_not_found_exception import \
-    FantasyLeagueNotFoundException
-from src.fantasy.exceptions.fantasy_league_invalid_required_state_exception import \
-    FantasyLeagueInvalidRequiredStateException
-from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
-from src.fantasy.service.fantasy_team_service import FantasyTeamService
-
-from src.riot.exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
+from src.fantasy.exceptions import (
+    FantasyDraftException,
+    FantasyLeagueNotFoundException,
+    FantasyLeagueInvalidRequiredStateException,
+    FantasyMembershipException
+)
+from src.fantasy.service import FantasyTeamService
+from src.riot.exceptions import ProfessionalPlayerNotFoundException
 
 pro_player_fixture = ProfessionalPlayer(
     id=ProPlayerID(str(uuid.uuid4())),

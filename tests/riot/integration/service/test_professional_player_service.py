@@ -1,9 +1,8 @@
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_data_util
 
-from src.riot.exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
-from src.riot.service.riot_professional_player_service import RiotProfessionalPlayerService
+from src.riot.exceptions import ProfessionalPlayerNotFoundException
+from src.riot.service import RiotProfessionalPlayerService
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.common.schemas.riot_data_schemas import ProPlayerID
 

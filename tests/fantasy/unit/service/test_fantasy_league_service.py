@@ -2,7 +2,7 @@ from unittest.mock import patch, MagicMock
 import uuid
 import copy
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -12,12 +12,10 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     UserID
 )
-from src.fantasy.exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from src.fantasy.exceptions.forbidden_exception import ForbiddenException
-from src.fantasy.service.fantasy_league_service import FantasyLeagueService
+from src.fantasy.exceptions import FantasyLeagueNotFoundException, ForbiddenException
+from src.fantasy.service import FantasyLeagueService
 
 FANTASY_LEAGUE_SERV_PATH = 'src.fantasy.service.fantasy_league_service.FantasyLeagueService'
-BASE_CRUD_PATH = 'src.db.crud'
 
 
 class TestFantasyLeagueService(FantasyLolTestBase):

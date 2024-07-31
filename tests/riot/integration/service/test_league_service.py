@@ -1,11 +1,11 @@
 from copy import deepcopy
 from typing import Optional
 
-from src.common.exceptions.league_not_found_exception import LeagueNotFoundException
+from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.search_parameters import LeagueSearchParameters
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.db import crud
-from src.riot.service.riot_league_service import RiotLeagueService
+from src.riot.service import RiotLeagueService
 
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import riot_fixtures as fixtures

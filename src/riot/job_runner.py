@@ -2,7 +2,7 @@ import logging
 import time
 from typing import Callable
 
-from ...common.exceptions.fantasy_lol_exception import FantasyLolException
+from src.common.exceptions import FantasyLolException
 
 logger = logging.getLogger('fantasy-lol')
 

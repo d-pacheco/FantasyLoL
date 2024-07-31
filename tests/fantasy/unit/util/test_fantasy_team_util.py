@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import List
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -13,10 +13,8 @@ from src.common.schemas.fantasy_schemas import (
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID, ProPlayerID
 
-from src.fantasy.util.fantasty_team_util import FantasyTeamUtil
-from src.fantasy.exceptions.fantasy_draft_exception import FantasyDraftException
-
-BASE_CRUD_PATH = 'src.db.crud'
+from src.fantasy.util import FantasyTeamUtil
+from src.fantasy.exceptions import FantasyDraftException
 
 fantasy_team_util = FantasyTeamUtil()
 

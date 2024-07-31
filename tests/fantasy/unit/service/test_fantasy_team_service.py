@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -10,18 +10,17 @@ from src.common.schemas.fantasy_schemas import (
     FantasyTeam,
     UserID
 )
-from src.fantasy.exceptions.fantasy_membership_exception import FantasyMembershipException
+from src.common.schemas.riot_data_schemas import ProPlayerID
+
+from src.fantasy.exceptions import FantasyMembershipException
 from src.fantasy.service.fantasy_team_service import (
     validate_user_membership,
     get_player_from_db,
     player_already_drafted,
     get_users_most_recent_fantasy_team
 )
-from src.common.schemas.riot_data_schemas import ProPlayerID
-from src.riot.exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
 
-BASE_CRUD_PATH = 'src.db.crud'
+from src.riot.exceptions import ProfessionalPlayerNotFoundException
 
 
 class TestFantasyTeamService(FantasyLolTestBase):

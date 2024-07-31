@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import List
 
-from ...common.exceptions.fantasy_lol_exception import FantasyLolException
+from ...common.exceptions import FantasyLolException
 
 
 class RiotApiStatusCodeAssertException(FantasyLolException):

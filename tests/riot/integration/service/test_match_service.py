@@ -1,5 +1,5 @@
-from src.riot.exceptions.match_not_found_exception import MatchNotFoundException
-from src.riot.service.riot_match_service import RiotMatchService
+from src.riot.exceptions import MatchNotFoundException
+from src.riot.service import RiotMatchService
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.common.schemas.riot_data_schemas import RiotMatchID
 

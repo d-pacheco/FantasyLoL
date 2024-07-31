@@ -5,13 +5,10 @@ import copy
 from tests.test_base import FantasyLolTestBase
 from tests.test_util import fantasy_fixtures
 
-from src.db import crud
-
-from src.fantasy.exceptions.user_already_exists_exception import UserAlreadyExistsException
-from src.fantasy.exceptions.invalid_username_password_exception import \
-    InvalidUsernameOrPasswordException
 from src.common.schemas import fantasy_schemas
-from src.fantasy.service.fantasy_user_service import UserService
+from src.db import crud
+from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
+from src.fantasy.service import UserService
 
 
 class UserServiceIntegrationTest(FantasyLolTestBase):

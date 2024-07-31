@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import paginate, Page
 
-from ...common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
-from ...common.schemas.search_parameters import TournamentSearchParameters
+from src.common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
+from src.common.schemas.search_parameters import TournamentSearchParameters
 
-from ..service.riot_tournament_service import RiotTournamentService
+from src.riot.service import RiotTournamentService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")

@@ -7,7 +7,7 @@ from typing import List, Optional
 import pydantic
 from requests import Response
 
-from ...common.schemas.riot_data_schemas import (
+from src.common.schemas.riot_data_schemas import (
     League,
     RiotLeagueID,
     ProfessionalPlayer,
@@ -23,9 +23,9 @@ from ...common.schemas.riot_data_schemas import (
     PlayerGameStats,
     Schedule
 )
-from ...common.config import Config
+from src.common import Config
 
-from ..exceptions.riot_api_status_code_assert_exception import RiotApiStatusCodeAssertException
+from src.riot.exceptions import RiotApiStatusCodeAssertException
 
 logger = logging.getLogger('fantasy-lol')
 

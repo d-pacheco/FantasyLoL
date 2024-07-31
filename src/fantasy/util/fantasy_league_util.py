@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from ...common.exceptions.league_not_found_exception import LeagueNotFoundException
-from ...common.schemas.fantasy_schemas import (
+from src.common.exceptions import LeagueNotFoundException
+from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
@@ -9,15 +9,16 @@ from ...common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     UserID
 )
-from ...common.schemas.riot_data_schemas import RiotLeagueID
+from src.common.schemas.riot_data_schemas import RiotLeagueID
 
-from ...db import crud
+from src.db import crud
 
-from ..exceptions.fantasy_league_not_found_exception import FantasyLeagueNotFoundException
-from ..exceptions.fantasy_league_invalid_required_state_exception import \
-    FantasyLeagueInvalidRequiredStateException
-from ..exceptions.fantasy_unavailable_exception import FantasyUnavailableException
-from ..exceptions.draft_order_exception import DraftOrderException
+from src.fantasy.exceptions import (
+    FantasyLeagueNotFoundException,
+    FantasyLeagueInvalidRequiredStateException,
+    FantasyUnavailableException,
+    DraftOrderException
+)
 
 
 class FantasyLeagueUtil:

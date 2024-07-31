@@ -1,10 +1,10 @@
 from tests.test_base import FantasyLolTestBase
 
 from unittest.mock import MagicMock, patch
-from src.common.exceptions.fantasy_lol_exception import FantasyLolException
-from src.riot.util.job_runner import JobRunner
+from src.common.exceptions import FantasyLolException
+from src.riot.job_runner import JobRunner
 
-JOB_RUNNER_PATH = 'src.riot.util.job_runner'
+JOB_RUNNER_PATH = 'src.riot.job_runner'
 
 
 class TestJobRunner(FantasyLolTestBase):

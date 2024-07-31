@@ -1,19 +1,19 @@
-from sqlalchemy import Column
-from sqlalchemy import Enum
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Float
-from sqlalchemy import Boolean
-from sqlalchemy import ForeignKey
-from sqlalchemy import PrimaryKeyConstraint
-from sqlalchemy import JSON
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    JSON,
+    PrimaryKeyConstraint,
+    String
+)
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
-from ..common.schemas.riot_data_schemas import GameState
-from ..common.schemas.riot_data_schemas import PlayerRole
-from ..common.schemas.fantasy_schemas import FantasyLeagueStatus
-from ..common.schemas.fantasy_schemas import FantasyLeagueMembershipStatus
+from src.common.schemas.riot_data_schemas import GameState, PlayerRole
+from src.common.schemas.fantasy_schemas import FantasyLeagueStatus, FantasyLeagueMembershipStatus
 
 
 Base = declarative_base()

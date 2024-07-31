@@ -7,7 +7,7 @@ from tests.test_util import riot_api_requester_util, riot_fixtures
 
 from src.db.database import DatabaseConnection
 from src.db.models import PlayerGameMetadataModel
-from src.riot.service.riot_game_stats_service import RiotGameStatsService
+from src.riot.service import RiotGameStatsService
 
 
 def create_game_stats_service():
