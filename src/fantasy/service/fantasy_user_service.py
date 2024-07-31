@@ -2,13 +2,9 @@ import uuid
 import bcrypt
 
 from src.auth import sign_jwt
-
 from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
-
 from src.db import crud
-
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
-
 
 
 class UserService:
