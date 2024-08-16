@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 from http import HTTPStatus
 from unittest.mock import patch
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.exceptions import LeagueNotFoundException
@@ -16,7 +16,7 @@ GET_LEAGUES_MOCK_PATH = f"{BASE_LEAGUE_SERVICE_MOCK_PATH}.get_leagues"
 GET_LEAGUE_BY_ID_MOCK_PATH = f"{BASE_LEAGUE_SERVICE_MOCK_PATH}.get_league_by_id"
 
 
-class LeagueEndpointV1Test(FantasyLolTestBase):
+class LeagueEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)

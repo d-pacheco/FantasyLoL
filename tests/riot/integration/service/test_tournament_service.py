@@ -1,4 +1,4 @@
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_data_util
 
 from src.riot.exceptions import TournamentNotFoundException
@@ -11,7 +11,7 @@ def create_tournament_service():
     return RiotTournamentService()
 
 
-class TournamentServiceTest(FantasyLolTestBase):
+class TournamentServiceTest(TestBase):
     def test_get_active_tournaments(self):
         # Arrange
         tournament_service = create_tournament_service()

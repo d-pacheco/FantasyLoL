@@ -1,4 +1,5 @@
 import atexit
+import time
 from datetime import datetime
 import logging
 
@@ -8,6 +9,9 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # type: ignore
 
 from src.common import Config
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.riot.exceptions import JobConfigException
 from src.riot.service import (
@@ -33,15 +37,20 @@ class JobScheduler:
         return cls._instance
 
     def _init(self):
-        self.riot_league_service = RiotLeagueService()
-        self.riot_tournament_service = RiotTournamentService()
-        self.riot_team_service = RiotProfessionalTeamService()
-        self.riot_player_service = RiotProfessionalPlayerService()
-        self.riot_match_service = RiotMatchService()
-        self.riot_game_service = RiotGameService()
-        self.riot_game_stats_service = RiotGameStatsService()
+        db_url = "sqlite:///./database/fantasy-league-of-legends.db"
+        connection_provider = DatabaseConnectionProvider(
+            DatabaseConfig(database_url=db_url)
+        )
+        database_service = DatabaseService(connection_provider)
+        self.riot_league_service = RiotLeagueService(database_service)
+        self.riot_tournament_service = RiotTournamentService(database_service)
+        self.riot_team_service = RiotProfessionalTeamService(database_service)
+        self.riot_player_service = RiotProfessionalPlayerService(database_service)
+        self.riot_match_service = RiotMatchService(database_service)
+        self.riot_game_service = RiotGameService(database_service)
+        self.riot_game_stats_service = RiotGameStatsService(database_service)
 
-        job_store = SQLAlchemyJobStore(url=Config.DATABASE_URL)
+        job_store = SQLAlchemyJobStore(url=db_url)
         self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)

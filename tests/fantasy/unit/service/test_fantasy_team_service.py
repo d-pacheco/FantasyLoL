@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -23,7 +23,7 @@ from src.fantasy.service.fantasy_team_service import (
 from src.riot.exceptions import ProfessionalPlayerNotFoundException
 
 
-class TestFantasyTeamService(FantasyLolTestBase):
+class TestFantasyTeamService(TestBase):
     @patch(f'{BASE_CRUD_PATH}.get_user_membership_for_fantasy_league')
     def test_validate_user_membership_no_membership(self, mock_get_user_membership: MagicMock):
         # Arrange

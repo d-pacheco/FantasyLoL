@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 from unittest.mock import patch
 from http import HTTPStatus
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.schemas.riot_data_schemas import TournamentStatus
@@ -19,7 +19,7 @@ GET_TOURNAMENTS_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournament
 GET_TOURNAMENTS_BY_ID_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournament_by_id"
 
 
-class TournamentEndpointV1Test(FantasyLolTestBase):
+class TournamentEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)

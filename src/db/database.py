@@ -18,7 +18,7 @@ engine = create_engine(
 models.Base.metadata.create_all(bind=engine)
 
 with engine.connect() as connection:
-    connection.execute(views.player_game_view_query)
+    connection.execute(views.create_player_game_view_query)
     connection.commit()
 
 views.Base.metadata.create_all(bind=engine)

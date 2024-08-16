@@ -5,7 +5,7 @@ from typing import List
 from src.common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
 
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.db.models import TournamentModel
 
 from src.riot.exceptions import TournamentNotFoundException
@@ -16,7 +16,8 @@ logger = logging.getLogger('fantasy-lol')
 
 
 class RiotTournamentService:
-    def __init__(self):
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
         self.riot_api_requester = RiotApiRequester()
         self.job_runner = JobRunner()
 
@@ -28,17 +29,16 @@ class RiotTournamentService:
         )
 
     def fetch_tournaments_job(self):
-        stored_leagues = crud.get_leagues()
+        stored_leagues = self.db.get_leagues()
 
         fetched_tournaments = []
         for league in stored_leagues:
             tournaments = self.riot_api_requester.get_tournament_for_league(league.id)
             for tournament in tournaments:
-                crud.put_tournament(tournament)
+                self.db.put_tournament(tournament)
                 fetched_tournaments.append(tournament)
 
-    @staticmethod
-    def get_tournaments(search_parameters: TournamentSearchParameters) -> List[Tournament]:
+    def get_tournaments(self, search_parameters: TournamentSearchParameters) -> List[Tournament]:
         filters = []
         current_date = datetime.now()
         if search_parameters.status == TournamentStatus.ACTIVE:
@@ -49,12 +49,11 @@ class RiotTournamentService:
         if search_parameters.status == TournamentStatus.UPCOMING:
             filters.append(TournamentModel.start_date > current_date)
 
-        tournaments = crud.get_tournaments(filters)
+        tournaments = self.db.get_tournaments(filters)
         return tournaments
 
-    @staticmethod
-    def get_tournament_by_id(tournament_id: RiotTournamentID) -> Tournament:
-        tournament_orm = crud.get_tournament_by_id(tournament_id)
+    def get_tournament_by_id(self, tournament_id: RiotTournamentID) -> Tournament:
+        tournament_orm = self.db.get_tournament_by_id(tournament_id)
         if tournament_orm is None:
             raise TournamentNotFoundException()
         tournament = Tournament.model_validate(tournament_orm)

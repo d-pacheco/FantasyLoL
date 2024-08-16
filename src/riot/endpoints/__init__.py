@@ -7,7 +7,7 @@ from . import (
     professional_player_endpoint_v1,
     professional_team_endpoint_v1,
     tournament_endpoint_v1,
-    job_runner_endpoint
+    #job_runner_endpoint
 )
 
 router = APIRouter()
@@ -21,4 +21,4 @@ router.include_router(game_stats_endpoint.router, prefix=RIOT_ENDPOINT_PREFIX)
 router.include_router(professional_team_endpoint_v1.router, prefix=RIOT_ENDPOINT_PREFIX)
 router.include_router(professional_player_endpoint_v1.router, prefix=RIOT_ENDPOINT_PREFIX)
 
-router.include_router(job_runner_endpoint.router)
+#router.include_router(job_runner_endpoint.router)

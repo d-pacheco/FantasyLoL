@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 from http import HTTPStatus
 from unittest.mock import patch
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.riot.exceptions import MatchNotFoundException
@@ -16,7 +16,7 @@ GET_MATCHES_MOCK_PATH = f"{BASE_MATCH_SERVICE_MOCK_PATH}.get_matches"
 GET_MATCHES_BY_ID_MOCK_PATH = f"{BASE_MATCH_SERVICE_MOCK_PATH}.get_match_by_id"
 
 
-class MatchEndpointV1Test(FantasyLolTestBase):
+class MatchEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)

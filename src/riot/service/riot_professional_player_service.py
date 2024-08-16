@@ -4,10 +4,10 @@ from typing import List
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.db.models import ProfessionalPlayerModel
 
-from src.riot.exceptions import ProfessionalPlayerNotFoundException
+from src.common.exceptions import ProfessionalPlayerNotFoundException
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
@@ -15,7 +15,8 @@ logger = logging.getLogger('fantasy-lol')
 
 
 class RiotProfessionalPlayerService:
-    def __init__(self):
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
         self.riot_api_requester = RiotApiRequester()
         self.job_runner = JobRunner()
 
@@ -29,10 +30,9 @@ class RiotProfessionalPlayerService:
     def fetch_professional_players_from_riot_job(self):
         fetched_players = self.riot_api_requester.get_players()
         for player in fetched_players:
-            crud.put_player(player)
+            self.db.put_player(player)
 
-    @staticmethod
-    def get_players(search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:
+    def get_players(self, search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:
         filters = []
         if search_parameters.summoner_name is not None:
             filters.append(ProfessionalPlayerModel.summoner_name == search_parameters.summoner_name)
@@ -41,12 +41,11 @@ class RiotProfessionalPlayerService:
         if search_parameters.role is not None:
             filters.append(ProfessionalPlayerModel.role == search_parameters.role)
 
-        professional_players = crud.get_players(filters)
+        professional_players = self.db.get_players(filters)
         return professional_players
 
-    @staticmethod
-    def get_player_by_id(professional_player_id: ProPlayerID) -> ProfessionalPlayer:
-        professional_player = crud.get_player_by_id(professional_player_id)
+    def get_player_by_id(self, professional_player_id: ProPlayerID) -> ProfessionalPlayer:
+        professional_player = self.db.get_player_by_id(professional_player_id)
         if professional_player is None:
             raise ProfessionalPlayerNotFoundException()
         return professional_player

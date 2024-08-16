@@ -3,12 +3,19 @@ from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 from src.common.schemas.search_parameters import TeamSearchParameters
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.riot.service import RiotProfessionalTeamService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-professional_team_service = RiotProfessionalTeamService()
+professional_team_service = RiotProfessionalTeamService(DatabaseService(
+    DatabaseConnectionProvider(
+        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+    )
+))
 
 
 @router.get(

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.test_util import riot_api_requester_util, riot_fixtures
 
@@ -14,7 +14,7 @@ def create_game_stats_service():
     return RiotGameStatsService()
 
 
-class GameStatsServiceTest(FantasyLolTestBase):
+class GameStatsServiceTest(TestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_fetch_player_metadata_for_game_successful(self, mock_cloud_scraper):
         # Arrange

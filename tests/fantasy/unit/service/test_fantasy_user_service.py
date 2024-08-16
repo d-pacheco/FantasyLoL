@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
@@ -11,7 +11,7 @@ BASE_USER_SERVICE_PATH = 'src.fantasy.service.fantasy_user_service.UserService'
 SIGN_JWT_PATH = 'src.fantasy.service.fantasy_user_service.sign_jwt'
 
 
-class UserServiceTest(FantasyLolTestBase):
+class UserServiceTest(TestBase):
 
     @patch(f'{BASE_USER_SERVICE_PATH}.validate_username_and_email')
     @patch(f'{BASE_USER_SERVICE_PATH}.create_new_user')

@@ -7,7 +7,7 @@ from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.db import crud
 from src.riot.service import RiotLeagueService
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 
@@ -22,7 +22,7 @@ def create_league_in_db(league_fixture: Optional[League] = None) -> League:
     return league_fixture
 
 
-class LeagueServiceTest(FantasyLolTestBase):
+class LeagueServiceTest(TestBase):
 
     def test_get_leagues_by_name_existing_league(self):
         # Arrange

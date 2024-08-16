@@ -3,7 +3,7 @@ from src.riot.service import RiotMatchService
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.common.schemas.riot_data_schemas import RiotMatchID
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_data_util
 
 
@@ -11,7 +11,7 @@ def create_match_service():
     return RiotMatchService()
 
 
-class MatchServiceTest(FantasyLolTestBase):
+class MatchServiceTest(TestBase):
     def test_get_matches_by_league_slug_existing_match(self):
         # Arrange
         expected_match = riot_data_util.create_match_in_db()

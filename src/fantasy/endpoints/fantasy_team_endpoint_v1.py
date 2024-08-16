@@ -5,13 +5,20 @@ from src.auth import JWTBearer
 
 from src.common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 from src.common.schemas.riot_data_schemas import ProPlayerID
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.fantasy.service import FantasyTeamService
 
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-fantasy_team_service = FantasyTeamService()
+fantasy_team_service = FantasyTeamService(DatabaseService(
+    DatabaseConnectionProvider(
+        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+    )
+))
 
 
 @router.get(

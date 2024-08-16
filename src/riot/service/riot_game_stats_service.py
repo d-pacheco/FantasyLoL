@@ -5,7 +5,7 @@ from typing import List
 from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
 from src.common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
 
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.db.views import PlayerGameView
 
 from src.riot.util import RiotApiRequester
@@ -24,7 +24,8 @@ def round_current_time_to_10_seconds() -> str:
 
 
 class RiotGameStatsService:
-    def __init__(self):
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
         self.riot_api_requester = RiotApiRequester()
         self.job_runner = JobRunner()
 
@@ -36,7 +37,7 @@ class RiotGameStatsService:
         )
 
     def run_player_metadata_job(self):
-        game_ids = crud.get_game_ids_without_player_metadata()
+        game_ids = self.db.get_game_ids_without_player_metadata()
         for game_id in game_ids:
             self.fetch_and_store_player_metadata_for_game(game_id)
 
@@ -48,10 +49,10 @@ class RiotGameStatsService:
                 game_id, time_stamp)
             if len(fetched_player_metadata) == 0:
                 logger.debug(f"Game id {game_id} has no player metadata available")
-                crud.update_has_game_data(game_id, False)
+                self.db.update_has_game_data(game_id, False)
 
             for player_metadata in fetched_player_metadata:
-                crud.put_player_metadata(player_metadata)
+                self.db.put_player_metadata(player_metadata)
         except Exception as e:
             logger.error(f"Error getting player metadata for game with id {game_id}: {str(e)}")
             raise e
@@ -64,7 +65,7 @@ class RiotGameStatsService:
         )
 
     def run_player_stats_job(self):
-        game_ids = crud.get_game_ids_to_fetch_player_stats_for()
+        game_ids = self.db.get_game_ids_to_fetch_player_stats_for()
         for game_id in game_ids:
             self.fetch_and_store_player_stats_for_game(game_id)
 
@@ -77,23 +78,22 @@ class RiotGameStatsService:
 
             if len(fetched_player_stats) == 0:
                 logger.debug(f"Game id {game_id} has no player stats available")
-                crud.update_has_game_data(game_id, False)
+                self.db.update_has_game_data(game_id, False)
 
             for player_stats in fetched_player_stats:
-                crud.put_player_stats(player_stats)
+                self.db.put_player_stats(player_stats)
         except Exception as e:
             logger.error(f"Error getting player stats for game with id {game_id}: {str(e)}")
             raise e
 
-    @staticmethod
-    def get_player_stats(search_parameters: PlayerGameStatsSearchParameters) \
+    def get_player_stats(self, search_parameters: PlayerGameStatsSearchParameters) \
             -> List[PlayerGameData]:
         filters = []
         if search_parameters.game_id is not None:
             filters.append(PlayerGameView.game_id == search_parameters.game_id)
         if search_parameters.player_id is not None:
             filters.append(PlayerGameView.player_id == search_parameters.player_id)
-        player_game_stats = crud.get_player_game_stats(filters)
+        player_game_stats = self.db.get_player_game_stats(filters)
         sorted_player_game_stats = sorted(player_game_stats,
                                           key=lambda x: (x.game_id, x.participant_id))
         return sorted_player_game_stats

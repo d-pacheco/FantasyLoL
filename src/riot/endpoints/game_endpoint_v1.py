@@ -4,12 +4,19 @@ from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 from src.common.schemas.search_parameters import GameSearchParameters
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.riot.service import RiotGameService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-game_service = RiotGameService()
+game_service = RiotGameService(DatabaseService(
+    DatabaseConnectionProvider(
+        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+    )
+))
 logger = logging.getLogger('fantasy-lol')
 
 

@@ -1,4 +1,4 @@
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_data_util
 
 from src.riot.exceptions import ProfessionalPlayerNotFoundException
@@ -11,7 +11,7 @@ def create_professional_player_service():
     return RiotProfessionalPlayerService()
 
 
-class ProfessionalPlayerServiceTest(FantasyLolTestBase):
+class ProfessionalPlayerServiceTest(TestBase):
     def test_get_existing_professional_players_by_summoner_name(self):
         # Arrange
         professional_player_service = create_professional_player_service()

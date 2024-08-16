@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, Mock, patch
 from src.riot.util import RiotApiRequester
 from src.riot.exceptions import RiotApiStatusCodeAssertException
 
-from tests.test_base import FantasyLolTestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.test_base import TestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.test_util import riot_api_requester_util, riot_fixtures
 
 RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH = \
     'src.riot.util.riot_api_requester.RiotApiRequester.get_tournament_id_for_match'
 
 
-class RiotApiRequesterTest(FantasyLolTestBase):
+class RiotApiRequesterTest(TestBase):
 
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_get_leagues_successful(self, mock_cloud_scraper: MagicMock):

@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import List
 from unittest.mock import patch, MagicMock
 
-from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -19,7 +19,7 @@ from src.fantasy.exceptions import FantasyDraftException
 fantasy_team_util = FantasyTeamUtil()
 
 
-class TestFantasyTeamUtil(FantasyLolTestBase):
+class TestFantasyTeamUtil(TestBase):
     @patch(f'{BASE_CRUD_PATH}.get_league_ids_for_player')
     def test_validate_player_from_available_league_successful(
             self, mock_get_league_ids_for_player: MagicMock):

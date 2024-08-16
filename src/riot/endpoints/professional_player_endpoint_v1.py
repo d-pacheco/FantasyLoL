@@ -8,12 +8,19 @@ from src.common.schemas.riot_data_schemas import (
     ProTeamID
 )
 from src.common.schemas.search_parameters import PlayerSearchParameters
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.riot.service import RiotProfessionalPlayerService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-professional_player_service = RiotProfessionalPlayerService()
+professional_player_service = RiotProfessionalPlayerService(DatabaseService(
+    DatabaseConnectionProvider(
+        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+    )
+))
 
 
 def validate_role_parameter(

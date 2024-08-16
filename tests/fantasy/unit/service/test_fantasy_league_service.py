@@ -2,7 +2,7 @@ from unittest.mock import patch, MagicMock
 import uuid
 import copy
 
-from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -18,7 +18,7 @@ from src.fantasy.service import FantasyLeagueService
 FANTASY_LEAGUE_SERV_PATH = 'src.fantasy.service.fantasy_league_service.FantasyLeagueService'
 
 
-class TestFantasyLeagueService(FantasyLolTestBase):
+class TestFantasyLeagueService(TestBase):
 
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     @patch(f'{FANTASY_LEAGUE_SERV_PATH}.generate_new_valid_id')

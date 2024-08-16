@@ -1,4 +1,4 @@
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_data_util
 
 from src.riot.exceptions import ProfessionalTeamNotFoundException
@@ -11,7 +11,7 @@ def create_professional_team_service():
     return RiotProfessionalTeamService()
 
 
-class ProfessionalTeamServiceTest(FantasyLolTestBase):
+class ProfessionalTeamServiceTest(TestBase):
     def test_get_professional_teams_by_slug_existing_team(self):
         # Arrange
         professional_team_service = create_professional_team_service()

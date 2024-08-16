@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock, call
 
-from tests.test_base import FantasyLolTestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase, BASE_CRUD_PATH
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -25,7 +25,7 @@ from src.fantasy.util import FantasyLeagueUtil
 fantasy_league_util = FantasyLeagueUtil()
 
 
-class TestFantasyLeagueUtil(FantasyLolTestBase):
+class TestFantasyLeagueUtil(TestBase):
     @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_by_id')
     def test_validate_league_successful(self, mock_get_fantasy_league_by_id: MagicMock):
         # Arrange

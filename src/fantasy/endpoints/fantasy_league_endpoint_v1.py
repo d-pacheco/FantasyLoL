@@ -12,13 +12,20 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrderResponse,
     UserID
 )
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 from src.fantasy.service import FantasyLeagueService
 
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-fantasy_league_service = FantasyLeagueService()
+fantasy_league_service = FantasyLeagueService(DatabaseService(
+    DatabaseConnectionProvider(
+        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+    )
+))
 
 
 @router.get(

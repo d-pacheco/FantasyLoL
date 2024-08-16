@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
 from http import HTTPStatus
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.schemas.search_parameters import PlayerSearchParameters
@@ -17,7 +17,7 @@ PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH = f"{BASE_PLAYER_SERVICE_MOCK_PATH}.get_pla
 PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH = f"{BASE_PLAYER_SERVICE_MOCK_PATH}.get_player_by_id"
 
 
-class ProfessionalPlayerEndpointV1Test(FantasyLolTestBase):
+class ProfessionalPlayerEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)

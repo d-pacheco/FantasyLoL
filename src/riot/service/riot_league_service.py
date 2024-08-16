@@ -5,7 +5,7 @@ from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.common.schemas.search_parameters import LeagueSearchParameters
 
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.db.models import LeagueModel
 
 from src.riot.util import RiotApiRequester
@@ -15,7 +15,8 @@ logger = logging.getLogger('fantasy-lol')
 
 
 class RiotLeagueService:
-    def __init__(self):
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
         self.riot_api_requester = RiotApiRequester()
         self.job_runner = JobRunner()
 
@@ -29,10 +30,9 @@ class RiotLeagueService:
     def fetch_leagues_from_riot_job(self):
         fetched_leagues = self.riot_api_requester.get_leagues()
         for league in fetched_leagues:
-            crud.put_league(league)
+            self.db.put_league(league)
 
-    @staticmethod
-    def get_leagues(search_parameters: LeagueSearchParameters) -> List[League]:
+    def get_leagues(self, search_parameters: LeagueSearchParameters) -> List[League]:
         filters = []
         if search_parameters.name is not None:
             filters.append(LeagueModel.name == search_parameters.name)
@@ -40,20 +40,18 @@ class RiotLeagueService:
             filters.append(LeagueModel.region == search_parameters.region)
         if search_parameters.fantasy_available is not None:
             filters.append(LeagueModel.fantasy_available == search_parameters.fantasy_available)
-        leagues = crud.get_leagues(filters)
+        leagues = self.db.get_leagues(filters)
 
         return leagues
 
-    @staticmethod
-    def get_league_by_id(league_id: RiotLeagueID) -> League:
-        league = crud.get_league_by_id(league_id)
+    def get_league_by_id(self, league_id: RiotLeagueID) -> League:
+        league = self.db.get_league_by_id(league_id)
         if league is None:
             raise LeagueNotFoundException()
         return league
 
-    @staticmethod
-    def update_fantasy_available(league_id: RiotLeagueID, status: bool) -> League:
-        league = crud.update_league_fantasy_available_status(league_id, status)
+    def update_fantasy_available(self, league_id: RiotLeagueID, status: bool) -> League:
+        league = self.db.update_league_fantasy_available_status(league_id, status)
         if league is None:
             raise LeagueNotFoundException()
         return league

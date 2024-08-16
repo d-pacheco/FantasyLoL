@@ -1,13 +1,21 @@
 from fastapi import APIRouter, Body
 
 from src.common.schemas.fantasy_schemas import UserCreate, UserLogin
-
+from src.db.database_config import DatabaseConfig
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 from src.fantasy.service import UserService
 
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-user_service = UserService()
+user_service = UserService(
+    DatabaseService(
+        DatabaseConnectionProvider(
+            DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
+        )
+    )
+)
 
 
 @router.post(

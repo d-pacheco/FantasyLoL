@@ -1,44 +1,44 @@
-from src.common.schemas.riot_data_schemas import ProfessionalPlayer
-from src.db import crud
-from src.db.models import ProfessionalPlayerModel
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
+from src.common.schemas.riot_data_schemas import ProfessionalPlayer
+from src.db.models import ProfessionalPlayerModel
 
-class TestCrudRiotPlayer(FantasyLolTestBase):
+
+class TestCrudRiotPlayer(TestBase):
     def test_put_player_no_existing_player(self):
         # Arrange
         player = riot_fixtures.player_1_fixture
 
         # Act and Assert
-        player_before_put = crud.get_player_by_id(player.id)
+        player_before_put = self.db.get_player_by_id(player.id)
         self.assertIsNone(player_before_put)
-        crud.put_player(player)
-        player_after_put = crud.get_player_by_id(player.id)
+        self.db.put_player(player)
+        player_after_put = self.db.get_player_by_id(player.id)
         self.assertEqual(player, player_after_put)
 
     def test_put_player_existing_player(self):
         # Arrange
         player = riot_fixtures.player_1_fixture
-        crud.put_player(player)
+        self.db.put_player(player)
         updated_player = player.model_copy(deep=True)
         updated_player.image = "updatedImage"
 
         # Act and Assert
-        player_before_put = crud.get_player_by_id(player.id)
+        player_before_put = self.db.get_player_by_id(player.id)
         self.assertEqual(player, player_before_put)
         self.assertEqual(player.id, updated_player.id)
-        crud.put_player(updated_player)
-        player_after_put = crud.get_player_by_id(player.id)
+        self.db.put_player(updated_player)
+        player_after_put = self.db.get_player_by_id(player.id)
         self.assertEqual(updated_player, player_after_put)
 
     def test_get_players_no_filters(self):
         # Arrange
         expected_player = riot_fixtures.player_1_fixture
-        crud.put_player(expected_player)
+        self.db.put_player(expected_player)
 
         # Act
-        players_from_db = crud.get_players()
+        players_from_db = self.db.get_players()
 
         # Assert
         self.assertIsInstance(players_from_db, list)
@@ -51,10 +51,10 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         # Arrange
         filters = []
         expected_player = riot_fixtures.player_1_fixture
-        crud.put_player(expected_player)
+        self.db.put_player(expected_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertIsInstance(players_from_db, list)
@@ -69,11 +69,11 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
         filters.append(ProfessionalPlayerModel.summoner_name == expected_player.summoner_name)
-        crud.put_player(expected_player)
-        crud.put_player(other_player)
+        self.db.put_player(expected_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
@@ -89,10 +89,10 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
         filters.append(ProfessionalPlayerModel.summoner_name == expected_player.summoner_name)
-        crud.put_player(other_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.summoner_name, other_player.summoner_name)
@@ -105,11 +105,11 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
         filters.append(ProfessionalPlayerModel.team_id == expected_player.team_id)
-        crud.put_player(expected_player)
-        crud.put_player(other_player)
+        self.db.put_player(expected_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
@@ -125,10 +125,10 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_6_fixture
         filters.append(ProfessionalPlayerModel.team_id == expected_player.team_id)
-        crud.put_player(other_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.team_id, other_player.team_id)
@@ -141,11 +141,11 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_7_fixture
         filters.append(ProfessionalPlayerModel.role == expected_player.role)
-        crud.put_player(expected_player)
-        crud.put_player(other_player)
+        self.db.put_player(expected_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player, other_player)
@@ -161,10 +161,10 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
         other_player = riot_fixtures.player_7_fixture
         filters.append(ProfessionalPlayerModel.role == expected_player.role)
-        crud.put_player(other_player)
+        self.db.put_player(other_player)
 
         # Act
-        players_from_db = crud.get_players(filters)
+        players_from_db = self.db.get_players(filters)
 
         # Assert
         self.assertNotEqual(expected_player.role, other_player.role)
@@ -174,10 +174,10 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
     def test_get_player_by_id_existing_player(self):
         # Arrange
         expected_player = riot_fixtures.player_1_fixture
-        crud.put_player(expected_player)
+        self.db.put_player(expected_player)
 
         # Act
-        player_from_db = crud.get_player_by_id(expected_player.id)
+        player_from_db = self.db.get_player_by_id(expected_player.id)
 
         # Assert
         self.assertIsNotNone(player_from_db)
@@ -189,7 +189,7 @@ class TestCrudRiotPlayer(FantasyLolTestBase):
         expected_player = riot_fixtures.player_1_fixture
 
         # Act
-        player_from_db = crud.get_player_by_id(expected_player.id)
+        player_from_db = self.db.get_player_by_id(expected_player.id)
 
         # Assert
         self.assertIsNone(player_from_db)
