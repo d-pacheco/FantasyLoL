@@ -16,3 +16,7 @@ class TestDatabaseService:
         with self.connection_provider.get_db() as db:
             return db.query(models.FantasyLeagueMembershipModel) \
                 .filter(models.FantasyLeagueMembershipModel.league_id == league_id).all()
+
+    def get_all_game_metadata(self):
+        with self.connection_provider.get_db() as db:
+            return db.query(models.PlayerGameMetadataModel).all()

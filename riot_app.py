@@ -4,6 +4,7 @@ from src.common.logger import configure_logger
 from src.riot import app
 from src.riot.util.job_scheduler import JobScheduler
 
+
 if __name__ == "__main__":
     configure_logger()
     job_scheduler = JobScheduler()

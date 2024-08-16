@@ -1,5 +1,4 @@
 import atexit
-import time
 from datetime import datetime
 import logging
 
@@ -38,25 +37,22 @@ class JobScheduler:
 
     def _init(self):
         db_url = "sqlite:///./database/fantasy-league-of-legends.db"
-        connection_provider = DatabaseConnectionProvider(
+        self.connection_provider = DatabaseConnectionProvider(
             DatabaseConfig(database_url=db_url)
         )
-        database_service = DatabaseService(connection_provider)
-        self.riot_league_service = RiotLeagueService(database_service)
-        self.riot_tournament_service = RiotTournamentService(database_service)
-        self.riot_team_service = RiotProfessionalTeamService(database_service)
-        self.riot_player_service = RiotProfessionalPlayerService(database_service)
-        self.riot_match_service = RiotMatchService(database_service)
-        self.riot_game_service = RiotGameService(database_service)
-        self.riot_game_stats_service = RiotGameStatsService(database_service)
+        self.database_service = DatabaseService(self.connection_provider)
+        self.riot_league_service = RiotLeagueService(self.database_service)
+        self.riot_tournament_service = RiotTournamentService(self.database_service)
+        self.riot_team_service = RiotProfessionalTeamService(self.database_service)
+        self.riot_player_service = RiotProfessionalPlayerService(self.database_service)
+        self.riot_match_service = RiotMatchService(self.database_service)
+        self.riot_game_service = RiotGameService(self.database_service)
+        self.riot_game_stats_service = RiotGameStatsService(self.database_service)
 
         job_store = SQLAlchemyJobStore(url=db_url)
         self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
-
-    def __init__(self):
-        pass
 
     def trigger_league_service_job(self):
         job = self.scheduler.get_job('league_service_job')

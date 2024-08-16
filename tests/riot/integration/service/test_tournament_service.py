@@ -1,27 +1,27 @@
 from tests.test_base import TestBase
-from tests.test_util import riot_data_util
+from tests.test_util import riot_fixtures
 
-from src.riot.exceptions import TournamentNotFoundException
-from src.riot.service import RiotTournamentService
 from src.common.schemas.riot_data_schemas import TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
-
-
-def create_tournament_service():
-    return RiotTournamentService()
+from src.riot.exceptions import TournamentNotFoundException
+from src.riot.service.riot_tournament_service import RiotTournamentService
 
 
 class TournamentServiceTest(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.tournament_service = RiotTournamentService(self.db)
+    
     def test_get_active_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_completed_tournament_in_db()
-        riot_data_util.create_upcoming_tournament_in_db()
-        expected_tournament = riot_data_util.create_active_tournament_in_db()
+        expected_tournament = riot_fixtures.active_tournament_fixture
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
+        self.db.put_tournament(expected_tournament)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.ACTIVE)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -30,13 +30,12 @@ class TournamentServiceTest(TestBase):
 
     def test_get_active_tournaments_with_no_active_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_completed_tournament_in_db()
-        riot_data_util.create_upcoming_tournament_in_db()
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.ACTIVE)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -44,14 +43,14 @@ class TournamentServiceTest(TestBase):
 
     def test_get_completed_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_active_tournament_in_db()
-        riot_data_util.create_upcoming_tournament_in_db()
-        expected_tournament = riot_data_util.create_completed_tournament_in_db()
+        expected_tournament = riot_fixtures.tournament_fixture
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
+        self.db.put_tournament(expected_tournament)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.COMPLETED)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -60,13 +59,12 @@ class TournamentServiceTest(TestBase):
 
     def test_get_completed_tournaments_with_no_completed_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_active_tournament_in_db()
-        riot_data_util.create_upcoming_tournament_in_db()
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.COMPLETED)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -74,14 +72,14 @@ class TournamentServiceTest(TestBase):
 
     def test_get_upcoming_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_active_tournament_in_db()
-        riot_data_util.create_completed_tournament_in_db()
-        expected_tournament = riot_data_util.create_upcoming_tournament_in_db()
+        expected_tournament = riot_fixtures.future_tournament_fixture
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_tournament(expected_tournament)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.UPCOMING)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -90,13 +88,12 @@ class TournamentServiceTest(TestBase):
 
     def test_get_upcoming_tournaments_with_no_upcoming_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_active_tournament_in_db()
-        riot_data_util.create_completed_tournament_in_db()
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
         search_parameters = TournamentSearchParameters(status=TournamentStatus.UPCOMING)
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -104,14 +101,13 @@ class TournamentServiceTest(TestBase):
 
     def test_get_all_tournaments(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_active_tournament_in_db()
-        riot_data_util.create_completed_tournament_in_db()
-        riot_data_util.create_upcoming_tournament_in_db()
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
         search_parameters = TournamentSearchParameters()
 
         # Act
-        tournament_from_db = tournament_service.get_tournaments(search_parameters)
+        tournament_from_db = self.tournament_service.get_tournaments(search_parameters)
 
         # Assert
         self.assertIsInstance(tournament_from_db, list)
@@ -119,20 +115,19 @@ class TournamentServiceTest(TestBase):
 
     def test_get_tournament_by_id(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        expected_tournament = riot_data_util.create_completed_tournament_in_db()
+        expected_tournament = riot_fixtures.tournament_fixture
+        self.db.put_tournament(expected_tournament)
 
         # Act
-        tournament_from_db = tournament_service.get_tournament_by_id(expected_tournament.id)
+        tournament_from_db = self.tournament_service.get_tournament_by_id(expected_tournament.id)
 
         # Assert
         self.assertEqual(tournament_from_db, expected_tournament)
 
     def test_get_tournament_by_id_invalid_id(self):
         # Arrange
-        tournament_service = create_tournament_service()
-        riot_data_util.create_completed_tournament_in_db()
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
 
         # Act and Assert
         with self.assertRaises(TournamentNotFoundException):
-            tournament_service.get_tournament_by_id(RiotTournamentID("777"))
+            self.tournament_service.get_tournament_by_id(RiotTournamentID("777"))

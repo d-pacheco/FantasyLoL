@@ -1,10 +1,11 @@
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
-from src.riot.exceptions import GameNotFoundException
-from src.riot.service import RiotGameService
 from src.common.schemas.riot_data_schemas import GameState, RiotGameID
 from src.common.schemas.search_parameters import GameSearchParameters
+from src.riot.exceptions import GameNotFoundException
+from src.riot.service import RiotGameService
+
 
 
 class GameServiceTest(TestBase):
