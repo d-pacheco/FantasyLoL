@@ -7,7 +7,7 @@ from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.schemas.search_parameters import PlayerSearchParameters
-from src.riot.exceptions import ProfessionalPlayerNotFoundException
+from src.common.exceptions import ProfessionalPlayerNotFoundException
 from src.riot import app
 
 PROFESSIONAL_PLAYER_BASE_URL = "/riot/v1/professional-player"

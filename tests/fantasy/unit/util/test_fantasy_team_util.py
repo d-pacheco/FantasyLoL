@@ -1,8 +1,8 @@
 from copy import deepcopy
 from typing import List
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
-from tests.test_base import TestBase, BASE_CRUD_PATH
+from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
 
 from src.common.schemas.fantasy_schemas import (
@@ -16,62 +16,60 @@ from src.common.schemas.riot_data_schemas import RiotLeagueID, ProPlayerID
 from src.fantasy.util import FantasyTeamUtil
 from src.fantasy.exceptions import FantasyDraftException
 
-fantasy_team_util = FantasyTeamUtil()
-
 
 class TestFantasyTeamUtil(TestBase):
-    @patch(f'{BASE_CRUD_PATH}.get_league_ids_for_player')
-    def test_validate_player_from_available_league_successful(
-            self, mock_get_league_ids_for_player: MagicMock):
+    def setUp(self):
+        self.mock_db_service = MagicMock()
+        self.fantasy_team_util = FantasyTeamUtil(self.mock_db_service)
+    
+    def tearDown(self):
+        self.mock_db_service.reset_mock()
+        
+    def test_validate_player_from_available_league_successful(self):
         # Arrange
         player_id = ProPlayerID("321")
         league_ids = [RiotLeagueID("1234")]
-        mock_get_league_ids_for_player.return_value = league_ids
+        self.mock_db_service.get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = league_ids
 
         # Act and Assert
         try:
-            fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
+            self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         except FantasyDraftException:
             self.fail("Validate player from available league encountered an unexpected exception")
 
-    @patch(f'{BASE_CRUD_PATH}.get_league_ids_for_player')
-    def test_validate_player_from_available_league_player_not_in_available_league_exception(
-            self, mock_get_league_ids_for_player: MagicMock):
+    def test_validate_player_from_available_league_player_not_in_available_league_exception(self):
         # Arrange
         player_id = ProPlayerID("321")
         league_ids = [RiotLeagueID("1234")]
         available_league_ids = [RiotLeagueID("4321")]
-        mock_get_league_ids_for_player.return_value = league_ids
+        self.mock_db_service.get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = available_league_ids
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
+            self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         self.assertIn("Player not in available league", str(context.exception))
         self.assertNotEqual(league_ids, available_league_ids)
 
-    @patch(f'{BASE_CRUD_PATH}.get_league_ids_for_player')
-    def test_validate_player_from_available_league_no_league_ids_returned_exception(
-            self, mock_get_league_ids_for_player: MagicMock):
+    def test_validate_player_from_available_league_no_league_ids_returned_exception(self):
         # Arrange
         player_id = ProPlayerID("321")
         league_ids: List[RiotLeagueID] = []
         available_league_ids = [RiotLeagueID("4321")]
-        mock_get_league_ids_for_player.return_value = league_ids
+        self.mock_db_service.get_league_ids_for_player.return_value = league_ids
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = available_league_ids
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
+            self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         self.assertIn("Player not in available league", str(context.exception))
         self.assertNotEqual(league_ids, available_league_ids)
 
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_draft_order')
-    def test_is_users_position_to_draft_true(self, mock_get_fantasy_league_draft_order: MagicMock):
+    def test_is_users_position_to_draft_true(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
@@ -83,18 +81,17 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
-        mock_get_fantasy_league_draft_order.return_value = draft_order
+        self.mock_db_service.get_fantasy_league_draft_order.return_value = draft_order
 
         # Act
-        is_turn_to_draft = fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
+        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
 
         # Assert
         self.assertTrue(is_turn_to_draft)
         self.assertEqual(fantasy_league.current_draft_position, user_draft_position.position)
-        mock_get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
 
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_draft_order')
-    def test_is_users_position_to_draft_false(self, mock_get_fantasy_league_draft_order: MagicMock):
+    def test_is_users_position_to_draft_false(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture.model_copy()
@@ -106,19 +103,17 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
-        mock_get_fantasy_league_draft_order.return_value = draft_order
+        self.mock_db_service.get_fantasy_league_draft_order.return_value = draft_order
 
         # Act
-        is_turn_to_draft = fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
+        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
 
         # Assert
         self.assertFalse(is_turn_to_draft)
         self.assertNotEqual(fantasy_league.current_draft_position, user_draft_position.position)
-        mock_get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
 
-    @patch(f'{BASE_CRUD_PATH}.get_fantasy_league_draft_order')
-    def test_is_users_position_to_draft_no_user_draft_position_found_exception(
-            self, mock_get_fantasy_league_draft_order: MagicMock):
+    def test_is_users_position_to_draft_no_user_draft_position_found_exception(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_draft_fixture)
@@ -130,17 +125,15 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league_id=fantasy_league.id, user_id=UserID("someOtherUser"), position=2
         )
         draft_order = [user_draft_position, other_user_draft_position]
-        mock_get_fantasy_league_draft_order.return_value = draft_order
+        self.mock_db_service.get_fantasy_league_draft_order.return_value = draft_order
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            fantasy_team_util.is_users_position_to_draft(fantasy_league, UserID("notFoundUserId"))
+            self.fantasy_team_util.is_users_position_to_draft(fantasy_league, UserID("notFoundUserId"))
         self.assertIn("Could not find draft position", str(context.exception))
-        mock_get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_true(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_true(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -150,21 +143,19 @@ class TestFantasyTeamUtil(TestBase):
             )
             for user_id in range(fantasy_league.number_of_teams)
         ]
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertTrue(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_too_few_fantasy_teams(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_too_few_fantasy_teams(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -174,21 +165,19 @@ class TestFantasyTeamUtil(TestBase):
             )
             for user_id in range(fantasy_league.number_of_teams - 1)
         ]
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertNotEqual(fantasy_league.number_of_teams, len(fantasy_teams))
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_too_many_fantasy_teams(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_too_many_fantasy_teams(self):
         # !!!!!!!!!  THIS SHOULD NEVER HAPPEN  !!!!!!!!!!
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
@@ -199,21 +188,19 @@ class TestFantasyTeamUtil(TestBase):
             )
             for user_id in range(fantasy_league.number_of_teams + 1)
         ]
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertNotEqual(fantasy_league.number_of_teams, len(fantasy_teams))
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_team_missing_top_player(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_team_missing_top_player(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -227,22 +214,20 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league.id, UserID("123"), fantasy_league.current_week, set_top_player_id=False
         )
         fantasy_teams.append(missing_top_player_team)
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
         self.assertEqual(missing_top_player_team.top_player_id, None)
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_team_missing_jungle_player(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_team_missing_jungle_player(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -259,22 +244,20 @@ class TestFantasyTeamUtil(TestBase):
             set_jungle_player_id=False
         )
         fantasy_teams.append(missing_jungle_player_team)
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
         self.assertEqual(missing_jungle_player_team.jungle_player_id, None)
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_team_missing_mid_player(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_team_missing_mid_player(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -288,22 +271,20 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league.id, UserID("123"), fantasy_league.current_week, set_mid_player_id=False
         )
         fantasy_teams.append(missing_mid_player_team)
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
         self.assertEqual(missing_mid_player_team.mid_player_id, None)
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_team_missing_adc_player(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_team_missing_adc_player(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -317,22 +298,20 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league.id, UserID("123"), fantasy_league.current_week, set_adc_player_id=False
         )
         fantasy_teams.append(missing_adc_player_team)
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
         self.assertEqual(missing_adc_player_team.adc_player_id, None)
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
-    @patch(f'{BASE_CRUD_PATH}.get_all_fantasy_teams_for_week')
-    def test_all_teams_fully_drafted_team_missing_support_player(
-            self, mock_get_all_fantasy_teams_for_current_week: MagicMock):
+    def test_all_teams_fully_drafted_team_missing_support_player(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_draft_fixture
         assert fantasy_league.current_week is not None, "current_week should not be None"
@@ -349,16 +328,16 @@ class TestFantasyTeamUtil(TestBase):
             set_support_player_id=False
         )
         fantasy_teams.append(missing_support_player_team)
-        mock_get_all_fantasy_teams_for_current_week.return_value = fantasy_teams
+        self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
 
         # Act
-        all_teams_fully_drafted = fantasy_team_util.all_teams_fully_drafted(fantasy_league)
+        all_teams_fully_drafted = self.fantasy_team_util.all_teams_fully_drafted(fantasy_league)
 
         # Assert
         self.assertFalse(all_teams_fully_drafted)
         self.assertEqual(fantasy_league.number_of_teams, len(fantasy_teams))
         self.assertEqual(missing_support_player_team.support_player_id, None)
-        mock_get_all_fantasy_teams_for_current_week.assert_called_once_with(
+        self.mock_db_service.get_all_fantasy_teams_for_week.assert_called_once_with(
             fantasy_league.id, fantasy_league.current_week
         )
 
