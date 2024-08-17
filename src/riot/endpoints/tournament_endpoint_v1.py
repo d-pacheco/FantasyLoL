@@ -3,24 +3,22 @@ from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
-from src.db.database_config import DatabaseConfig
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
+from src.db.database_service import db_service
 
 from src.riot.service import RiotTournamentService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-tournament_service = RiotTournamentService(DatabaseService(
-    DatabaseConnectionProvider(
-        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
-    )
-))
+tournament_service = RiotTournamentService(db_service)
 
 
 def validate_status_parameter(status: TournamentStatus = Query(
         None, description="Status of tournament")):
     return status
+
+
+def get_tournament_service() -> RiotTournamentService:
+    return tournament_service
 
 
 @router.get(
@@ -35,10 +33,11 @@ def validate_status_parameter(status: TournamentStatus = Query(
     }
 )
 def get_riot_tournaments(
-        status: TournamentStatus = Depends(validate_status_parameter)
+        status: TournamentStatus = Depends(validate_status_parameter),
+        service: RiotTournamentService = Depends(get_tournament_service)
 ) -> Page[Tournament]:
     search_parameters = TournamentSearchParameters(status=status)
-    tournaments = tournament_service.get_tournaments(search_parameters)
+    tournaments = service.get_tournaments(search_parameters)
     return paginate(tournaments)
 
 
@@ -61,5 +60,8 @@ def get_riot_tournaments(
         }
     }
 )
-def get_riot_tournaments_by_id(tournament_id: RiotTournamentID) -> Tournament:
-    return tournament_service.get_tournament_by_id(tournament_id)
+def get_riot_tournaments_by_id(
+        tournament_id: RiotTournamentID,
+        service: RiotTournamentService = Depends(get_tournament_service)
+) -> Tournament:
+    return service.get_tournament_by_id(tournament_id)

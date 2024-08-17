@@ -1,23 +1,26 @@
 from contextlib import contextmanager
+from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
 from src.common.singleton_meta import SingletonMeta
+from src.common.config import app_config
 from src.db.models import Base
 from src.db.views import create_player_game_view_query
-from src.db.database_config import DatabaseConfig
 
 
 class DatabaseConnectionProvider(metaclass=SingletonMeta):
-    def __init__(self, config: DatabaseConfig):
-        self.config = config
+    def __init__(self, database_url: str):
+        if ":memory:" not in database_url:
+            Path("./database/").mkdir(parents=True, exist_ok=True)
+
         self.engine = create_engine(
-            url=self.config.database_url,
+            url=database_url,
             poolclass=QueuePool,
-            pool_size=config.pool_size,
-            max_overflow=config.max_overflow,
+            pool_size=5,
+            max_overflow=10,
             connect_args={"check_same_thread": False}
         )
         self.SessionLocal = scoped_session(
@@ -38,3 +41,6 @@ class DatabaseConnectionProvider(metaclass=SingletonMeta):
             yield db
         finally:
             db.close()
+
+
+db_connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)

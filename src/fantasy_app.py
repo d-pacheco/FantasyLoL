@@ -1,16 +1,20 @@
 import uvicorn
 import sys
-
+from fastapi import FastAPI
+from fastapi_pagination import add_pagination
+from fastapi_pagination.utils import disable_installed_extensions_check
+from src.fantasy.endpoints import router
 from src.common.logger import configure_logger
-from src.riot import app
-from src.riot.util.job_scheduler import JobScheduler
 
+
+app = FastAPI()
+add_pagination(app)
+disable_installed_extensions_check()
+app.include_router(router)
 
 if __name__ == "__main__":
     try:
         configure_logger()
-        job_scheduler = JobScheduler()
-        #job_scheduler.schedule_all_jobs()
         uvicorn.run(app, host="0.0.0.0", port=80)
     except KeyboardInterrupt:
         print("Exiting")

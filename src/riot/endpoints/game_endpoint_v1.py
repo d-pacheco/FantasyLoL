@@ -4,24 +4,22 @@ from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 from src.common.schemas.search_parameters import GameSearchParameters
-from src.db.database_config import DatabaseConfig
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
+from src.db.database_service import db_service
 
 from src.riot.service import RiotGameService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-game_service = RiotGameService(DatabaseService(
-    DatabaseConnectionProvider(
-        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
-    )
-))
+game_service = RiotGameService(db_service)
 logger = logging.getLogger('fantasy-lol')
 
 
 def validate_status_parameter(state: GameState = Query(None, description="Filter by game state")):
     return state
+
+
+def get_game_service() -> RiotGameService:
+    return game_service
 
 
 @router.get(
@@ -37,12 +35,14 @@ def validate_status_parameter(state: GameState = Query(None, description="Filter
 )
 def get_riot_games(
         state: GameState = Depends(validate_status_parameter),
-        match_id: RiotMatchID = Query(None, description="Filter by game match id")) -> Page[Game]:
+        match_id: RiotMatchID = Query(None, description="Filter by game match id"),
+        service: RiotGameService = Depends(get_game_service)
+) -> Page[Game]:
     search_parameters = GameSearchParameters(
         state=state,
         match_id=match_id
     )
-    games = game_service.get_games(search_parameters)
+    games = service.get_games(search_parameters)
     return paginate(games)
 
 
@@ -65,5 +65,8 @@ def get_riot_games(
         }
     }
 )
-def get_riot_game_by_id(game_id: RiotGameID) -> Game:
-    return game_service.get_game_by_id(game_id)
+def get_riot_game_by_id(
+        game_id: RiotGameID,
+        service: RiotGameService = Depends(get_game_service)
+) -> Game:
+    return service.get_game_by_id(game_id)

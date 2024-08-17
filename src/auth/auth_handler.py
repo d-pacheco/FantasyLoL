@@ -3,12 +3,12 @@ from typing import Dict
 import jwt
 import logging
 
-from src.common import Config
+from src.common import app_config
 
 logger = logging.getLogger('fantasy-lol')
 
-JWT_SECRET = Config.SECRET
-JWT_ALGORITHM = Config.ALGORITHM
+JWT_SECRET = app_config.SECRET
+JWT_ALGORITHM = app_config.ALGORITHM
 
 
 def token_response(token: str):

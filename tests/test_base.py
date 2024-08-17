@@ -5,7 +5,6 @@ from sqlalchemy import MetaData
 from tests.test_util.db_util import TestDatabaseService
 
 from src.db import models
-from src.db.database_config import DatabaseConfig
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
 
@@ -24,9 +23,7 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.db_provider = DatabaseConnectionProvider(
-            DatabaseConfig(database_url=TEST_DATABASE_URL, pool_size=1, max_overflow=0)
-        )
+        cls.db_provider = DatabaseConnectionProvider(database_url=TEST_DATABASE_URL)
         cls.db = DatabaseService(cls.db_provider)
         cls.test_db = TestDatabaseService(cls.db_provider)
 

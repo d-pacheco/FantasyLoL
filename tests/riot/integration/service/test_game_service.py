@@ -7,7 +7,6 @@ from src.riot.exceptions import GameNotFoundException
 from src.riot.service import RiotGameService
 
 
-
 class GameServiceTest(TestBase):
     def setUp(self):
         super().setUp()

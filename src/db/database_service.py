@@ -1,7 +1,10 @@
 from src.common.schemas.fantasy_schemas import *
 from src.common.schemas.riot_data_schemas import *
 from src.common.singleton_meta import SingletonMeta
-from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_connection_provider import (
+    DatabaseConnectionProvider,
+    db_connection_provider
+)
 from src.db.fantasy_dao import (
     draft_order_dao,
     fantasy_league_dao,
@@ -312,3 +315,6 @@ class DatabaseService(metaclass=SingletonMeta):
     def get_user_by_email(self, email: str) -> Optional[User]:
         with self.connection_provider.get_db() as db:
             return user_dao.get_user_by_email(db, email)
+
+
+db_service = DatabaseService(db_connection_provider)

@@ -5,20 +5,18 @@ from src.auth import JWTBearer
 
 from src.common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 from src.common.schemas.riot_data_schemas import ProPlayerID
-from src.db.database_config import DatabaseConfig
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
+from src.db.database_service import db_service
 
 from src.fantasy.service import FantasyTeamService
 
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-fantasy_team_service = FantasyTeamService(DatabaseService(
-    DatabaseConnectionProvider(
-        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
-    )
-))
+fantasy_team_service = FantasyTeamService(db_service)
+
+
+def get_fantasy_team_service() -> FantasyTeamService:
+    return fantasy_team_service
 
 
 @router.get(
@@ -29,9 +27,11 @@ fantasy_team_service = FantasyTeamService(DatabaseService(
 )
 def get_fantasy_team_weeks_for_league(
         fantasy_league_id: FantasyLeagueID,
-        decoded_token: dict = Depends(JWTBearer())) -> List[FantasyTeam]:
+        decoded_token: dict = Depends(JWTBearer()),
+        service: FantasyTeamService = Depends(get_fantasy_team_service)
+) -> List[FantasyTeam]:
     user_id = UserID(decoded_token.get("user_id"))  # type: ignore
-    return fantasy_team_service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
+    return service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
 
 
 @router.put(
@@ -43,9 +43,11 @@ def get_fantasy_team_weeks_for_league(
 def pickup_player(
         fantasy_league_id: FantasyLeagueID,
         player_id: ProPlayerID,
-        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+        decoded_token: dict = Depends(JWTBearer()),
+        service: FantasyTeamService = Depends(get_fantasy_team_service)
+) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))  # type: ignore
-    return fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
+    return service.pickup_player(fantasy_league_id, user_id, player_id)
 
 
 @router.put(
@@ -57,9 +59,11 @@ def pickup_player(
 def drop_player(
         fantasy_league_id: FantasyLeagueID,
         player_id: ProPlayerID,
-        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+        decoded_token: dict = Depends(JWTBearer()),
+        service: FantasyTeamService = Depends(get_fantasy_team_service)
+) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))  # type: ignore
-    return fantasy_team_service.drop_player(fantasy_league_id, user_id, player_id)
+    return service.drop_player(fantasy_league_id, user_id, player_id)
 
 
 @router.put(
@@ -72,8 +76,8 @@ def swap_players(
         fantasy_league_id: FantasyLeagueID,
         player_to_drop_id: ProPlayerID,
         player_to_pickup_id: ProPlayerID,
-        decoded_token: dict = Depends(JWTBearer())) -> FantasyTeam:
+        decoded_token: dict = Depends(JWTBearer()),
+        service: FantasyTeamService = Depends(get_fantasy_team_service)
+) -> FantasyTeam:
     user_id = UserID(decoded_token.get("user_id"))  # type: ignore
-    return fantasy_team_service.swap_players(
-        fantasy_league_id, user_id, player_to_drop_id, player_to_pickup_id
-    )
+    return service.swap_players(fantasy_league_id, user_id, player_to_drop_id, player_to_pickup_id)

@@ -1,21 +1,19 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 from src.common.schemas.search_parameters import TeamSearchParameters
-from src.db.database_config import DatabaseConfig
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
+from src.db.database_service import db_service
 
 from src.riot.service import RiotProfessionalTeamService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-professional_team_service = RiotProfessionalTeamService(DatabaseService(
-    DatabaseConnectionProvider(
-        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
-    )
-))
+professional_team_service = RiotProfessionalTeamService(db_service)
+
+
+def get_team_service() -> RiotProfessionalTeamService:
+    return professional_team_service
 
 
 @router.get(
@@ -34,7 +32,8 @@ def get_riot_professional_teams(
         name: str = Query(None, description="Filter by professional teams name"),
         code: str = Query(None, description="Filter by professional teams code"),
         status: str = Query(None, description="Filter by professional teams status"),
-        league: str = Query(None, description="Filter by professional teams home league")
+        league: str = Query(None, description="Filter by professional teams home league"),
+        service: RiotProfessionalTeamService = Depends(get_team_service)
 ) -> Page[ProfessionalTeam]:
     search_parameters = TeamSearchParameters(
         slug=slug,
@@ -43,7 +42,7 @@ def get_riot_professional_teams(
         status=status,
         league=league
     )
-    teams = professional_team_service.get_teams(search_parameters)
+    teams = service.get_teams(search_parameters)
     return paginate(teams)
 
 
@@ -66,5 +65,8 @@ def get_riot_professional_teams(
         }
     }
 )
-def get_professional_team_by_id(professional_team_id: ProTeamID) -> ProfessionalTeam:
-    return professional_team_service.get_team_by_id(professional_team_id)
+def get_professional_team_by_id(
+        professional_team_id: ProTeamID,
+        service: RiotProfessionalTeamService = Depends(get_team_service)
+) -> ProfessionalTeam:
+    return service.get_team_by_id(professional_team_id)

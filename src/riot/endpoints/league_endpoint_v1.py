@@ -1,22 +1,19 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from fastapi_pagination import paginate, Page
 
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.common.schemas.search_parameters import LeagueSearchParameters
-from src.db.database_config import DatabaseConfig
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
-
+from src.db.database_service import db_service
 from src.riot.service import RiotLeagueService
 
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-league_service = RiotLeagueService(DatabaseService(
-    DatabaseConnectionProvider(
-        DatabaseConfig(database_url="sqlite:///./fantasy-league-of-legends.db")
-    )
-))
+league_service = RiotLeagueService(db_service)
+
+
+def get_league_service() -> RiotLeagueService:
+    return league_service
 
 
 @router.get(
@@ -33,14 +30,15 @@ league_service = RiotLeagueService(DatabaseService(
 def get_riot_leagues(
         name: str = Query(None, description="Filter by league name"),
         region: str = Query(None, description="Filter by league region"),
-        fantasy_available: bool = Query(None, description="Filter by availability in Fantasy LoL")
+        fantasy_available: bool = Query(None, description="Filter by availability in Fantasy LoL"),
+        service: RiotLeagueService = Depends(get_league_service)
 ) -> Page[League]:
     search_parameters = LeagueSearchParameters(
         name=name,
         region=region,
         fantasy_available=fantasy_available
     )
-    leagues = league_service.get_leagues(search_parameters)
+    leagues = service.get_leagues(search_parameters)
     return paginate(leagues)
 
 
@@ -63,8 +61,11 @@ def get_riot_leagues(
         }
     }
 )
-def get_riot_league_by_id(league_id: RiotLeagueID) -> League:
-    return league_service.get_league_by_id(league_id)
+def get_riot_league_by_id(
+        league_id: RiotLeagueID,
+        service: RiotLeagueService = Depends(get_league_service)
+) -> League:
+    return service.get_league_by_id(league_id)
 
 
 @router.put(
@@ -86,5 +87,9 @@ def get_riot_league_by_id(league_id: RiotLeagueID) -> League:
         }
     }
 )
-def update_riot_league_fantasy_available(league_id: RiotLeagueID, new_status: bool) -> League:
-    return league_service.update_fantasy_available(league_id, new_status)
+def update_riot_league_fantasy_available(
+        league_id: RiotLeagueID,
+        new_status: bool,
+        service: RiotLeagueService = Depends(get_league_service)
+) -> League:
+    return service.update_fantasy_available(league_id, new_status)
