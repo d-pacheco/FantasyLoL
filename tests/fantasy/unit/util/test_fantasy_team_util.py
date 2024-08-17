@@ -21,10 +21,10 @@ class TestFantasyTeamUtil(TestBase):
     def setUp(self):
         self.mock_db_service = MagicMock()
         self.fantasy_team_util = FantasyTeamUtil(self.mock_db_service)
-    
+
     def tearDown(self):
         self.mock_db_service.reset_mock()
-        
+
     def test_validate_player_from_available_league_successful(self):
         # Arrange
         player_id = ProPlayerID("321")
@@ -84,12 +84,14 @@ class TestFantasyTeamUtil(TestBase):
         self.mock_db_service.get_fantasy_league_draft_order.return_value = draft_order
 
         # Act
-        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
+        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(
+            fantasy_league, user.id)
 
         # Assert
         self.assertTrue(is_turn_to_draft)
         self.assertEqual(fantasy_league.current_draft_position, user_draft_position.position)
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
 
     def test_is_users_position_to_draft_false(self):
         # Arrange
@@ -106,12 +108,14 @@ class TestFantasyTeamUtil(TestBase):
         self.mock_db_service.get_fantasy_league_draft_order.return_value = draft_order
 
         # Act
-        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user.id)
+        is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(
+            fantasy_league, user.id)
 
         # Assert
         self.assertFalse(is_turn_to_draft)
         self.assertNotEqual(fantasy_league.current_draft_position, user_draft_position.position)
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
 
     def test_is_users_position_to_draft_no_user_draft_position_found_exception(self):
         # Arrange
@@ -129,9 +133,11 @@ class TestFantasyTeamUtil(TestBase):
 
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
-            self.fantasy_team_util.is_users_position_to_draft(fantasy_league, UserID("notFoundUserId"))
+            self.fantasy_team_util.is_users_position_to_draft(
+                fantasy_league, UserID("notFoundUserId"))
         self.assertIn("Could not find draft position", str(context.exception))
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
 
     def test_all_teams_fully_drafted_true(self):
         # Arrange

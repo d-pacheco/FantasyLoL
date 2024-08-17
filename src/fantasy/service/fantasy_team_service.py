@@ -52,7 +52,7 @@ class FantasyTeamService:
         self.validate_user_membership(user_id, fantasy_league_id)
 
         if (fantasy_league.status == FantasyLeagueStatus.DRAFT) \
-                and not (self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id)):
+                and not self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id):
             raise FantasyDraftException(
                 f"Invalid user draft position: The draft position for the user "
                 f"with ID {user_id} is not the current draft position for fantasy league "
@@ -119,7 +119,8 @@ class FantasyTeamService:
         self.validate_user_membership(user_id, fantasy_league_id)
         pro_player_to_drop = self.get_player_from_db(player_to_drop_id)
         pro_player_to_pickup = self.get_player_from_db(player_to_pickup_id)
-        self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_to_pickup_id)
+        self.fantasy_team_util.validate_player_from_available_league(
+            fantasy_league, player_to_pickup_id)
 
         if pro_player_to_drop.role != pro_player_to_pickup.role:
             raise FantasyDraftException(

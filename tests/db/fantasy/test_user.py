@@ -3,7 +3,6 @@ from sqlalchemy.exc import IntegrityError
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
 
-from src.db.fantasy_dao import user_dao
 from src.common.schemas.fantasy_schemas import UserID
 
 

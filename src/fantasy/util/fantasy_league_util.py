@@ -24,7 +24,7 @@ from src.fantasy.exceptions import (
 class FantasyLeagueUtil:
     def __init__(self, database_service: DatabaseService):
         self.db = database_service
-        
+
     def validate_league(
             self,
             fantasy_league_id: FantasyLeagueID,

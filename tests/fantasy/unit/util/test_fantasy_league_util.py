@@ -37,7 +37,6 @@ class TestFantasyLeagueUtil(TestBase):
         self.mock_db_service.get_fantasy_league_by_id.return_value = expected_fantasy_league
         required_states = [FantasyLeagueStatus.DRAFT]
 
-
         # Act
         returned_fantasy_league = self.fantasy_league_util.validate_league(
             expected_fantasy_league.id, required_states
@@ -47,7 +46,8 @@ class TestFantasyLeagueUtil(TestBase):
         self.assertEqual(expected_fantasy_league, returned_fantasy_league)
         self.assertIsInstance(returned_fantasy_league, FantasyLeague)
         self.assertIn(expected_fantasy_league.status, required_states)
-        self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(expected_fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(
+            expected_fantasy_league.id)
 
     def test_validate_league_league_not_found_exception(self):
         # Arrange
@@ -76,7 +76,8 @@ class TestFantasyLeagueUtil(TestBase):
         self.mock_db_service.get_fantasy_league_by_id.return_value = expected_fantasy_league
 
         # Act
-        returned_fantasy_league = self.fantasy_league_util.validate_league(expected_fantasy_league.id)
+        returned_fantasy_league = self.fantasy_league_util.validate_league(
+            expected_fantasy_league.id)
 
         # Assert
         self.assertEqual(expected_fantasy_league, returned_fantasy_league)
@@ -183,7 +184,8 @@ class TestFantasyLeagueUtil(TestBase):
 
         # Assert
         self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
         self.mock_db_service.create_fantasy_league_draft_order.assert_called_once_with(
             expected_draft_order_entry
         )
@@ -207,8 +209,10 @@ class TestFantasyLeagueUtil(TestBase):
 
         # Assert
         self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.create_fantasy_league_draft_order.assert_called_once_with(expected_draft_order_entry)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
+        self.mock_db_service.create_fantasy_league_draft_order.assert_called_once_with(
+            expected_draft_order_entry)
 
     def test_create_draft_order_entry_fantasy_league_not_found_exception(self):
         # Arrange
@@ -490,8 +494,10 @@ class TestFantasyLeagueUtil(TestBase):
             )
         except DraftOrderException:
             self.fail("Update draft order on player leave failed with an unexpected exception")
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(expected_position_to_delete)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
+        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(
+            expected_position_to_delete)
         self.mock_db_service.update_fantasy_league_draft_order_position.assert_called_once_with(
             current_draft_order[2], 2
         )
@@ -524,14 +530,18 @@ class TestFantasyLeagueUtil(TestBase):
             )
         except DraftOrderException:
             self.fail("Update draft order on player leave failed with an unexpected exception")
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(expected_position_to_delete)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
+        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(
+            expected_position_to_delete)
         expected_calls = [
             call.update_fantasy_league_draft_order_position(current_draft_order[1], 1),
             call.update_fantasy_league_draft_order_position(current_draft_order[2], 2)
         ]
-        self.mock_db_service.update_fantasy_league_draft_order_position.assert_has_calls(expected_calls)
-        self.assertEqual(self.mock_db_service.update_fantasy_league_draft_order_position.call_count, 2)
+        self.mock_db_service.update_fantasy_league_draft_order_position.assert_has_calls(
+            expected_calls)
+        self.assertEqual(
+            self.mock_db_service.update_fantasy_league_draft_order_position.call_count, 2)
 
     def test_update_draft_order_on_player_leave_last_position_successful(self):
         # Arrange
@@ -561,8 +571,10 @@ class TestFantasyLeagueUtil(TestBase):
             )
         except DraftOrderException:
             self.fail("Update draft order on player leave failed with an unexpected exception")
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
-        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(expected_position_to_delete)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
+        self.mock_db_service.delete_fantasy_league_draft_order.assert_called_once_with(
+            expected_position_to_delete)
         self.mock_db_service.update_fantasy_league_draft_order_position.assert_not_called()
 
     def test_update_draft_order_on_player_leave_user_has_no_draft_position_exception(self):
@@ -583,8 +595,10 @@ class TestFantasyLeagueUtil(TestBase):
 
         # Act and Assert
         with self.assertRaises(DraftOrderException) as context:
-            self.fantasy_league_util.update_draft_order_on_player_leave(user_3.id, fantasy_league.id)
+            self.fantasy_league_util.update_draft_order_on_player_leave(
+                user_3.id, fantasy_league.id)
         self.assertIn("Missing user on draft removal", str(context.exception))
-        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(fantasy_league.id)
+        self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
+            fantasy_league.id)
         self.mock_db_service.delete_fantasy_league_draft_order.assert_not_called()
         self.mock_db_service.update_fantasy_league_draft_order_position.assert_not_called()

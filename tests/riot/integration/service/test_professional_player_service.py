@@ -11,7 +11,7 @@ class ProfessionalPlayerServiceTest(TestBase):
     def setUp(self):
         super().setUp()
         self.professional_player_service = RiotProfessionalPlayerService(self.db)
-        
+
     def test_get_existing_professional_players_by_summoner_name(self):
         # Arrange
         expected_player = riot_fixtures.player_1_fixture

@@ -37,7 +37,7 @@ def put_fantasy_league_scoring_settings(
 
 def get_fantasy_league_scoring_settings_by_id(
         session, fantasy_league_id: FantasyLeagueID
-)-> Optional[FantasyLeagueScoringSettings]:
+) -> Optional[FantasyLeagueScoringSettings]:
     scoring_settings_model: Optional[FantasyLeagueScoringSettingModel] = session.query(
         FantasyLeagueScoringSettingModel) \
         .filter(FantasyLeagueScoringSettingModel.fantasy_league_id == fantasy_league_id) \

@@ -9,13 +9,11 @@ from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.riot.service import RiotLeagueService
 
 
-
-
 class LeagueServiceTest(TestBase):
     def setUp(self):
         super().setUp()
         self.league_service = RiotLeagueService(self.db)
-    
+
     def test_get_leagues_by_name_existing_league(self):
         # Arrange
         league_fixture = self.create_league_in_db()

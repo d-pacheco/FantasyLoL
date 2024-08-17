@@ -22,7 +22,7 @@ class TestFantasyLeagueService(TestBase):
     def setUp(self):
         self.mock_db_service = MagicMock()
         self.fantasy_league_service = FantasyLeagueService(self.mock_db_service)
-    
+
     def tearDown(self):
         self.mock_db_service.reset_mock()
 
@@ -130,12 +130,12 @@ class TestFantasyLeagueService(TestBase):
         self.mock_db_service.update_fantasy_league_settings.return_value = expected_updated_league
 
         # Act
-        updated_fantasy_league_settings = self.fantasy_league_service.update_fantasy_league_settings(
+        updated_settings = self.fantasy_league_service.update_fantasy_league_settings(
             owner_id, league_id, expected_updated_league_settings
         )
 
         # Assert
-        self.assertEqual(expected_updated_league_settings, updated_fantasy_league_settings)
+        self.assertEqual(expected_updated_league_settings, updated_settings)
         self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(league_id)
         self.mock_db_service.update_fantasy_league_settings.assert_called_once_with(
             league_id, expected_updated_league_settings

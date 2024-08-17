@@ -22,10 +22,10 @@ class TestFantasyTeamService(TestBase):
     def setUp(self):
         self.mock_db_service = MagicMock()
         self.fantasy_team_service = FantasyTeamService(self.mock_db_service)
-    
+
     def tearDown(self):
         self.mock_db_service.reset_mock()
-        
+
     def test_validate_user_membership_no_membership(self):
         # Arrange
         self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None

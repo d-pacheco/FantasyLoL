@@ -1,5 +1,36 @@
-from src.common.schemas.fantasy_schemas import *
-from src.common.schemas.riot_data_schemas import *
+from typing import Optional, List
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeague,
+    FantasyLeagueID,
+    FantasyLeagueDraftOrder,
+    FantasyLeagueScoringSettings,
+    FantasyLeagueStatus,
+    FantasyLeagueSettings,
+    FantasyLeagueMembership,
+    FantasyLeagueMembershipStatus,
+    FantasyTeam,
+    User,
+    UserID
+)
+from src.common.schemas.riot_data_schemas import (
+    League,
+    RiotLeagueID,
+    ProfessionalPlayer,
+    ProPlayerID,
+    ProfessionalTeam,
+    ProTeamID,
+    Tournament,
+    RiotTournamentID,
+    Match,
+    RiotMatchID,
+    Game,
+    RiotGameID,
+    GameState,
+    PlayerGameMetadata,
+    PlayerGameData,
+    PlayerGameStats,
+    Schedule
+)
 from src.common.singleton_meta import SingletonMeta
 from src.db.database_connection_provider import (
     DatabaseConnectionProvider,

@@ -3,6 +3,7 @@ from typing import Optional, List
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from src.db.models import ProfessionalPlayerModel
 
+
 def put_player(session, player: ProfessionalPlayer) -> None:
     db_player = ProfessionalPlayerModel(**player.model_dump())
     session.merge(db_player)

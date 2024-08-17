@@ -5,11 +5,9 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler  # type: ignore
 from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # type: ignore
 
 from src.common import app_config
 from src.db.database_service import db_service
-
 from src.riot.exceptions import JobConfigException
 from src.riot.service import (
     RiotLeagueService,
@@ -43,8 +41,6 @@ class JobScheduler:
         self.riot_game_service = RiotGameService(self.db_service)
         self.riot_game_stats_service = RiotGameStatsService(self.db_service)
 
-        #job_store = SQLAlchemyJobStore(url=app_config.DATABASE_URL)
-        #self.scheduler = BackgroundScheduler(jobstores={'default': job_store})
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)

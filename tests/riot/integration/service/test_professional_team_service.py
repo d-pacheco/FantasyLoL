@@ -7,12 +7,11 @@ from src.riot.exceptions import ProfessionalTeamNotFoundException
 from src.riot.service import RiotProfessionalTeamService
 
 
-
 class ProfessionalTeamServiceTest(TestBase):
     def setUp(self):
         super().setUp()
         self.professional_team_service = RiotProfessionalTeamService(self.db)
-    
+
     def test_get_professional_teams_by_slug_existing_team(self):
         # Arrange
         expected_team = riot_fixtures.team_1_fixture

@@ -15,7 +15,7 @@ class UserServiceTest(TestBase):
     def setUp(self):
         self.mock_db_service = MagicMock()
         self.user_service = UserService(self.mock_db_service)
-    
+
     def tearDown(self):
         self.mock_db_service.reset_mock()
 

@@ -9,7 +9,7 @@ from src.fantasy.exceptions import FantasyDraftException
 class FantasyTeamUtil:
     def __init__(self, database_service: DatabaseService):
         self.db = database_service
-        
+
     def validate_player_from_available_league(
             self,
             fantasy_league: FantasyLeague,

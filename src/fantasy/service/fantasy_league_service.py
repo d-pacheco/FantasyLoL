@@ -30,7 +30,7 @@ class FantasyLeagueService:
     def __init__(self, database_service: DatabaseService):
         self.db = database_service
         self.fantasy_league_util = FantasyLeagueUtil(database_service)
-        
+
     def create_fantasy_league(
             self, owner_id: UserID, league_settings: FantasyLeagueSettings) -> FantasyLeague:
         if len(league_settings.available_leagues) > 0:
@@ -255,7 +255,8 @@ class FantasyLeagueService:
         self.db.update_fantasy_league_membership_status(
             user_to_remove_membership, FantasyLeagueMembershipStatus.REVOKED
         )
-        self.fantasy_league_util.update_draft_order_on_player_leave(user_to_remove_id, fantasy_league_id)
+        self.fantasy_league_util.update_draft_order_on_player_leave(
+            user_to_remove_id, fantasy_league_id)
 
     def get_fantasy_league_draft_order(
             self,

@@ -118,7 +118,7 @@ class TestCrudRiotPlayerMetadata(TestBase):
             role = PlayerRole.BOTTOM
         else:
             role = PlayerRole.SUPPORT
-    
+
         player_metadata = PlayerGameMetadata(
             game_id=game_id,
             player_id=ProPlayerID(str(random.randint(1, 9999999))),

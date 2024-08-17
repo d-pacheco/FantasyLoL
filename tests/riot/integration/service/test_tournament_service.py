@@ -11,7 +11,7 @@ class TournamentServiceTest(TestBase):
     def setUp(self):
         super().setUp()
         self.tournament_service = RiotTournamentService(self.db)
-    
+
     def test_get_active_tournaments(self):
         # Arrange
         expected_tournament = riot_fixtures.active_tournament_fixture

@@ -48,7 +48,7 @@ class FantasyTeamServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
         self.fantasy_team_service = FantasyTeamService(self.db)
-        
+
     # -------------------------------------
     # ---- Get All Fantasy Team Weeks  ----
     # -------------------------------------

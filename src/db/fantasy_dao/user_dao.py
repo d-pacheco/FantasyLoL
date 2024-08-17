@@ -11,7 +11,9 @@ def create_user(session: Session, user: User) -> None:
 
 
 def get_user_by_id(session: Session, user_id: UserID) -> Optional[User]:
-    user_model: UserModel = session.query(UserModel).filter(UserModel.id == user_id).first()
+    user_model: Optional[UserModel] = session.query(UserModel)\
+        .filter(UserModel.id == user_id)\
+        .first()
     if user_model is None:
         return None
     else:
@@ -19,7 +21,9 @@ def get_user_by_id(session: Session, user_id: UserID) -> Optional[User]:
 
 
 def get_user_by_username(session: Session, username: str) -> Optional[User]:
-    user_model: UserModel = session.query(UserModel).filter(UserModel.username == username).first()
+    user_model: Optional[UserModel] = session.query(UserModel)\
+        .filter(UserModel.username == username)\
+        .first()
     if user_model is None:
         return None
     else:
@@ -27,7 +31,9 @@ def get_user_by_username(session: Session, username: str) -> Optional[User]:
 
 
 def get_user_by_email(session: Session, email: str) -> Optional[User]:
-    user_model: UserModel = session.query(UserModel).filter(UserModel.email == email).first()
+    user_model: Optional[UserModel] = session.query(UserModel)\
+        .filter(UserModel.email == email)\
+        .first()
     if user_model is None:
         return None
     else:

@@ -12,7 +12,11 @@ def put_player_stats(session, player_stats: PlayerGameStats) -> None:
     session.commit()
 
 
-def get_player_stats(session, game_id: RiotGameID, participant_id: int) -> Optional[PlayerGameStats]:
+def get_player_stats(
+        session,
+        game_id: RiotGameID,
+        participant_id: int
+) -> Optional[PlayerGameStats]:
     player_game_stats = session.query(PlayerGameStatsModel) \
         .filter(PlayerGameStatsModel.game_id == game_id,
                 PlayerGameStatsModel.participant_id == participant_id).first()
