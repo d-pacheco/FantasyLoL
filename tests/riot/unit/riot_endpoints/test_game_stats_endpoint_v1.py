@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 from http import HTTPStatus
 from unittest.mock import patch
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
@@ -15,7 +15,7 @@ BASE_GAME_STATS_SERVICE_MOCK_PATH = \
 GET_PLAYER_GAME_STATS_MOCK_PATH = f"{BASE_GAME_STATS_SERVICE_MOCK_PATH}.get_player_stats"
 
 
-class GameStatsEndpointV1Test(FantasyLolTestBase):
+class GameStatsEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)

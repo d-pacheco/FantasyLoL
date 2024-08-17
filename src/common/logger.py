@@ -2,14 +2,14 @@ import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from .config import Config
+from .config import app_config
 
 
 def configure_logger():
     max_file_size = 1024 * 1024 * 100  # 100 MB
     backup_count = 5  # keep up to 5 files
     Path("./logs/").mkdir(parents=True, exist_ok=True)
-    if Config.DEBUG_LOGGING:
+    if app_config.DEBUG_LOGGING:
         logging_level = logging.DEBUG
     else:
         logging_level = logging.INFO

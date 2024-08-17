@@ -1,20 +1,14 @@
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
-from tests.test_base import FantasyLolTestBase
-from tests.test_base import RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
+from tests.test_base import TestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.test_util import riot_api_requester_util, riot_fixtures
 
-from src.db.database import DatabaseConnection
-from src.db.models import PlayerGameMetadataModel
 from src.riot.service import RiotGameStatsService
 
 
-def create_game_stats_service():
-    return RiotGameStatsService()
+class GameStatsServiceTest(TestBase):
 
-
-class GameStatsServiceTest(FantasyLolTestBase):
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
     def test_fetch_player_metadata_for_game_successful(self, mock_cloud_scraper):
         # Arrange
@@ -28,13 +22,12 @@ class GameStatsServiceTest(FantasyLolTestBase):
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
 
-        game_stats_service = create_game_stats_service()
+        game_stats_service = RiotGameStatsService(self.db)
 
         # Act
         game_stats_service.fetch_and_store_player_metadata_for_game(game.id)
 
         # Assert
         self.assertEqual(game.id, expected_json['esportsGameId'])
-        with DatabaseConnection() as db:
-            player_metadata_from_db = db.query(PlayerGameMetadataModel).all()
+        player_metadata_from_db = self.test_db.get_all_game_metadata()
         self.assertEqual(10, len(player_metadata_from_db))

@@ -8,17 +8,21 @@ from src.common.schemas.riot_data_schemas import (
     ProTeamID
 )
 from src.common.schemas.search_parameters import PlayerSearchParameters
-
+from src.db.database_service import db_service
 from src.riot.service import RiotProfessionalPlayerService
 
 VERSION = "v1"
 router = APIRouter(prefix=f"/{VERSION}")
-professional_player_service = RiotProfessionalPlayerService()
+professional_player_service = RiotProfessionalPlayerService(db_service)
 
 
 def validate_role_parameter(
         role: PlayerRole = Query(None, description="Filter by players role")) -> PlayerRole:
     return role
+
+
+def get_player_service() -> RiotProfessionalPlayerService:
+    return professional_player_service
 
 
 @router.get(
@@ -35,14 +39,15 @@ def validate_role_parameter(
 def get_riot_professional_players(
         summoner_name: str = Query(None, description="Filter by players summoner name"),
         role: PlayerRole = Depends(validate_role_parameter),
-        team_id: ProTeamID = Query(None, description="Filter by players team id")
+        team_id: ProTeamID = Query(None, description="Filter by players team id"),
+        service: RiotProfessionalPlayerService = Depends(get_player_service)
 ) -> Page[ProfessionalPlayer]:
     search_params = PlayerSearchParameters(
         summoner_name=summoner_name,
         role=role,
         team_id=team_id
     )
-    players = professional_player_service.get_players(search_params)
+    players = service.get_players(search_params)
     return paginate(players)
 
 
@@ -65,5 +70,8 @@ def get_riot_professional_players(
         }
     }
 )
-def get_professional_team_by_id(professional_player_id: ProPlayerID) -> ProfessionalPlayer:
-    return professional_player_service.get_player_by_id(professional_player_id)
+def get_professional_team_by_id(
+        professional_player_id: ProPlayerID,
+        service: RiotProfessionalPlayerService = Depends(get_player_service)
+) -> ProfessionalPlayer:
+    return service.get_player_by_id(professional_player_id)

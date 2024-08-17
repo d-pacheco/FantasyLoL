@@ -23,7 +23,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameStats,
     Schedule
 )
-from src.common import Config
+from src.common import app_config
 
 from src.riot.exceptions import RiotApiStatusCodeAssertException
 
@@ -32,8 +32,8 @@ logger = logging.getLogger('fantasy-lol')
 
 class RiotApiRequester:
     def __init__(self):
-        self.esports_api_url = Config.ESPORTS_API_URL
-        self.esports_feed_url = Config.ESPORTS_FEED_URL
+        self.esports_api_url = app_config.ESPORTS_API_URL
+        self.esports_feed_url = app_config.ESPORTS_FEED_URL
         self.client = cloudscraper.create_scraper(
             browser={
                 'browser': 'chrome',
@@ -45,7 +45,7 @@ class RiotApiRequester:
         self.default_headers = {
             "Origin": "https://lolesports.com",
             "Referrer": "https://lolesports.com",
-            "x-api-key": Config.RIOT_API_KEY
+            "x-api-key": app_config.RIOT_API_KEY
         }
 
     def make_request(self, url, headers=None) -> Response:

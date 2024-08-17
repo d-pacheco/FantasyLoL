@@ -3,23 +3,24 @@ import bcrypt
 
 from src.auth import sign_jwt
 from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
 
 
 class UserService:
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
 
     def user_signup(self, user_create: UserCreate) -> dict:
         self.validate_username_and_email(user_create.username, user_create.email)
         user = self.create_new_user(user_create)
-        crud.create_user(user)
+        self.db.create_user(user)
         return sign_jwt(user.id)
 
-    @staticmethod
-    def validate_username_and_email(username: str, email: str) -> None:
-        if crud.get_user_by_username(username):
+    def validate_username_and_email(self, username: str, email: str) -> None:
+        if self.db.get_user_by_username(username):
             raise UserAlreadyExistsException("Username already in use")
-        if crud.get_user_by_email(email):
+        if self.db.get_user_by_email(email):
             raise UserAlreadyExistsException("Email already in use")
 
     def create_new_user(self, user_create: UserCreate) -> User:
@@ -33,11 +34,10 @@ class UserService:
             password=hashed_password
         )
 
-    @staticmethod
-    def generate_new_valid_id() -> UserID:
+    def generate_new_valid_id(self) -> UserID:
         while True:
             new_id = UserID(str(uuid.uuid4()))
-            if not crud.get_user_by_id(new_id):
+            if not self.db.get_user_by_id(new_id):
                 break
         return new_id
 
@@ -47,9 +47,8 @@ class UserService:
         pw_bytes = str.encode(password)
         return bcrypt.hashpw(pw_bytes, salt)
 
-    @staticmethod
-    def login_user(user_credentials: UserLogin) -> dict:
-        user = crud.get_user_by_username(user_credentials.username)
+    def login_user(self, user_credentials: UserLogin) -> dict:
+        user = self.db.get_user_by_username(user_credentials.username)
         if user is None:
             raise InvalidUsernameOrPasswordException()
 

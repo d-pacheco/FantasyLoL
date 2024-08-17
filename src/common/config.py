@@ -72,4 +72,4 @@ class AppConfig:
         return str(self.__dict__)
 
 
-Config = AppConfig(os.environ)
+app_config = AppConfig(os.environ)

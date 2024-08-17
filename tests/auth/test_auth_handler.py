@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 
 from src.auth import sign_jwt, decode_jwt
 
 
-class TestAuthHandler(FantasyLolTestBase):
+class TestAuthHandler(TestBase):
 
     def test_sign_jwt(self):
         user_id = "123"

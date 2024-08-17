@@ -4,7 +4,7 @@ from typing import List
 from src.common.schemas.search_parameters import TeamSearchParameters
 from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 
-from src.db import crud
+from src.db.database_service import DatabaseService
 from src.db.models import ProfessionalTeamModel
 
 from src.riot.exceptions import ProfessionalTeamNotFoundException
@@ -15,7 +15,8 @@ logger = logging.getLogger('fantasy-lol')
 
 
 class RiotProfessionalTeamService:
-    def __init__(self):
+    def __init__(self, database_service: DatabaseService):
+        self.db = database_service
         self.riot_api_requester = RiotApiRequester()
         self.job_runner = JobRunner()
 
@@ -30,11 +31,10 @@ class RiotProfessionalTeamService:
         fetched_teams = self.riot_api_requester.get_teams()
 
         for team in fetched_teams:
-            crud.put_team(team)
+            self.db.put_team(team)
         return fetched_teams
 
-    @staticmethod
-    def get_teams(search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
+    def get_teams(self, search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
         filters = []
         if search_parameters.slug is not None:
             filters.append(ProfessionalTeamModel.slug == search_parameters.slug)
@@ -47,12 +47,11 @@ class RiotProfessionalTeamService:
         if search_parameters.league is not None:
             filters.append(ProfessionalTeamModel.home_league == search_parameters.league)
 
-        professional_teams = crud.get_teams(filters)
+        professional_teams = self.db.get_teams(filters)
         return professional_teams
 
-    @staticmethod
-    def get_team_by_id(professional_team_id: ProTeamID) -> ProfessionalTeam:
-        professional_team = crud.get_team_by_id(professional_team_id)
+    def get_team_by_id(self, professional_team_id: ProTeamID) -> ProfessionalTeam:
+        professional_team = self.db.get_team_by_id(professional_team_id)
         if professional_team is None:
             raise ProfessionalTeamNotFoundException()
         return professional_team

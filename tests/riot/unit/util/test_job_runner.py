@@ -1,4 +1,4 @@
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 
 from unittest.mock import MagicMock, patch
 from src.common.exceptions import FantasyLolException
@@ -7,7 +7,7 @@ from src.riot.job_runner import JobRunner
 JOB_RUNNER_PATH = 'src.riot.job_runner'
 
 
-class TestJobRunner(FantasyLolTestBase):
+class TestJobRunner(TestBase):
     def test_run_retry_job_successful(self):
         # Arrange
         job_function_mock = MagicMock()

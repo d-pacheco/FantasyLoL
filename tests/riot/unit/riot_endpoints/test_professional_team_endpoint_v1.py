@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 from unittest.mock import patch
 from http import HTTPStatus
 
-from tests.test_base import FantasyLolTestBase
+from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
 from src.common.schemas.search_parameters import TeamSearchParameters
@@ -17,7 +17,7 @@ TEAM_SERVICE_GET_TEAMS_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_teams"
 TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team_by_id"
 
 
-class ProfessionalTeamEndpointV1Test(FantasyLolTestBase):
+class ProfessionalTeamEndpointV1Test(TestBase):
     def setUp(self):
         add_pagination(app)
         self.client = TestClient(app)
