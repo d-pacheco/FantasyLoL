@@ -2,12 +2,13 @@ FROM python:3.10-alpine
 
 WORKDIR /app
 
-COPY requirements-base.txt /app/requirements-base.txt
+COPY ../requirements-base.txt /app/requirements-base.txt
 
 RUN pip install --no-cache-dir -r requirements-base.txt
 
-COPY ./src /app/src
-COPY ./.env /app
+COPY ../src /app/src
+COPY ../.env /app
+COPY ../fantasy_app.py /app
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
@@ -16,4 +17,4 @@ EXPOSE 80
 ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
 
 # Run main.py when the container launches
-CMD ["python", "./src/fantasy_app.py"]
+CMD ["python", "./fantasy_app.py"]

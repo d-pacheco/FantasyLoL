@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker-compose -f docker-compose.local.yml up -d
+cd docker || exit 1
+docker-compose -p fantasy_lol -f docker-compose.local.yml up -d

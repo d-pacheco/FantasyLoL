@@ -1,8 +1,8 @@
 services:
   riot-app:
     build:
-      context: .
-      dockerfile: Dockerfile-riot
+      context: ..
+      dockerfile: docker/Dockerfile-riot
     ports:
       - "8000:80"
     volumes:
@@ -11,8 +11,8 @@ services:
 
   fantasy-app:
     build:
-      context: .
-      dockerfile: Dockerfile-fantasy
+      context: ..
+      dockerfile: docker/Dockerfile-fantasy
     ports:
       - "8002:80"
     volumes:
