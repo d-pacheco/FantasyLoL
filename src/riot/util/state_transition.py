@@ -1,5 +1,6 @@
 from sqlalchemy import event
 import logging
+import threading
 
 from src.common.schemas.riot_data_schemas import GameState
 
@@ -11,17 +12,21 @@ logger = logging.getLogger('fantasy-lol')
 game_stats_service = RiotGameStatsService(db_service)
 
 
-def on_game_state_transition(target, value, old_value, initiator):
-    if value == GameState.COMPLETED.value and old_value.value == GameState.INPROGRESS.value:
+def on_game_state_transition(mapper, connection, target):
+    if target.state == GameState.COMPLETED:
         logger.info(f"Game {target.id}: State transition from INPROGRESS to COMPLETED")
+        threading.Thread(target=fetch_player_data_async, args=(target.id,)).start()
 
-        game_stats_service.fetch_and_store_player_metadata_for_game(target.id)
-        game_stats_service.fetch_and_store_player_stats_for_game(target.id)
 
-    return value
+def fetch_player_data_async(game_id):
+    try:
+        game_stats_service.fetch_and_store_player_metadata_for_game(game_id)
+        game_stats_service.fetch_and_store_player_stats_for_game(game_id)
+    except Exception as e:
+        logger.error(f"Error processing player data for game {game_id}: {e}")
 
 
 class StateTransitionHandler:
     @staticmethod
     def configure_listeners():
-        event.listen(models.GameModel.state, 'set', on_game_state_transition, retval=True)
+        event.listen(models.GameModel, 'after_update', on_game_state_transition, retval=True)

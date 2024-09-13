@@ -29,7 +29,6 @@ def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
     db_game: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
         db_game.state = state
-        session.merge(db_game)
         session.commit()
 
 
