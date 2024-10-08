@@ -176,6 +176,11 @@ class Game(BaseModel):
         description="If this game has player metadata and stats available",
         examples=[True]
     )
+    last_stats_fetch: bool = Field(
+        default=False,
+        description="Game is completed and marked to fetch game stats one last time.",
+        examples=[True]
+    )
 
 
 class GetGamesResponseSchema(BaseModel):

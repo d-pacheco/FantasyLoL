@@ -67,6 +67,7 @@ class GameModel(Base):  # type: ignore
     number = Column(Integer)
     match_id = Column(String, ForeignKey("matches.id"))
     has_game_data = Column(Boolean, default=True)
+    last_stats_fetch = Column(Boolean, default=False)
 
 
 class ProfessionalTeamModel(Base):  # type: ignore

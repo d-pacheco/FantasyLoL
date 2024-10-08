@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from src.common.schemas.search_parameters import GameSearchParameters
-from src.common.schemas.riot_data_schemas import Game, RiotGameID, RiotMatchID
+from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 
 from src.db.database_service import DatabaseService
 from src.db.models import GameModel
@@ -58,9 +58,16 @@ class RiotGameService:
 
     def update_game_states_job(self):
         game_ids = self.db.get_games_to_check_state()
-        games = self.riot_api_requester.get_games(game_ids)
-        for game in games:
-            self.db.update_game_state(game.id, game.state)
+
+        batch_size = 10
+        game_id_batches = [game_ids[i:i + batch_size] for i in range(0, len(game_ids), batch_size)]
+
+        for batch in game_id_batches:
+            games = self.riot_api_requester.get_games(batch)
+            for game in games:
+                self.db.update_game_state(game.id, game.state)
+                if game.state == GameState.COMPLETED:
+                    self.db.update_game_last_stats_fetch(game.id, True)
 
     def get_games(self, search_parameters: GameSearchParameters) -> List[Game]:
         filters = []

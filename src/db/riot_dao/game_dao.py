@@ -26,10 +26,25 @@ def update_has_game_data(session, game_id: RiotGameID, has_game_data: bool) -> N
 
 
 def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
-    db_game: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game: Optional[GameModel] = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
         db_game.state = state
+        session.merge(db_game)
         session.commit()
+
+
+def update_game_last_stats_fetch(session, game_id: RiotGameID, last_fetch: bool) -> None:
+    db_game: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
+    if db_game is not None:
+        db_game.last_stats_fetch = last_fetch
+        session.merge(db_game)
+        session.commit()
+
+
+def get_games_with_last_stats_fetch(session, last_stats_fetch: bool) -> List[Game]:
+    game_models: List[GameModel] = session.query(GameModel)\
+        .filter(GameModel.last_stats_fetch == last_stats_fetch).all()
+    return [Game.model_validate(game_model) for game_model in game_models]
 
 
 def get_games(session, filters: Optional[list] = None) -> List[Game]:

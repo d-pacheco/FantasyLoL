@@ -79,6 +79,14 @@ class DatabaseService(metaclass=SingletonMeta):
         with self.connection_provider.get_db() as db:
             game_dao.update_game_state(db, game_id, state)
 
+    def update_game_last_stats_fetch(self, game_id: RiotGameID, last_fetch: bool) -> None:
+        with self.connection_provider.get_db() as db:
+            game_dao.update_game_last_stats_fetch(db, game_id, last_fetch)
+
+    def get_games_with_last_stats_fetch(self, last_stats_fetch: bool) -> List[Game]:
+        with self.connection_provider.get_db() as db:
+            return game_dao.get_games_with_last_stats_fetch(db, last_stats_fetch)
+
     def get_games(self, filters: Optional[list] = None) -> List[Game]:
         with self.connection_provider.get_db() as db:
             return game_dao.get_games(db, filters)
