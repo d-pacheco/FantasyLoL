@@ -38,6 +38,7 @@ class RiotGameStatsService:
 
     def run_player_metadata_job(self):
         game_ids = self.db.get_game_ids_without_player_metadata()
+        logger.info(f"Fetching player metadata for {len(game_ids)} games.")
         for game_id in game_ids:
             self.fetch_and_store_player_metadata_for_game(game_id)
 
@@ -66,10 +67,16 @@ class RiotGameStatsService:
 
     def run_player_stats_job(self):
         game_ids = self.db.get_game_ids_to_fetch_player_stats_for()
+        logger.info(f"Fetching player stats for {len(game_ids)} games.")
         for game_id in game_ids:
-            self.fetch_and_store_player_stats_for_game(game_id)
+            self.fetch_and_store_player_stats_for_game(game_id, False)
 
-    def fetch_and_store_player_stats_for_game(self, game_id: RiotGameID):
+        last_fetch_games = self.db.get_games_with_last_stats_fetch(True)
+        logger.info(f"Last fetch of player stats for {len(last_fetch_games)} games.")
+        for game in last_fetch_games:
+            self.fetch_and_store_player_stats_for_game(game.id, True)
+
+    def fetch_and_store_player_stats_for_game(self, game_id: RiotGameID, last_fetch: bool):
         logger.debug(f"Fetching player stats for game with id: {game_id}")
         time_stamp = round_current_time_to_10_seconds()
         try:
@@ -82,6 +89,10 @@ class RiotGameStatsService:
 
             for player_stats in fetched_player_stats:
                 self.db.put_player_stats(player_stats)
+
+            if last_fetch:
+                logger.debug(f"Setting last fetch to false for game with id: {game_id}")
+                self.db.update_game_last_stats_fetch(game_id, False)
         except Exception as e:
             logger.error(f"Error getting player stats for game with id {game_id}: {str(e)}")
             raise e

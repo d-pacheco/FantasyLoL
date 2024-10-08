@@ -9,15 +9,6 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from src.common import app_config
 from src.db.database_service import db_service
 from src.riot.exceptions import JobConfigException
-from src.riot.service import (
-    RiotLeagueService,
-    RiotTournamentService,
-    RiotProfessionalTeamService,
-    RiotProfessionalPlayerService,
-    RiotMatchService,
-    RiotGameService,
-    RiotGameStatsService
-)
 
 logger = logging.getLogger('fantasy-lol')
 
@@ -32,6 +23,16 @@ class JobScheduler:
         return cls._instance
 
     def _init(self):
+        from src.riot.service import (
+            RiotLeagueService,
+            RiotTournamentService,
+            RiotProfessionalTeamService,
+            RiotProfessionalPlayerService,
+            RiotMatchService,
+            RiotGameService,
+            RiotGameStatsService
+        )
+
         self.db_service = db_service
         self.riot_league_service = RiotLeagueService(self.db_service)
         self.riot_tournament_service = RiotTournamentService(self.db_service)
