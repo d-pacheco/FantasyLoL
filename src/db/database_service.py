@@ -31,7 +31,6 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameStats,
     Schedule
 )
-from src.common.singleton_meta import SingletonMeta
 from src.db.database_connection_provider import (
     DatabaseConnectionProvider,
     db_connection_provider
@@ -56,7 +55,7 @@ from src.db.riot_dao import (
 )
 
 
-class DatabaseService(metaclass=SingletonMeta):
+class DatabaseService:
     def __init__(self, connection_provider: DatabaseConnectionProvider):
         self.connection_provider = connection_provider
 

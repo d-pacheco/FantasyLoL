@@ -5,13 +5,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
-from src.common.singleton_meta import SingletonMeta
 from src.common.config import app_config
 from src.db.models import Base
 from src.db.views import create_player_game_view_query
 
 
-class DatabaseConnectionProvider(metaclass=SingletonMeta):
+class DatabaseConnectionProvider:
     def __init__(self, database_url: str):
         if ":memory:" not in database_url:
             Path("./database/").mkdir(parents=True, exist_ok=True)
