@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
 from typing import Optional, List, NewType
 
 from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole
@@ -12,9 +12,21 @@ FantasyLeagueID = NewType('FantasyLeagueID', str)
 class UserCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    username: UserID
-    email: str
+    username: str
+    email: EmailStr
     password: str
+
+    @field_validator('username')
+    def validate_username(cls, username: str):
+        if len(username) < 3:
+            raise ValueError('Username must be at least 3 characters long')
+        return username
+
+    @field_validator('password')
+    def validate_password(cls, password: str):
+        if len(password) < 8:
+            raise ValueError('Password must be at least 8 characters long')
+        return password
 
 
 class UserLogin(BaseModel):
@@ -29,7 +41,7 @@ class User(BaseModel):
 
     id: UserID
     username: str
-    email: str
+    email: EmailStr
     password: bytes
     permissions: Optional[str] = None
 
