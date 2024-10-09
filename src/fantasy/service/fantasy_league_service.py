@@ -12,6 +12,7 @@ from src.common.schemas.fantasy_schemas import (
     UsersFantasyLeagues,
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrderResponse,
+    UserAccountStatus,
     UserID
 )
 
@@ -174,7 +175,7 @@ class FantasyLeagueService:
             raise FantasyLeagueInviteException("Invite exceeds maximum players for the league")
 
         user = self.db.get_user_by_username(username)
-        if user is None:
+        if user is None or user.account_status != UserAccountStatus.ACTIVE:
             raise UserNotFoundException()
 
         self.create_fantasy_league_membership(

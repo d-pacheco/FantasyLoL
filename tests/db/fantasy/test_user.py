@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
 
-from src.common.schemas.fantasy_schemas import UserID
+from src.common.schemas.fantasy_schemas import UserID, UserAccountStatus
 
 
 class TestCrudUser(TestBase):
@@ -68,3 +68,18 @@ class TestCrudUser(TestBase):
         # Act and Assert
         self.assertEqual(user, self.db.get_user_by_username(user.username))
         self.assertIsNone(self.db.get_user_by_email("badUsername"))
+
+    def test_update_user_account_status(self):
+        # Arrange
+        new_account_status = UserAccountStatus.DELETED
+        user = fantasy_fixtures.user_fixture
+        user.account_status = UserAccountStatus.ACTIVE
+        self.db.create_user(user)
+
+        # Act
+        self.db.update_user_account_status(user.id, new_account_status)
+
+        # Assert
+        user_from_db = self.db.get_user_by_id(user.id)
+        self.assertEqual(user.id, user_from_db.id)
+        self.assertEqual(new_account_status, user_from_db.account_status)

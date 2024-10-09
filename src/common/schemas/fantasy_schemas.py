@@ -9,6 +9,11 @@ UserID = NewType('UserID', str)
 FantasyLeagueID = NewType('FantasyLeagueID', str)
 
 
+class UserAccountStatus(Enum):
+    ACTIVE = "active"
+    DELETED = "deleted"
+
+
 class UserCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -44,6 +49,7 @@ class User(BaseModel):
     email: EmailStr
     password: bytes
     permissions: Optional[str] = None
+    account_status: UserAccountStatus = UserAccountStatus.ACTIVE
 
     def set_permissions(self, permissions_list):
         self.permissions = ','.join(permissions_list)

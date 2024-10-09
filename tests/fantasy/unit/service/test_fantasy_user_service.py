@@ -61,37 +61,39 @@ class UserServiceTest(TestBase):
 
     def test_validate_username_and_email_exception_username_in_use(self):
         # Arrange
-        user_username = 'existingUser'
-        user_email = 'newEmail@example.com'
+        user = fantasy_fixtures.user_fixture
+        signup_username = user.username
+        signup_email = 'newEmail@example.com'
 
-        self.mock_db_service.get_user_by_username.return_value = MagicMock()
+        self.mock_db_service.get_user_by_username.return_value = user
         self.mock_db_service.get_user_by_email.return_value = None
 
         # Act and Assert
         with self.assertRaises(UserAlreadyExistsException) as context:
             self.user_service.validate_username_and_email(
-                username=user_username, email=user_email
+                username=signup_username, email=signup_email
             )
         self.assertIn('Username already in use', str(context.exception))
-        self.mock_db_service.get_user_by_username.assert_called_once_with(user_username)
+        self.mock_db_service.get_user_by_username.assert_called_once_with(signup_username)
         self.mock_db_service.get_user_by_email.assert_not_called()
 
     def test_validate_username_and_email_exception_email_in_use(self):
         # Arrange
-        user_username = 'newUser'
-        user_email = 'existingEmail@example.com'
+        user = fantasy_fixtures.user_fixture
+        signup_username = 'newUser'
+        signup_email = user.email
 
         self.mock_db_service.get_user_by_username.return_value = None
-        self.mock_db_service.get_user_by_email.return_value = MagicMock()
+        self.mock_db_service.get_user_by_email.return_value = user
 
         # Act and Assert
         with self.assertRaises(UserAlreadyExistsException) as context:
             self.user_service.validate_username_and_email(
-                username=user_username, email=user_email
+                username=signup_username, email=signup_email
             )
         self.assertIn('Email already in use', str(context.exception))
-        self.mock_db_service.get_user_by_username.assert_called_once_with(user_username)
-        self.mock_db_service.get_user_by_email.assert_called_once_with(user_email)
+        self.mock_db_service.get_user_by_username.assert_called_once_with(signup_username)
+        self.mock_db_service.get_user_by_email.assert_called_once_with(signup_email)
 
     @patch(f'{BASE_USER_SERVICE_PATH}.generate_new_valid_id')
     @patch(f'{BASE_USER_SERVICE_PATH}.hash_password')

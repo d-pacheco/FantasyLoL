@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.orm import Session
-from src.common.schemas.fantasy_schemas import User, UserID
+from src.common.schemas.fantasy_schemas import User, UserID, UserAccountStatus
 from src.db.models import UserModel
 
 
@@ -38,3 +38,15 @@ def get_user_by_email(session: Session, email: str) -> Optional[User]:
         return None
     else:
         return User.model_validate(user_model)
+
+
+def update_user_account_status(
+        session: Session,
+        user_id: UserID,
+        account_status: UserAccountStatus
+) -> None:
+    db_user: Optional[UserModel] = session.query(UserModel).filter(UserModel.id == user_id).first()
+    if db_user:
+        db_user.account_status = account_status
+        session.merge(db_user)
+        session.commit()
