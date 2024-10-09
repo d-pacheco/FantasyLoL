@@ -27,7 +27,7 @@ def user_signup(
     return service.user_signup(user)
 
 
-@router.get(
+@router.post(
     path="/user/login",
     tags=["Users"],
     response_model=None
