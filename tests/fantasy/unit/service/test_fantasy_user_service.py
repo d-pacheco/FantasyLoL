@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
 
+from src.common.schemas.fantasy_schemas import UserAccountStatus
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
 from src.fantasy.service import UserService
 from src.auth import token_response
@@ -14,23 +15,32 @@ SIGN_JWT_PATH = 'src.fantasy.service.fantasy_user_service.sign_jwt'
 class UserServiceTest(TestBase):
     def setUp(self):
         self.mock_db_service = MagicMock()
-        self.user_service = UserService(self.mock_db_service)
+        self.mock_email_verification_service = MagicMock()
+        self.user_service = UserService(self.mock_db_service, self.mock_email_verification_service)
 
     def tearDown(self):
         self.mock_db_service.reset_mock()
 
+    @patch(f'{BASE_USER_SERVICE_PATH}.generate_verification_token')
     @patch(f'{BASE_USER_SERVICE_PATH}.validate_username_and_email')
     @patch(f'{BASE_USER_SERVICE_PATH}.create_new_user')
     def test_user_signup(
             self,
             mock_create_new_user: MagicMock,
-            mock_validate_username_and_email: MagicMock):
+            mock_validate_username_and_email: MagicMock,
+            mock_generate_verification_token: MagicMock):
         # Arrange
+        verification_token = "123"
         create_user_fixture = fantasy_fixtures.user_create_fixture
-        mock_create_new_user.return_value = fantasy_fixtures.user_fixture
+        expected_user = fantasy_fixtures.user_fixture.model_copy(deep=True)
+        expected_user.verification_token = verification_token
+        expected_user.account_status = UserAccountStatus.PENDING_VERIFICATION
+
+        mock_create_new_user.return_value = expected_user
+        mock_generate_verification_token.return_value = verification_token
 
         # Act
-        self.user_service.user_signup(create_user_fixture)
+        response_message = self.user_service.user_signup(create_user_fixture)
 
         # Assert
         mock_validate_username_and_email.assert_called_once_with(
@@ -38,9 +48,10 @@ class UserServiceTest(TestBase):
         )
         mock_create_new_user.assert_called_once_with(
             create_user_fixture,
-            fantasy_fixtures.user_fixture.get_permissions()
+            expected_user.get_permissions(),
+            verification_token
         )
-        self.mock_db_service.create_user.assert_called_once_with(fantasy_fixtures.user_fixture)
+        self.mock_db_service.create_user.assert_called_once_with(expected_user)
 
     def test_validate_username_and_email_no_error_thrown(self):
         # Arrange
@@ -100,15 +111,19 @@ class UserServiceTest(TestBase):
     def test_create_new_user(
             self, mock_hash_password: MagicMock, mock_generate_new_valid_id: MagicMock):
         # Arrange
+        verification_token = "123"
         user_create_fixture = fantasy_fixtures.user_create_fixture
-        user_fixture = fantasy_fixtures.user_fixture
+        user_fixture = fantasy_fixtures.user_fixture.model_copy(deep=True)
+        user_fixture.account_status = UserAccountStatus.PENDING_VERIFICATION
+        user_fixture.verification_token = verification_token
         mock_hash_password.return_value = user_fixture.password
         mock_generate_new_valid_id.return_value = user_fixture.id
 
         # Act
         new_user = self.user_service.create_new_user(
             user_create_fixture,
-            user_fixture.get_permissions()
+            user_fixture.get_permissions(),
+            verification_token
         )
 
         # Assert
@@ -152,6 +167,7 @@ class UserServiceTest(TestBase):
     def test_user_login_successful(self,  mock_sign_jwt: MagicMock):
         # Arrange
         user = fantasy_fixtures.user_fixture
+        user.verified = True
         self.mock_db_service.get_user_by_username.return_value = user
         mock_token_response = token_response("mock-token")
         mock_sign_jwt.return_value = mock_token_response
@@ -179,6 +195,7 @@ class UserServiceTest(TestBase):
     def test_user_login_invalid_password(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
+        user.verified = True
         self.mock_db_service.get_user_by_username.return_value = user
         user_login = fantasy_fixtures.user_login_fixture.model_copy(deep=True)
         user_login.password = "badPassword"

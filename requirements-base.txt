@@ -8,6 +8,7 @@ httpx==0.23.2
 python-dotenv
 requests
 pydantic
+pydantic-settings
 pytz
 bcrypt
 PyJWT

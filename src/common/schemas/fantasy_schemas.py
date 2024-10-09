@@ -11,6 +11,7 @@ FantasyLeagueID = NewType('FantasyLeagueID', str)
 
 class UserAccountStatus(Enum):
     ACTIVE = "active"
+    PENDING_VERIFICATION = "pendingVerification"
     DELETED = "deleted"
 
 
@@ -50,12 +51,18 @@ class User(BaseModel):
     password: bytes
     permissions: Optional[str] = None
     account_status: UserAccountStatus = UserAccountStatus.ACTIVE
+    verified: bool = False
+    verification_token: Optional[str] = None
 
     def set_permissions(self, permissions_list):
         self.permissions = ','.join(permissions_list)
 
     def get_permissions(self):
         return self.permissions.split(',') if self.permissions else []
+
+
+class EmailRequest(BaseModel):
+    email: EmailStr
 
 
 class FantasyLeagueScoringSettings(BaseModel):

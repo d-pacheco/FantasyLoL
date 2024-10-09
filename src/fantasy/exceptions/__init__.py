@@ -12,3 +12,4 @@ from .forbidden_exception import ForbiddenException  # noqa: F401
 from .invalid_username_password_exception import InvalidUsernameOrPasswordException  # noqa: F401
 from .user_already_exists_exception import UserAlreadyExistsException  # noqa: F401
 from .user_not_found_exception import UserNotFoundException  # noqa: F401
+from .user_verification_exception import UserVerificationException  # noqa: F401
