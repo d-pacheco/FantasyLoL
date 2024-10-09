@@ -1,5 +1,6 @@
 import uuid
 import bcrypt
+from typing import List
 
 from src.auth import sign_jwt, FantasyPermissions, RiotPermissions
 from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
@@ -25,7 +26,7 @@ class UserService:
         if self.db.get_user_by_email(email):
             raise UserAlreadyExistsException("Email already in use")
 
-    def create_new_user(self, user_create: UserCreate, permissions) -> User:
+    def create_new_user(self, user_create: UserCreate, permissions: List[str]) -> User:
         new_id = self.generate_new_valid_id()
         hashed_password = self.hash_password(user_create.password)
 
