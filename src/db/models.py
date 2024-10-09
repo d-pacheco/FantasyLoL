@@ -151,6 +151,13 @@ class UserModel(Base):  # type: ignore
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    permissions = Column(String)
+
+    def set_permissions(self, permissions_list):
+        self.permissions = ','.join(permissions_list)
+
+    def get_permissions(self):
+        return self.permissions.split(',') if self.permissions else []
 
 
 class FantasyLeagueModel(Base):  # type: ignore

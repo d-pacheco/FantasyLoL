@@ -31,6 +31,13 @@ class User(BaseModel):
     username: str
     email: str
     password: bytes
+    permissions: Optional[str] = None
+
+    def set_permissions(self, permissions_list):
+        self.permissions = ','.join(permissions_list)
+
+    def get_permissions(self):
+        return self.permissions.split(',') if self.permissions else []
 
 
 class FantasyLeagueScoringSettings(BaseModel):
