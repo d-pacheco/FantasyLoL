@@ -3,5 +3,3 @@ flake8==6.1.0
 mypy
 types-pytz
 types-requests
-email-validator
-pydantic[email]
