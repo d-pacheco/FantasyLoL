@@ -36,7 +36,10 @@ class UserServiceTest(TestBase):
         mock_validate_username_and_email.assert_called_once_with(
             create_user_fixture.username, create_user_fixture.email
         )
-        mock_create_new_user.assert_called_once_with(create_user_fixture)
+        mock_create_new_user.assert_called_once_with(
+            create_user_fixture,
+            fantasy_fixtures.user_fixture.get_permissions()
+        )
         self.mock_db_service.create_user.assert_called_once_with(fantasy_fixtures.user_fixture)
 
     def test_validate_username_and_email_no_error_thrown(self):
@@ -101,7 +104,10 @@ class UserServiceTest(TestBase):
         mock_generate_new_valid_id.return_value = user_fixture.id
 
         # Act
-        new_user = self.user_service.create_new_user(user_create_fixture)
+        new_user = self.user_service.create_new_user(
+            user_create_fixture,
+            user_fixture.get_permissions()
+        )
 
         # Assert
         self.assertEqual(user_fixture, new_user)
@@ -153,7 +159,7 @@ class UserServiceTest(TestBase):
 
         # Assert
         self.mock_db_service.get_user_by_username.assert_called_once_with(user.username)
-        mock_sign_jwt.assert_called_once_with(user.id)
+        mock_sign_jwt.assert_called_once_with(user.id, user.get_permissions())
         self.assertEqual(mock_token_response, token)
 
     def test_user_login_invalid_username(self):

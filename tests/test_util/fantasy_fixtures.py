@@ -2,6 +2,7 @@ import uuid
 import bcrypt
 from random import randint
 
+from src.auth.permissions import FantasyPermissions, RiotPermissions
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueScoringSettings,
@@ -12,6 +13,7 @@ from src.common.schemas.fantasy_schemas import (
     User, UserCreate, UserLogin, UserID
 )
 from src.common.schemas.riot_data_schemas import ProPlayerID
+
 
 user_password = "WeakTestPw"
 salt = bcrypt.gensalt()
@@ -32,28 +34,36 @@ user_fixture: User = User(
     id=UserID(str(uuid.uuid4())),
     username=user_create_fixture.username,
     email=user_create_fixture.email,
-    password=user_hashed_password
+    password=user_hashed_password,
+    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
+                f"{RiotPermissions.READ.value}"
 )
 
 user_2_fixture: User = User(
     id=UserID(str(uuid.uuid4())),
     username="user2",
     email="user2@email.com",
-    password=user_hashed_password
+    password=user_hashed_password,
+    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
+                f"{RiotPermissions.READ.value}"
 )
 
 user_3_fixture: User = User(
     id=UserID(str(uuid.uuid4())),
     username="user3",
     email="user3@email.com",
-    password=user_hashed_password
+    password=user_hashed_password,
+    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
+                f"{RiotPermissions.READ.value}"
 )
 
 user_4_fixture: User = User(
     id=UserID(str(uuid.uuid4())),
     username="user4",
     email="user4@email.com",
-    password=user_hashed_password
+    password=user_hashed_password,
+    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
+                f"{RiotPermissions.READ.value}"
 )
 
 fantasy_league_settings_fixture: FantasyLeagueSettings = FantasyLeagueSettings(

@@ -1,10 +1,13 @@
 import uuid
 import bcrypt
+from typing import List
 
-from src.auth import sign_jwt
+from src.auth import sign_jwt, FantasyPermissions, RiotPermissions
 from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
 from src.db.database_service import DatabaseService
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
+
+DEFAULT_PERMISSIONS = [FantasyPermissions.READ, FantasyPermissions.WRITE, RiotPermissions.READ]
 
 
 class UserService:
@@ -13,9 +16,9 @@ class UserService:
 
     def user_signup(self, user_create: UserCreate) -> dict:
         self.validate_username_and_email(user_create.username, user_create.email)
-        user = self.create_new_user(user_create)
+        user = self.create_new_user(user_create, DEFAULT_PERMISSIONS)
         self.db.create_user(user)
-        return sign_jwt(user.id)
+        return sign_jwt(user.id, DEFAULT_PERMISSIONS)
 
     def validate_username_and_email(self, username: str, email: str) -> None:
         if self.db.get_user_by_username(username):
@@ -23,16 +26,18 @@ class UserService:
         if self.db.get_user_by_email(email):
             raise UserAlreadyExistsException("Email already in use")
 
-    def create_new_user(self, user_create: UserCreate) -> User:
+    def create_new_user(self, user_create: UserCreate, permissions: List[str]) -> User:
         new_id = self.generate_new_valid_id()
         hashed_password = self.hash_password(user_create.password)
 
-        return User(
+        user = User(
             id=new_id,
             username=user_create.username,
             email=user_create.email,
             password=hashed_password
         )
+        user.set_permissions(permissions)
+        return user
 
     def generate_new_valid_id(self) -> UserID:
         while True:
@@ -58,4 +63,4 @@ class UserService:
         if not passwords_match:
             raise InvalidUsernameOrPasswordException()
 
-        return sign_jwt(user.id)
+        return sign_jwt(user.id, user.get_permissions())
