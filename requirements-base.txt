@@ -13,3 +13,5 @@ bcrypt
 PyJWT
 python-decouple
 certifi
+email-validator
+pydantic[email]
