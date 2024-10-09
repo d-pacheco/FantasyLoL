@@ -4,3 +4,4 @@ mypy
 types-pytz
 types-requests
 email-validator
+pydantic[email]
