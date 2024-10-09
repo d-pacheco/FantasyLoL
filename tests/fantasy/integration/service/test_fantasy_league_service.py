@@ -15,6 +15,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
     UsersFantasyLeagues,
+    UserAccountStatus,
     UserID
 )
 from src.common.exceptions import LeagueNotFoundException
@@ -678,6 +679,22 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
         with self.assertRaises(UserNotFoundException):
             self.fantasy_league_service.send_fantasy_league_invite(
                 user.id, fantasy_league.id, "badUserName"
+            )
+
+    def test_send_fantasy_league_invite_to_deleted_user(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        deleted_user = fantasy_fixtures.user_2_fixture
+        deleted_user.account_status = UserAccountStatus.DELETED
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture
+        self.db.create_user(user)
+        self.db.create_user(deleted_user)
+        self.db.create_fantasy_league(fantasy_league)
+
+        # Act and Assert
+        with self.assertRaises(UserNotFoundException):
+            self.fantasy_league_service.send_fantasy_league_invite(
+                user.id, fantasy_league.id, deleted_user.username
             )
 
     def test_send_fantasy_league_invite_exceeds_max_number_of_players(self):

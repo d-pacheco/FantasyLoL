@@ -13,7 +13,11 @@ from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 from src.common.schemas.riot_data_schemas import GameState, PlayerRole
-from src.common.schemas.fantasy_schemas import FantasyLeagueStatus, FantasyLeagueMembershipStatus
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueStatus,
+    FantasyLeagueMembershipStatus,
+    UserAccountStatus
+)
 
 
 Base = declarative_base()
@@ -152,6 +156,7 @@ class UserModel(Base):  # type: ignore
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     permissions = Column(String)
+    account_status = Column(Enum(UserAccountStatus), nullable=False)
 
     def set_permissions(self, permissions_list):
         self.permissions = ','.join(permissions_list)

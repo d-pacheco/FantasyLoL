@@ -10,6 +10,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueMembershipStatus,
     FantasyTeam,
     User,
+    UserAccountStatus,
     UserID
 )
 from src.common.schemas.riot_data_schemas import (
@@ -353,6 +354,12 @@ class DatabaseService:
     def get_user_by_email(self, email: str) -> Optional[User]:
         with self.connection_provider.get_db() as db:
             return user_dao.get_user_by_email(db, email)
+
+    def update_user_account_status(
+            self, user_id: UserID, account_status: UserAccountStatus
+    ) -> None:
+        with self.connection_provider.get_db() as db:
+            user_dao.update_user_account_status(db, user_id, account_status)
 
 
 db_service = DatabaseService(db_connection_provider)

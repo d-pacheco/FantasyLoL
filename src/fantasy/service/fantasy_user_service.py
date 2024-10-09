@@ -3,7 +3,13 @@ import bcrypt
 from typing import List
 
 from src.auth import sign_jwt, FantasyPermissions, RiotPermissions
-from src.common.schemas.fantasy_schemas import UserCreate, User, UserLogin, UserID
+from src.common.schemas.fantasy_schemas import (
+    UserCreate,
+    User,
+    UserLogin,
+    UserID,
+    UserAccountStatus
+)
 from src.db.database_service import DatabaseService
 from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOrPasswordException
 
@@ -21,9 +27,12 @@ class UserService:
         return sign_jwt(user.id, DEFAULT_PERMISSIONS)
 
     def validate_username_and_email(self, username: str, email: str) -> None:
-        if self.db.get_user_by_username(username):
+        user_by_username = self.db.get_user_by_username(username)
+        if user_by_username and user_by_username.account_status == UserAccountStatus.ACTIVE:
             raise UserAlreadyExistsException("Username already in use")
-        if self.db.get_user_by_email(email):
+
+        user_by_email = self.db.get_user_by_email(email)
+        if user_by_email and user_by_email.account_status == UserAccountStatus.ACTIVE:
             raise UserAlreadyExistsException("Email already in use")
 
     def create_new_user(self, user_create: UserCreate, permissions: List[str]) -> User:
@@ -64,3 +73,6 @@ class UserService:
             raise InvalidUsernameOrPasswordException()
 
         return sign_jwt(user.id, user.get_permissions())
+
+    def delete_user(self, user_id: UserID) -> None:
+        self.db.update_user_account_status(user_id, UserAccountStatus.DELETED)
