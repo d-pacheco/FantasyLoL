@@ -10,7 +10,7 @@ class EmailVerificationService:
 
     def send_verification_email(self, user_email: str, token: str) -> bool:
         verification_link = f"{self.verification_config.domain_url}" \
-                            f"/fantasy/v1/user/verify-email/{token}"
+            f"/fantasy/v1/user/verify-email/{token}"
         subject = "Verify your email address"
         body = f"Click the link to verify your email: {verification_link}"
 

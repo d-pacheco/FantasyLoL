@@ -164,7 +164,7 @@ class UserServiceTest(TestBase):
         )
 
     @patch(SIGN_JWT_PATH)
-    def test_user_login_successful(self,  mock_sign_jwt: MagicMock):
+    def test_user_login_successful(self, mock_sign_jwt: MagicMock):
         # Arrange
         user = fantasy_fixtures.user_fixture
         user.verified = True
