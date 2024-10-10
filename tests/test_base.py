@@ -3,12 +3,11 @@ import logging
 import os
 from sqlalchemy import MetaData
 
-from tests.test_util.db_util import TestDatabaseService
-
 # JWT Auth Config Settings:
 os.environ['AUTH_SECRET'] = "1234567890"
 os.environ['AUTH_ALGORITHM'] = "HS256"
 
+from tests.test_util.db_util import TestDatabaseService
 from src.db import models  # type: ignore
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
