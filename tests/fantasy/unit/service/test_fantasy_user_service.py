@@ -40,7 +40,7 @@ class UserServiceTest(TestBase):
         mock_generate_verification_token.return_value = verification_token
 
         # Act
-        response_message = self.user_service.user_signup(create_user_fixture)
+        self.user_service.user_signup(create_user_fixture)
 
         # Assert
         mock_validate_username_and_email.assert_called_once_with(
