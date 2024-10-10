@@ -2,7 +2,7 @@ import uuid
 import bcrypt
 from random import randint
 
-from src.auth.permissions import FantasyPermissions, RiotPermissions
+from src.auth.permissions import Permissions
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueScoringSettings,
@@ -35,8 +35,8 @@ user_fixture: User = User(
     username=user_create_fixture.username,
     email=user_create_fixture.email,
     password=user_hashed_password,
-    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-    f"{RiotPermissions.READ.value}"
+    permissions=f"{Permissions.FANTASY_READ.value},{Permissions.FANTASY_WRITE.value},"
+                f"{Permissions.RIOT_READ.value}"
 )
 
 user_2_fixture: User = User(
@@ -44,8 +44,8 @@ user_2_fixture: User = User(
     username="user2",
     email="user2@email.com",
     password=user_hashed_password,
-    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-    f"{RiotPermissions.READ.value}"
+    permissions=f"{Permissions.FANTASY_READ.value},{Permissions.FANTASY_WRITE.value},"
+                f"{Permissions.RIOT_READ.value}"
 )
 
 user_3_fixture: User = User(
@@ -53,8 +53,8 @@ user_3_fixture: User = User(
     username="user3",
     email="user3@email.com",
     password=user_hashed_password,
-    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-    f"{RiotPermissions.READ.value}"
+    permissions=f"{Permissions.FANTASY_READ.value},{Permissions.FANTASY_WRITE.value},"
+                f"{Permissions.RIOT_READ.value}"
 )
 
 user_4_fixture: User = User(
@@ -62,8 +62,8 @@ user_4_fixture: User = User(
     username="user4",
     email="user4@email.com",
     password=user_hashed_password,
-    permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-    f"{RiotPermissions.READ.value}"
+    permissions=f"{Permissions.FANTASY_READ.value},{Permissions.FANTASY_WRITE.value},"
+                f"{Permissions.RIOT_READ.value}"
 )
 
 fantasy_league_settings_fixture: FantasyLeagueSettings = FantasyLeagueSettings(

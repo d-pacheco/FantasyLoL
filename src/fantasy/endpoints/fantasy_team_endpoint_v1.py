@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import List
 
-from src.auth import JWTBearer, FantasyPermissions
+from src.auth import JWTBearer, Permissions
 
 from src.common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
 from src.common.schemas.riot_data_schemas import ProPlayerID
@@ -22,7 +22,7 @@ def get_fantasy_team_service() -> FantasyTeamService:
 @router.get(
     path="/teams/{fantasy_league_id}",
     tags=["Fantasy Teams"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.READ]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
     response_model=List[FantasyTeam]
 )
 def get_fantasy_team_weeks_for_league(
@@ -37,7 +37,7 @@ def get_fantasy_team_weeks_for_league(
 @router.put(
     path="/teams/{fantasy_league_id}/pickup/{player_id}",
     tags=["Fantasy Teams"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyTeam
 )
 def pickup_player(
@@ -53,7 +53,7 @@ def pickup_player(
 @router.put(
     path="/teams/{fantasy_league_id}/drop/{player_id}",
     tags=["Fantasy Teams"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyTeam
 )
 def drop_player(
@@ -69,7 +69,7 @@ def drop_player(
 @router.put(
     path="/teams/{fantasy_league_id}/swap/{player_to_drop_id}/{player_to_pickup_id}",
     tags=["Fantasy Teams"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyTeam
 )
 def swap_players(
