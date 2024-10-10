@@ -1,5 +1,6 @@
 import unittest
 import logging
+import os
 from sqlalchemy import MetaData
 
 from tests.test_util.db_util import TestDatabaseService
@@ -7,6 +8,18 @@ from tests.test_util.db_util import TestDatabaseService
 from src.db import models
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
+
+# JWT Auth Config Settings:
+os.environ['AUTH_SECRET'] = "1234567890"
+os.environ['AUTH_ALGORITHM'] = "HS256"
+
+# Email Verification Config Settings:
+os.environ['VERIFICATION_DOMAIN_URL'] = "http://localhost"
+os.environ['VERIFICATION_SENDER_EMAIL'] = "testEmail@gmail.com"
+os.environ['VERIFICATION_SENDER_PASSWORD'] = "testpassword"
+os.environ['VERIFICATION_SMTP_HOST'] = "smtp.gmail.com"
+os.environ['VERIFICATION_SMTP_PORT'] = "465"
+
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
     'src.riot.util.riot_api_requester.cloudscraper.create_scraper'

@@ -7,8 +7,8 @@ from src.common import app_config
 
 logger = logging.getLogger('fantasy-lol')
 
-JWT_SECRET = app_config.SECRET
-JWT_ALGORITHM = app_config.ALGORITHM
+JWT_SECRET = app_config.AUTH_SECRET
+JWT_ALGORITHM = app_config.AUTH_ALGORITHM
 
 
 def token_response(token: str):

@@ -17,11 +17,8 @@ class AppConfig:
     TESTS_RUNNING = 'test*.py' in sys.argv
 
     # Auth
-    SECRET: str
-    ALGORITHM: str
-    if TESTS_RUNNING:
-        SECRET = secrets.token_hex(32)
-        ALGORITHM = 'HS256'
+    AUTH_SECRET: str
+    AUTH_ALGORITHM: str
 
     # Api Requester:
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"  # This is a public key
