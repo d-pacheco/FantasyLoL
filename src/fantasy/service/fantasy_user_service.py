@@ -51,7 +51,7 @@ class UserService:
     def create_new_user(
             self,
             user_create: UserCreate,
-            permissions: List[str],
+            permissions: List[Permissions],
             verification_token: Optional[str] = None
     ) -> User:
         new_id = self.generate_new_valid_id()
