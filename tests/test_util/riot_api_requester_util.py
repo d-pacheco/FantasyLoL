@@ -219,7 +219,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_1_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_1_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                                    f"{riot_fixtures.player_1_fixture.summoner_name}",
+                    f"{riot_fixtures.player_1_fixture.summoner_name}",
                     "championId": riot_fixtures.player_1_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_1_game_metadata_fixture.role
                 },
@@ -227,7 +227,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_2_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_2_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                                    f"{riot_fixtures.player_2_fixture.summoner_name}",
+                    f"{riot_fixtures.player_2_fixture.summoner_name}",
                     "championId": riot_fixtures.player_2_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_2_game_metadata_fixture.role
                 },
@@ -235,7 +235,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_3_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_3_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                                    f"{riot_fixtures.player_3_fixture.summoner_name}",
+                    f"{riot_fixtures.player_3_fixture.summoner_name}",
                     "championId": riot_fixtures.player_3_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_3_game_metadata_fixture.role
                 },
@@ -243,7 +243,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_4_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_4_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                                    f"{riot_fixtures.player_4_fixture.summoner_name}",
+                    f"{riot_fixtures.player_4_fixture.summoner_name}",
                     "championId": riot_fixtures.player_4_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_4_game_metadata_fixture.role
                 },
@@ -251,7 +251,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_5_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_5_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                                    f"{riot_fixtures.player_5_fixture.summoner_name}",
+                    f"{riot_fixtures.player_5_fixture.summoner_name}",
                     "championId": riot_fixtures.player_5_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_5_game_metadata_fixture.role
                 }
@@ -264,7 +264,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_6_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_6_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                                    f"{riot_fixtures.player_6_fixture.summoner_name}",
+                    f"{riot_fixtures.player_6_fixture.summoner_name}",
                     "championId": riot_fixtures.player_6_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_6_game_metadata_fixture.role
                 },
@@ -272,7 +272,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_7_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_7_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                                    f"{riot_fixtures.player_7_fixture.summoner_name}",
+                    f"{riot_fixtures.player_7_fixture.summoner_name}",
                     "championId": riot_fixtures.player_7_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_7_game_metadata_fixture.role
                 },
@@ -280,7 +280,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_8_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_8_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                                    f"{riot_fixtures.player_8_fixture.summoner_name}",
+                    f"{riot_fixtures.player_8_fixture.summoner_name}",
                     "championId": riot_fixtures.player_8_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_8_game_metadata_fixture.role
                 },
@@ -288,7 +288,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_9_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_9_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                                    f"{riot_fixtures.player_9_fixture.summoner_name}",
+                    f"{riot_fixtures.player_9_fixture.summoner_name}",
                     "championId": riot_fixtures.player_9_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_9_game_metadata_fixture.role
                 },
@@ -296,7 +296,7 @@ get_livestats_window_response = {
                     "participantId": riot_fixtures.player_10_game_metadata_fixture.participant_id,
                     "esportsPlayerId": riot_fixtures.player_10_game_metadata_fixture.player_id,
                     "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                                    f"{riot_fixtures.player_10_fixture.summoner_name}",
+                    f"{riot_fixtures.player_10_fixture.summoner_name}",
                     "championId": riot_fixtures.player_10_game_metadata_fixture.champion_id,
                     "role": riot_fixtures.player_10_game_metadata_fixture.role
                 },

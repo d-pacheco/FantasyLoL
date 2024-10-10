@@ -50,3 +50,32 @@ def update_user_account_status(
         db_user.account_status = account_status
         session.merge(db_user)
         session.commit()
+
+
+def update_user_verified(session: Session, user_id: UserID, verified: bool) -> None:
+    db_user: Optional[UserModel] = session.query(UserModel).filter(UserModel.id == user_id).first()
+    if db_user:
+        db_user.verified = verified
+        session.merge(db_user)
+        session.commit()
+
+
+def get_user_by_verification_token(session: Session, verification_token: str) -> Optional[User]:
+    db_user: Optional[UserModel] = session.query(UserModel)\
+        .filter(UserModel.verification_token == verification_token).first()
+    if db_user is None:
+        return None
+    else:
+        return User.model_validate(db_user)
+
+
+def update_user_verification_token(
+        session: Session,
+        user_id: UserID,
+        verification_token: Optional[str]
+) -> None:
+    db_user: Optional[UserModel] = session.query(UserModel).filter(UserModel.id == user_id).first()
+    if db_user:
+        db_user.verification_token = verification_token
+        session.merge(db_user)
+        session.commit()

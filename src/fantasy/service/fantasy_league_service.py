@@ -196,13 +196,13 @@ class FantasyLeagueService:
             if membership.user_id == user_id:
                 user_membership = membership
 
-        if (user_membership is None or
-                user_membership.status == FantasyLeagueMembershipStatus.DECLINED or
-                user_membership.status == FantasyLeagueMembershipStatus.REVOKED):
+        if (user_membership is None
+                or user_membership.status == FantasyLeagueMembershipStatus.DECLINED
+                or user_membership.status == FantasyLeagueMembershipStatus.REVOKED):
             raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
 
-        if (user_membership.status == FantasyLeagueMembershipStatus.PENDING and
-                fantasy_league_model.number_of_teams < accepted_member_count + 1):
+        if (user_membership.status == FantasyLeagueMembershipStatus.PENDING
+                and fantasy_league_model.number_of_teams < accepted_member_count + 1):
             raise FantasyLeagueInviteException("Fantasy league is full")
 
         self.db.update_fantasy_league_membership_status(

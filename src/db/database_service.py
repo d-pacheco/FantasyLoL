@@ -361,5 +361,21 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             user_dao.update_user_account_status(db, user_id, account_status)
 
+    def update_user_verified(self, user_id: UserID, verified: bool) -> None:
+        with self.connection_provider.get_db() as db:
+            return user_dao.update_user_verified(db, user_id, verified)
+
+    def get_user_by_verification_token(self, verification_token: str) -> Optional[User]:
+        with self.connection_provider.get_db() as db:
+            return user_dao.get_user_by_verification_token(db, verification_token)
+
+    def update_user_verification_token(
+            self,
+            user_id: UserID,
+            verification_token: Optional[str]
+    ) -> None:
+        with self.connection_provider.get_db() as db:
+            user_dao.update_user_verification_token(db, user_id, verification_token)
+
 
 db_service = DatabaseService(db_connection_provider)

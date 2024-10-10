@@ -36,7 +36,7 @@ user_fixture: User = User(
     email=user_create_fixture.email,
     password=user_hashed_password,
     permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-                f"{RiotPermissions.READ.value}"
+    f"{RiotPermissions.READ.value}"
 )
 
 user_2_fixture: User = User(
@@ -45,7 +45,7 @@ user_2_fixture: User = User(
     email="user2@email.com",
     password=user_hashed_password,
     permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-                f"{RiotPermissions.READ.value}"
+    f"{RiotPermissions.READ.value}"
 )
 
 user_3_fixture: User = User(
@@ -54,7 +54,7 @@ user_3_fixture: User = User(
     email="user3@email.com",
     password=user_hashed_password,
     permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-                f"{RiotPermissions.READ.value}"
+    f"{RiotPermissions.READ.value}"
 )
 
 user_4_fixture: User = User(
@@ -63,7 +63,7 @@ user_4_fixture: User = User(
     email="user4@email.com",
     password=user_hashed_password,
     permissions=f"{FantasyPermissions.READ.value},{FantasyPermissions.WRITE.value},"
-                f"{RiotPermissions.READ.value}"
+    f"{RiotPermissions.READ.value}"
 )
 
 fantasy_league_settings_fixture: FantasyLeagueSettings = FantasyLeagueSettings(

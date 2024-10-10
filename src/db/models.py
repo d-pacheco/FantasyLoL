@@ -157,6 +157,8 @@ class UserModel(Base):  # type: ignore
     password = Column(String, nullable=False)
     permissions = Column(String)
     account_status = Column(Enum(UserAccountStatus), nullable=False)
+    verified = Column(Boolean, default=False)
+    verification_token = Column(String)
 
     def set_permissions(self, permissions_list):
         self.permissions = ','.join(permissions_list)
