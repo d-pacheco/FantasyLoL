@@ -3,7 +3,7 @@ import bcrypt
 from typing import List, Optional
 import secrets
 
-from src.auth import sign_jwt, FantasyPermissions, RiotPermissions
+from src.auth import sign_jwt, Permissions
 from src.common.schemas.fantasy_schemas import (
     UserCreate,
     User,
@@ -19,7 +19,7 @@ from src.fantasy.exceptions import (
 )
 from .email_verification_service import EmailVerificationService
 
-DEFAULT_PERMISSIONS = [FantasyPermissions.READ, FantasyPermissions.WRITE, RiotPermissions.READ]
+DEFAULT_PERMISSIONS = [Permissions.FANTASY_READ, Permissions.FANTASY_WRITE, Permissions.RIOT_READ]
 
 
 class UserService:

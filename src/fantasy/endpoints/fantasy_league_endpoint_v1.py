@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends
 from typing import List
 
-from src.auth import JWTBearer, FantasyPermissions
+from src.auth import JWTBearer, Permissions
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -28,7 +28,7 @@ def get_fantasy_league_service() -> FantasyLeagueService:
 @router.get(
     path="/leagues",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.READ]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
     response_model=UsersFantasyLeagues
 )
 def get_my_fantasy_leagues(
@@ -42,7 +42,7 @@ def get_my_fantasy_leagues(
 @router.post(
     path="/leagues",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyLeague
 )
 def create_fantasy_league(
@@ -57,7 +57,7 @@ def create_fantasy_league(
 @router.get(
     path="/leagues/{fantasy_league_id}/settings",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.READ]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
     response_model=FantasyLeagueSettings
 )
 def get_fantasy_league_settings(
@@ -72,7 +72,7 @@ def get_fantasy_league_settings(
 @router.put(
     path="/leagues/{fantasy_league_id}/settings",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyLeagueSettings
 )
 def update_fantasy_league_settings(
@@ -89,7 +89,7 @@ def update_fantasy_league_settings(
 @router.get(
     path="/leagues/{fantasy_league_id}/scoring",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.READ]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
     response_model=FantasyLeagueScoringSettings
 )
 def get_fantasy_league_scoring_settings(
@@ -104,7 +104,7 @@ def get_fantasy_league_scoring_settings(
 @router.put(
     path="/leagues/{fantasy_league_id}/scoring",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))],
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
     response_model=FantasyLeagueScoringSettings
 )
 def update_fantasy_league_scoring_settings(
@@ -122,7 +122,7 @@ def update_fantasy_league_scoring_settings(
 @router.post(
     path="/leagues/{fantasy_league_id}/invite/{username}",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
 )
 def send_invite_user_to_fantasy_league(
         fantasy_league_id: FantasyLeagueID,
@@ -137,7 +137,7 @@ def send_invite_user_to_fantasy_league(
 @router.post(
     path="/leagues/{fantasy_league_id}/join",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
 )
 def join_fantasy_league(
         fantasy_league_id: FantasyLeagueID,
@@ -151,7 +151,7 @@ def join_fantasy_league(
 @router.post(
     path="/leagues/{fantasy_league_id}/leave",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
 )
 def leave_fantasy_league(
         fantasy_league_id: FantasyLeagueID,
@@ -166,7 +166,7 @@ def leave_fantasy_league(
     path="/leagues/{fantasy_league_id}/revoke/{user_id_to_revoke}",
     tags=["Fantasy Leagues"],
     status_code=204,
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
 )
 def revoke_from_fantasy_league(
         fantasy_league_id: FantasyLeagueID,
@@ -182,7 +182,7 @@ def revoke_from_fantasy_league(
     path="/leagues/{fantasy_league_id}/draft-order",
     tags=["Fantasy Leagues"],
     response_model=List[FantasyLeagueDraftOrderResponse],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.READ]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))]
 )
 def get_fantasy_league_draft_order(
         fantasy_league_id: FantasyLeagueID,
@@ -196,7 +196,7 @@ def get_fantasy_league_draft_order(
 @router.put(
     path="/leagues/{fantasy_league_id}/draft-order",
     tags=["Fantasy Leagues"],
-    dependencies=[Depends(JWTBearer([FantasyPermissions.WRITE]))]
+    dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
 )
 def update_fantasy_league_draft_order(
         fantasy_league_id: FantasyLeagueID,
