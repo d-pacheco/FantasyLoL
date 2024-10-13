@@ -71,10 +71,14 @@ class RiotMatchService:
                 self.db.put_match(match)
 
             schedule_pages = self.riot_api_requester.get_pages_from_schedule()
+            if schedule_pages.current_token_key is not None:
+                riot_curr_token = schedule_pages.current_token_key
+            else:
+                riot_curr_token = schedule_pages.older_token_key
             riot_schedule = Schedule(
                 schedule_name="riot_schedule",
                 older_token_key=None,
-                current_token_key=schedule_pages.current_token_key
+                current_token_key=riot_curr_token
             )
 
             # Used as a save point if we encounter an error during back prop

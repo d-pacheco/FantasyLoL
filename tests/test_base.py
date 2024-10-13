@@ -7,12 +7,6 @@ from sqlalchemy import MetaData
 os.environ['AUTH_SECRET'] = "1234567890"
 os.environ['AUTH_ALGORITHM'] = "HS256"
 
-from tests.test_util.db_util import TestDatabaseService
-from src.db import models  # type: ignore
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
-
-
 # Email Verification Config Settings:
 os.environ['VERIFICATION_DOMAIN_URL'] = "http://localhost"
 os.environ['VERIFICATION_SENDER_EMAIL'] = "testEmail@gmail.com"
@@ -20,6 +14,10 @@ os.environ['VERIFICATION_SENDER_PASSWORD'] = "testpassword"
 os.environ['VERIFICATION_SMTP_HOST'] = "smtp.gmail.com"
 os.environ['VERIFICATION_SMTP_PORT'] = "465"
 
+from tests.test_util.db_util import TestDatabaseService
+from src.db import models  # type: ignore
+from src.db.database_connection_provider import DatabaseConnectionProvider
+from src.db.database_service import DatabaseService
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
     'src.riot.util.riot_api_requester.cloudscraper.create_scraper'
@@ -30,6 +28,7 @@ TEST_DATABASE_URL = 'sqlite:///:memory:'
 
 
 class TestBase(unittest.TestCase):
+
     db_provider: DatabaseConnectionProvider
     db: DatabaseService
     test_db: TestDatabaseService
