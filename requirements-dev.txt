@@ -1,5 +1,5 @@
 autopep8==2.0.4
 flake8==6.1.0
-mypy
-types-pytz
-types-requests
+mypy==1.10.0
+types-pytz==2024.1.0.20240417
+types-requests==2.23.0.20240602
