@@ -1,9 +1,3 @@
-from fastapi import APIRouter
-from . import fantasy_league_endpoint_v1, fantasy_team_endpoint_v1, user_endpoint_v1
-
-router = APIRouter()
-
-FANTASY_ENDPOINT_PREFIX = "/fantasy"
-router.include_router(user_endpoint_v1.router, prefix=FANTASY_ENDPOINT_PREFIX)
-router.include_router(fantasy_league_endpoint_v1.router, prefix=FANTASY_ENDPOINT_PREFIX)
-router.include_router(fantasy_team_endpoint_v1.router, prefix=FANTASY_ENDPOINT_PREFIX)
+from .fantasy_league_endpoint_v1 import FantasyLeagueEndpoint  # noqa: F401
+from .fantasy_team_endpoint_v1 import FantasyTeamEndpoint  # noqa: F401
+from .user_endpoint_v1 import UserEndpointV1  # noqa: F401

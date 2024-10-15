@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
-from src.common.config import app_config
 from src.db.models import Base
 from src.db.views import create_player_game_view_query
 
@@ -40,6 +39,3 @@ class DatabaseConnectionProvider:
             yield db
         finally:
             db.close()
-
-
-db_connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)

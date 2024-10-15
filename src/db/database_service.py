@@ -32,10 +32,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameStats,
     Schedule
 )
-from src.db.database_connection_provider import (
-    DatabaseConnectionProvider,
-    db_connection_provider
-)
+from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
     draft_order_dao,
     fantasy_league_dao,
@@ -376,6 +373,3 @@ class DatabaseService:
     ) -> None:
         with self.connection_provider.get_db() as db:
             user_dao.update_user_verification_token(db, user_id, verification_token)
-
-
-db_service = DatabaseService(db_connection_provider)

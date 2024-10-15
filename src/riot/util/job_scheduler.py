@@ -7,40 +7,21 @@ from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 
 from src.common import app_config
-from src.db.database_service import db_service
 from src.riot.exceptions import JobConfigException
 
 logger = logging.getLogger('fantasy-lol')
 
 
 class JobScheduler:
-    _instance = None
+    def __init__(self, *args, **kwargs):
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(JobScheduler, cls).__new__(cls)
-            cls._instance._init()
-        return cls._instance
-
-    def _init(self):
-        from src.riot.service import (
-            RiotLeagueService,
-            RiotTournamentService,
-            RiotProfessionalTeamService,
-            RiotProfessionalPlayerService,
-            RiotMatchService,
-            RiotGameService,
-            RiotGameStatsService
-        )
-
-        self.db_service = db_service
-        self.riot_league_service = RiotLeagueService(self.db_service)
-        self.riot_tournament_service = RiotTournamentService(self.db_service)
-        self.riot_team_service = RiotProfessionalTeamService(self.db_service)
-        self.riot_player_service = RiotProfessionalPlayerService(self.db_service)
-        self.riot_match_service = RiotMatchService(self.db_service)
-        self.riot_game_service = RiotGameService(self.db_service)
-        self.riot_game_stats_service = RiotGameStatsService(self.db_service)
+        self.riot_game_service = kwargs.get('game_service')
+        self.riot_game_stats_service = kwargs.get('game_stats_service')
+        self.riot_league_service = kwargs.get('league_service')
+        self.riot_match_service = kwargs.get('match_service')
+        self.riot_player_service = kwargs.get('player_service')
+        self.riot_team_service = kwargs.get('team_service')
+        self.riot_tournament_service = kwargs.get('tournament_service')
 
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()
