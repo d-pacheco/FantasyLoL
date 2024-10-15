@@ -12,7 +12,7 @@ class FantasyTeamEndpoint(Routable):
     def __init__(self, fantasy_team_service: FantasyTeamService):
         super().__init__()
         self.__fantasy_team_service = fantasy_team_service
-        
+
     @get(
         path="/teams/{fantasy_league_id}",
         tags=["Fantasy Teams"],
@@ -26,8 +26,7 @@ class FantasyTeamEndpoint(Routable):
     ) -> List[FantasyTeam]:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         return self.__fantasy_team_service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
-    
-    
+
     @put(
         path="/teams/{fantasy_league_id}/pickup/{player_id}",
         tags=["Fantasy Teams"],
@@ -42,8 +41,7 @@ class FantasyTeamEndpoint(Routable):
     ) -> FantasyTeam:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         return self.__fantasy_team_service.pickup_player(fantasy_league_id, user_id, player_id)
-    
-    
+
     @put(
         path="/teams/{fantasy_league_id}/drop/{player_id}",
         tags=["Fantasy Teams"],
@@ -58,8 +56,7 @@ class FantasyTeamEndpoint(Routable):
     ) -> FantasyTeam:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         return self.__fantasy_team_service.drop_player(fantasy_league_id, user_id, player_id)
-    
-    
+
     @put(
         path="/teams/{fantasy_league_id}/swap/{player_to_drop_id}/{player_to_pickup_id}",
         tags=["Fantasy Teams"],

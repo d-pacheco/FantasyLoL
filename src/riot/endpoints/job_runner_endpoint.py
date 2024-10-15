@@ -1,4 +1,4 @@
-from classy_fastapi import Routable, get, post, put
+from classy_fastapi import Routable, post
 
 from src.riot.util import JobScheduler
 

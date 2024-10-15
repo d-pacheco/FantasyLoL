@@ -1,4 +1,4 @@
-from classy_fastapi import Routable, get, post, put
+from classy_fastapi import Routable, get
 from fastapi import Depends, Query
 from fastapi_pagination import paginate, Page
 
@@ -38,7 +38,6 @@ class GameEndpoint(Routable):
         )
         games = self.__game_service.get_games(search_parameters)
         return paginate(games)
-
 
     @get(
         path="/game/{game_id}",

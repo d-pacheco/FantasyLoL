@@ -23,7 +23,6 @@ class JobScheduler:
         self.riot_team_service = kwargs.get('team_service')
         self.riot_tournament_service = kwargs.get('tournament_service')
 
-
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
