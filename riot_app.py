@@ -2,8 +2,8 @@ import uvicorn
 import sys
 
 from src.common.logger import configure_logger
-from src.db.database_connection_provider import DatabaseConnectionProvider
-from src.db.database_service import DatabaseService
+from src.db import DatabaseConnectionProvider, DatabaseService
+from src.common.config import app_config
 from src.riot import app
 from src.riot.util.job_scheduler import JobScheduler
 from src.riot.endpoints import (
@@ -31,7 +31,7 @@ def main():
     configure_logger()
 
     # Create database service
-    connection_provider = DatabaseConnectionProvider("sqlite:///./database/fantasy-league-of-legends.db")
+    connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)
     database_service = DatabaseService(connection_provider)
 
     # Create Riot Services
