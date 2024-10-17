@@ -43,13 +43,13 @@ def main():
     team_service = RiotProfessionalTeamService(database_service)
     tournament_service = RiotTournamentService(database_service)
     job_scheduler = JobScheduler(
-        game_service,
-        game_stats_service,
-        league_service,
-        match_service,
-        player_service,
-        team_service,
-        tournament_service
+        game_service=game_service,
+        game_stats_service=game_stats_service,
+        league_service=league_service,
+        match_service=match_service,
+        player_service=player_service,
+        team_service=team_service,
+        tournament_service=tournament_service
     )
 
     # Create endpoints

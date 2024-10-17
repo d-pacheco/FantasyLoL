@@ -38,11 +38,8 @@ class RiotMatchService:
 
         no_new_schedule = False
         while not no_new_schedule:
+            # Save any changes to the current schedule
             schedule_pages = self.riot_api_requester.get_pages_from_schedule(current_page_token)
-            if schedule_pages.current_token_key is None and last_fetched_page_token is None:
-                no_new_schedule = True
-                continue
-
             fetched_matches = self.riot_api_requester.get_matches_from_schedule(current_page_token)
             for match in fetched_matches:
                 self.db.put_match(match)
