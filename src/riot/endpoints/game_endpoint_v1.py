@@ -2,6 +2,7 @@ from classy_fastapi import Routable, get
 from fastapi import Depends, Query
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
 from src.common.schemas.search_parameters import GameSearchParameters
 from src.riot.service import RiotGameService
@@ -20,6 +21,7 @@ class GameEndpoint(Routable):
         path="/game",
         description="Get a list of games based on a set of search criteria",
         tags=["Games"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Game],
         responses={
             200: {
@@ -43,6 +45,7 @@ class GameEndpoint(Routable):
         path="/game/{game_id}",
         description="Get game by its ID",
         tags=["Games"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Game,
         responses={
             200: {

@@ -1,7 +1,8 @@
 from classy_fastapi import Routable, get
-from fastapi import Query
+from fastapi import Query, Depends
 from fastapi_pagination import paginate, Page
 
+from src.auth import Permissions, JWTBearer
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotTournamentID
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.riot.service import RiotMatchService
@@ -16,6 +17,7 @@ class MatchEndpoint(Routable):
         path="/matches",
         description="Get a list of matches based on a set of search criteria",
         tags=["Matches"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Match],
         responses={
             200: {
@@ -39,6 +41,7 @@ class MatchEndpoint(Routable):
         path="/matches/{match_id}",
         description="Get a match by its ID",
         tags=["Matches"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Match,
         responses={
             200: {
