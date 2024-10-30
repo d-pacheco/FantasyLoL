@@ -2,6 +2,7 @@ from classy_fastapi import Routable, get
 from fastapi import Depends, Query
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import (
     ProfessionalPlayer,
     PlayerRole,
@@ -26,6 +27,7 @@ class ProfessionalPlayerEndpoint(Routable):
         path="/professional-player",
         description="Get a list of professional players based on a set of search criteria",
         tags=["Professional Players"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[ProfessionalPlayer],
         responses={
             200: {
@@ -51,6 +53,7 @@ class ProfessionalPlayerEndpoint(Routable):
         path="/professional-player/{professional_player_id}",
         description="Get professional player by their ID",
         tags=["Professional Players"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=ProfessionalPlayer,
         responses={
             200: {

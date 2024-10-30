@@ -1,7 +1,8 @@
 from classy_fastapi import Routable, get, put
-from fastapi import Query
+from fastapi import Query, Depends
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
 from src.common.schemas.search_parameters import LeagueSearchParameters
 from src.riot.service import RiotLeagueService
@@ -16,6 +17,7 @@ class LeagueEndpoint(Routable):
         path="/league",
         description="Get a list of leagues based on a set of search criteria",
         tags=["Leagues"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[League],
         responses={
             200: {
@@ -42,6 +44,7 @@ class LeagueEndpoint(Routable):
         path="/league/{league_id}",
         description="Get league by its ID",
         tags=["Leagues"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=League,
         responses={
             200: {
@@ -67,6 +70,7 @@ class LeagueEndpoint(Routable):
         path="/league/{league_id}/{new_status}",
         description="Update league to be available for fantasy leagues",
         tags=["Leagues"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_WRITE]))],
         response_model=League,
         responses={
             200: {

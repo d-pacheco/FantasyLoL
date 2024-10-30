@@ -1,7 +1,8 @@
 from classy_fastapi import Routable, get
-from fastapi import Query
+from fastapi import Query, Depends
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import PlayerGameData, RiotGameID, ProPlayerID
 from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
 from src.riot.service import RiotGameStatsService
@@ -16,6 +17,7 @@ class GameStatsEndpoint(Routable):
         path="/stats/player",
         description="Search game stats for players",
         tags=["Game Stats"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[PlayerGameData],
         responses={
             200: {

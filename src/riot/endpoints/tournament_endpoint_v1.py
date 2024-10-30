@@ -2,6 +2,7 @@ from classy_fastapi import Routable, get
 from fastapi import Depends, Query
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
 from src.riot.service import RiotTournamentService
@@ -21,6 +22,7 @@ class TournamentEndpoint(Routable):
         path="/tournament",
         description="Get a list of tournaments based on a set of search criteria",
         tags=["Tournaments"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Tournament],
         responses={
             200: {
@@ -40,6 +42,7 @@ class TournamentEndpoint(Routable):
         path="/tournament/{tournament_id}",
         description="Get a tournament by its ID",
         tags=["Tournaments"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Tournament,
         responses={
             200: {

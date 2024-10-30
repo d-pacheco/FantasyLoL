@@ -1,5 +1,7 @@
 from classy_fastapi import Routable, post
+from fastapi import Depends
 
+from src.auth import JWTBearer, Permissions
 from src.riot.util import JobScheduler
 
 
@@ -12,6 +14,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-leagues",
         description="Manually trigger fetch leagues from riot job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -31,6 +34,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-tournaments",
         description="Manually trigger fetch tournaments from riot job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -50,6 +54,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-matches-from-schedule",
         description="Manually trigger fetch schedule from riot job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -69,6 +74,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-games-from-matches",
         description="Manually trigger fetch games from match ids job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -88,6 +94,7 @@ class JobRunnerEndpoint(Routable):
         path="/update-game-states",
         description="Manually trigger update game states job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -107,6 +114,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-teams",
         description="Manually trigger fetch teams from riot job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {
@@ -126,6 +134,7 @@ class JobRunnerEndpoint(Routable):
         path="/fetch-players",
         description="Manually trigger fetch players from riot job",
         tags=["Manual Job Triggers"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
             202: {

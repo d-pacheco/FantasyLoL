@@ -1,7 +1,8 @@
 from classy_fastapi import Routable, get
-from fastapi import Query
+from fastapi import Query, Depends
 from fastapi_pagination import paginate, Page
 
+from src.auth import JWTBearer, Permissions
 from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
 from src.common.schemas.search_parameters import TeamSearchParameters
 from src.riot.service import RiotProfessionalTeamService
@@ -16,6 +17,7 @@ class ProfessionalTeamEndpoint(Routable):
         path="/professional-team",
         description="Get a list of professional teams based on a set of search criteria",
         tags=["Professional Teams"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[ProfessionalTeam],
         responses={
             200: {
@@ -45,6 +47,7 @@ class ProfessionalTeamEndpoint(Routable):
         path="/professional-team/{professional_team_id}",
         description="Get professional team by its ID",
         tags=["Professional Teams"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=ProfessionalTeam,
         responses={
             200: {
