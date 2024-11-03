@@ -15,16 +15,16 @@ def get_players(session, filters: Optional[list] = None) -> List[ProfessionalPla
         query = session.query(ProfessionalPlayerModel).filter(*filters)
     else:
         query = session.query(ProfessionalPlayerModel)
-    player_models: List[ProfessionalPlayer] = query.all()
-    players = [ProfessionalPlayer.model_validate(player_model)
-               for player_model in player_models]
+    db_players: List[ProfessionalPlayer] = query.all()
+    players = [ProfessionalPlayer.model_validate(player_model) for player_model in db_players]
     return players
 
 
 def get_player_by_id(session, player_id: ProPlayerID) -> Optional[ProfessionalPlayer]:
-    player_model: ProfessionalPlayerModel = session.query(ProfessionalPlayerModel) \
-        .filter(ProfessionalPlayerModel.id == player_id).first()
-    if player_model is None:
+    db_player: Optional[ProfessionalPlayerModel] = session.query(ProfessionalPlayerModel)\
+        .filter(ProfessionalPlayerModel.id == player_id)\
+        .first()
+    if db_player is None:
         return None
     else:
-        return ProfessionalPlayer.model_validate(player_model)
+        return ProfessionalPlayer.model_validate(db_player)

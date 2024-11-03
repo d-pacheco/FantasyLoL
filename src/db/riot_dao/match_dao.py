@@ -23,11 +23,13 @@ def get_matches(session, filters: Optional[list] = None) -> List[Match]:
 
 
 def get_match_by_id(session, match_id: RiotMatchID) -> Optional[Match]:
-    match_model: MatchModel = session.query(MatchModel).filter(MatchModel.id == match_id).first()
-    if match_model is None:
+    db_match: Optional[MatchModel] = session.query(MatchModel).filter(
+        MatchModel.id == match_id
+    ).first()
+    if db_match is None:
         return None
     else:
-        return Match.model_validate(match_model)
+        return Match.model_validate(db_match)
 
 
 def get_match_ids_without_games(session) -> List[RiotMatchID]:
@@ -44,7 +46,9 @@ def get_match_ids_without_games(session) -> List[RiotMatchID]:
 
 
 def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) -> None:
-    db_match = session.query(MatchModel).filter(MatchModel.id == match_id).first()
+    db_match: Optional[MatchModel] = session.query(MatchModel).filter(
+        MatchModel.id == match_id
+    ).first()
     assert (db_match is not None)
     db_match.has_games = new_has_games
     session.merge(db_match)

@@ -45,11 +45,9 @@ class FantasyLeagueUtil:
 
         for league_id in selected_league_ids:
             if league_id not in league_dict:
-                raise LeagueNotFoundException(f"Riot league with ID {league_id} not found")
+                raise LeagueNotFoundException(league_id)
             if not league_dict[league_id].fantasy_available:
-                raise FantasyUnavailableException(
-                    f"Riot league with ID {league_id} not available to be used in Fantasy Leagues"
-                )
+                raise FantasyUnavailableException(league_id)
 
     def update_fantasy_leagues_current_draft_position(self, fantasy_league: FantasyLeague) -> None:
         assert (fantasy_league.current_draft_position is not None)
@@ -104,7 +102,9 @@ class FantasyLeagueUtil:
             )
 
     def update_draft_order_on_player_leave(
-            self, user_id: UserID, league_id: FantasyLeagueID
+            self,
+            user_id: UserID,
+            league_id: FantasyLeagueID
     ) -> None:
         current_draft_order = self.db.get_fantasy_league_draft_order(league_id)
 

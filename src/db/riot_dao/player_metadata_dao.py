@@ -14,13 +14,13 @@ def put_player_metadata(session, player_metadata: PlayerGameMetadata) -> None:
 def get_player_metadata(
         session, player_id: ProPlayerID, game_id: RiotGameID
 ) -> Optional[PlayerGameMetadata]:
-    player_metadata = session.query(PlayerGameMetadataModel) \
+    db_player_metadata: Optional[PlayerGameMetadataModel] = session.query(PlayerGameMetadataModel)\
         .filter(PlayerGameMetadataModel.player_id == player_id,
                 PlayerGameMetadataModel.game_id == game_id).first()
-    if player_metadata is None:
+    if db_player_metadata is None:
         return None
     else:
-        return PlayerGameMetadata.model_validate(player_metadata)
+        return PlayerGameMetadata.model_validate(db_player_metadata)
 
 
 def get_game_ids_without_player_metadata(session) -> List[RiotGameID]:

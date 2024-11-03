@@ -18,7 +18,7 @@ def bulk_save_games(session, games: List[Game]) -> None:
 
 
 def update_has_game_data(session, game_id: RiotGameID, has_game_data: bool) -> None:
-    db_game: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game: Optional[GameModel] = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
         db_game.has_game_data = has_game_data
         session.merge(db_game)
@@ -34,7 +34,7 @@ def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
 
 
 def update_game_last_stats_fetch(session, game_id: RiotGameID, last_fetch: bool) -> None:
-    db_game: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game: Optional[GameModel] = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
         db_game.last_stats_fetch = last_fetch
         session.merge(db_game)
@@ -42,8 +42,9 @@ def update_game_last_stats_fetch(session, game_id: RiotGameID, last_fetch: bool)
 
 
 def get_games_with_last_stats_fetch(session, last_stats_fetch: bool) -> List[Game]:
-    game_models: List[GameModel] = session.query(GameModel)\
-        .filter(GameModel.last_stats_fetch == last_stats_fetch).all()
+    game_models = session.query(GameModel).filter(
+        GameModel.last_stats_fetch == last_stats_fetch
+    ).all()
     return [Game.model_validate(game_model) for game_model in game_models]
 
 
@@ -73,7 +74,9 @@ def get_games_to_check_state(session) -> List[RiotGameID]:
 
 
 def get_game_by_id(session, game_id: RiotGameID) -> Optional[Game]:
-    game_model: GameModel = session.query(GameModel).filter(GameModel.id == game_id).first()
+    game_model: Optional[GameModel] = session.query(GameModel).filter(
+        GameModel.id == game_id
+    ).first()
     if game_model is None:
         return None
     else:

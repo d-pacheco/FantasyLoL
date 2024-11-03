@@ -11,33 +11,33 @@ def create_user(session: Session, user: User) -> None:
 
 
 def get_user_by_id(session: Session, user_id: UserID) -> Optional[User]:
-    user_model: Optional[UserModel] = session.query(UserModel)\
+    db_user: Optional[UserModel] = session.query(UserModel)\
         .filter(UserModel.id == user_id)\
         .first()
-    if user_model is None:
+    if db_user is None:
         return None
     else:
-        return User.model_validate(user_model)
+        return User.model_validate(db_user)
 
 
 def get_user_by_username(session: Session, username: str) -> Optional[User]:
-    user_model: Optional[UserModel] = session.query(UserModel)\
+    db_user: Optional[UserModel] = session.query(UserModel)\
         .filter(UserModel.username == username)\
         .first()
-    if user_model is None:
+    if db_user is None:
         return None
     else:
-        return User.model_validate(user_model)
+        return User.model_validate(db_user)
 
 
 def get_user_by_email(session: Session, email: str) -> Optional[User]:
-    user_model: Optional[UserModel] = session.query(UserModel)\
+    db_user: Optional[UserModel] = session.query(UserModel)\
         .filter(UserModel.email == email)\
         .first()
-    if user_model is None:
+    if db_user is None:
         return None
     else:
-        return User.model_validate(user_model)
+        return User.model_validate(db_user)
 
 
 def update_user_account_status(

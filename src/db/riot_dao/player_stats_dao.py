@@ -17,13 +17,13 @@ def get_player_stats(
         game_id: RiotGameID,
         participant_id: int
 ) -> Optional[PlayerGameStats]:
-    player_game_stats = session.query(PlayerGameStatsModel) \
+    db_player_game_stats: Optional[PlayerGameStatsModel] = session.query(PlayerGameStatsModel)\
         .filter(PlayerGameStatsModel.game_id == game_id,
                 PlayerGameStatsModel.participant_id == participant_id).first()
-    if player_game_stats is None:
+    if db_player_game_stats is None:
         return None
     else:
-        return PlayerGameStats.model_validate(player_game_stats)
+        return PlayerGameStats.model_validate(db_player_game_stats)
 
 
 def get_game_ids_to_fetch_player_stats_for(session) -> List[RiotGameID]:
@@ -49,7 +49,7 @@ def get_player_game_stats(session, filters: Optional[list] = None) -> List[Playe
     else:
         query = session.query(PlayerGameView)
 
-    player_game_stat_models: List[PlayerGameView] = query.all()
-    player_game_data = [PlayerGameData.model_validate(player_game_stat_model)
-                        for player_game_stat_model in player_game_stat_models]
+    db_player_game_stat: List[PlayerGameView] = query.all()
+    player_game_data = [PlayerGameData.model_validate(db_player_game_stat)
+                        for db_player_game_stat in db_player_game_stat]
     return player_game_data
