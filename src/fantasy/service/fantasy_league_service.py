@@ -33,7 +33,9 @@ class FantasyLeagueService:
         self.fantasy_league_util = FantasyLeagueUtil(database_service)
 
     def create_fantasy_league(
-            self, owner_id: UserID, league_settings: FantasyLeagueSettings) -> FantasyLeague:
+            self,
+            owner_id: UserID,
+            league_settings: FantasyLeagueSettings) -> FantasyLeague:
         if len(league_settings.available_leagues) > 0:
             self.fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 

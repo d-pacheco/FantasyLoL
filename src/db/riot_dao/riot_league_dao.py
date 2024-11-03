@@ -27,7 +27,9 @@ def get_leagues(session, filters: Optional[list] = None) -> List[League]:
 
 
 def get_league_by_id(session, league_id: RiotLeagueID) -> Optional[League]:
-    db_league = session.query(LeagueModel).filter(LeagueModel.id == league_id).first()
+    db_league: Optional[LeagueModel] = session.query(LeagueModel)\
+        .filter(LeagueModel.id == league_id)\
+        .first()
     if db_league is None:
         return None
     else:
@@ -37,10 +39,13 @@ def get_league_by_id(session, league_id: RiotLeagueID) -> Optional[League]:
 def update_league_fantasy_available_status(
         session, league_id: RiotLeagueID, new_status: bool
 ) -> Optional[League]:
-    db_league: Optional[LeagueModel] = session.query(LeagueModel) \
-        .filter(LeagueModel.id == league_id).first()
+    db_league: Optional[LeagueModel] = session.query(LeagueModel)\
+        .filter(LeagueModel.id == league_id)\
+        .first()
+
     if db_league is None:
         return None
+
     db_league.fantasy_available = new_status
     session.merge(db_league)
     session.commit()

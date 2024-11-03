@@ -5,12 +5,13 @@ from src.db.models import ScheduleModel
 
 
 def get_schedule(session, schedule_name: str) -> Optional[Schedule]:
-    schedule_model: ScheduleModel = session.query(ScheduleModel) \
-        .filter(ScheduleModel.schedule_name == schedule_name).first()
-    if schedule_model is None:
+    db_schedule: Optional[ScheduleModel] = session.query(ScheduleModel)\
+        .filter(ScheduleModel.schedule_name == schedule_name)\
+        .first()
+    if db_schedule is None:
         return None
     else:
-        return Schedule.model_validate(schedule_model)
+        return Schedule.model_validate(db_schedule)
 
 
 def update_schedule(session, schedule: Schedule) -> None:

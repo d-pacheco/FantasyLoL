@@ -47,11 +47,11 @@ class RiotLeagueService:
     def get_league_by_id(self, league_id: RiotLeagueID) -> League:
         league = self.db.get_league_by_id(league_id)
         if league is None:
-            raise LeagueNotFoundException()
+            raise LeagueNotFoundException(league_id)
         return league
 
     def update_fantasy_available(self, league_id: RiotLeagueID, status: bool) -> League:
         league = self.db.update_league_fantasy_available_status(league_id, status)
         if league is None:
-            raise LeagueNotFoundException()
+            raise LeagueNotFoundException(league_id)
         return league

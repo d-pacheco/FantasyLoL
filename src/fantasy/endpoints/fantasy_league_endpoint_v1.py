@@ -22,6 +22,7 @@ class FantasyLeagueEndpoint(Routable):
 
     @get(
         path="/leagues",
+        description="Get a list of Fantasy Leagues the calling user belongs to",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
         response_model=UsersFantasyLeagues
@@ -35,6 +36,7 @@ class FantasyLeagueEndpoint(Routable):
 
     @post(
         path="/leagues",
+        description="Create a Fantasy League",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyLeague
@@ -49,6 +51,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @get(
         path="/leagues/{fantasy_league_id}/settings",
+        description="Get the settings for a given Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
         response_model=FantasyLeagueSettings
@@ -66,6 +70,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @put(
         path="/leagues/{fantasy_league_id}/settings",
+        description="Update the settings for a given Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyLeagueSettings
@@ -82,6 +88,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @get(
         path="/leagues/{fantasy_league_id}/scoring",
+        description="Get the scoring settings for a given Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
         response_model=FantasyLeagueScoringSettings
@@ -96,6 +104,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @put(
         path="/leagues/{fantasy_league_id}/scoring",
+        description="Update the scoring settings for a given Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyLeagueScoringSettings
@@ -113,6 +123,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @post(
         path="/leagues/{fantasy_league_id}/invite/{username}",
+        description="Invite a user to the given Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
     )
@@ -131,6 +143,7 @@ class FantasyLeagueEndpoint(Routable):
 
     @post(
         path="/leagues/{fantasy_league_id}/join",
+        description="Join a Fantasy League the calling user has a pending invitation for",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
     )
@@ -144,6 +157,7 @@ class FantasyLeagueEndpoint(Routable):
 
     @post(
         path="/leagues/{fantasy_league_id}/leave",
+        description="Leave the given Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
     )
@@ -157,6 +171,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @post(
         path="/leagues/{fantasy_league_id}/revoke/{user_id_to_revoke}",
+        description="Revoke a membership of an active member within the Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         status_code=204,
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
@@ -176,6 +192,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @get(
         path="/leagues/{fantasy_league_id}/draft-order",
+        description="Get draft order of the Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         response_model=List[FantasyLeagueDraftOrderResponse],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))]
@@ -193,6 +211,8 @@ class FantasyLeagueEndpoint(Routable):
 
     @put(
         path="/leagues/{fantasy_league_id}/draft-order",
+        description="Update draft order of the Fantasy League. "
+                    "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))]
     )

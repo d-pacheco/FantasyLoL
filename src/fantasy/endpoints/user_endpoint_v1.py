@@ -13,6 +13,7 @@ class UserEndpointV1(Routable):
 
     @post(
         path="/user/signup",
+        description="Signup for Fantasy League of Legends.",
         tags=["Users"],
         response_model=None
     )
@@ -25,6 +26,7 @@ class UserEndpointV1(Routable):
 
     @post(
         path="/user/login",
+        description="Login to a Fantasy League of Legends account.",
         tags=["Users"],
         response_model=None
     )
@@ -36,6 +38,7 @@ class UserEndpointV1(Routable):
 
     @put(
         path="/user/delete",
+        description="Delete a Fantasy League of Legends account.",
         tags=["Users"],
         dependencies=[Depends(JWTBearer())],
         status_code=204
@@ -49,6 +52,7 @@ class UserEndpointV1(Routable):
 
     @get(
         path="/user/verify-email/{token}",
+        description="Verify the email of a Fantasy account.",
         tags=["Users"],
         status_code=202
     )
@@ -61,6 +65,7 @@ class UserEndpointV1(Routable):
 
     @post(
         path="/user/request-verification-email",
+        description="Request a verification email for a Fantasy account.",
         tags=["Users"],
         status_code=201
     )

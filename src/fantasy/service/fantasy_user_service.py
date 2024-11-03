@@ -37,15 +37,21 @@ class UserService:
         user = self.create_new_user(user_create, DEFAULT_PERMISSIONS, verification_token)
         self.db.create_user(user)
 
-        return f"Email verification sent to {user.email}. Please verify email before logging in."
+        successful_signup_msg = f"""
+        Email verification sent to {user.email}. Please verify email before logging in.
+        Check your spam or junk inbox for verification email.
+        """
+        return successful_signup_msg
 
     def validate_username_and_email(self, username: str, email: str) -> None:
+        valid_account_status = [UserAccountStatus.ACTIVE, UserAccountStatus.PENDING_VERIFICATION]
+
         user_by_username = self.db.get_user_by_username(username)
-        if user_by_username and user_by_username.account_status == UserAccountStatus.ACTIVE:
+        if user_by_username and user_by_username.account_status in valid_account_status:
             raise UserAlreadyExistsException("Username already in use")
 
         user_by_email = self.db.get_user_by_email(email)
-        if user_by_email and user_by_email.account_status == UserAccountStatus.ACTIVE:
+        if user_by_email and user_by_email.account_status in valid_account_status:
             raise UserAlreadyExistsException("Email already in use")
 
     def create_new_user(

@@ -11,22 +11,28 @@ def put_fantasy_team(session, fantasy_team: FantasyTeam) -> None:
 
 
 def get_all_fantasy_teams_for_user(
-        session, fantasy_league_id: FantasyLeagueID, user_id: UserID
+        session,
+        fantasy_league_id: FantasyLeagueID,
+        user_id: UserID
 ) -> List[FantasyTeam]:
-    fantasy_team_models = session.query(FantasyTeamModel) \
+    db_fantasy_teams: List[FantasyTeamModel] = session.query(FantasyTeamModel)\
         .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
-                FantasyTeamModel.user_id == user_id).all()
-    fantasy_teams = [FantasyTeam.model_validate(fantasy_team_model)
-                     for fantasy_team_model in fantasy_team_models]
+                FantasyTeamModel.user_id == user_id)\
+        .all()
+    fantasy_teams = [FantasyTeam.model_validate(db_fantasy_team)
+                     for db_fantasy_team in db_fantasy_teams]
     return fantasy_teams
 
 
 def get_all_fantasy_teams_for_week(
-        session, fantasy_league_id: FantasyLeagueID, week: int
+        session,
+        fantasy_league_id: FantasyLeagueID,
+        week: int
 ) -> List[FantasyTeam]:
-    fantasy_team_models = session.query(FantasyTeamModel) \
+    db_fantasy_teams: List[FantasyTeamModel] = session.query(FantasyTeamModel)\
         .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
-                FantasyTeamModel.week == week).all()
-    fantasy_teams = [FantasyTeam.model_validate(fantasy_team_model)
-                     for fantasy_team_model in fantasy_team_models]
+                FantasyTeamModel.week == week)\
+        .all()
+    fantasy_teams = [FantasyTeam.model_validate(db_fantasy_team)
+                     for db_fantasy_team in db_fantasy_teams]
     return fantasy_teams

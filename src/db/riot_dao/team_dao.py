@@ -15,16 +15,17 @@ def get_teams(session, filters: Optional[list] = None) -> List[ProfessionalTeam]
         query = session.query(ProfessionalTeamModel).filter(*filters)
     else:
         query = session.query(ProfessionalTeamModel)
-    team_models: List[ProfessionalTeamModel] = query.all()
-    teams = [ProfessionalTeam.model_validate(team_model) for team_model in team_models]
+    db_teams: List[ProfessionalTeamModel] = query.all()
+    teams = [ProfessionalTeam.model_validate(db_team) for db_team in db_teams]
 
     return teams
 
 
 def get_team_by_id(session, team_id: ProTeamID) -> Optional[ProfessionalTeam]:
-    team_model: ProfessionalTeamModel = session.query(ProfessionalTeamModel) \
-        .filter(ProfessionalTeamModel.id == team_id).first()
-    if team_model is None:
+    db_team: Optional[ProfessionalTeamModel] = session.query(ProfessionalTeamModel)\
+        .filter(ProfessionalTeamModel.id == team_id)\
+        .first()
+    if db_team is None:
         return None
     else:
-        return ProfessionalTeam.model_validate(team_model)
+        return ProfessionalTeam.model_validate(db_team)

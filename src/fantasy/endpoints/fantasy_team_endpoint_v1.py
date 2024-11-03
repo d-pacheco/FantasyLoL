@@ -15,6 +15,7 @@ class FantasyTeamEndpoint(Routable):
 
     @get(
         path="/teams/{fantasy_league_id}",
+        description="Get all of the callers teams by week for a Fantasy League.",
         tags=["Fantasy Teams"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
         response_model=List[FantasyTeam]
@@ -29,6 +30,7 @@ class FantasyTeamEndpoint(Routable):
 
     @put(
         path="/teams/{fantasy_league_id}/pickup/{player_id}",
+        description="Pickup a player for the current week within a Fantasy League.",
         tags=["Fantasy Teams"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyTeam
@@ -44,6 +46,7 @@ class FantasyTeamEndpoint(Routable):
 
     @put(
         path="/teams/{fantasy_league_id}/drop/{player_id}",
+        description="Drop a player for the current week within a Fantasy League.",
         tags=["Fantasy Teams"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyTeam
@@ -59,6 +62,7 @@ class FantasyTeamEndpoint(Routable):
 
     @put(
         path="/teams/{fantasy_league_id}/swap/{player_to_drop_id}/{player_to_pickup_id}",
+        description="Swap a player for another player in the current week within a Fantasy League.",
         tags=["Fantasy Teams"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_WRITE]))],
         response_model=FantasyTeam
