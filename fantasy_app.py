@@ -1,11 +1,9 @@
 import uvicorn
 import sys
-from fastapi import FastAPI
-from fastapi_pagination import add_pagination
-from fastapi_pagination.utils import disable_installed_extensions_check
 
 from src.db import DatabaseConnectionProvider, DatabaseService
 from src.common.config import app_config
+from src.fantasy import app
 from src.fantasy.service import (
     FantasyLeagueService,
     FantasyTeamService,
@@ -20,9 +18,7 @@ from src.common.logger import configure_logger
 
 
 def main():
-    app = FastAPI()
-    add_pagination(app)
-    disable_installed_extensions_check()
+
     configure_logger()
 
     # Create database service
@@ -30,19 +26,19 @@ def main():
     db_service = DatabaseService(connection_provider)
 
     # Create Fantasy Services
+    user_service = UserService(db_service)
     fantasy_league_service = FantasyLeagueService(db_service)
     fantasy_team_service = FantasyTeamService(db_service)
-    user_service = UserService(db_service)
 
     # Create Fantasy Endpoints
+    user_endpoint_v1 = UserEndpointV1(user_service)
     fantasy_league_endpoint = FantasyLeagueEndpoint(fantasy_league_service)
     fantasy_team_endpoint = FantasyTeamEndpoint(fantasy_team_service)
-    user_endpoint_v1 = UserEndpointV1(user_service)
 
     # Add endpoints to app
+    app.include_router(user_endpoint_v1.router)
     app.include_router(fantasy_league_endpoint.router)
     app.include_router(fantasy_team_endpoint.router)
-    app.include_router(user_endpoint_v1.router)
 
     uvicorn.run(app, host="0.0.0.0", port=80)
 

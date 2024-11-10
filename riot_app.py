@@ -63,13 +63,13 @@ def main():
     job_runner_endpoint = JobRunnerEndpoint(job_scheduler)
 
     # Add endpoints to app
+    app.include_router(league_endpoint.router)
+    app.include_router(tournament_endpoint.router)
+    app.include_router(match_endpoint.router)
     app.include_router(game_endpoint.router)
     app.include_router(game_stats_endpoint.router)
-    app.include_router(league_endpoint.router)
-    app.include_router(match_endpoint.router)
-    app.include_router(player_endpoint.router)
     app.include_router(team_endpoint.router)
-    app.include_router(tournament_endpoint.router)
+    app.include_router(player_endpoint.router)
     app.include_router(job_runner_endpoint.router)
 
     job_scheduler.schedule_all_jobs()
