@@ -636,8 +636,8 @@ player_10_game_data_fixture = schemas.PlayerGameData(
     wards_destroyed=player_10_game_stats_fixture.wards_destroyed
 )
 
-riot_schedule_fixture = schemas.Schedule(
+riot_schedule_fixture = schemas.StoredSchedule(
     schedule_name="test_riot_schedule",
     older_token_key="olderToken",
-    current_token_key="newerToken"
+    newer_token_key="newerToken"
 )

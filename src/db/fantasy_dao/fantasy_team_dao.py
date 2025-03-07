@@ -1,5 +1,3 @@
-from typing import List
-
 from src.common.schemas.fantasy_schemas import FantasyLeagueID, FantasyTeam, UserID
 from src.db.models import FantasyTeamModel
 
@@ -14,8 +12,8 @@ def get_all_fantasy_teams_for_user(
         session,
         fantasy_league_id: FantasyLeagueID,
         user_id: UserID
-) -> List[FantasyTeam]:
-    db_fantasy_teams: List[FantasyTeamModel] = session.query(FantasyTeamModel)\
+) -> list[FantasyTeam]:
+    db_fantasy_teams: list[FantasyTeamModel] = session.query(FantasyTeamModel)\
         .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
                 FantasyTeamModel.user_id == user_id)\
         .all()
@@ -28,8 +26,8 @@ def get_all_fantasy_teams_for_week(
         session,
         fantasy_league_id: FantasyLeagueID,
         week: int
-) -> List[FantasyTeam]:
-    db_fantasy_teams: List[FantasyTeamModel] = session.query(FantasyTeamModel)\
+) -> list[FantasyTeam]:
+    db_fantasy_teams: list[FantasyTeamModel] = session.query(FantasyTeamModel)\
         .filter(FantasyTeamModel.fantasy_league_id == fantasy_league_id,
                 FantasyTeamModel.week == week)\
         .all()

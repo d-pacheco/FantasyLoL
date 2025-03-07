@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from typing import Optional, List
 
 from src.common.schemas.riot_data_schemas import (
     League,
@@ -15,7 +14,7 @@ def put_league(session, league: League) -> None:
     session.commit()
 
 
-def get_leagues(session, filters: Optional[list] = None) -> List[League]:
+def get_leagues(session, filters: list | None = None) -> list[League]:
     if filters:
         query = session.query(LeagueModel).filter(*filters)
     else:
@@ -26,8 +25,8 @@ def get_leagues(session, filters: Optional[list] = None) -> List[League]:
     return leagues
 
 
-def get_league_by_id(session, league_id: RiotLeagueID) -> Optional[League]:
-    db_league: Optional[LeagueModel] = session.query(LeagueModel)\
+def get_league_by_id(session, league_id: RiotLeagueID) -> League | None:
+    db_league: LeagueModel | None = session.query(LeagueModel)\
         .filter(LeagueModel.id == league_id)\
         .first()
     if db_league is None:
@@ -38,8 +37,8 @@ def get_league_by_id(session, league_id: RiotLeagueID) -> Optional[League]:
 
 def update_league_fantasy_available_status(
         session, league_id: RiotLeagueID, new_status: bool
-) -> Optional[League]:
-    db_league: Optional[LeagueModel] = session.query(LeagueModel)\
+) -> League | None:
+    db_league: LeagueModel | None = session.query(LeagueModel)\
         .filter(LeagueModel.id == league_id)\
         .first()
 
@@ -55,7 +54,7 @@ def update_league_fantasy_available_status(
     return league
 
 
-def get_league_ids_for_player(session, player_id: ProPlayerID) -> List[RiotLeagueID]:
+def get_league_ids_for_player(session, player_id: ProPlayerID) -> list[RiotLeagueID]:
     sql_query = f"""
         SELECT DISTINCT l.id
         FROM professional_players p

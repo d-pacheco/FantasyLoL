@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.riot_data_schemas import League, RiotLeagueID
@@ -11,7 +10,7 @@ from src.db.models import LeagueModel
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class RiotLeagueService:
@@ -32,7 +31,7 @@ class RiotLeagueService:
         for league in fetched_leagues:
             self.db.put_league(league)
 
-    def get_leagues(self, search_parameters: LeagueSearchParameters) -> List[League]:
+    def get_leagues(self, search_parameters: LeagueSearchParameters) -> list[League]:
         filters = []
         if search_parameters.name is not None:
             filters.append(LeagueModel.name == search_parameters.name)

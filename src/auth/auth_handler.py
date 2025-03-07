@@ -1,5 +1,4 @@
 import time
-from typing import Dict, List
 import jwt
 import logging
 
@@ -17,7 +16,7 @@ def token_response(token: str):
     }
 
 
-def sign_jwt(user_id: str, permissions: List[str]) -> Dict[str, str]:
+def sign_jwt(user_id: str, permissions: list[str]) -> dict[str, str]:
     payload = {
         "user_id": user_id,
         "permissions": permissions,

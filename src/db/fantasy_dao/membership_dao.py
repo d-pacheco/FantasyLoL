@@ -1,5 +1,4 @@
 from sqlalchemy import and_
-from typing import Optional, List
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -25,8 +24,8 @@ def create_fantasy_league_membership(
 def get_pending_and_accepted_members_for_league(
         session,
         fantasy_league_id: FantasyLeagueID
-) -> List[FantasyLeagueMembership]:
-    db_memberships: List[FantasyLeagueMembershipModel] = session\
+) -> list[FantasyLeagueMembership]:
+    db_memberships: list[FantasyLeagueMembershipModel] = session\
         .query(FantasyLeagueMembershipModel)\
         .filter(and_(FantasyLeagueMembershipModel.league_id == fantasy_league_id,
                      FantasyLeagueMembershipModel.status.in_(
@@ -55,8 +54,8 @@ def get_user_membership_for_fantasy_league(
         session,
         user_id: UserID,
         fantasy_league_id: FantasyLeagueID
-) -> Optional[FantasyLeagueMembership]:
-    db_membership: Optional[FantasyLeagueMembershipModel] = session\
+) -> FantasyLeagueMembership | None:
+    db_membership: FantasyLeagueMembershipModel | None = session\
         .query(FantasyLeagueMembershipModel)\
         .filter(FantasyLeagueMembershipModel.league_id == fantasy_league_id,
                 FantasyLeagueMembershipModel.user_id == user_id).first()
@@ -70,8 +69,8 @@ def get_users_fantasy_leagues_with_membership_status(
         session,
         user_id: UserID,
         membership_status: FantasyLeagueMembershipStatus
-) -> List[FantasyLeague]:
-    db_fantasy_leagues: List[FantasyLeagueModel] = session.query(FantasyLeagueModel)\
+) -> list[FantasyLeague]:
+    db_fantasy_leagues: list[FantasyLeagueModel] = session.query(FantasyLeagueModel)\
         .join(FantasyLeagueMembershipModel,
               FantasyLeagueModel.id == FantasyLeagueMembershipModel.league_id)\
         .filter(and_(

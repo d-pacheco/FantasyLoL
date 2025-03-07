@@ -28,7 +28,7 @@ from src.riot.service import (
 
 
 def main():
-    configure_logger()
+    configure_logger("riot")
 
     # Create database service
     connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)
@@ -73,7 +73,7 @@ def main():
     app.include_router(job_runner_endpoint.router)
 
     job_scheduler.schedule_all_jobs()
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
 
 
 if __name__ == "__main__":

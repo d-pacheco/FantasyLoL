@@ -1,5 +1,3 @@
-from typing import Optional
-
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
@@ -177,7 +175,7 @@ class LeagueServiceTest(TestBase):
         with self.assertRaises(LeagueNotFoundException):
             self.league_service.update_fantasy_available(RiotLeagueID("badId"), new_status)
 
-    def create_league_in_db(self, league_fixture: Optional[League] = None) -> League:
+    def create_league_in_db(self, league_fixture: League | None = None) -> League:
         if league_fixture is None:
             league_fixture = riot_fixtures.league_1_fixture
         self.db.put_league(league_fixture)

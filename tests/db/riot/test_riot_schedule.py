@@ -41,7 +41,7 @@ class TestCrudRiotSchedule(TestBase):
         schedule = riot_fixtures.riot_schedule_fixture
         self.db.update_schedule(schedule)
         updated_schedule = schedule.model_copy(deep=True)
-        updated_schedule.current_token_key = "updated_current_token"
+        updated_schedule.newer_token_key = "updated_current_token"
         updated_schedule.older_token_key = "updated_older_token"
 
         # Act and Assert

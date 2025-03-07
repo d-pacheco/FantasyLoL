@@ -1,6 +1,5 @@
 import uuid
 import bcrypt
-from typing import List, Optional
 import secrets
 
 from src.auth import sign_jwt, Permissions
@@ -57,8 +56,8 @@ class UserService:
     def create_new_user(
             self,
             user_create: UserCreate,
-            permissions: List[Permissions],
-            verification_token: Optional[str] = None
+            permissions: list[Permissions],
+            verification_token: str | None = None
     ) -> User:
         new_id = self.generate_new_valid_id()
         hashed_password = self.hash_password(user_create.password)

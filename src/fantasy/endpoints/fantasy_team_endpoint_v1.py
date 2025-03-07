@@ -1,6 +1,5 @@
 from classy_fastapi import Routable, get, put
 from fastapi import Depends
-from typing import List
 
 from src.auth import JWTBearer, Permissions
 from src.common.schemas.fantasy_schemas import FantasyTeam, FantasyLeagueID, UserID
@@ -18,13 +17,13 @@ class FantasyTeamEndpoint(Routable):
         description="Get all of the callers teams by week for a Fantasy League.",
         tags=["Fantasy Teams"],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))],
-        response_model=List[FantasyTeam]
+        response_model=list[FantasyTeam]
     )
     def get_fantasy_team_weeks_for_league(
             self,
             fantasy_league_id: FantasyLeagueID,
             decoded_token: dict = Depends(JWTBearer())
-    ) -> List[FantasyTeam]:
+    ) -> list[FantasyTeam]:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         return self.__fantasy_team_service.get_all_fantasy_team_weeks(fantasy_league_id, user_id)
 

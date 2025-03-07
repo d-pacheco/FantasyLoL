@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from typing import List
 
 from src.common.schemas.riot_data_schemas import Tournament, TournamentStatus, RiotTournamentID
 from src.common.schemas.search_parameters import TournamentSearchParameters
@@ -12,7 +11,7 @@ from src.riot.exceptions import TournamentNotFoundException
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class RiotTournamentService:
@@ -38,7 +37,7 @@ class RiotTournamentService:
                 self.db.put_tournament(tournament)
                 fetched_tournaments.append(tournament)
 
-    def get_tournaments(self, search_parameters: TournamentSearchParameters) -> List[Tournament]:
+    def get_tournaments(self, search_parameters: TournamentSearchParameters) -> list[Tournament]:
         filters = []
         current_date = datetime.now()
         if search_parameters.status == TournamentStatus.ACTIVE:

@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -28,7 +26,7 @@ class FantasyLeagueUtil:
     def validate_league(
             self,
             fantasy_league_id: FantasyLeagueID,
-            required_states: Optional[List[FantasyLeagueStatus]] = None) -> FantasyLeague:
+            required_states: list[FantasyLeagueStatus] | None = None) -> FantasyLeague:
         fantasy_league = self.db.get_fantasy_league_by_id(fantasy_league_id)
         if fantasy_league is None:
             raise FantasyLeagueNotFoundException()
@@ -39,7 +37,7 @@ class FantasyLeagueUtil:
 
         return fantasy_league
 
-    def validate_available_leagues(self, selected_league_ids: List[RiotLeagueID]) -> None:
+    def validate_available_leagues(self, selected_league_ids: list[RiotLeagueID]) -> None:
         riot_leagues = self.db.get_leagues()
         league_dict = {league.id: league for league in riot_leagues}
 
@@ -79,8 +77,8 @@ class FantasyLeagueUtil:
 
     @staticmethod
     def validate_draft_order(
-            current_draft_order: List[FantasyLeagueDraftOrder],
-            updated_draft_order: List[FantasyLeagueDraftOrderResponse]
+            current_draft_order: list[FantasyLeagueDraftOrder],
+            updated_draft_order: list[FantasyLeagueDraftOrderResponse]
     ) -> None:
         member_ids = [draft_position.user_id for draft_position in current_draft_order]
 
@@ -108,7 +106,7 @@ class FantasyLeagueUtil:
     ) -> None:
         current_draft_order = self.db.get_fantasy_league_draft_order(league_id)
 
-        draft_position_to_delete: Optional[FantasyLeagueDraftOrder] = None
+        draft_position_to_delete: FantasyLeagueDraftOrder | None = None
         for draft_position in current_draft_order:
             if draft_position.user_id == user_id:
                 draft_position_to_delete = draft_position

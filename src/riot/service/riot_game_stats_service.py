@@ -1,6 +1,5 @@
 from datetime import datetime, timezone, timedelta
 import logging
-from typing import List
 
 from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
 from src.common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
@@ -11,7 +10,7 @@ from src.db.views import PlayerGameView
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 def round_current_time_to_10_seconds() -> str:
@@ -98,7 +97,7 @@ class RiotGameStatsService:
             raise e
 
     def get_player_stats(self, search_parameters: PlayerGameStatsSearchParameters) \
-            -> List[PlayerGameData]:
+            -> list[PlayerGameData]:
         filters = []
         if search_parameters.game_id is not None:
             filters.append(PlayerGameView.game_id == search_parameters.game_id)

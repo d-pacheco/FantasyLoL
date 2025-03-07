@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from typing import Optional, List
 
 from src.common.schemas.riot_data_schemas import ProPlayerID, RiotGameID, PlayerGameMetadata
 from src.db.models import PlayerGameMetadataModel
@@ -13,8 +12,8 @@ def put_player_metadata(session, player_metadata: PlayerGameMetadata) -> None:
 
 def get_player_metadata(
         session, player_id: ProPlayerID, game_id: RiotGameID
-) -> Optional[PlayerGameMetadata]:
-    db_player_metadata: Optional[PlayerGameMetadataModel] = session.query(PlayerGameMetadataModel)\
+) -> PlayerGameMetadata | None:
+    db_player_metadata: PlayerGameMetadataModel | None = session.query(PlayerGameMetadataModel)\
         .filter(PlayerGameMetadataModel.player_id == player_id,
                 PlayerGameMetadataModel.game_id == game_id).first()
     if db_player_metadata is None:
@@ -23,7 +22,7 @@ def get_player_metadata(
         return PlayerGameMetadata.model_validate(db_player_metadata)
 
 
-def get_game_ids_without_player_metadata(session) -> List[RiotGameID]:
+def get_game_ids_without_player_metadata(session) -> list[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
         FROM games

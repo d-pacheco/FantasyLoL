@@ -141,7 +141,7 @@ class ScheduleModel(Base):  # type: ignore
 
     schedule_name = Column(String, primary_key=True)
     older_token_key = Column(String)
-    current_token_key = Column(String)
+    newer_token_key = Column(String)
 
 
 # --------------------------------------------------

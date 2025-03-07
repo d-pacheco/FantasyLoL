@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from typing import Optional, List
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID
 from src.db.models import MatchModel
@@ -11,19 +10,19 @@ def put_match(session, match: Match) -> None:
     session.commit()
 
 
-def get_matches(session, filters: Optional[list] = None) -> List[Match]:
+def get_matches(session, filters: list | None = None) -> list[Match]:
     if filters:
         query = session.query(MatchModel).filter(*filters)
     else:
         query = session.query(MatchModel)
-    match_models: List[MatchModel] = query.all()
+    match_models: list[MatchModel] = query.all()
     matches = [Match.model_validate(match_model) for match_model in match_models]
 
     return matches
 
 
-def get_match_by_id(session, match_id: RiotMatchID) -> Optional[Match]:
-    db_match: Optional[MatchModel] = session.query(MatchModel).filter(
+def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
+    db_match: MatchModel | None = session.query(MatchModel).filter(
         MatchModel.id == match_id
     ).first()
     if db_match is None:
@@ -32,7 +31,7 @@ def get_match_by_id(session, match_id: RiotMatchID) -> Optional[Match]:
         return Match.model_validate(db_match)
 
 
-def get_match_ids_without_games(session) -> List[RiotMatchID]:
+def get_match_ids_without_games(session) -> list[RiotMatchID]:
     sql_query = """
         SELECT matches.id
         FROM matches
@@ -46,9 +45,9 @@ def get_match_ids_without_games(session) -> List[RiotMatchID]:
 
 
 def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) -> None:
-    db_match: Optional[MatchModel] = session.query(MatchModel).filter(
-        MatchModel.id == match_id
-    ).first()
+    db_match: MatchModel | None = (session.query(MatchModel)
+                                   .filter(MatchModel.id == match_id)
+                                   .first())
     assert (db_match is not None)
     db_match.has_games = new_has_games
     session.merge(db_match)

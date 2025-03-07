@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from src.common.schemas.fantasy_schemas import FantasyLeagueID, FantasyLeagueDraftOrder
 from src.db.models import FantasyLeagueDraftOrderModel
 
@@ -13,8 +11,8 @@ def create_fantasy_league_draft_order(session, draft_order: FantasyLeagueDraftOr
 def get_fantasy_league_draft_order(
         session,
         fantasy_league_id: FantasyLeagueID
-) -> List[FantasyLeagueDraftOrder]:
-    db_draft_orders: List[FantasyLeagueDraftOrderModel] = session\
+) -> list[FantasyLeagueDraftOrder]:
+    db_draft_orders: list[FantasyLeagueDraftOrderModel] = session\
         .query(FantasyLeagueDraftOrderModel)\
         .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == fantasy_league_id)\
         .all()
@@ -27,7 +25,7 @@ def delete_fantasy_league_draft_order(
         session,
         draft_order: FantasyLeagueDraftOrder
 ) -> None:
-    db_draft_order: Optional[FantasyLeagueDraftOrderModel] = session\
+    db_draft_order: FantasyLeagueDraftOrderModel | None = session\
         .query(FantasyLeagueDraftOrderModel)\
         .filter(FantasyLeagueDraftOrderModel.fantasy_league_id == draft_order.fantasy_league_id,
                 FantasyLeagueDraftOrderModel.user_id == draft_order.user_id)\

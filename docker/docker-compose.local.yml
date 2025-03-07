@@ -4,7 +4,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile-riot
     ports:
-      - "8000:80"
+      - "8000:8000"
     volumes:
       - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs
@@ -14,7 +14,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile-fantasy
     ports:
-      - "8002:80"
+      - "8002:8002"
     volumes:
       - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs

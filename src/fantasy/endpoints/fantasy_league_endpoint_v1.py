@@ -1,6 +1,5 @@
 from classy_fastapi import Routable, get, post, put
 from fastapi import Body, Depends
-from typing import List
 
 from src.auth import JWTBearer, Permissions
 from src.common.schemas.fantasy_schemas import (
@@ -195,14 +194,14 @@ class FantasyLeagueEndpoint(Routable):
         description="Get draft order of the Fantasy League. "
                     "The caller must be the owner of the Fantasy League.",
         tags=["Fantasy Leagues"],
-        response_model=List[FantasyLeagueDraftOrderResponse],
+        response_model=list[FantasyLeagueDraftOrderResponse],
         dependencies=[Depends(JWTBearer([Permissions.FANTASY_READ]))]
     )
     def get_fantasy_league_draft_order(
             self,
             fantasy_league_id: FantasyLeagueID,
             decoded_token: dict = Depends(JWTBearer())
-    ) -> List[FantasyLeagueDraftOrderResponse]:
+    ) -> list[FantasyLeagueDraftOrderResponse]:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         return self.__fantasy_league_service.get_fantasy_league_draft_order(
             user_id,
@@ -220,7 +219,7 @@ class FantasyLeagueEndpoint(Routable):
             self,
             fantasy_league_id: FantasyLeagueID,
             decoded_token: dict = Depends(JWTBearer()),
-            updated_draft_order: List[FantasyLeagueDraftOrderResponse] = Body(...)
+            updated_draft_order: list[FantasyLeagueDraftOrderResponse] = Body(...)
     ) -> None:
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         self.__fantasy_league_service.update_fantasy_league_draft_order(
