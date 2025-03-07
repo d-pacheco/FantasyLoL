@@ -19,7 +19,7 @@ from src.common.logger import configure_logger
 
 def main():
 
-    configure_logger()
+    configure_logger("fantasy-lol")
 
     # Create database service
     connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)

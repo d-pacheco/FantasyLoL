@@ -9,7 +9,7 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from src.common import app_config
 from src.riot.exceptions import JobConfigException
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class JobScheduler:

@@ -27,7 +27,7 @@ from src.common import app_config
 
 from src.riot.exceptions import RiotApiStatusCodeAssertException
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class RiotApiRequester:

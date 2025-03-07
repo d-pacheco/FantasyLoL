@@ -28,7 +28,7 @@ from src.riot.service import (
 
 
 def main():
-    configure_logger()
+    configure_logger("riot")
 
     # Create database service
     connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)

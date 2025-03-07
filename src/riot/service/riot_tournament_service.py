@@ -12,7 +12,7 @@ from src.riot.exceptions import TournamentNotFoundException
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class RiotTournamentService:

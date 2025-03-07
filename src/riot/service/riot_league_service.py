@@ -11,7 +11,7 @@ from src.db.models import LeagueModel
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 class RiotLeagueService:

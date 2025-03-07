@@ -2,10 +2,10 @@ import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from .config import app_config
+from .config import app_config  # type: ignore
 
 
-def configure_logger():
+def configure_logger(logger_name: str):
     max_file_size = 1024 * 1024 * 100  # 100 MB
     backup_count = 5  # keep up to 5 files
     Path("./logs/").mkdir(parents=True, exist_ok=True)
@@ -14,13 +14,13 @@ def configure_logger():
     else:
         logging_level = logging.INFO
 
-    fantasy_lol_logger = logging.getLogger('fantasy-lol')
+    fantasy_lol_logger = logging.getLogger(logger_name)
     fantasy_lol_logger.setLevel(logging_level)
     formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
 
     # File handler
     file_handler = RotatingFileHandler(
-        filename="./logs/fantasylol.log",
+        filename=f"./logs/{logger_name}.log",
         mode="a+",
         maxBytes=max_file_size,
         backupCount=backup_count,

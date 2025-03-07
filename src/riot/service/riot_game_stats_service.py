@@ -11,7 +11,7 @@ from src.db.views import PlayerGameView
 from src.riot.util import RiotApiRequester
 from src.riot.job_runner import JobRunner
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger('riot')
 
 
 def round_current_time_to_10_seconds() -> str:
