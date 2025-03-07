@@ -19,6 +19,7 @@ class GameStatsServiceTest(TestBase):
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
         mock_response.json.return_value = expected_json
+        mock_response.text = "Mock API response"
         mock_client.get.return_value = mock_response
         mock_cloud_scraper.return_value = mock_client
 
