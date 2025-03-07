@@ -30,7 +30,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
-    Schedule
+    StoredSchedule
 )
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
@@ -182,11 +182,11 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return riot_league_dao.get_league_ids_for_player(db, player_id)
 
-    def get_schedule(self, schedule_name: str) -> Optional[Schedule]:
+    def get_schedule(self, schedule_name: str) -> Optional[StoredSchedule]:
         with self.connection_provider.get_db() as db:
             return schedule_dao.get_schedule(db, schedule_name)
 
-    def update_schedule(self, schedule: Schedule) -> None:
+    def update_schedule(self, schedule: StoredSchedule) -> None:
         with self.connection_provider.get_db() as db:
             schedule_dao.update_schedule(db, schedule)
 
