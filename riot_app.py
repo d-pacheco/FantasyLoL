@@ -73,7 +73,7 @@ def main():
     app.include_router(job_runner_endpoint.router)
 
     job_scheduler.schedule_all_jobs()
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
 
 
 if __name__ == "__main__":

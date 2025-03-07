@@ -30,8 +30,8 @@ class RiotMatchService:
     def fetch_new_schedule_job(self):
         riot_schedule = self.db.get_schedule("riot_schedule")
         if riot_schedule is None:
-            logging.warning("Riot schedule not found in db. Fetching entire schedule. "
-                            "This should only occur on new deployments")
+            logger.warning("Riot schedule not found in db. Fetching entire schedule. "
+                           "This should only occur on new deployments")
             return self.fetch_entire_schedule()
         current_page_token = riot_schedule.current_token_key
         last_fetched_page_token = None

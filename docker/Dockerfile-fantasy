@@ -10,8 +10,8 @@ COPY ../src /app/src
 COPY ../.env /app
 COPY ../fantasy_app.py /app
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
 # Define environment variable for SQLite database path (modify as needed)
 ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"

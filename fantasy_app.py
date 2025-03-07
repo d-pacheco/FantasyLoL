@@ -40,7 +40,7 @@ def main():
     app.include_router(fantasy_league_endpoint.router)
     app.include_router(fantasy_team_endpoint.router)
 
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":
