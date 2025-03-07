@@ -1,9 +1,8 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
-from typing import Optional, List, NewType
+from typing import NewType
 
-from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole
-
+from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole  # type: ignore
 
 UserID = NewType('UserID', str)
 FantasyLeagueID = NewType('FantasyLeagueID', str)
@@ -49,10 +48,10 @@ class User(BaseModel):
     username: str
     email: EmailStr
     password: bytes
-    permissions: Optional[str] = None
+    permissions: str | None = None
     account_status: UserAccountStatus = UserAccountStatus.ACTIVE
     verified: bool = False
-    verification_token: Optional[str] = None
+    verification_token: str | None = None
 
     def set_permissions(self, permissions_list):
         self.permissions = ','.join(permissions_list)
@@ -68,7 +67,7 @@ class EmailRequest(BaseModel):
 class FantasyLeagueScoringSettings(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    fantasy_league_id: Optional[FantasyLeagueID] = Field(
+    fantasy_league_id: FantasyLeagueID | None = Field(
         description="The id of the fantasy league. This field is ignored in update requests",
         examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc'],
         default=None
@@ -126,7 +125,7 @@ class FantasyLeagueSettings(BaseModel):
         description="Number of teams in the fantasy league\n"
                     "Allowed values: 4, 6, 8, 10"
     )
-    available_leagues: List[RiotLeagueID] = Field(
+    available_leagues: list[RiotLeagueID] = Field(
         default=[],
         description="The IDs for the riot leagues available for drafting players from",
         examples=[["98767991310872058"]]
@@ -155,8 +154,8 @@ class FantasyLeague(FantasyLeagueSettings):
     id: FantasyLeagueID
     owner_id: UserID
     status: FantasyLeagueStatus
-    current_week: Optional[int] = None
-    current_draft_position: Optional[int] = None
+    current_week: int | None = None
+    current_draft_position: int | None = None
 
 
 class FantasyLeagueMembershipStatus(str, Enum):
@@ -177,8 +176,8 @@ class FantasyLeagueMembership(BaseModel):
 class UsersFantasyLeagues(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    pending: List[FantasyLeague]
-    accepted: List[FantasyLeague]
+    pending: list[FantasyLeague]
+    accepted: list[FantasyLeague]
 
 
 class FantasyLeagueDraftOrder(BaseModel):
@@ -201,13 +200,13 @@ class FantasyTeam(BaseModel):
     fantasy_league_id: FantasyLeagueID
     user_id: UserID
     week: int
-    top_player_id: Optional[ProPlayerID] = None
-    jungle_player_id: Optional[ProPlayerID] = None
-    mid_player_id: Optional[ProPlayerID] = None
-    adc_player_id: Optional[ProPlayerID] = None
-    support_player_id: Optional[ProPlayerID] = None
+    top_player_id: ProPlayerID | None = None
+    jungle_player_id: ProPlayerID | None = None
+    mid_player_id: ProPlayerID | None = None
+    adc_player_id: ProPlayerID | None = None
+    support_player_id: ProPlayerID | None = None
 
-    def get_player_id_for_role(self, role: PlayerRole) -> Optional[ProPlayerID]:
+    def get_player_id_for_role(self, role: PlayerRole) -> ProPlayerID | None:
         if role == PlayerRole.TOP:
             return self.top_player_id
         if role == PlayerRole.JUNGLE:
@@ -221,7 +220,7 @@ class FantasyTeam(BaseModel):
         else:
             return None
 
-    def set_player_id_for_role(self, player_id: Optional[ProPlayerID], role: PlayerRole) -> None:
+    def set_player_id_for_role(self, player_id: ProPlayerID | None, role: PlayerRole) -> None:
         if role == PlayerRole.TOP:
             self.top_player_id = player_id
         if role == PlayerRole.JUNGLE:

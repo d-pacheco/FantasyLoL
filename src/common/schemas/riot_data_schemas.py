@@ -444,6 +444,6 @@ class Schedule(BaseModel):
 class StoredSchedule(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    schedule_name: Optional[str] = Field(default=None)
-    older_token_key: Optional[str] = Field(default=None)
-    newer_token_key: Optional[str] = Field(default=None)
+    schedule_name: str | None = Field(default=None)
+    older_token_key: str | None = Field(default=None)
+    newer_token_key: str | None = Field(default=None)

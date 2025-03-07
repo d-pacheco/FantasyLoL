@@ -1,11 +1,10 @@
 from http import HTTPStatus
-from typing import List
 
-from ...common.exceptions import FantasyLolException
+from src.common.exceptions import FantasyLolException
 
 
 class RiotApiStatusCodeAssertException(FantasyLolException):
-    def __init__(self, expected: List[HTTPStatus], received: int, url: str) -> None:
+    def __init__(self, expected: list[HTTPStatus], received: int, url: str) -> None:
         base_error_msg = "Received unexpected status code. "
         if len(expected) > 1:
             status_code_error_msg = f"Wanted one of {expected} but got {received} in {url}"

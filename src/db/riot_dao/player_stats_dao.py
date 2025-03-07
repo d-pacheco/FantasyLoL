@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from typing import Optional, List
 
 from src.common.schemas.riot_data_schemas import RiotGameID, PlayerGameData, PlayerGameStats
 from src.db.models import PlayerGameStatsModel
@@ -16,8 +15,8 @@ def get_player_stats(
         session,
         game_id: RiotGameID,
         participant_id: int
-) -> Optional[PlayerGameStats]:
-    db_player_game_stats: Optional[PlayerGameStatsModel] = session.query(PlayerGameStatsModel)\
+) -> PlayerGameStats | None:
+    db_player_game_stats: PlayerGameStatsModel | None = session.query(PlayerGameStatsModel)\
         .filter(PlayerGameStatsModel.game_id == game_id,
                 PlayerGameStatsModel.participant_id == participant_id).first()
     if db_player_game_stats is None:
@@ -26,7 +25,7 @@ def get_player_stats(
         return PlayerGameStats.model_validate(db_player_game_stats)
 
 
-def get_game_ids_to_fetch_player_stats_for(session) -> List[RiotGameID]:
+def get_game_ids_to_fetch_player_stats_for(session) -> list[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
@@ -43,13 +42,13 @@ def get_game_ids_to_fetch_player_stats_for(session) -> List[RiotGameID]:
     return game_ids
 
 
-def get_player_game_stats(session, filters: Optional[list] = None) -> List[PlayerGameData]:
+def get_player_game_stats(session, filters: list | None = None) -> list[PlayerGameData]:
     if filters:
         query = session.query(PlayerGameView).filter(*filters)
     else:
         query = session.query(PlayerGameView)
 
-    db_player_game_stat: List[PlayerGameView] = query.all()
+    db_player_game_stat: list[PlayerGameView] = query.all()
     player_game_data = [PlayerGameData.model_validate(db_player_game_stat)
                         for db_player_game_stat in db_player_game_stat]
     return player_game_data

@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 from .riot_data_schemas import (
     GameState,
@@ -14,39 +13,39 @@ from .riot_data_schemas import (
 
 
 class PlayerSearchParameters(BaseModel):
-    summoner_name: Optional[str] = None
-    role: Optional[PlayerRole] = None
-    team_id: Optional[ProTeamID] = None
+    summoner_name: str | None = None
+    role: PlayerRole | None = None
+    team_id: ProTeamID | None = None
 
 
 class GameSearchParameters(BaseModel):
-    state: Optional[GameState] = None
-    match_id: Optional[RiotMatchID] = None
+    state: GameState | None = None
+    match_id: RiotMatchID | None = None
 
 
 class PlayerGameStatsSearchParameters(BaseModel):
-    game_id: Optional[RiotGameID] = None
-    player_id: Optional[ProPlayerID] = None
+    game_id: RiotGameID | None = None
+    player_id: ProPlayerID | None = None
 
 
 class MatchSearchParameters(BaseModel):
-    league_slug: Optional[str] = None
-    tournament_id: Optional[RiotTournamentID] = None
+    league_slug: str | None = None
+    tournament_id: RiotTournamentID | None = None
 
 
 class LeagueSearchParameters(BaseModel):
-    name: Optional[str] = None
-    region: Optional[str] = None
-    fantasy_available: Optional[bool] = None
+    name: str | None = None
+    region: str | None = None
+    fantasy_available: bool | None = None
 
 
 class TeamSearchParameters(BaseModel):
-    slug: Optional[str] = None
-    name: Optional[str] = None
-    code: Optional[str] = None
-    status: Optional[str] = None
-    league: Optional[str] = None
+    slug: str | None = None
+    name: str | None = None
+    code: str | None = None
+    status: str | None = None
+    league: str | None = None
 
 
 class TournamentSearchParameters(BaseModel):
-    status: Optional[TournamentStatus] = None
+    status: TournamentStatus | None = None

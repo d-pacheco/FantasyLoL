@@ -1,15 +1,14 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer
-from typing import Optional, List
 import logging
 
-from .auth_handler import decode_jwt
+from .auth_handler import decode_jwt  # type: ignore
 
 logger = logging.getLogger('fantasy-lol')
 
 
 class JWTBearer(HTTPBearer):
-    def __init__(self, required_permissions: Optional[List[str]] = None, auto_error: bool = True):
+    def __init__(self, required_permissions: list[str] | None = None, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.required_permissions = required_permissions or []
 
