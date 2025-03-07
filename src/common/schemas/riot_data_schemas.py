@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, NewType
+from typing import NewType
 from pydantic import BaseModel, Field, ConfigDict
 
 RiotLeagueID = NewType('RiotLeagueID', str)

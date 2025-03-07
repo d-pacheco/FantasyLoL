@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
@@ -32,7 +31,7 @@ class RiotProfessionalPlayerService:
         for player in fetched_players:
             self.db.put_player(player)
 
-    def get_players(self, search_parameters: PlayerSearchParameters) -> List[ProfessionalPlayer]:
+    def get_players(self, search_parameters: PlayerSearchParameters) -> list[ProfessionalPlayer]:
         filters = []
         if search_parameters.summoner_name is not None:
             filters.append(ProfessionalPlayerModel.summoner_name == search_parameters.summoner_name)

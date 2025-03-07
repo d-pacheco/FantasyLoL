@@ -1,5 +1,3 @@
-from typing import List
-
 from src.db.database_service import DatabaseService
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from src.common.schemas.fantasy_schemas import (
@@ -26,7 +24,7 @@ class FantasyTeamService:
             self,
             fantasy_league_id: FantasyLeagueID,
             user_id: UserID
-    ) -> List[FantasyTeam]:
+    ) -> list[FantasyTeam]:
         self.fantasy_league_util.validate_league(
             fantasy_league_id,
             [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]

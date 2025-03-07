@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from src.common.schemas.search_parameters import GameSearchParameters
 from src.common.schemas.riot_data_schemas import Game, GameState, RiotGameID, RiotMatchID
@@ -38,9 +37,9 @@ class RiotGameService:
             batch = match_ids[i:i + batch_size]
             self.process_batch_match_ids(batch)
 
-    def process_batch_match_ids(self, match_ids: List[RiotMatchID]):
+    def process_batch_match_ids(self, match_ids: list[RiotMatchID]):
         logger.debug(f"Processes batch of match ids: {match_ids}")
-        all_fetched_games: List[Game] = []
+        all_fetched_games: list[Game] = []
         for match_id in match_ids:
             fetched_games = self.riot_api_requester.get_games_from_event_details(match_id)
             if len(fetched_games) == 0:
@@ -69,7 +68,7 @@ class RiotGameService:
                 if game.state == GameState.COMPLETED:
                     self.db.update_game_last_stats_fetch(game.id, True)
 
-    def get_games(self, search_parameters: GameSearchParameters) -> List[Game]:
+    def get_games(self, search_parameters: GameSearchParameters) -> list[Game]:
         filters = []
         if search_parameters.state is not None:
             filters.append(GameModel.state == search_parameters.state)

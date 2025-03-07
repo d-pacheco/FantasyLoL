@@ -1,6 +1,5 @@
 from datetime import datetime, timezone, timedelta
 import logging
-from typing import List
 
 from src.common.schemas.search_parameters import PlayerGameStatsSearchParameters
 from src.common.schemas.riot_data_schemas import PlayerGameData, RiotGameID
@@ -98,7 +97,7 @@ class RiotGameStatsService:
             raise e
 
     def get_player_stats(self, search_parameters: PlayerGameStatsSearchParameters) \
-            -> List[PlayerGameData]:
+            -> list[PlayerGameData]:
         filters = []
         if search_parameters.game_id is not None:
             filters.append(PlayerGameView.game_id == search_parameters.game_id)

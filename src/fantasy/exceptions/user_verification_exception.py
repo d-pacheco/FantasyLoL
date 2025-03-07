@@ -3,8 +3,8 @@ from http import HTTPStatus
 
 
 class UserVerificationException(HTTPException):
-    def __init__(self, message) -> None:
+    def __init__(self, detail: str) -> None:
         super().__init__(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=message
+            detail=detail
         )

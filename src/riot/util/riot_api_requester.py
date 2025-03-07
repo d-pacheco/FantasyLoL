@@ -4,6 +4,7 @@ import logging
 import certifi
 
 import pydantic
+import requests
 from requests import Response
 
 from src.common.schemas.riot_data_schemas import (
@@ -51,7 +52,18 @@ class RiotApiRequester:
     def make_request(self, url, headers=None) -> Response:
         if headers is None:
             headers = self.default_headers
-        return self.client.get(url, headers=headers, verify=certifi.where())
+
+        try:
+            response = self.client.get(url, headers=headers, verify=certifi.where())
+            response.raise_for_status()
+            logger.info(
+                f"API Request: GET {url} | Headers: {headers} "
+                f"| Response: {response.status_code} {response.text[:500]}"
+            )
+            return response
+        except requests.RequestException as e:
+            logger.error(f"API Request Failed: GET {url} | Headers: {headers} | Error: {e}")
+            raise
 
     def get_games_from_event_details(self, match_id: RiotMatchID) -> list[Game]:
         event_details_url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"

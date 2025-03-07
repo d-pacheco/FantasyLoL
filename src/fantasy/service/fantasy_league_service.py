@@ -1,5 +1,4 @@
 import uuid
-from typing import List, Optional
 
 from src.db.database_service import DatabaseService
 from src.common.schemas.fantasy_schemas import (
@@ -189,7 +188,7 @@ class FantasyLeagueService:
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
 
-        user_membership: Optional[FantasyLeagueMembership] = None
+        user_membership: FantasyLeagueMembership | None = None
         accepted_member_count = 0
         fantasy_league_members = self.db.get_pending_and_accepted_members_for_league(league_id)
         for membership in fantasy_league_members:
@@ -264,7 +263,7 @@ class FantasyLeagueService:
     def get_fantasy_league_draft_order(
             self,
             user_id: UserID,
-            league_id: FantasyLeagueID) -> List[FantasyLeagueDraftOrderResponse]:
+            league_id: FantasyLeagueID) -> list[FantasyLeagueDraftOrderResponse]:
         fantasy_league_model = self.fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != user_id:
             raise ForbiddenException()
@@ -285,7 +284,7 @@ class FantasyLeagueService:
             self,
             user_id: UserID,
             league_id: FantasyLeagueID,
-            updated_draft_order: List[FantasyLeagueDraftOrderResponse]) -> None:
+            updated_draft_order: list[FantasyLeagueDraftOrderResponse]) -> None:
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )

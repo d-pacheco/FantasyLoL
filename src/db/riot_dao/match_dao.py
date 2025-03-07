@@ -46,8 +46,8 @@ def get_match_ids_without_games(session) -> list[RiotMatchID]:
 
 def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) -> None:
     db_match: MatchModel | None = (session.query(MatchModel)
-                                      .filter(MatchModel.id == match_id)
-                                      .first())
+                                   .filter(MatchModel.id == match_id)
+                                   .first())
     assert (db_match is not None)
     db_match.has_games = new_has_games
     session.merge(db_match)

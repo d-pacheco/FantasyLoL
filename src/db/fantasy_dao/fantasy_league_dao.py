@@ -1,5 +1,3 @@
-from typing import Optional
-
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
@@ -19,8 +17,8 @@ def create_fantasy_league(session, fantasy_league: FantasyLeague) -> None:
 def get_fantasy_league_by_id(
         session,
         fantasy_league_id: FantasyLeagueID
-) -> Optional[FantasyLeague]:
-    db_fantasy_league: Optional[FantasyLeagueModel] = session.query(FantasyLeagueModel) \
+) -> FantasyLeague | None:
+    db_fantasy_league: FantasyLeague | None = session.query(FantasyLeagueModel) \
         .filter(FantasyLeagueModel.id == fantasy_league_id).first()
     if db_fantasy_league is None:
         return None
@@ -40,8 +38,8 @@ def put_fantasy_league_scoring_settings(
 def get_fantasy_league_scoring_settings_by_id(
         session,
         fantasy_league_id: FantasyLeagueID
-) -> Optional[FantasyLeagueScoringSettings]:
-    db_scoring_setting: Optional[FantasyLeagueScoringSettingModel] = session\
+) -> FantasyLeagueScoringSettings | None:
+    db_scoring_setting: FantasyLeagueScoringSettingModel | None = session\
         .query(FantasyLeagueScoringSettingModel)\
         .filter(FantasyLeagueScoringSettingModel.fantasy_league_id == fantasy_league_id)\
         .first()
@@ -56,7 +54,7 @@ def update_fantasy_league_settings(
         fantasy_league_id: FantasyLeagueID,
         settings: FantasyLeagueSettings
 ) -> FantasyLeague:
-    db_fantasy_league: Optional[FantasyLeagueModel] = session.query(FantasyLeagueModel)\
+    db_fantasy_league: FantasyLeague | None = session.query(FantasyLeagueModel)\
         .filter_by(id=fantasy_league_id)\
         .first()
     assert (db_fantasy_league is not None)
@@ -75,7 +73,7 @@ def update_fantasy_league_status(
         fantasy_league_id: FantasyLeagueID,
         new_status: FantasyLeagueStatus
 ) -> FantasyLeague:
-    db_fantasy_league: Optional[FantasyLeagueModel] = session.query(FantasyLeagueModel)\
+    db_fantasy_league: FantasyLeague | None = session.query(FantasyLeagueModel)\
         .filter_by(id=fantasy_league_id)\
         .first()
     assert (db_fantasy_league is not None)
@@ -91,7 +89,7 @@ def update_fantasy_league_current_draft_position(
         fantasy_league_id: FantasyLeagueID,
         new_current_draft_position: int
 ) -> FantasyLeague:
-    db_fantasy_league: Optional[FantasyLeagueModel] = session.query(FantasyLeagueModel)\
+    db_fantasy_league: FantasyLeague | None = session.query(FantasyLeagueModel)\
         .filter_by(id=fantasy_league_id)\
         .first()
     assert (db_fantasy_league is not None)

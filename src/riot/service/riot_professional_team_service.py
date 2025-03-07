@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from src.common.schemas.search_parameters import TeamSearchParameters
 from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
@@ -34,7 +33,7 @@ class RiotProfessionalTeamService:
             self.db.put_team(team)
         return fetched_teams
 
-    def get_teams(self, search_parameters: TeamSearchParameters) -> List[ProfessionalTeam]:
+    def get_teams(self, search_parameters: TeamSearchParameters) -> list[ProfessionalTeam]:
         filters = []
         if search_parameters.slug is not None:
             filters.append(ProfessionalTeamModel.slug == search_parameters.slug)
