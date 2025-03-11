@@ -1,3 +1,6 @@
+from datetime import datetime, timezone
+import pytz
+
 from src.common.exceptions import LeagueNotFoundException
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -123,3 +126,63 @@ class FantasyLeagueUtil:
                 self.db.update_fantasy_league_draft_order_position(
                     draft_position, draft_position.position - 1
                 )
+
+    def get_leagues_current_week(
+            self,
+            riot_league_id: RiotLeagueID
+    ) -> int | None:
+        non_week_blocks = [
+            "playoffs",
+            "groups",
+            "finals",
+            "swiss",
+            "play-ins"
+            "play in knockouts",
+            "play in groups"
+        ]
+
+        utc_now = datetime.now(pytz.utc)
+        matches = self.db.get_matches_for_league_with_active_tournament(riot_league_id)
+        matches.sort(key=lambda x: parse_match_time(x.start_time))
+
+        if len(matches) == 0:
+            return None
+
+        last_valid_week = None
+        valid_matches = []
+
+        for match in matches:
+            if any(match.block_name.lower() == block.lower() for block in non_week_blocks):
+                continue
+            last_valid_week = match.block_name
+            valid_matches.append(match)
+
+        if last_valid_week is None:
+            return last_valid_week
+
+        # If the current time is before the first match, return the first week
+        if utc_now < parse_match_time(valid_matches[0].start_time):
+            return get_week_from_block_name(matches[0].block_name)
+
+        current_week = last_valid_week
+        for i in range(1, len(valid_matches)):
+            prev_match = valid_matches[i - 1]
+            curr_match = valid_matches[i]
+            prev_match_start_time = parse_match_time(prev_match.start_time)
+            curr_match_start_time = parse_match_time(curr_match.start_time)
+
+            if prev_match_start_time <= utc_now < curr_match_start_time:
+                current_week = prev_match.block_name
+                break
+
+        return get_week_from_block_name(current_week)
+
+
+def get_week_from_block_name(block_name: str) -> int:
+    return int(block_name.lower().replace("week ", ""))
+
+
+def parse_match_time(start_time: str) -> datetime:
+    return datetime.fromisoformat(
+        start_time.replace("Z", "")
+    ).replace(tzinfo=timezone.utc)

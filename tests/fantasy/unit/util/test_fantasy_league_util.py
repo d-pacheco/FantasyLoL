@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock, call
+from datetime import datetime, timedelta, UTC
 
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures, riot_fixtures
+
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -11,7 +13,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     UserID
 )
-from src.common.schemas.riot_data_schemas import RiotLeagueID
+from src.common.schemas.riot_data_schemas import RiotLeagueID, Match, RiotMatchID, RiotTournamentID
 from src.common.exceptions import LeagueNotFoundException
 
 from src.fantasy.exceptions import (
@@ -602,3 +604,142 @@ class TestFantasyLeagueUtil(TestBase):
             fantasy_league.id)
         self.mock_db_service.delete_fantasy_league_draft_order.assert_not_called()
         self.mock_db_service.update_fantasy_league_draft_order_position.assert_not_called()
+
+    def test_get_leagues_current_week_returns_week_1_if_not_started_yet(self):
+        # Arrange
+        league_id = RiotLeagueID("123456789")
+        expected_current_week = 1
+        matches = generate_matches(3, 3, 0)
+        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+
+        # Act
+        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+
+        # Assert
+        self.assertEqual(curr_week, expected_current_week)
+        self.mock_db_service\
+            .get_matches_for_league_with_active_tournament\
+            .assert_called_once_with(league_id)
+
+    def test_get_leagues_current_week_returns_correct_week(self):
+        # Arrange
+        league_id = RiotLeagueID("123456789")
+        num_weeks = 3
+        for week_num in range(1, num_weeks + 1):
+            matches = generate_matches(num_weeks, 3, week_num)
+            self.mock_db_service.reset_mock()
+            self.mock_db_service\
+                .get_matches_for_league_with_active_tournament\
+                .return_value = matches
+
+            # Act
+            curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+
+            # Assert
+            self.assertEqual(curr_week, week_num)
+            self.mock_db_service\
+                .get_matches_for_league_with_active_tournament\
+                .assert_called_once_with(league_id)
+
+    def test_get_leagues_current_week_returns_last_valid_week_if_in_past(self):
+        # Arrange
+        league_id = RiotLeagueID("123456789")
+        num_weeks = 3
+        matches = generate_matches(num_weeks, 3, num_weeks + 1)
+        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+
+        # Act
+        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+
+        # Assert
+        self.assertEqual(curr_week, num_weeks)
+        self.mock_db_service\
+            .get_matches_for_league_with_active_tournament\
+            .assert_called_once_with(league_id)
+
+    def test_get_leagues_current_week_groups_returns_none(self):
+        # Arrange
+        league_id = RiotLeagueID("123456789")
+        matches = generate_matches(3, 3, 3, False)
+        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+
+        # Act
+        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+
+        # Assert
+        self.assertIsNone(curr_week)
+        self.mock_db_service\
+            .get_matches_for_league_with_active_tournament\
+            .assert_called_once_with(league_id)
+
+    def test_get_leagues_current_week_no_matches_returns_none(self):
+        # Arrange
+        league_id = RiotLeagueID("123456789")
+        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = []
+
+        # Act
+        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+
+        # Assert
+        self.assertIsNone(curr_week)
+        self.mock_db_service\
+            .get_matches_for_league_with_active_tournament\
+            .assert_called_once_with(league_id)
+
+
+def generate_matches(
+        num_weeks: int,
+        matches_per_week: int,
+        current_week: int = 1,
+        use_weeks: bool = True) -> list[Match]:
+    matches = []
+    base_time = datetime.now(UTC) - timedelta(weeks=current_week - 1)
+    tournament_id = RiotTournamentID(riot_fixtures.generate_random_id())
+
+    # Generate Weeks or Groups matches
+    for week in range(1, num_weeks + 1):
+        block_name = f"week {week}" if use_weeks else "Groups"
+        for match_num in range(matches_per_week):
+            match_time = base_time + timedelta(weeks=week - 1, days=match_num)
+            matches.append(Match(
+                id=RiotMatchID(riot_fixtures.generate_random_id()),
+                start_time=match_time.isoformat() + "Z",
+                block_name=block_name,
+                league_slug="test",
+                strategy_type="bestOf",
+                strategy_count=1,
+                tournament_id=tournament_id,
+                team_1_name=f"Team {week}-{match_num + 1}A",
+                team_2_name=f"Team {week}-{match_num + 1}B",
+            ))
+
+    # Generate playoffs
+    for match_num in range(matches_per_week):
+        match_time = base_time + timedelta(weeks=num_weeks, days=match_num)
+        matches.append(Match(
+            id=RiotMatchID(riot_fixtures.generate_random_id()),
+            start_time=match_time.isoformat() + "Z",
+            block_name="playoffs",
+            league_slug="test",
+            strategy_type="bestOf",
+            strategy_count=1,
+            tournament_id=tournament_id,
+            team_1_name=f"Playoff Team {match_num + 1}A",
+            team_2_name=f"Playoff Team {match_num + 1}B"
+        ))
+
+    # Generate finals
+    finals_time = base_time + timedelta(weeks=num_weeks, days=matches_per_week)
+    matches.append(Match(
+        id=RiotMatchID(riot_fixtures.generate_random_id()),
+        start_time=finals_time.isoformat() + "Z",
+        block_name="finals",
+        league_slug="test",
+        strategy_type="bestOf",
+        strategy_count=1,
+        tournament_id=tournament_id,
+        team_1_name="Finalist A",
+        team_2_name="Finalist B"
+    ))
+
+    return matches
