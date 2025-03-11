@@ -1,7 +1,7 @@
-from sqlalchemy import text
+from sqlalchemy import text, select, func
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID
-from src.db.models import MatchModel
+from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID
+from src.db.models import MatchModel, LeagueModel, TournamentModel
 
 
 def put_match(session, match: Match) -> None:
@@ -52,3 +52,23 @@ def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) 
     db_match.has_games = new_has_games
     session.merge(db_match)
     session.commit()
+
+
+def get_matches_for_league_with_active_tournament(session, league_id: RiotLeagueID) -> list[Match]:
+    query = (
+        select(MatchModel)
+        .join(LeagueModel, LeagueModel.slug == MatchModel.league_slug)
+        .join(TournamentModel, LeagueModel.id == TournamentModel.league_id)
+        .where(
+            LeagueModel.id == league_id,
+            func.date(func.strftime('%Y-%m-%d', func.datetime('now')))
+            .between(TournamentModel.start_date, TournamentModel.end_date),
+            func.substr(MatchModel.start_time, 1, 10)
+            .between(TournamentModel.start_date, TournamentModel.end_date)
+        )
+    )
+
+    match_models = session.execute(query).scalars().all()
+    matches = [Match.model_validate(match_model) for match_model in match_models]
+
+    return matches
