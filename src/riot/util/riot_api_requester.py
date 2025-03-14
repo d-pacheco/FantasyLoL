@@ -310,7 +310,24 @@ class RiotApiRequester:
         for event in events:
             if event['type'] != 'match':
                 continue
+
             match = event['match']
+
+            team_1_wins = None
+            team_2_wins = None
+            winning_team = None
+            if event['state'] in ["completed", "inProgress"]:
+                if match['teams'][0]['result'] is not None:
+                    team_1_wins = match['teams'][0]['result']['gameWins']
+                if match['teams'][1]['result'] is not None:
+                    team_2_wins = match['teams'][1]['result']['gameWins']
+
+            if event['state'] == "completed":
+                if match['teams'][0]['result']['outcome'] == "win":
+                    winning_team = match['teams'][0]['name']
+                else:
+                    winning_team = match['teams'][1]['name']
+
             new_match = Match(
                 id=match['id'],
                 start_time=event['startTime'],
@@ -320,7 +337,11 @@ class RiotApiRequester:
                 strategy_count=match['strategy']['count'],
                 tournament_id=self.get_tournament_id_for_match(match['id']),
                 team_1_name=match['teams'][0]['name'],
-                team_2_name=match['teams'][1]['name']
+                team_2_name=match['teams'][1]['name'],
+                state=event['state'],
+                team_1_wins=team_1_wins,
+                team_2_wins=team_2_wins,
+                winning_team=winning_team
             )
             matches_from_response.append(new_match)
         return matches_from_response

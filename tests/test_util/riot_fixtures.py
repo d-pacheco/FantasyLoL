@@ -109,7 +109,28 @@ match_fixture = schemas.Match(
     tournament_id=tournament_fixture.id,
     team_1_name=team_1_fixture.name,
     team_2_name=team_2_fixture.name,
-    has_games=True
+    has_games=True,
+    state=schemas.MatchState.INPROGRESS,
+    team_1_wins=1,
+    team_2_wins=0,
+    winning_team=None
+)
+
+completed_match_fixture = schemas.Match(
+    id=RiotMatchID(generate_random_id()),
+    start_time="2022-01-03T15:00:00Z",
+    block_name="mockBlockName",
+    league_slug=league_1_fixture.slug,
+    strategy_type="bestOf",
+    strategy_count=1,
+    tournament_id=tournament_fixture.id,
+    team_1_name=team_1_fixture.name,
+    team_2_name=team_2_fixture.name,
+    has_games=True,
+    state=schemas.MatchState.COMPLETED,
+    team_1_wins=1,
+    team_2_wins=0,
+    winning_team=team_1_fixture.name
 )
 
 future_match_fixture = schemas.Match(
@@ -122,7 +143,11 @@ future_match_fixture = schemas.Match(
     tournament_id=tournament_fixture.id,
     team_1_name=team_1_fixture.name,
     team_2_name=team_2_fixture.name,
-    has_games=True
+    has_games=True,
+    state=schemas.MatchState.UNSTARTED,
+    team_1_wins=None,
+    team_2_wins=None,
+    winning_team=None
 )
 
 game_1_fixture_completed = schemas.Game(

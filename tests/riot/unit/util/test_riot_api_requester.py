@@ -510,14 +510,42 @@ class RiotApiRequesterTest(TestBase):
 
     @patch(RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH)
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
-    def test_get_schedule_successful(
+    def test_get_schedule_successful_completed_match(
             self, mock_cloud_scraper: MagicMock, mock_get_tournament_id_for_match: MagicMock):
         # Arrange
-        expected_match = riot_fixtures.match_fixture
+        expected_match = riot_fixtures.completed_match_fixture
         mock_get_tournament_id_for_match.return_value = riot_fixtures.tournament_fixture.id
         mock_response = create_mock_response(
             HTTPStatus.OK,
-            riot_api_requester_util.get_schedule_response
+            riot_api_requester_util.create_get_schedule_response(expected_match)
+        )
+        mock_client = Mock()
+        mock_client.get.return_value = mock_response
+        mock_cloud_scraper.return_value = mock_client
+
+        # Act
+        riot_api_requester = RiotApiRequester()
+        schedule = riot_api_requester.get_schedule()
+
+        # Assert
+        matches = schedule.matches
+        self.assertEqual(1, len(matches))
+        self.assertEqual(expected_match, matches[0])
+
+        schedule_pages = schedule.schedule_pages
+        self.assertEqual(schedule_pages.older_token, "olderToken")
+        self.assertEqual(schedule_pages.newer_token, "newerToken")
+
+    @patch(RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH)
+    @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)
+    def test_get_schedule_successful_unstarted_match(
+            self, mock_cloud_scraper: MagicMock, mock_get_tournament_id_for_match: MagicMock):
+        # Arrange
+        expected_match = riot_fixtures.future_match_fixture
+        mock_get_tournament_id_for_match.return_value = riot_fixtures.tournament_fixture.id
+        mock_response = create_mock_response(
+            HTTPStatus.OK,
+            riot_api_requester_util.create_get_schedule_response(expected_match)
         )
         mock_client = Mock()
         mock_client.get.return_value = mock_response

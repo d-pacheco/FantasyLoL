@@ -86,6 +86,12 @@ class Tournament(BaseModel):
     )
 
 
+class MatchState(str, Enum):
+    COMPLETED = "completed"
+    INPROGRESS = "inProgress"
+    UNSTARTED = "unstarted"
+
+
 class Match(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -138,6 +144,26 @@ class Match(BaseModel):
         default=True,
         description="If this match has game data available",
         examples=[True]
+    )
+    state: MatchState = Field(
+        default=None,
+        description="The state of the match",
+        examples=["completed"]
+    )
+    team_1_wins: int | None = Field(
+        default=None,
+        description="The number of game wins for team 1",
+        examples=[2]
+    )
+    team_2_wins: int | None = Field(
+        default=None,
+        description="The number of game wins for team 2",
+        examples=[3]
+    )
+    winning_team: str | None = Field(
+        default=None,
+        description="The name of the winning team for the match",
+        examples=["T1"]
     )
 
 
