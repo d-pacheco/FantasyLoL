@@ -1,5 +1,6 @@
 #!/bin/bash
 
-# Run unittest discovery for tests in the tests directory
+source "$(dirname "$0")/find_python.sh"
+
 echo "Running tests"
-python -m unittest discover -s tests -p "test*.py"
+$PYTHON -m unittest discover -s tests -p "test*.py"
