@@ -1,4 +1,5 @@
-from src.common.schemas.riot_data_schemas import Match, League, ProfessionalTeam, MatchState
+from src.common.schemas.riot_data_schemas import Match, League, ProfessionalTeam, MatchState, \
+    ProfessionalPlayer, Game, PlayerGameMetadata, PlayerGameStats
 from tests.test_util import riot_fixtures
 from typing import Any
 
@@ -38,6 +39,18 @@ get_tournaments_for_league_response = {
     }
 }
 
+
+def create_player_for_team_response(player: ProfessionalPlayer, player_number: int) -> dict:
+    return {
+        "id": player.id,
+        "summonerName": player.summoner_name,
+        "firstName": f"player_{player_number}_first_name",
+        "lastName": f"player_{player_number}_last_name",
+        "image": player.image,
+        "role": player.role
+    }
+
+
 get_teams_response = {
     "data": {
         "teams": [
@@ -55,51 +68,64 @@ get_teams_response = {
                     "region": riot_fixtures.league_1_fixture.region
                 },
                 "players": [
-                    {
-                        "id": riot_fixtures.player_1_fixture.id,
-                        "summonerName": riot_fixtures.player_1_fixture.summoner_name,
-                        "firstName": "player_1_first_name",
-                        "lastName": "player_1_last_name",
-                        "image": riot_fixtures.player_1_fixture.image,
-                        "role": riot_fixtures.player_1_fixture.role
-                    },
-                    {
-                        "id": riot_fixtures.player_2_fixture.id,
-                        "summonerName": riot_fixtures.player_2_fixture.summoner_name,
-                        "firstName": "player_2_first_name",
-                        "lastName": "player_2_last_name",
-                        "image": riot_fixtures.player_2_fixture.image,
-                        "role": riot_fixtures.player_2_fixture.role
-                    },
-                    {
-                        "id": riot_fixtures.player_3_fixture.id,
-                        "summonerName": riot_fixtures.player_3_fixture.summoner_name,
-                        "firstName": "player_3_first_name",
-                        "lastName": "player_3_last_name",
-                        "image": riot_fixtures.player_3_fixture.image,
-                        "role": riot_fixtures.player_3_fixture.role
-                    },
-                    {
-                        "id": riot_fixtures.player_4_fixture.id,
-                        "summonerName": riot_fixtures.player_4_fixture.summoner_name,
-                        "firstName": "player_4_first_name",
-                        "lastName": "player_4_last_name",
-                        "image": riot_fixtures.player_4_fixture.image,
-                        "role": riot_fixtures.player_4_fixture.role
-                    },
-                    {
-                        "id": riot_fixtures.player_5_fixture.id,
-                        "summonerName": riot_fixtures.player_5_fixture.summoner_name,
-                        "firstName": "player_5_first_name",
-                        "lastName": "player_5_last_name",
-                        "image": riot_fixtures.player_5_fixture.image,
-                        "role": riot_fixtures.player_5_fixture.role
-                    },
+                    create_player_for_team_response(riot_fixtures.player_1_fixture, 1),
+                    create_player_for_team_response(riot_fixtures.player_2_fixture, 2),
+                    create_player_for_team_response(riot_fixtures.player_3_fixture, 3),
+                    create_player_for_team_response(riot_fixtures.player_4_fixture, 4),
+                    create_player_for_team_response(riot_fixtures.player_5_fixture, 5),
                 ]
             }
         ]
     }
 }
+
+
+def create_team_for_event_details_response(
+        team: ProfessionalTeam,
+        match: Match = riot_fixtures.match_fixture
+) -> dict:
+    game_wins = None
+    if team.name == match.team_1_name:
+        game_wins = match.team_1_wins
+    elif team.name == match.team_2_name:
+        game_wins = match.team_2_wins
+
+    assert (game_wins is not None)
+    return {
+        "id": team.id,
+        "name": team.name,
+        "code": team.code,
+        "image": team.image,
+        "result": {
+            "gameWins": game_wins
+        }
+    }
+
+
+def create_game_for_response(
+        game: Game,
+        blue_team: ProfessionalTeam | None = None,
+        red_team: ProfessionalTeam | None = None
+) -> dict:
+    game_response = {
+        "id": game.id,
+        "number": game.number,
+        "state": game.state.value,
+        "vods": []
+    }
+    if blue_team and red_team:
+        game_response["teams"] = [
+            {
+                "id": blue_team.id,
+                "side": "blue"
+            },
+            {
+                "id": red_team.id,
+                "side": "red"
+            }
+        ]
+    return game_response
+
 
 get_event_details_response = {
     "data": {
@@ -120,74 +146,25 @@ get_event_details_response = {
                     "count": riot_fixtures.match_fixture.strategy_count
                 },
                 "teams": [
-                    {
-                        "id": riot_fixtures.team_1_fixture.id,
-                        "name": riot_fixtures.team_1_fixture.name,
-                        "code": riot_fixtures.team_1_fixture.code,
-                        "image": riot_fixtures.team_1_fixture.image,
-                        "result": {
-                            "gameWins": 2
-                        }
-                    },
-                    {
-                        "id": riot_fixtures.team_2_fixture.id,
-                        "name": riot_fixtures.team_2_fixture.name,
-                        "code": riot_fixtures.team_2_fixture.code,
-                        "image": riot_fixtures.team_2_fixture.image,
-                        "result": {
-                            "gameWins": 0
-                        }
-                    }
+                    create_team_for_event_details_response(riot_fixtures.team_1_fixture),
+                    create_team_for_event_details_response(riot_fixtures.team_2_fixture)
                 ],
                 "games": [
-                    {
-                        "number": riot_fixtures.game_1_fixture_completed.number,
-                        "id": riot_fixtures.game_1_fixture_completed.id,
-                        "state": riot_fixtures.game_1_fixture_completed.state.value,
-                        "teams": [
-                            {
-                                "id": riot_fixtures.team_1_fixture.id,
-                                "side": "blue"
-                            },
-                            {
-                                "id": riot_fixtures.team_2_fixture.id,
-                                "side": "red"
-                            }
-                        ],
-                        "vods": []
-                    },
-                    {
-                        "number": riot_fixtures.game_2_fixture_inprogress.number,
-                        "id": riot_fixtures.game_2_fixture_inprogress.id,
-                        "state": riot_fixtures.game_2_fixture_inprogress.state.value,
-                        "teams": [
-                            {
-                                "id": riot_fixtures.team_1_fixture.id,
-                                "side": "blue"
-                            },
-                            {
-                                "id": riot_fixtures.team_2_fixture.id,
-                                "side": "red"
-                            }
-                        ],
-                        "vods": []
-                    },
-                    {
-                        "number": riot_fixtures.game_3_fixture_unstarted.number,
-                        "id": riot_fixtures.game_3_fixture_unstarted.id,
-                        "state": riot_fixtures.game_3_fixture_unstarted.state.value,
-                        "teams": [
-                            {
-                                "id": riot_fixtures.team_2_fixture.id,
-                                "side": "blue"
-                            },
-                            {
-                                "id": riot_fixtures.team_1_fixture.id,
-                                "side": "red"
-                            }
-                        ],
-                        "vods": []
-                    }
+                    create_game_for_response(
+                        riot_fixtures.game_1_fixture_completed,
+                        riot_fixtures.team_1_fixture,
+                        riot_fixtures.team_2_fixture
+                    ),
+                    create_game_for_response(
+                        riot_fixtures.game_2_fixture_inprogress,
+                        riot_fixtures.team_1_fixture,
+                        riot_fixtures.team_2_fixture
+                    ),
+                    create_game_for_response(
+                        riot_fixtures.game_3_fixture_unstarted,
+                        riot_fixtures.team_2_fixture,
+                        riot_fixtures.team_1_fixture
+                    )
                 ]
             },
             "streams": []
@@ -198,15 +175,25 @@ get_event_details_response = {
 get_games_response: dict[str, dict[str, list[dict[str, Any]]]] = {
     "data": {
         "games": [
-            {
-                "id": riot_fixtures.game_1_fixture_completed.id,
-                "state": riot_fixtures.game_1_fixture_completed.state.value,
-                "number": riot_fixtures.game_1_fixture_completed.number,
-                "vods": []
-            }
+            create_game_for_response(riot_fixtures.game_1_fixture_completed)
         ]
     }
 }
+
+
+def create_participant_metadata_for_response(
+        player_game_metadata: PlayerGameMetadata,
+        player: ProfessionalPlayer,
+        team: ProfessionalTeam,
+) -> dict:
+    return {
+        "participantId": player_game_metadata.participant_id,
+        "esportsPlayerId": player_game_metadata.player_id,
+        "summonerName": f"{team.code} {player.summoner_name}",
+        "championId": player_game_metadata.champion_id,
+        "role": player_game_metadata.role
+    }
+
 
 get_livestats_window_response = {
     "esportsGameId": riot_fixtures.game_1_fixture_completed.id,
@@ -216,91 +203,61 @@ get_livestats_window_response = {
         "blueTeamMetadata": {
             "esportsTeamId": riot_fixtures.team_1_fixture.id,
             "participantMetadata": [
-                {
-                    "participantId": riot_fixtures.player_1_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_1_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                    f"{riot_fixtures.player_1_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_1_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_1_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_2_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_2_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                    f"{riot_fixtures.player_2_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_2_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_2_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_3_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_3_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                    f"{riot_fixtures.player_3_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_3_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_3_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_4_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_4_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                    f"{riot_fixtures.player_4_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_4_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_4_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_5_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_5_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_1_fixture.code} "
-                    f"{riot_fixtures.player_5_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_5_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_5_game_metadata_fixture.role
-                }
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_1_game_metadata_fixture,
+                    riot_fixtures.player_1_fixture,
+                    riot_fixtures.team_1_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_2_game_metadata_fixture,
+                    riot_fixtures.player_2_fixture,
+                    riot_fixtures.team_1_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_3_game_metadata_fixture,
+                    riot_fixtures.player_3_fixture,
+                    riot_fixtures.team_1_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_4_game_metadata_fixture,
+                    riot_fixtures.player_4_fixture,
+                    riot_fixtures.team_1_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_5_game_metadata_fixture,
+                    riot_fixtures.player_5_fixture,
+                    riot_fixtures.team_1_fixture
+                )
             ]
         },
         "redTeamMetadata": {
             "esportsTeamId": riot_fixtures.team_2_fixture.id,
             "participantMetadata": [
-                {
-                    "participantId": riot_fixtures.player_6_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_6_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                    f"{riot_fixtures.player_6_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_6_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_6_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_7_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_7_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                    f"{riot_fixtures.player_7_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_7_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_7_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_8_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_8_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                    f"{riot_fixtures.player_8_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_8_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_8_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_9_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_9_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                    f"{riot_fixtures.player_9_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_9_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_9_game_metadata_fixture.role
-                },
-                {
-                    "participantId": riot_fixtures.player_10_game_metadata_fixture.participant_id,
-                    "esportsPlayerId": riot_fixtures.player_10_game_metadata_fixture.player_id,
-                    "summonerName": f"{riot_fixtures.team_2_fixture.code} "
-                    f"{riot_fixtures.player_10_fixture.summoner_name}",
-                    "championId": riot_fixtures.player_10_game_metadata_fixture.champion_id,
-                    "role": riot_fixtures.player_10_game_metadata_fixture.role
-                },
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_6_game_metadata_fixture,
+                    riot_fixtures.player_6_fixture,
+                    riot_fixtures.team_2_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_7_game_metadata_fixture,
+                    riot_fixtures.player_7_fixture,
+                    riot_fixtures.team_2_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_8_game_metadata_fixture,
+                    riot_fixtures.player_8_fixture,
+                    riot_fixtures.team_2_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_9_game_metadata_fixture,
+                    riot_fixtures.player_9_fixture,
+                    riot_fixtures.team_2_fixture
+                ),
+                create_participant_metadata_for_response(
+                    riot_fixtures.player_10_game_metadata_fixture,
+                    riot_fixtures.player_10_fixture,
+                    riot_fixtures.team_2_fixture
+                ),
             ]
         }
     },
@@ -313,676 +270,95 @@ def percentage_to_float(percentage_value: int) -> float:
     return float_value
 
 
+def create_participant_for_response(player_game_stats: PlayerGameStats) -> dict:
+    return {
+        "participantId": player_game_stats.participant_id,
+        "level": 17,
+        "kills": player_game_stats.kills,
+        "deaths": player_game_stats.deaths,
+        "assists": player_game_stats.assists,
+        "totalGoldEarned": player_game_stats.total_gold,
+        "creepScore": player_game_stats.creep_score,
+        "killParticipation": percentage_to_float(player_game_stats.kill_participation),
+        "championDamageShare": percentage_to_float(player_game_stats.champion_damage_share),
+        "wardsPlaced": player_game_stats.wards_placed,
+        "wardsDestroyed": player_game_stats.wards_destroyed,
+        "attackDamage": 250,
+        "abilityPower": 0,
+        "criticalChance": 0.0,
+        "attackSpeed": 139,
+        "lifeSteal": 0,
+        "armor": 115,
+        "magicResistance": 91,
+        "tenacity": 0.0,
+        "items": [
+            3340,
+            3053,
+            6630,
+            3047,
+            3065,
+            2055,
+            2055
+        ],
+        "perkMetadata": {
+            "styleId": 8000,
+            "subStyleId": 8400,
+            "perks": [
+                8010,
+                9111,
+                9105,
+                8299,
+                8444,
+                8453,
+                5008,
+                5008,
+                5002
+            ]
+        },
+        "abilities": [
+            "Q",
+            "E",
+            "W",
+            "Q",
+            "Q",
+            "R",
+            "Q",
+            "E",
+            "Q",
+            "E",
+            "R",
+            "E",
+            "E",
+            "W",
+            "W",
+            "R",
+            "W"
+        ]
+    }
+
+
+get_live_stats_details_empty_frames_response: dict[str, list] = {
+    "frames": []
+}
+
 get_live_stats_details_response = {
     "frames": [
         {
             "rfc460Timestamp": "randomTimeStamp",
             "participants": [
-                {
-                    "participantId": riot_fixtures.player_1_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_1_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_1_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_1_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_1_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_1_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_1_game_stats_fixture.kill_participation),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_1_game_stats_fixture.champion_damage_share),
-                    "wardsPlaced": riot_fixtures.player_1_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_1_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 250,
-                    "abilityPower": 0,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 139,
-                    "lifeSteal": 0,
-                    "armor": 115,
-                    "magicResistance": 91,
-                    "tenacity": 0.0,
-                    "items": [
-                        3340,
-                        3053,
-                        6630,
-                        3047,
-                        3065,
-                        2055,
-                        2055
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8000,
-                        "subStyleId": 8400,
-                        "perks": [
-                            8010,
-                            9111,
-                            9105,
-                            8299,
-                            8444,
-                            8453,
-                            5008,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "E",
-                        "W",
-                        "Q",
-                        "Q",
-                        "R",
-                        "Q",
-                        "E",
-                        "Q",
-                        "E",
-                        "R",
-                        "E",
-                        "E",
-                        "W",
-                        "W",
-                        "R",
-                        "W"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_2_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_2_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_2_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_2_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_2_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_2_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_2_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_2_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_2_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_2_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 150,
-                    "abilityPower": 0,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 151,
-                    "lifeSteal": 0,
-                    "armor": 257,
-                    "magicResistance": 166,
-                    "tenacity": 0.0,
-                    "items": [
-                        4401,
-                        3105,
-                        3047,
-                        3143,
-                        2055,
-                        6664
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8200,
-                        "subStyleId": 8000,
-                        "perks": [
-                            8230,
-                            8275,
-                            8234,
-                            8232,
-                            9111,
-                            9105,
-                            5005,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "R",
-                        "R",
-                        "E",
-                        "R",
-                        "W",
-                        "R",
-                        "W",
-                        "R",
-                        "W",
-                        "W",
-                        "W",
-                        "E",
-                        "E",
-                        "E",
-                        "R",
-                        "W"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_3_game_stats_fixture.participant_id,
-                    "level": 18,
-                    "kills": riot_fixtures.player_3_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_3_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_3_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_3_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_3_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_3_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_3_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_3_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_3_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 84,
-                    "abilityPower": 697,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 169,
-                    "lifeSteal": 0,
-                    "armor": 68,
-                    "magicResistance": 42,
-                    "tenacity": 0.0,
-                    "items": [
-                        3041,
-                        3363,
-                        3158,
-                        2139,
-                        6653,
-                        3089
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8200,
-                        "subStyleId": 8300,
-                        "perks": [
-                            8230,
-                            8226,
-                            8210,
-                            8237,
-                            8345,
-                            8352,
-                            5005,
-                            5008,
-                            5003
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "W",
-                        "E",
-                        "Q",
-                        "Q",
-                        "R",
-                        "Q",
-                        "W",
-                        "Q",
-                        "W",
-                        "R",
-                        "W",
-                        "W",
-                        "E",
-                        "E",
-                        "R",
-                        "E",
-                        "E"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_4_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_4_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_4_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_4_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_4_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_4_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_4_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_4_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_4_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_4_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 296,
-                    "abilityPower": 0,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 236,
-                    "lifeSteal": 9,
-                    "armor": 77,
-                    "magicResistance": 37,
-                    "tenacity": 0.0,
-                    "items": [
-                        3363,
-                        6676,
-                        3046,
-                        3006,
-                        6671,
-                        3031
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8100,
-                        "subStyleId": 8000,
-                        "perks": [
-                            9923,
-                            8139,
-                            8138,
-                            8135,
-                            9103,
-                            8009,
-                            5005,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "W",
-                        "E",
-                        "Q",
-                        "Q",
-                        "R",
-                        "Q",
-                        "E",
-                        "Q",
-                        "E",
-                        "R",
-                        "Q",
-                        "E",
-                        "E",
-                        "E",
-                        "W",
-                        "W",
-                        "R"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_5_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_5_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_5_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_5_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_5_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_5_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_5_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_5_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_5_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_5_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 103,
-                    "abilityPower": 20,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 133,
-                    "lifeSteal": 0,
-                    "armor": 138,
-                    "magicResistance": 83,
-                    "tenacity": 0.0,
-                    "items": [
-                        3364,
-                        3190,
-                        3067,
-                        3117,
-                        3024
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8400,
-                        "subStyleId": 8300,
-                        "perks": [
-                            8439,
-                            8446,
-                            8473,
-                            8242,
-                            8306,
-                            8316,
-                            5005,
-                            5003,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "W",
-                        "E",
-                        "Q",
-                        "Q",
-                        "R",
-                        "Q",
-                        "W",
-                        "Q",
-                        "W",
-                        "R",
-                        "W",
-                        "W"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_6_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_6_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_6_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_6_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_6_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_6_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_6_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_6_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_6_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_6_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 340,
-                    "abilityPower": 0,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 165,
-                    "lifeSteal": 12,
-                    "armor": 123,
-                    "magicResistance": 63,
-                    "tenacity": 0.0,
-                    "items": [
-                        6673,
-                        3123,
-                        3508,
-                        3047,
-                        6675
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8400,
-                        "subStyleId": 8300,
-                        "perks": [
-                            8437,
-                            8446,
-                            8429,
-                            8242,
-                            8345,
-                            8352,
-                            5008,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "E",
-                        "Q",
-                        "W",
-                        "Q",
-                        "R",
-                        "Q",
-                        "E",
-                        "Q",
-                        "E",
-                        "R",
-                        "E",
-                        "E",
-                        "W",
-                        "W",
-                        "R"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_7_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_7_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_7_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_7_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_7_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_7_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_7_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_7_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_7_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_7_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 102,
-                    "abilityPower": 242,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 132,
-                    "lifeSteal": 0,
-                    "armor": 119,
-                    "magicResistance": 41,
-                    "tenacity": 0.0,
-                    "items": [
-                        3364,
-                        3157,
-                        3158,
-                        3916,
-                        6653,
-                        1026,
-                        2055,
-                        2055
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8200,
-                        "subStyleId": 8100,
-                        "perks": [
-                            8230,
-                            8275,
-                            8234,
-                            8232,
-                            8126,
-                            8135,
-                            5008,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "W",
-                        "Q",
-                        "E",
-                        "Q",
-                        "R",
-                        "Q",
-                        "E",
-                        "Q",
-                        "E",
-                        "R",
-                        "E",
-                        "E",
-                        "W"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_8_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_8_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_8_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_8_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_8_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_8_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_8_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_8_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_8_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_8_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 109,
-                    "abilityPower": 376,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 151,
-                    "lifeSteal": 0,
-                    "armor": 79,
-                    "magicResistance": 59,
-                    "tenacity": 0.0,
-                    "items": [
-                        1058,
-                        1058,
-                        3363,
-                        3020,
-                        3100,
-                        3152
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8100,
-                        "subStyleId": 8200,
-                        "perks": [
-                            8112,
-                            8143,
-                            8138,
-                            8135,
-                            8236,
-                            8275,
-                            5008,
-                            5008,
-                            5003
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "E",
-                        "W",
-                        "Q",
-                        "Q",
-                        "R",
-                        "Q",
-                        "E",
-                        "Q",
-                        "E",
-                        "R",
-                        "E",
-                        "E",
-                        "W",
-                        "W",
-                        "R",
-                        "W"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_9_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_9_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_9_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_9_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_9_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_9_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_9_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_9_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_9_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_9_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 568,
-                    "abilityPower": 0,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 120,
-                    "lifeSteal": 9,
-                    "armor": 92,
-                    "magicResistance": 36,
-                    "tenacity": 0.0,
-                    "items": [
-                        3363,
-                        3123,
-                        6676,
-                        3047,
-                        3031,
-                        1036,
-                        6671,
-                        2140
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8000,
-                        "subStyleId": 8200,
-                        "perks": [
-                            8021,
-                            8009,
-                            9103,
-                            8017,
-                            8275,
-                            8234,
-                            5008,
-                            5008,
-                            5002
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "W",
-                        "Q",
-                        "W",
-                        "Q",
-                        "R",
-                        "Q",
-                        "W",
-                        "Q",
-                        "W",
-                        "R",
-                        "W",
-                        "E",
-                        "E"
-                    ]
-                },
-                {
-                    "participantId": riot_fixtures.player_10_game_stats_fixture.participant_id,
-                    "level": 17,
-                    "kills": riot_fixtures.player_10_game_stats_fixture.kills,
-                    "deaths": riot_fixtures.player_10_game_stats_fixture.deaths,
-                    "assists": riot_fixtures.player_10_game_stats_fixture.assists,
-                    "totalGoldEarned": riot_fixtures.player_10_game_stats_fixture.total_gold,
-                    "creepScore": riot_fixtures.player_10_game_stats_fixture.creep_score,
-                    "killParticipation": percentage_to_float(
-                        riot_fixtures.player_10_game_stats_fixture.kill_participation
-                    ),
-                    "championDamageShare": percentage_to_float(
-                        riot_fixtures.player_10_game_stats_fixture.champion_damage_share
-                    ),
-                    "wardsPlaced": riot_fixtures.player_10_game_stats_fixture.wards_placed,
-                    "wardsDestroyed": riot_fixtures.player_10_game_stats_fixture.wards_destroyed,
-                    "attackDamage": 93,
-                    "abilityPower": 30,
-                    "criticalChance": 0.0,
-                    "attackSpeed": 128,
-                    "lifeSteal": 0,
-                    "armor": 118,
-                    "magicResistance": 82,
-                    "tenacity": 0.0,
-                    "items": [
-                        3009,
-                        3364,
-                        1028,
-                        3190,
-                        2055,
-                        2055,
-                        3067
-                    ],
-                    "perkMetadata": {
-                        "styleId": 8400,
-                        "subStyleId": 8300,
-                        "perks": [
-                            8439,
-                            8463,
-                            8473,
-                            8242,
-                            8306,
-                            8316,
-                            5008,
-                            5002,
-                            5003
-                        ]
-                    },
-                    "abilities": [
-                        "Q",
-                        "E",
-                        "W",
-                        "W",
-                        "W",
-                        "R",
-                        "W",
-                        "Q",
-                        "W",
-                        "E",
-                        "R",
-                        "E"
-                    ]
-                }
+                create_participant_for_response(riot_fixtures.player_1_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_2_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_3_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_4_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_5_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_6_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_7_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_8_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_9_game_stats_fixture),
+                create_participant_for_response(riot_fixtures.player_10_game_stats_fixture)
             ]
         }
     ]
-}
-
-get_live_stats_details_empty_frames_response: dict[str, list] = {
-    "frames": []
 }
 
 
