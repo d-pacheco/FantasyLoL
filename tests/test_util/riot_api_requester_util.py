@@ -1,3 +1,4 @@
+from src.common.schemas.riot_data_schemas import Match, League, ProfessionalTeam, MatchState
 from tests.test_util import riot_fixtures
 from typing import Any
 
@@ -984,64 +985,88 @@ get_live_stats_details_empty_frames_response: dict[str, list] = {
     "frames": []
 }
 
-get_schedule_response = {
-    "data": {
-        "schedule": {
-            "pages": {
-                "older": "olderToken",
-                "newer": "newerToken"
-            },
-            "events": [
-                {
-                    "startTime": riot_fixtures.match_fixture.start_time,
-                    "state": "completed",
-                    "type": "match",
-                    "blockName": riot_fixtures.match_fixture.block_name,
-                    "league": {
-                        "name": riot_fixtures.league_1_fixture.name,
-                        "slug": riot_fixtures.league_1_fixture.slug
-                    },
-                    "match": {
-                        "id": riot_fixtures.match_fixture.id,
-                        "flags": [
-                            "hasVod",
-                            "isSpoiler"
-                        ],
-                        "teams": [
-                            {
-                                "name": riot_fixtures.team_1_fixture.name,
-                                "code": riot_fixtures.team_1_fixture.code,
-                                "image": riot_fixtures.team_1_fixture.image,
-                                "result": {
-                                    "outcome": "loss",
-                                    "gameWins": 1
+
+def create_get_schedule_response(
+        match: Match,
+        league: League = riot_fixtures.league_1_fixture,
+        team_1: ProfessionalTeam = riot_fixtures.team_1_fixture,
+        team_2: ProfessionalTeam = riot_fixtures.team_2_fixture
+) -> dict:
+    team_1_result = None
+    team_2_result = None
+    if match.state == MatchState.COMPLETED:
+        team_1_result = {
+            "outcome": "win" if match.winning_team == team_1.name else "loss",
+            "gameWins": match.team_1_wins
+        }
+        team_2_result = {
+            "outcome": "win" if match.winning_team == team_2.name else "loss",
+            "gameWins": match.team_2_wins
+        }
+    elif match.state == MatchState.INPROGRESS:
+        team_1_result = {
+            "outcome": None,
+            "gameWins": match.team_1_wins
+        }
+        team_2_result = {
+            "outcome": None,
+            "gameWins": match.team_2_wins
+        }
+
+    get_schedule_response = {
+        "data": {
+            "schedule": {
+                "pages": {
+                    "older": "olderToken",
+                    "newer": "newerToken"
+                },
+                "events": [
+                    {
+                        "startTime": match.start_time,
+                        "state": match.state,
+                        "type": "match",
+                        "blockName": match.block_name,
+                        "league": {
+                            "name": league.name,
+                            "slug": league.slug
+                        },
+                        "match": {
+                            "id": match.id,
+                            "flags": [
+                                "hasVod",
+                                "isSpoiler"
+                            ],
+                            "teams": [
+                                {
+                                    "name": team_1.name,
+                                    "code": team_1.code,
+                                    "image": team_1.image,
+                                    "result": team_1_result,
+                                    "record": {
+                                        "wins": 1,
+                                        "losses": 1
+                                    }
                                 },
-                                "record": {
-                                    "wins": 1,
-                                    "losses": 1
+                                {
+                                    "name": team_2.name,
+                                    "code": team_2.code,
+                                    "image": team_2.image,
+                                    "result": team_2_result,
+                                    "record": {
+                                        "wins": 3,
+                                        "losses": 0
+                                    }
                                 }
-                            },
-                            {
-                                "name": riot_fixtures.team_2_fixture.name,
-                                "code": riot_fixtures.team_2_fixture.code,
-                                "image": riot_fixtures.team_2_fixture.image,
-                                "result": {
-                                    "outcome": "win",
-                                    "gameWins": 2
-                                },
-                                "record": {
-                                    "wins": 3,
-                                    "losses": 0
-                                }
+                            ],
+                            "strategy": {
+                                "type": match.strategy_type,
+                                "count": match.strategy_count
                             }
-                        ],
-                        "strategy": {
-                            "type": riot_fixtures.match_fixture.strategy_type,
-                            "count": riot_fixtures.match_fixture.strategy_count
                         }
                     }
-                }
-            ]
+                ]
+            }
         }
     }
-}
+
+    return get_schedule_response

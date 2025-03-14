@@ -12,7 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
-from src.common.schemas.riot_data_schemas import GameState, PlayerRole
+from src.common.schemas.riot_data_schemas import GameState, PlayerRole, MatchState
 from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
@@ -61,6 +61,10 @@ class MatchModel(Base):  # type: ignore
     team_1_name = Column(String)
     team_2_name = Column(String)
     has_games = Column(Boolean, default=True)
+    state = Column(Enum(MatchState), nullable=False)
+    team_1_wins = Column(Integer, nullable=True)
+    team_2_wins = Column(Integer, nullable=True)
+    winning_team = Column(String, nullable=True)
 
 
 class GameModel(Base):  # type: ignore
