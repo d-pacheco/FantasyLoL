@@ -8,7 +8,7 @@ from tests.test_base import TestBase, RIOT_API_REQUESTER_CLOUDSCRAPER_PATH
 from tests.test_util import riot_api_requester_util, riot_fixtures
 
 RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH = \
-    'src.riot.util.riot_api_requester.RiotApiRequester.get_tournament_id_for_match'
+    'src.riot.util.riot_api_requester.RiotApiRequester._get_tournament_id_for_match'
 
 
 class RiotApiRequesterTest(TestBase):
@@ -488,7 +488,7 @@ class RiotApiRequesterTest(TestBase):
 
         # Act
         riot_api_requester = RiotApiRequester()
-        tournament_id = riot_api_requester.get_tournament_id_for_match(match.id)
+        tournament_id = riot_api_requester._get_tournament_id_for_match(match.id)
 
         # Assert
         self.assertIsInstance(tournament_id, str)
@@ -506,7 +506,7 @@ class RiotApiRequesterTest(TestBase):
         # Act and Assert
         riot_api_requester = RiotApiRequester()
         with self.assertRaises(RiotApiStatusCodeAssertException):
-            riot_api_requester.get_tournament_id_for_match(match.id)
+            riot_api_requester._get_tournament_id_for_match(match.id)
 
     @patch(RIOT_API_REQUESTER_GET_TOURNAMENT_ID_FOR_MATCH_PATH)
     @patch(RIOT_API_REQUESTER_CLOUDSCRAPER_PATH)

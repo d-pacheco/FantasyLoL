@@ -271,7 +271,18 @@ class RiotApiRequester:
         return player_stats_from_response
 
     def get_schedule(self, page_token: str | None = None) -> Schedule:
-        schedule_response = self.__get_schedule(page_token)
+        if page_token is None:
+            url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
+        else:
+            url = f"{self.esports_api_url}/getSchedule?hl=en-GB&pageToken={page_token}"
+
+        response = self.make_request(url)
+        if response.status_code != HTTPStatus.OK:
+            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
+
+        res_json = response.json()
+        schedule_response = res_json["data"].get("schedule", {})
+
         pages = SchedulePages(
             older_token=schedule_response['pages']['older'],
             newer_token=schedule_response['pages']['newer']
@@ -283,26 +294,13 @@ class RiotApiRequester:
         )
         return schedule
 
-    def get_tournament_id_for_match(self, match_id: RiotMatchID) -> RiotTournamentID:
+    def _get_tournament_id_for_match(self, match_id: RiotMatchID) -> RiotTournamentID:
         url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(url)
         validate_response([HTTPStatus.OK], response.status_code, url)
 
         res_json = response.json()
         return RiotTournamentID(res_json['data']['event']['tournament']['id'])
-
-    def __get_schedule(self, page_token: str | None = None) -> dict:
-        if page_token is None:
-            url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
-        else:
-            url = f"{self.esports_api_url}/getSchedule?hl=en-GB&pageToken={page_token}"
-
-        response = self.make_request(url)
-        if response.status_code != HTTPStatus.OK:
-            raise RiotApiStatusCodeAssertException([HTTPStatus.OK], response.status_code, url)
-
-        res_json = response.json()
-        return res_json["data"].get("schedule", {})
 
     def __get_matches_from_schedule(self, schedule: dict) -> list[Match]:
         matches_from_response = []
@@ -335,7 +333,7 @@ class RiotApiRequester:
                 league_slug=event['league']['slug'],
                 strategy_type=match['strategy']['type'],
                 strategy_count=match['strategy']['count'],
-                tournament_id=self.get_tournament_id_for_match(match['id']),
+                tournament_id=self._get_tournament_id_for_match(match['id']),
                 team_1_name=match['teams'][0]['name'],
                 team_2_name=match['teams'][1]['name'],
                 state=event['state'],
