@@ -7,8 +7,6 @@ from src.db.database_service import DatabaseService
 from src.db.models import ProfessionalTeamModel
 
 from src.riot.exceptions import ProfessionalTeamNotFoundException
-from src.riot.util import RiotApiRequester
-from src.riot.job_runner import JobRunner
 
 logger = logging.getLogger('riot')
 
@@ -16,22 +14,6 @@ logger = logging.getLogger('riot')
 class RiotProfessionalTeamService:
     def __init__(self, database_service: DatabaseService):
         self.db = database_service
-        self.riot_api_requester = RiotApiRequester()
-        self.job_runner = JobRunner()
-
-    def fetch_professional_teams_from_riot_retry_job(self):
-        self.job_runner.run_retry_job(
-            job_function=self.fetch_professional_teams_from_riot_job,
-            job_name="fetch teams from riot job",
-            max_retries=3
-        )
-
-    def fetch_professional_teams_from_riot_job(self):
-        fetched_teams = self.riot_api_requester.get_teams()
-
-        for team in fetched_teams:
-            self.db.put_team(team)
-        return fetched_teams
 
     def get_teams(self, search_parameters: TeamSearchParameters) -> list[ProfessionalTeam]:
         filters = []

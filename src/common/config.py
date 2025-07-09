@@ -31,8 +31,6 @@ class AppConfig:
         '{"trigger": "cron", "hour": "10", "minute": "05"}'  # type: ignore
     TEAM_SERVICE_SCHEDULE: dict = \
         '{"trigger": "cron", "hour": "10", "minute": "10"}'  # type: ignore
-    PLAYER_SERVICE_SCHEDULE: dict = \
-        '{"trigger": "cron", "hour": "10", "minute": "15"}'  # type: ignore
     MATCH_SERVICE_SCHEDULE: dict = \
         '{"trigger": "cron", "minute": "30"}'  # type: ignore
     GAME_SERVICE_SCHEDULE: dict = \

@@ -29,7 +29,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
-    StoredSchedule
+    StoredSchedule, TeamGameStats
 )
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
@@ -48,6 +48,7 @@ from src.db.riot_dao import (
     riot_league_dao,
     schedule_dao,
     team_dao,
+    team_stats_dao,
     tournament_dao
 )
 
@@ -119,6 +120,10 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return match_dao.get_matches_for_league_with_active_tournament(db, league_id)
 
+    def get_missing_data_matches(self) -> list[Match]:
+        with self.connection_provider.get_db() as db:
+            return match_dao.get_miss_data_matches(db)
+
     def put_player(self, player: ProfessionalPlayer) -> None:
         with self.connection_provider.get_db() as db:
             player_dao.put_player(db, player)
@@ -162,6 +167,10 @@ class DatabaseService:
     def get_player_game_stats(self, filters: list | None = None) -> list[PlayerGameData]:
         with self.connection_provider.get_db() as db:
             return player_stats_dao.get_player_game_stats(db, filters)
+
+    def put_team_stats(self, team_stats: TeamGameStats) -> None:
+        with self.connection_provider.get_db() as db:
+            team_stats_dao.put_team_stats(db, team_stats)
 
     def put_league(self, league: League) -> None:
         with self.connection_provider.get_db() as db:

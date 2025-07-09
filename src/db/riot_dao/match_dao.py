@@ -1,4 +1,4 @@
-from sqlalchemy import text, select, func
+from sqlalchemy import text, select, func, or_
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID
 from src.db.models import MatchModel, LeagueModel, TournamentModel
@@ -72,3 +72,21 @@ def get_matches_for_league_with_active_tournament(session, league_id: RiotLeague
     matches = [Match.model_validate(match_model) for match_model in match_models]
 
     return matches
+
+
+def get_miss_data_matches(session) -> list[Match]:
+    match_models = session.execute(
+        select(MatchModel).where(
+            or_(
+                or_(
+                    MatchModel.team_1_name == "TBD",
+                    MatchModel.team_2_name == "TBD"
+                ),
+                or_(
+                    MatchModel.state == "UNSTARTED",
+                    MatchModel.state == "INPROGRESS"
+                )
+            )
+        )
+    ).scalars().all()
+    return [Match.model_validate(match_model) for match_model in match_models]

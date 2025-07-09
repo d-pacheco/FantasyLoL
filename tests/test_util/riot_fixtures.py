@@ -154,6 +154,8 @@ game_1_fixture_completed = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.COMPLETED,
     number=1,
+    red_team=team_1_fixture.id,
+    blue_team=team_2_fixture.id,
     match_id=match_fixture.id,
     has_game_data=True
 )
@@ -167,6 +169,8 @@ game_2_fixture_inprogress = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.INPROGRESS,
     number=2,
+    red_team=team_1_fixture.id,
+    blue_team=team_2_fixture.id,
     match_id=match_fixture.id
 )
 
@@ -174,6 +178,8 @@ game_3_fixture_unstarted = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.UNSTARTED,
     number=3,
+    red_team=team_1_fixture.id,
+    blue_team=team_2_fixture.id,
     match_id=match_fixture.id
 )
 
@@ -181,6 +187,8 @@ game_4_fixture_unneeded = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.UNNEEDED,
     number=4,
+    red_team=team_1_fixture.id,
+    blue_team=team_2_fixture.id,
     match_id=match_fixture.id
 )
 
@@ -188,6 +196,8 @@ game_1_fixture_unstarted_future_match = schemas.Game(
     id=RiotGameID(generate_random_id()),
     state=GameState.UNSTARTED,
     number=3,
+    red_team=team_1_fixture.id,
+    blue_team=team_2_fixture.id,
     match_id=future_match_fixture.id
 )
 

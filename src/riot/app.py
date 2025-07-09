@@ -5,11 +5,9 @@ from src.common.logger import configure_logger
 from src.db import DatabaseConnectionProvider, DatabaseService
 from src.common.config import app_config
 from src.riot import app
-from src.riot.util.job_scheduler import JobScheduler
 from src.riot.endpoints import (
     GameEndpoint,
     GameStatsEndpoint,
-    JobRunnerEndpoint,
     LeagueEndpoint,
     MatchEndpoint,
     ProfessionalPlayerEndpoint,
@@ -42,15 +40,6 @@ def main():
     player_service = RiotProfessionalPlayerService(database_service)
     team_service = RiotProfessionalTeamService(database_service)
     tournament_service = RiotTournamentService(database_service)
-    job_scheduler = JobScheduler(
-        game_service=game_service,
-        game_stats_service=game_stats_service,
-        league_service=league_service,
-        match_service=match_service,
-        player_service=player_service,
-        team_service=team_service,
-        tournament_service=tournament_service
-    )
 
     # Create endpoints
     game_endpoint = GameEndpoint(game_service)
@@ -60,7 +49,6 @@ def main():
     player_endpoint = ProfessionalPlayerEndpoint(player_service)
     team_endpoint = ProfessionalTeamEndpoint(team_service)
     tournament_endpoint = TournamentEndpoint(tournament_service)
-    job_runner_endpoint = JobRunnerEndpoint(job_scheduler)
 
     # Add endpoints to app
     app.include_router(league_endpoint.router)
@@ -70,9 +58,7 @@ def main():
     app.include_router(game_stats_endpoint.router)
     app.include_router(team_endpoint.router)
     app.include_router(player_endpoint.router)
-    app.include_router(job_runner_endpoint.router)
 
-    job_scheduler.schedule_all_jobs()
     uvicorn.run(app, host="0.0.0.0", port=8002)
 
 

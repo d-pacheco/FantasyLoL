@@ -2,13 +2,9 @@ import logging
 
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
-
 from src.db.database_service import DatabaseService
 from src.db.models import ProfessionalPlayerModel
-
 from src.common.exceptions import ProfessionalPlayerNotFoundException
-from src.riot.util import RiotApiRequester
-from src.riot.job_runner import JobRunner
 
 logger = logging.getLogger('riot')
 
@@ -16,20 +12,6 @@ logger = logging.getLogger('riot')
 class RiotProfessionalPlayerService:
     def __init__(self, database_service: DatabaseService):
         self.db = database_service
-        self.riot_api_requester = RiotApiRequester()
-        self.job_runner = JobRunner()
-
-    def fetch_professional_players_from_riot_retry_job(self):
-        self.job_runner.run_retry_job(
-            job_function=self.fetch_professional_players_from_riot_job,
-            job_name="fetch players from riot job",
-            max_retries=3
-        )
-
-    def fetch_professional_players_from_riot_job(self):
-        fetched_players = self.riot_api_requester.get_players()
-        for player in fetched_players:
-            self.db.put_player(player)
 
     def get_players(self, search_parameters: PlayerSearchParameters) -> list[ProfessionalPlayer]:
         filters = []

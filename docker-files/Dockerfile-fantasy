@@ -1,0 +1,17 @@
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+COPY ../requirements-base.txt /app/requirements-base.txt
+
+RUN pip install --no-cache-dir -r requirements-base.txt
+
+COPY ../src /app/src
+COPY ../.env /app
+
+EXPOSE 8000
+
+ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
+ENV PYTHONPATH="/app/src"
+
+CMD ["python", "-m", "fantasy.app"]

@@ -3,7 +3,7 @@ from http import HTTPStatus
 from src.common.exceptions import FantasyLolException
 
 
-class RiotApiStatusCodeAssertException(FantasyLolException):
+class ApiStatusCodeAssertException(FantasyLolException):
     def __init__(self, expected: list[HTTPStatus], received: int, url: str) -> None:
         base_error_msg = "Received unexpected status code. "
         if len(expected) > 1:

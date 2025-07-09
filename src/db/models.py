@@ -73,6 +73,8 @@ class GameModel(Base):  # type: ignore
     id = Column(String, primary_key=True, index=True)
     state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
+    red_team = Column(String)
+    blue_team = Column(String)
     match_id = Column(String, ForeignKey("matches.id"))
     has_game_data = Column(Boolean, default=True)
     last_stats_fetch = Column(Boolean, default=False)
@@ -86,10 +88,10 @@ class ProfessionalTeamModel(Base):  # type: ignore
     name = Column(String)
     code = Column(String)
     image = Column(String)
-    alternative_image = Column(String)
-    background_image = Column(String)
+    alternative_image = Column(String, nullable=True)
+    background_image = Column(String, nullable=True)
     status = Column(String)
-    home_league = Column(String)
+    home_league = Column(String, nullable=True)
 
 
 class ProfessionalPlayerModel(Base):  # type: ignore
@@ -137,6 +139,22 @@ class PlayerGameStatsModel(Base):  # type: ignore
 
     __table_args__ = (
         PrimaryKeyConstraint('game_id', 'participant_id'),
+    )
+
+
+class TeamGameStatsModel(Base):
+    __tablename__ = "team_game_stats"
+
+    game_id = Column(String, primary_key=True)
+    team_id = Column(String, primary_key=True)
+    total_gold = Column(Integer)
+    inhibitors = Column(Integer)
+    towers = Column(Integer)
+    barons = Column(Integer)
+    total_kills = Column(Integer)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('game_id', 'team_id'),
     )
 
 
