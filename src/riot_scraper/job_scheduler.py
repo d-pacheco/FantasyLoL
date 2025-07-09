@@ -9,7 +9,7 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from src.common import app_config
 from src.riot.exceptions import JobConfigException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger('scraper')
 
 
 class JobScheduler:
@@ -19,7 +19,6 @@ class JobScheduler:
         self.riot_game_stats_service = kwargs.get('game_stats_service')
         self.riot_league_service = kwargs.get('league_service')
         self.riot_match_service = kwargs.get('match_service')
-        self.riot_player_service = kwargs.get('player_service')
         self.riot_team_service = kwargs.get('team_service')
         self.riot_tournament_service = kwargs.get('tournament_service')
 
@@ -39,11 +38,6 @@ class JobScheduler:
 
     def trigger_games_from_match_ids_job(self):
         job = self.scheduler.get_job('games_from_match_ids_job')
-        if job:
-            job.modify(next_run_time=datetime.now())
-
-    def trigger_player_service_job(self):
-        job = self.scheduler.get_job('player_service_job')
         if job:
             job.modify(next_run_time=datetime.now())
 
@@ -82,11 +76,6 @@ class JobScheduler:
             job_function=self.riot_team_service.fetch_professional_teams_from_riot_retry_job,
             job_config=app_config.TEAM_SERVICE_SCHEDULE,
             job_id='team_service_job'
-        )
-        self.schedule_job(
-            job_function=self.riot_player_service.fetch_professional_players_from_riot_retry_job,
-            job_config=app_config.PLAYER_SERVICE_SCHEDULE,
-            job_id='player_service_job'
         )
         self.schedule_job(
             job_function=self.riot_match_service.fetch_new_schedule_retry_job,

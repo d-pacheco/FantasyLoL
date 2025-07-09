@@ -20,7 +20,7 @@ from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
 
 RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
-    'src.riot.util.riot_api_requester.cloudscraper.create_scraper'
+    'src.riot_scraper.riot_api_requester.cloudscraper.create_scraper'
 
 BASE_CRUD_PATH = 'src.db.crud'
 

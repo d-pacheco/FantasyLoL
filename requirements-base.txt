@@ -17,3 +17,4 @@ certifi==2024.7.4
 email-validator==2.1.2
 pydantic[email]
 classy_fastapi==0.6.1
+docker==7.1.0

@@ -174,6 +174,12 @@ class GameState(str, Enum):
     UNNEEDED = "unneeded"
 
 
+class LiveGameState(str, Enum):
+    IN_GAME = "in_game"
+    PAUSED = "paused"
+    FINISHED = "finished"
+
+
 class Game(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -191,6 +197,16 @@ class Game(BaseModel):
         default=None,
         description="The game number within the strategy type and count",
         examples=[1]
+    )
+    red_team: ProTeamID = Field(
+        default=None,
+        description="The team ID playing on the red side",
+        examples=["113770064260414203"]
+    )
+    blue_team: ProTeamID = Field(
+        default=None,
+        description="The team ID playing on the blue side",
+        examples=["109642680932009857"]
     )
     match_id: RiotMatchID = Field(
         default=None,
@@ -242,12 +258,12 @@ class ProfessionalTeam(BaseModel):
         description="The image url of the team",
         examples=["http://static.lolesports.com/teams/1704375161752_T1_esports.png"]
     )
-    alternative_image: str = Field(
+    alternative_image: str | None = Field(
         default=None,
         description="The alternative image url of the team",
         examples=["http://static.lolesports.com/teams/1704375161753_T1_esports.png"]
     )
-    background_image: str = Field(
+    background_image: str | None = Field(
         default=None,
         description="The background image url of the team",
         examples=["http://static.lolesports.com/teams/1596305556675_T1T1.png"]
@@ -257,7 +273,7 @@ class ProfessionalTeam(BaseModel):
         description="The status of the team",
         examples=["active"]
     )
-    home_league: str = Field(
+    home_league: str | None = Field(
         default=None,
         description="The home league name of the team",
         examples=["LCK"]
@@ -453,18 +469,16 @@ class PlayerGameData(BaseModel):
     )
 
 
-class SchedulePages(BaseModel):
+class TeamGameStats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    older_token: str | None = Field(default=None)
-    newer_token: str | None = Field(default=None)
-
-
-class Schedule(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    schedule_pages: SchedulePages
-    matches: list[Match]
+    game_id: RiotGameID
+    team_id: ProTeamID
+    total_gold: int
+    inhibitors: int
+    towers: int
+    barons: int
+    total_kills: int
 
 
 class StoredSchedule(BaseModel):

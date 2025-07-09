@@ -2,7 +2,7 @@ from classy_fastapi import Routable, post
 from fastapi import Depends
 
 from src.auth import JWTBearer, Permissions
-from src.riot.util import JobScheduler
+from src.riot_scraper.job_scheduler import JobScheduler
 
 
 class JobRunnerEndpoint(Routable):
@@ -128,24 +128,4 @@ class JobRunnerEndpoint(Routable):
     )
     async def trigger_fetch_teams_from_riot_job(self) -> str:
         self.__job_scheduler.trigger_team_service_job()
-        return "Job triggered successfully"
-
-    @post(
-        path="/fetch-players",
-        description="Manually trigger fetch players from riot job",
-        tags=["Manual Job Triggers"],
-        dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
-        status_code=202,
-        responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
-    )
-    async def trigger_fetch_players_from_riot_job(self) -> str:
-        self.__job_scheduler.trigger_player_service_job()
         return "Job triggered successfully"
