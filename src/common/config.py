@@ -11,7 +11,7 @@ load_dotenv()
 
 class AppConfig:
     # Configure config default values
-    DATABASE_URL: str = "sqlite:///./fantasy-league-of-legends.db"
+    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/fantasy_lol"
     DEBUG_LOGGING: bool = False
     TESTS_RUNNING = 'test*.py' in sys.argv
 

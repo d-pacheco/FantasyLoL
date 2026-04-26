@@ -63,7 +63,7 @@ class TestCrudRiotTournament(TestBase):
 
     def test_get_tournaments_start_date_filter_existing_tournament(self):
         # Arrange
-        current_date = datetime.now()
+        current_date = datetime.now().strftime("%Y-%m-%d")
         filters = [TournamentModel.start_date < current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         self.db.put_tournament(expected_tournament)
@@ -80,7 +80,7 @@ class TestCrudRiotTournament(TestBase):
 
     def test_get_tournaments_start_date_filter_no_existing_tournament(self):
         # Arrange
-        current_date = datetime.now()
+        current_date = datetime.now().strftime("%Y-%m-%d")
         filters = [TournamentModel.start_date > current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         self.db.put_tournament(expected_tournament)
@@ -94,7 +94,7 @@ class TestCrudRiotTournament(TestBase):
 
     def test_get_tournaments_end_date_filter_existing_tournament(self):
         # Arrange
-        current_date = datetime.now()
+        current_date = datetime.now().strftime("%Y-%m-%d")
         filters = [TournamentModel.end_date < current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         self.db.put_tournament(expected_tournament)
@@ -111,7 +111,7 @@ class TestCrudRiotTournament(TestBase):
 
     def test_get_tournaments_end_date_filter_no_existing_tournament(self):
         # Arrange
-        current_date = datetime.now()
+        current_date = datetime.now().strftime("%Y-%m-%d")
         filters = [TournamentModel.end_date > current_date]
         expected_tournament = riot_fixtures.tournament_fixture
         self.db.put_tournament(expected_tournament)

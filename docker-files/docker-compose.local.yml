@@ -1,4 +1,20 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fantasy_lol
+    ports:
+      - "5432:5432"
+    volumes:
+      - fantasy_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   riot-app:
     build:
       context: ..
@@ -6,8 +22,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
+    depends_on:
+      db:
+        condition: service_healthy
 
   fantasy-app:
     build:
@@ -16,8 +36,12 @@ services:
     ports:
       - "8002:8002"
     volumes:
-      - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
+    depends_on:
+      db:
+        condition: service_healthy
 
   master-scraper:
     build:
@@ -27,12 +51,15 @@ services:
     ports:
       - "8004:8004"
     volumes:
-      - fantasy_sqlitedb:/app/database
       - fantasy_logs:/app/logs
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - MASTER_SCRAPER=true
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
-  fantasy_sqlitedb:
+  fantasy_pgdata:
   fantasy_logs:

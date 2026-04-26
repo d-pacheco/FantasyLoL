@@ -14,7 +14,7 @@ MythicForge is composed of three microservices:
 
 - Python 3.12
 - FastAPI + Uvicorn
-- SQLAlchemy + SQLite
+- SQLAlchemy + PostgreSQL
 - APScheduler (cron-based job scheduling)
 - Pydantic (data validation and schemas)
 - JWT authentication (PyJWT + bcrypt)
@@ -66,7 +66,7 @@ scripts/             # Helper scripts for linting, testing, local Docker
 
 4. Create a `.env` file in the project root:
    ```env
-   DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fantasy_lol"
    DEBUG_LOGGING=True
    AUTH_SECRET=<your-secret-key>
    AUTH_ALGORITHM=HS256

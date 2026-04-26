@@ -9,7 +9,6 @@ RUN pip install --no-cache-dir -r requirements-base.txt
 COPY ../src /app/src
 COPY ../.env /app
 
-ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
 ENV PYTHONPATH="/app/src"
 
 CMD ["python", "-m", "riot_scraper.app"]

@@ -27,8 +27,7 @@ class TestCrudFantasyLeagueDraftOrder(TestBase):
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league_draft_order(draft_order)
         self.assertIn(
-            'UNIQUE constraint failed: fantasy_league_draft_order.fantasy_league_id, '
-            'fantasy_league_draft_order.user_id',
+            'duplicate key value violates unique constraint',
             str(context.exception)
         )
 

@@ -11,7 +11,6 @@ COPY ../.env /app
 
 EXPOSE 8002
 
-ENV DATABASE_URL="sqlite:///./database/fantasy-league-of-legends.db"
 ENV PYTHONPATH="/app/src"
 
 CMD ["python", "-m", "riot.app"]

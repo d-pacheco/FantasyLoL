@@ -30,7 +30,7 @@ class TestCrudFantasyLeague(TestBase):
         # Act and Assert
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league(fantasy_league)
-        self.assertIn('UNIQUE constraint failed: fantasy_leagues.id', str(context.exception))
+        self.assertIn('duplicate key value violates unique constraint', str(context.exception))
 
     def test_get_fantasy_league_by_id(self):
         # Arrange

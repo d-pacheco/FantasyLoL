@@ -30,7 +30,7 @@ class PlayerGameView(Base):  # type: ignore
 
 
 create_player_game_view_query = text("""
-    CREATE VIEW IF NOT EXISTS player_game_view AS
+    CREATE OR REPLACE VIEW player_game_view AS
     SELECT
         m.game_id,
         m.player_id,
