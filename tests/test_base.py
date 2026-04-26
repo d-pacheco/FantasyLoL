@@ -24,7 +24,10 @@ RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
 
 BASE_CRUD_PATH = 'src.db.crud'
 
-TEST_DATABASE_URL = 'sqlite:///:memory:'
+TEST_DATABASE_URL = os.environ.get(
+    'TEST_DATABASE_URL',
+    'postgresql://postgres:postgres@localhost:5432/fantasy_lol_test'
+)
 
 
 class TestBase(unittest.TestCase):
@@ -54,9 +57,8 @@ class TestBase(unittest.TestCase):
     def tearDown(self):
         engine = self.db_provider.engine
         metadata = MetaData()
-        metadata.reflect(bind=engine)
+        metadata.reflect(bind=engine, views=False)
 
         with engine.begin() as connection:
             for table in reversed(metadata.sorted_tables):
-                # Use the Table object to issue a DELETE statement
                 connection.execute(table.delete())

@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -11,15 +10,11 @@ from src.db.views import create_player_game_view_query
 
 class DatabaseConnectionProvider:
     def __init__(self, database_url: str):
-        if ":memory:" not in database_url:
-            Path("./database/").mkdir(parents=True, exist_ok=True)
-
         self.engine = create_engine(
             url=database_url,
             poolclass=QueuePool,
             pool_size=5,
             max_overflow=10,
-            connect_args={"check_same_thread": False}
         )
         self.SessionLocal = scoped_session(
             sessionmaker(autocommit=False, autoflush=False, bind=self.engine)

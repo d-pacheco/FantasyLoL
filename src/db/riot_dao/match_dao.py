@@ -1,4 +1,4 @@
-from sqlalchemy import text, select, func, or_
+from sqlalchemy import text, select, func, or_, cast, Date
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID
 from src.db.models import MatchModel, LeagueModel, TournamentModel
@@ -61,8 +61,10 @@ def get_matches_for_league_with_active_tournament(session, league_id: RiotLeague
         .join(TournamentModel, LeagueModel.id == TournamentModel.league_id)
         .where(
             LeagueModel.id == league_id,
-            func.date(func.strftime('%Y-%m-%d', func.datetime('now')))
-            .between(TournamentModel.start_date, TournamentModel.end_date),
+            func.current_date().between(
+                cast(TournamentModel.start_date, Date),
+                cast(TournamentModel.end_date, Date)
+            ),
             func.substr(MatchModel.start_time, 1, 10)
             .between(TournamentModel.start_date, TournamentModel.end_date)
         )

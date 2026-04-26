@@ -35,8 +35,7 @@ class TestCrudFantasyLeagueMembership(TestBase):
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league_membership(membership)
         self.assertIn(
-            'UNIQUE constraint failed: fantasy_league_memberships.league_id, '
-            'fantasy_league_memberships.user_id',
+            'duplicate key value violates unique constraint',
             str(context.exception)
         )
 

@@ -16,7 +16,7 @@ class RiotTournamentService:
 
     def get_tournaments(self, search_parameters: TournamentSearchParameters) -> list[Tournament]:
         filters = []
-        current_date = datetime.now()
+        current_date = datetime.now().strftime("%Y-%m-%d")
         if search_parameters.status == TournamentStatus.ACTIVE:
             filters.append(TournamentModel.start_date <= current_date)
             filters.append(TournamentModel.end_date >= current_date)

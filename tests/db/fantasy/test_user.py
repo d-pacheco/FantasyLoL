@@ -28,7 +28,7 @@ class TestCrudUser(TestBase):
         # Act and Assert
         with self.assertRaises(IntegrityError) as context:
             self.db.create_user(user_2)
-        self.assertIn('UNIQUE constraint failed: users.email', str(context.exception))
+        self.assertIn('duplicate key value violates unique constraint', str(context.exception))
 
     def test_create_user_with_existing_username_error(self):
         # Arrange
@@ -40,7 +40,7 @@ class TestCrudUser(TestBase):
         # Act and Assert
         with self.assertRaises(IntegrityError) as context:
             self.db.create_user(user_2)
-        self.assertIn('UNIQUE constraint failed: users.username', str(context.exception))
+        self.assertIn('duplicate key value violates unique constraint', str(context.exception))
 
     def test_get_user_by_id(self):
         # Arrange

@@ -3,9 +3,9 @@ from sqlalchemy import (
     Column,
     Enum,
     Float,
-    ForeignKey,
     Integer,
     JSON,
+    LargeBinary,
     PrimaryKeyConstraint,
     String
 )
@@ -45,7 +45,7 @@ class TournamentModel(Base):  # type: ignore
     slug = Column(String)
     start_date = Column(String)
     end_date = Column(String)
-    league_id = Column(String, ForeignKey("leagues.id"))
+    league_id = Column(String)
 
 
 class MatchModel(Base):  # type: ignore
@@ -75,7 +75,7 @@ class GameModel(Base):  # type: ignore
     number = Column(Integer)
     red_team = Column(String)
     blue_team = Column(String)
-    match_id = Column(String, ForeignKey("matches.id"))
+    match_id = Column(String)
     has_game_data = Column(Boolean, default=True)
     last_stats_fetch = Column(Boolean, default=False)
 
@@ -98,7 +98,7 @@ class ProfessionalPlayerModel(Base):  # type: ignore
     __tablename__ = "professional_players"
 
     id = Column(String, primary_key=True)
-    team_id = Column(String, ForeignKey("professional_teams.id"), primary_key=True)
+    team_id = Column(String, primary_key=True)
     summoner_name = Column(String)
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
@@ -112,7 +112,7 @@ class PlayerGameMetadataModel(Base):  # type: ignore
     __tablename__ = "player_game_metadata"
 
     game_id = Column(String, primary_key=True)
-    player_id = Column(String, ForeignKey("professional_players.id"), primary_key=True)
+    player_id = Column(String, primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
@@ -126,7 +126,7 @@ class PlayerGameStatsModel(Base):  # type: ignore
     __tablename__ = "player_game_stats"
 
     game_id = Column(String, primary_key=True)
-    participant_id = Column(String, primary_key=True)
+    participant_id = Column(Integer, primary_key=True)
     kills = Column(Integer)
     deaths = Column(Integer)
     assists = Column(Integer)
@@ -176,7 +176,7 @@ class UserModel(Base):  # type: ignore
                 unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
+    password = Column(LargeBinary, nullable=False)
     permissions = Column(String)
     account_status = Column(Enum(UserAccountStatus), nullable=False)
     verified = Column(Boolean, default=False)
@@ -220,7 +220,7 @@ class FantasyLeagueScoringSettingModel(Base):  # type: ignore
     fantasy_league_id = Column(String, primary_key=True, nullable=False)
     kills = Column(Integer, nullable=False)
     deaths = Column(Integer, nullable=False)
-    assists = Column(Integer, nullable=False)
+    assists = Column(Float, nullable=False)
     creep_score = Column(Float, nullable=False)
     wards_placed = Column(Float, nullable=False)
     wards_destroyed = Column(Float, nullable=False)
