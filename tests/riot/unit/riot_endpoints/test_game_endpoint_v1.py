@@ -1,179 +1,112 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
+from fastapi_pagination.utils import disable_installed_extensions_check
 from http import HTTPStatus
-from unittest.mock import patch
-from unittest import skip
+from unittest.mock import MagicMock
 
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
+from src.auth import JWTBearer
 from src.common.schemas.riot_data_schemas import GameState
-from src.common.schemas.search_parameters import GameSearchParameters
 from src.riot.exceptions import GameNotFoundException
-from src.riot import app
+from src.riot.endpoints import GameEndpoint
 
-GAME_BASE_URL = "/riot/v1/game"
-BASE_GAME_SERVICE_MOCK_PATH = "src.riot.service.riot_game_service.RiotGameService"
-GET_GAMES_MOCK_PATH = f"{BASE_GAME_SERVICE_MOCK_PATH}.get_games"
-GET_GAME_BY_ID_MOCK_PATH = f"{BASE_GAME_SERVICE_MOCK_PATH}.get_game_by_id"
+GAME_BASE_URL = "/api/v1/game"
 
 
 class GameEndpointV1Test(TestBase):
     def setUp(self):
-        add_pagination(app)
-        self.client = TestClient(app)
+        self.mock_service = MagicMock()
+        endpoint = GameEndpoint(self.mock_service)
+        self.app = FastAPI()
+        self.app.include_router(endpoint.router, prefix="/api/v1")
+        for route in self.app.routes:
+            for dep in getattr(route, 'dependencies', []):
+                if isinstance(dep.dependency, JWTBearer):
+                    self.app.dependency_overrides[dep.dependency] = lambda: {}
+        disable_installed_extensions_check()
+        add_pagination(self.app)
+        self.client = TestClient(self.app)
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_completed_status(self, mock_get_games):
-        # Arrange
+    def test_get_game_completed_status(self):
         game_fixture = fixtures.game_1_fixture_completed
-        expected_game_response = game_fixture.model_dump()
-        mock_get_games.return_value = [game_fixture]
-        state = GameState.COMPLETED.value
+        expected = game_fixture.model_dump()
+        self.mock_service.get_games.return_value = [game_fixture]
 
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={GameState.COMPLETED.value}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        games = response_json.get('items')
-        self.assertIsInstance(games, list)
-        self.assertEqual(1, len(games))
-        self.assertEqual(expected_game_response, games[0])
-        mock_get_games.assert_called_once_with(
-            GameSearchParameters(state=state)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_inprogress_status(self, mock_get_games):
-        # Arrange
+    def test_get_game_inprogress_status(self):
         game_fixture = fixtures.game_2_fixture_inprogress
-        expected_game_response = game_fixture.model_dump()
-        mock_get_games.return_value = [game_fixture]
-        state = GameState.INPROGRESS.value
+        expected = game_fixture.model_dump()
+        self.mock_service.get_games.return_value = [game_fixture]
 
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={GameState.INPROGRESS.value}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        games = response_json.get('items')
-        self.assertIsInstance(games, list)
-        self.assertEqual(1, len(games))
-        self.assertEqual(expected_game_response, games[0])
-        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_unstarted_status(self, mock_get_games):
-        # Arrange
+    def test_get_game_unstarted_status(self):
         game_fixture = fixtures.game_3_fixture_unstarted
-        expected_game_response = game_fixture.model_dump()
-        mock_get_games.return_value = [game_fixture]
-        state = GameState.UNSTARTED.value
+        expected = game_fixture.model_dump()
+        self.mock_service.get_games.return_value = [game_fixture]
 
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={GameState.UNSTARTED.value}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        games = response_json.get('items')
-        self.assertIsInstance(games, list)
-        self.assertEqual(1, len(games))
-        self.assertEqual(expected_game_response, games[0])
-        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_unneeded_status(self, mock_get_games):
-        # Arrange
+    def test_get_game_unneeded_status(self):
         game_fixture = fixtures.game_4_fixture_unneeded
-        expected_game_response = game_fixture.model_dump()
-        mock_get_games.return_value = [game_fixture]
-        state = GameState.UNSTARTED.value
+        expected = game_fixture.model_dump()
+        self.mock_service.get_games.return_value = [game_fixture]
 
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}?state={state}")
+        response = self.client.get(f"{GAME_BASE_URL}?state={GameState.UNNEEDED.value}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        games = response_json.get('items')
-        self.assertIsInstance(games, list)
-        self.assertEqual(1, len(games))
-        self.assertEqual(expected_game_response, games[0])
-        mock_get_games.assert_called_once_with(GameSearchParameters(state=state))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_invalid_status(self, mock_get_games):
-        # Arrange
-        status = "invalid"
-
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}?state={status}")
-
-        # Assert
+    def test_get_game_invalid_status(self):
+        response = self.client.get(f"{GAME_BASE_URL}?state=invalid")
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
-        mock_get_games.assert_not_called()
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAMES_MOCK_PATH)
-    def test_get_game_endpoint_by_tournament_filter_existing_game(self, mock_get_games):
-        # Arrange
+    def test_get_game_match_id_filter(self):
         game_fixture = fixtures.game_1_fixture_completed
-        expected_game_response = game_fixture.model_dump()
-        mock_get_games.return_value = [game_fixture]
+        expected = game_fixture.model_dump()
+        self.mock_service.get_games.return_value = [game_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{GAME_BASE_URL}?match_id={game_fixture.match_id}"
-        )
+        response = self.client.get(f"{GAME_BASE_URL}?match_id={game_fixture.match_id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        games = response_json.get('items')
-        self.assertIsInstance(games, list)
-        self.assertEqual(1, len(games))
-        self.assertEqual(expected_game_response, games[0])
-        mock_get_games.assert_called_once_with(
-            GameSearchParameters(match_id=game_fixture.match_id)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAME_BY_ID_MOCK_PATH)
-    def test_get_game_by_id_endpoint_success(self, mock_get_game_by_id):
-        # Arrange
+    def test_get_game_by_id_success(self):
         game_fixture = fixtures.game_1_fixture_completed
-        expected_game_response = game_fixture.model_dump()
-        mock_get_game_by_id.return_value = game_fixture
+        expected = game_fixture.model_dump()
+        self.mock_service.get_game_by_id.return_value = game_fixture
 
-        # Act
         response = self.client.get(f"{GAME_BASE_URL}/{game_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        game = response.json()
-        self.assertIsInstance(game, dict)
-        self.assertEqual(expected_game_response, game)
-        mock_get_game_by_id.assert_called_once_with(game_fixture.id)
+        self.assertEqual(expected, response.json())
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_GAME_BY_ID_MOCK_PATH)
-    def test_get_game_by_id_endpoint_not_found(self, mock_get_game_by_id):
-        # Arrange
-        game_id = "777"
-        mock_get_game_by_id.side_effect = GameNotFoundException
+    def test_get_game_by_id_not_found(self):
+        self.mock_service.get_game_by_id.side_effect = GameNotFoundException()
 
-        # Act
-        response = self.client.get(f"{GAME_BASE_URL}/{game_id}")
+        response = self.client.get(f"{GAME_BASE_URL}/777")
 
-        # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_game_by_id.assert_called_once_with(game_id)

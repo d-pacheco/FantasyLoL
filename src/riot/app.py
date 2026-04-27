@@ -51,13 +51,13 @@ def main():
     tournament_endpoint = TournamentEndpoint(tournament_service)
 
     # Add endpoints to app
-    app.include_router(league_endpoint.router)
-    app.include_router(tournament_endpoint.router)
-    app.include_router(match_endpoint.router)
-    app.include_router(game_endpoint.router)
-    app.include_router(game_stats_endpoint.router)
-    app.include_router(team_endpoint.router)
-    app.include_router(player_endpoint.router)
+    app.include_router(league_endpoint.router, prefix="/api/v1")
+    app.include_router(tournament_endpoint.router, prefix="/api/v1")
+    app.include_router(match_endpoint.router, prefix="/api/v1")
+    app.include_router(game_endpoint.router, prefix="/api/v1")
+    app.include_router(game_stats_endpoint.router, prefix="/api/v1")
+    app.include_router(team_endpoint.router, prefix="/api/v1")
+    app.include_router(player_endpoint.router, prefix="/api/v1")
 
     uvicorn.run(app, host="0.0.0.0", port=8002)
 

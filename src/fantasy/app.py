@@ -36,9 +36,9 @@ def main():
     fantasy_team_endpoint = FantasyTeamEndpoint(fantasy_team_service)
 
     # Add endpoints to app
-    app.include_router(user_endpoint_v1.router)
-    app.include_router(fantasy_league_endpoint.router)
-    app.include_router(fantasy_team_endpoint.router)
+    app.include_router(user_endpoint_v1.router, prefix="/api/v1")
+    app.include_router(fantasy_league_endpoint.router, prefix="/api/v1")
+    app.include_router(fantasy_team_endpoint.router, prefix="/api/v1")
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
