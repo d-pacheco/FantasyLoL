@@ -7,6 +7,7 @@ from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 
 from src.common import app_config
+from src.common.config import ScheduleConfig
 from src.riot.exceptions import JobConfigException
 
 logger = logging.getLogger('scraper')
@@ -103,28 +104,28 @@ class JobScheduler:
             job_id='player_stats_job'
         )
 
-    def schedule_job(self, job_function, job_config: dict, job_id: str, replace: bool = True):
-        trigger = job_config.get('trigger', None)
-
-        if trigger == 'cron':
+    def schedule_job(self, job_function, job_config: ScheduleConfig,
+                     job_id: str, replace: bool = True):
+        if job_config.trigger == 'cron':
             job_trigger = CronTrigger(
-                day=job_config.get('day', None),
-                week=job_config.get('week', None),
-                hour=job_config.get('hour', None),
-                minute=job_config.get('minute', None),
-                second=job_config.get('second', None),
+                day=job_config.day,
+                week=job_config.week,
+                hour=job_config.hour,
+                minute=job_config.minute,
+                second=job_config.second,
             )
-        elif trigger == 'interval':
+        elif job_config.trigger == 'interval':
             job_trigger = IntervalTrigger(
-                weeks=job_config.get('weeks', 0),
-                days=job_config.get('days', 0),
-                hours=job_config.get('hours', 0),
-                minutes=job_config.get('minutes', 0),
-                seconds=job_config.get('seconds', 0)
+                weeks=job_config.weeks,
+                days=job_config.days,
+                hours=job_config.hours,
+                minutes=job_config.minutes,
+                seconds=job_config.seconds
             )
         else:
             raise JobConfigException(
-                f"Invalid trigger ({trigger}) when scheduling job with id: {job_id}"
+                f"Invalid trigger ({job_config.trigger}) "
+                f"when scheduling job with id: {job_id}"
             )
 
         self.scheduler.add_job(

@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from .config import app_config  # type: ignore
+from .config import app_config
 
 
 def configure_logger(logger_name: str):
