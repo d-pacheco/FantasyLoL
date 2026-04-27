@@ -17,14 +17,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def manual_fetch_leagues_from_riot_job_trigger(self) -> str:
         self.__job_scheduler.trigger_league_service_job()
@@ -37,14 +31,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def trigger_fetch_tournaments_from_riot_job(self) -> str:
         self.__job_scheduler.trigger_tournament_service_job()
@@ -57,14 +45,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def trigger_fetch_schedule_from_riot_job(self) -> str:
         self.__job_scheduler.trigger_match_service_job()
@@ -77,14 +59,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def trigger_fetch_games_from_match_ids_job(self) -> str:
         self.__job_scheduler.trigger_games_from_match_ids_job()
@@ -97,14 +73,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def trigger_update_game_states_job(self) -> str:
         self.__job_scheduler.trigger_update_game_states_job()
@@ -117,14 +87,8 @@ class JobRunnerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_ADMIN]))],
         status_code=202,
         responses={
-            202: {
-                "content": {
-                    "application/json": {
-                        "example": "Job triggered successfully"
-                    }
-                }
-            }
-        }
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
     )
     async def trigger_fetch_teams_from_riot_job(self) -> str:
         self.__job_scheduler.trigger_team_service_job()

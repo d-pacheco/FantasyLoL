@@ -11,14 +11,15 @@ def put_player_stats(session, player_stats: PlayerGameStats) -> None:
     session.commit()
 
 
-def get_player_stats(
-        session,
-        game_id: RiotGameID,
-        participant_id: int
-) -> PlayerGameStats | None:
-    db_player_game_stats: PlayerGameStatsModel | None = session.query(PlayerGameStatsModel)\
-        .filter(PlayerGameStatsModel.game_id == game_id,
-                PlayerGameStatsModel.participant_id == participant_id).first()
+def get_player_stats(session, game_id: RiotGameID, participant_id: int) -> PlayerGameStats | None:
+    db_player_game_stats: PlayerGameStatsModel | None = (
+        session.query(PlayerGameStatsModel)
+        .filter(
+            PlayerGameStatsModel.game_id == game_id,
+            PlayerGameStatsModel.participant_id == participant_id,
+        )
+        .first()
+    )
     if db_player_game_stats is None:
         return None
     else:
@@ -49,6 +50,8 @@ def get_player_game_stats(session, filters: list | None = None) -> list[PlayerGa
         query = session.query(PlayerGameView)
 
     db_player_game_stat: list[PlayerGameView] = query.all()
-    player_game_data = [PlayerGameData.model_validate(db_player_game_stat)
-                        for db_player_game_stat in db_player_game_stat]
+    player_game_data = [
+        PlayerGameData.model_validate(db_player_game_stat)
+        for db_player_game_stat in db_player_game_stat
+    ]
     return player_game_data

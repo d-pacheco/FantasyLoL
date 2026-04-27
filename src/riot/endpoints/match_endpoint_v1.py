@@ -19,20 +19,15 @@ class MatchEndpoint(Routable):
         tags=["Matches"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Match],
-        responses={
-            200: {
-                "model": Page[Match]
-            }
-        }
+        responses={200: {"model": Page[Match]}},
     )
     def get_riot_matches(
-            self,
-            league_slug: str = Query(None, description="Filter by league name"),
-            tournament_id: RiotTournamentID = Query(None, description="Filter by tournament id")
+        self,
+        league_slug: str = Query(None, description="Filter by league name"),
+        tournament_id: RiotTournamentID = Query(None, description="Filter by tournament id"),
     ) -> Page[Match]:
         search_parameters = MatchSearchParameters(
-            league_slug=league_slug,
-            tournament_id=tournament_id
+            league_slug=league_slug, tournament_id=tournament_id
         )
         matches = self.__match_service.get_matches(search_parameters)
         return paginate(matches)
@@ -43,14 +38,7 @@ class MatchEndpoint(Routable):
         tags=["Matches"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Match,
-        responses={
-            200: {
-                "model": Match
-            }
-        }
+        responses={200: {"model": Match}},
     )
-    def get_riot_match_by_id(
-            self,
-            match_id: RiotMatchID
-    ) -> Match:
+    def get_riot_match_by_id(self, match_id: RiotMatchID) -> Match:
         return self.__match_service.get_match_by_id(match_id)

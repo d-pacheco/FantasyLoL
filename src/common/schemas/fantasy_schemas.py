@@ -4,8 +4,8 @@ from typing import NewType
 
 from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole  # type: ignore
 
-UserID = NewType('UserID', str)
-FantasyLeagueID = NewType('FantasyLeagueID', str)
+UserID = NewType("UserID", str)
+FantasyLeagueID = NewType("FantasyLeagueID", str)
 
 
 class UserAccountStatus(Enum):
@@ -21,16 +21,16 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
-    @field_validator('username')
+    @field_validator("username")
     def validate_username(cls, username: str):
         if len(username) < 3:
-            raise ValueError('Username must be at least 3 characters long')
+            raise ValueError("Username must be at least 3 characters long")
         return username
 
-    @field_validator('password')
+    @field_validator("password")
     def validate_password(cls, password: str):
         if len(password) < 8:
-            raise ValueError('Password must be at least 8 characters long')
+            raise ValueError("Password must be at least 8 characters long")
         return password
 
 
@@ -54,10 +54,10 @@ class User(BaseModel):
     verification_token: str | None = None
 
     def set_permissions(self, permissions_list):
-        self.permissions = ','.join(permissions_list)
+        self.permissions = ",".join(permissions_list)
 
     def get_permissions(self):
-        return self.permissions.split(',') if self.permissions else []
+        return self.permissions.split(",") if self.permissions else []
 
 
 class EmailRequest(BaseModel):
@@ -69,69 +69,66 @@ class FantasyLeagueScoringSettings(BaseModel):
 
     fantasy_league_id: FantasyLeagueID | None = Field(
         description="The id of the fantasy league. This field is ignored in update requests",
-        examples=['aaaaaaaa-1111-bbbb-2222-cccccccccccc'],
-        default=None
+        examples=["aaaaaaaa-1111-bbbb-2222-cccccccccccc"],
+        default=None,
     )
     kills: int = Field(
         default=2,
         description="The number of points kills are worth in a given fantasy league",
-        examples=[2]
+        examples=[2],
     )
     deaths: int = Field(
         default=-1,
         description="The number of points deaths are worth in a given fantasy league",
-        examples=[-1]
+        examples=[-1],
     )
     assists: float = Field(
         default=0.5,
         description="The number of points assists are worth in a given fantasy league",
-        examples=[0.5]
+        examples=[0.5],
     )
     creep_score: float = Field(
         default=0.05,
         description="The number of points creeps score are worth in a given fantasy league",
-        examples=[0.05]
+        examples=[0.05],
     )
     wards_placed: float = Field(
         default=0.1,
         description="The number of points wards placed are worth in a given fantasy league",
-        examples=[0.1]
+        examples=[0.1],
     )
     wards_destroyed: float = Field(
         default=0.1,
         description="The number of points wards destroyed are worth in a given fantasy league",
-        examples=[0.1]
+        examples=[0.1],
     )
     kill_participation: int = Field(
         default=10,
         description="The number of points kill participation is worth in a given fantasy league",
-        examples=[10]
+        examples=[10],
     )
     damage_percentage: int = Field(
         default=5,
         description="The number of points damage percentage is worth in a given fantasy league",
-        examples=[5]
+        examples=[5],
     )
 
 
 class FantasyLeagueSettings(BaseModel):
     name: str = Field(
-        default=None,
-        description="The name of the fantasy league",
-        examples=["My Fantasy League"]
+        default=None, description="The name of the fantasy league", examples=["My Fantasy League"]
     )
     number_of_teams: int = Field(
         default=6,
-        description="Number of teams in the fantasy league\n"
-                    "Allowed values: 4, 6, 8, 10"
+        description="Number of teams in the fantasy league\n" "Allowed values: 4, 6, 8, 10",
     )
     available_leagues: list[RiotLeagueID] = Field(
         default=[],
         description="The IDs for the riot leagues available for drafting players from",
-        examples=[["98767991310872058"]]
+        examples=[["98767991310872058"]],
     )
 
-    @field_validator('number_of_teams')
+    @field_validator("number_of_teams")
     @classmethod
     def valid_team_size(cls, value: str):
         valid_values = {4, 6, 8, 10}

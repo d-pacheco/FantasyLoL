@@ -17,7 +17,7 @@ class VerificationConfig(BaseModel):
     def __init__(self, **kwargs):
         for field_name in self.__fields__:
             if field_name not in kwargs:
-                env_value = os.getenv(f'VERIFICATION_{field_name.upper()}')
+                env_value = os.getenv(f"VERIFICATION_{field_name.upper()}")
                 if env_value is not None:
                     kwargs[field_name] = env_value
 

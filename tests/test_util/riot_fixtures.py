@@ -11,7 +11,7 @@ from src.common.schemas.riot_data_schemas import (
     RiotLeagueID,
     RiotTournamentID,
     ProPlayerID,
-    ProTeamID
+    ProTeamID,
 )
 
 past_start_date = datetime.now(pytz.utc) - timedelta(days=5)
@@ -38,7 +38,7 @@ league_1_fixture = schemas.League(
     region="MOCKED REGION",
     image="http//:mocked-league-image.png",
     priority=1,
-    fantasy_available=False
+    fantasy_available=False,
 )
 
 league_2_fixture = schemas.League(
@@ -48,7 +48,7 @@ league_2_fixture = schemas.League(
     region="MOCKED REGION2",
     image="http//:mocked-league-2-image.png",
     priority=2,
-    fantasy_available=True
+    fantasy_available=True,
 )
 
 tournament_fixture = schemas.Tournament(
@@ -56,7 +56,7 @@ tournament_fixture = schemas.Tournament(
     slug="mock_slug_2023",
     start_date="2023-01-01",
     end_date="2023-02-03",
-    league_id=league_1_fixture.id
+    league_id=league_1_fixture.id,
 )
 
 future_tournament_fixture = schemas.Tournament(
@@ -64,7 +64,7 @@ future_tournament_fixture = schemas.Tournament(
     slug="future_slug",
     start_date=formatted_future_start_date,
     end_date=formatted_future_end_date,
-    league_id=league_1_fixture.id
+    league_id=league_1_fixture.id,
 )
 
 active_tournament_fixture = schemas.Tournament(
@@ -72,7 +72,7 @@ active_tournament_fixture = schemas.Tournament(
     slug="active_slug",
     start_date=formatted_past_start_date,
     end_date=formatted_future_end_date,
-    league_id=league_1_fixture.id
+    league_id=league_1_fixture.id,
 )
 
 team_1_fixture = schemas.ProfessionalTeam(
@@ -84,7 +84,7 @@ team_1_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-1-alternative-image.png",
     background_image="http://mock-team-1-background.png",
     status="active",
-    home_league=league_1_fixture.name
+    home_league=league_1_fixture.name,
 )
 
 team_2_fixture = schemas.ProfessionalTeam(
@@ -96,7 +96,7 @@ team_2_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-2-alternative-image.png",
     background_image="http://mock-team-2-background.png",
     status="active",
-    home_league=league_1_fixture.name
+    home_league=league_1_fixture.name,
 )
 
 match_fixture = schemas.Match(
@@ -113,7 +113,7 @@ match_fixture = schemas.Match(
     state=schemas.MatchState.INPROGRESS,
     team_1_wins=1,
     team_2_wins=0,
-    winning_team=None
+    winning_team=None,
 )
 
 completed_match_fixture = schemas.Match(
@@ -130,7 +130,7 @@ completed_match_fixture = schemas.Match(
     state=schemas.MatchState.COMPLETED,
     team_1_wins=1,
     team_2_wins=0,
-    winning_team=team_1_fixture.name
+    winning_team=team_1_fixture.name,
 )
 
 future_match_fixture = schemas.Match(
@@ -147,7 +147,7 @@ future_match_fixture = schemas.Match(
     state=schemas.MatchState.UNSTARTED,
     team_1_wins=None,
     team_2_wins=None,
-    winning_team=None
+    winning_team=None,
 )
 
 game_1_fixture_completed = schemas.Game(
@@ -157,12 +157,11 @@ game_1_fixture_completed = schemas.Game(
     red_team=team_1_fixture.id,
     blue_team=team_2_fixture.id,
     match_id=match_fixture.id,
-    has_game_data=True
+    has_game_data=True,
 )
 
 get_games_response_game_1_fixture = schemas.GetGamesResponseSchema(
-    id=game_1_fixture_completed.id,
-    state=game_1_fixture_completed.state
+    id=game_1_fixture_completed.id, state=game_1_fixture_completed.state
 )
 
 game_2_fixture_inprogress = schemas.Game(
@@ -171,7 +170,7 @@ game_2_fixture_inprogress = schemas.Game(
     number=2,
     red_team=team_1_fixture.id,
     blue_team=team_2_fixture.id,
-    match_id=match_fixture.id
+    match_id=match_fixture.id,
 )
 
 game_3_fixture_unstarted = schemas.Game(
@@ -180,7 +179,7 @@ game_3_fixture_unstarted = schemas.Game(
     number=3,
     red_team=team_1_fixture.id,
     blue_team=team_2_fixture.id,
-    match_id=match_fixture.id
+    match_id=match_fixture.id,
 )
 
 game_4_fixture_unneeded = schemas.Game(
@@ -189,7 +188,7 @@ game_4_fixture_unneeded = schemas.Game(
     number=4,
     red_team=team_1_fixture.id,
     blue_team=team_2_fixture.id,
-    match_id=match_fixture.id
+    match_id=match_fixture.id,
 )
 
 game_1_fixture_unstarted_future_match = schemas.Game(
@@ -198,7 +197,7 @@ game_1_fixture_unstarted_future_match = schemas.Game(
     number=3,
     red_team=team_1_fixture.id,
     blue_team=team_2_fixture.id,
-    match_id=future_match_fixture.id
+    match_id=future_match_fixture.id,
 )
 
 player_1_fixture = schemas.ProfessionalPlayer(
@@ -206,7 +205,7 @@ player_1_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer1",
     image="http://mocked-player-1.png",
     role=PlayerRole.TOP,
-    team_id=team_1_fixture.id
+    team_id=team_1_fixture.id,
 )
 
 player_2_fixture = schemas.ProfessionalPlayer(
@@ -214,7 +213,7 @@ player_2_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer2",
     image="http://mocked-player-2.png",
     role=PlayerRole.JUNGLE,
-    team_id=team_1_fixture.id
+    team_id=team_1_fixture.id,
 )
 
 player_3_fixture = schemas.ProfessionalPlayer(
@@ -222,7 +221,7 @@ player_3_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer3",
     image="http://mocked-player-3.png",
     role=PlayerRole.MID,
-    team_id=team_1_fixture.id
+    team_id=team_1_fixture.id,
 )
 
 player_4_fixture = schemas.ProfessionalPlayer(
@@ -230,7 +229,7 @@ player_4_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer4",
     image="http://mocked-player-4.png",
     role=PlayerRole.BOTTOM,
-    team_id=team_1_fixture.id
+    team_id=team_1_fixture.id,
 )
 
 player_5_fixture = schemas.ProfessionalPlayer(
@@ -238,7 +237,7 @@ player_5_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer5",
     image="http://mocked-player-5.png",
     role=PlayerRole.SUPPORT,
-    team_id=team_1_fixture.id
+    team_id=team_1_fixture.id,
 )
 
 player_6_fixture = schemas.ProfessionalPlayer(
@@ -246,7 +245,7 @@ player_6_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer6",
     image="http://mocked-player-6.png",
     role=PlayerRole.TOP,
-    team_id=team_2_fixture.id
+    team_id=team_2_fixture.id,
 )
 
 player_7_fixture = schemas.ProfessionalPlayer(
@@ -254,7 +253,7 @@ player_7_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer7",
     image="http://mocked-player-7.png",
     role=PlayerRole.JUNGLE,
-    team_id=team_2_fixture.id
+    team_id=team_2_fixture.id,
 )
 
 player_8_fixture = schemas.ProfessionalPlayer(
@@ -262,7 +261,7 @@ player_8_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer8",
     image="http://mocked-player-8.png",
     role=PlayerRole.MID,
-    team_id=team_2_fixture.id
+    team_id=team_2_fixture.id,
 )
 
 player_9_fixture = schemas.ProfessionalPlayer(
@@ -270,7 +269,7 @@ player_9_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer9",
     image="http://mocked-player-9.png",
     role=PlayerRole.BOTTOM,
-    team_id=team_2_fixture.id
+    team_id=team_2_fixture.id,
 )
 
 player_10_fixture = schemas.ProfessionalPlayer(
@@ -278,7 +277,7 @@ player_10_fixture = schemas.ProfessionalPlayer(
     summoner_name="MockerPlayer10",
     image="http://mocked-player-10.png",
     role=PlayerRole.SUPPORT,
-    team_id=team_2_fixture.id
+    team_id=team_2_fixture.id,
 )
 
 player_1_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -286,7 +285,7 @@ player_1_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_1_fixture.id,
     participant_id=1,
     champion_id="champion1",
-    role=PlayerRole.TOP
+    role=PlayerRole.TOP,
 )
 
 player_2_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -294,7 +293,7 @@ player_2_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_2_fixture.id,
     participant_id=2,
     champion_id="champion2",
-    role=PlayerRole.JUNGLE
+    role=PlayerRole.JUNGLE,
 )
 
 player_3_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -302,7 +301,7 @@ player_3_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_3_fixture.id,
     participant_id=3,
     champion_id="champion3",
-    role=PlayerRole.MID
+    role=PlayerRole.MID,
 )
 
 player_4_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -310,7 +309,7 @@ player_4_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_4_fixture.id,
     participant_id=4,
     champion_id="champion4",
-    role=PlayerRole.BOTTOM
+    role=PlayerRole.BOTTOM,
 )
 
 player_5_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -318,7 +317,7 @@ player_5_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_5_fixture.id,
     participant_id=5,
     champion_id="champion5",
-    role=PlayerRole.SUPPORT
+    role=PlayerRole.SUPPORT,
 )
 
 player_6_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -326,7 +325,7 @@ player_6_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_6_fixture.id,
     participant_id=6,
     champion_id="champion6",
-    role=PlayerRole.TOP
+    role=PlayerRole.TOP,
 )
 
 player_7_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -334,7 +333,7 @@ player_7_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_7_fixture.id,
     participant_id=7,
     champion_id="champion7",
-    role=PlayerRole.JUNGLE
+    role=PlayerRole.JUNGLE,
 )
 
 player_8_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -342,7 +341,7 @@ player_8_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_8_fixture.id,
     participant_id=8,
     champion_id="champion8",
-    role=PlayerRole.MID
+    role=PlayerRole.MID,
 )
 
 player_9_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -350,7 +349,7 @@ player_9_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_9_fixture.id,
     participant_id=9,
     champion_id="champion9",
-    role=PlayerRole.BOTTOM
+    role=PlayerRole.BOTTOM,
 )
 
 player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
@@ -358,7 +357,7 @@ player_10_game_metadata_fixture = schemas.PlayerGameMetadata(
     player_id=player_10_fixture.id,
     participant_id=10,
     champion_id="champion10",
-    role=PlayerRole.SUPPORT
+    role=PlayerRole.SUPPORT,
 )
 
 player_1_game_stats_fixture = schemas.PlayerGameStats(
@@ -372,7 +371,7 @@ player_1_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_2_game_stats_fixture = schemas.PlayerGameStats(
@@ -386,7 +385,7 @@ player_2_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_3_game_stats_fixture = schemas.PlayerGameStats(
@@ -400,7 +399,7 @@ player_3_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_4_game_stats_fixture = schemas.PlayerGameStats(
@@ -414,7 +413,7 @@ player_4_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_5_game_stats_fixture = schemas.PlayerGameStats(
@@ -428,7 +427,7 @@ player_5_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_6_game_stats_fixture = schemas.PlayerGameStats(
@@ -442,7 +441,7 @@ player_6_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_7_game_stats_fixture = schemas.PlayerGameStats(
@@ -456,7 +455,7 @@ player_7_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_8_game_stats_fixture = schemas.PlayerGameStats(
@@ -470,7 +469,7 @@ player_8_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_9_game_stats_fixture = schemas.PlayerGameStats(
@@ -484,7 +483,7 @@ player_9_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_10_game_stats_fixture = schemas.PlayerGameStats(
@@ -498,7 +497,7 @@ player_10_game_stats_fixture = schemas.PlayerGameStats(
     kill_participation=20,
     champion_damage_share=20,
     wards_placed=random.randint(10, 20),
-    wards_destroyed=random.randint(10, 20)
+    wards_destroyed=random.randint(10, 20),
 )
 
 player_1_game_data_fixture = schemas.PlayerGameData(
@@ -515,7 +514,7 @@ player_1_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_1_game_stats_fixture.kill_participation,
     champion_damage_share=player_1_game_stats_fixture.champion_damage_share,
     wards_placed=player_1_game_stats_fixture.wards_placed,
-    wards_destroyed=player_1_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_1_game_stats_fixture.wards_destroyed,
 )
 
 player_2_game_data_fixture = schemas.PlayerGameData(
@@ -532,7 +531,7 @@ player_2_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_2_game_stats_fixture.kill_participation,
     champion_damage_share=player_2_game_stats_fixture.champion_damage_share,
     wards_placed=player_2_game_stats_fixture.wards_placed,
-    wards_destroyed=player_2_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_2_game_stats_fixture.wards_destroyed,
 )
 
 player_3_game_data_fixture = schemas.PlayerGameData(
@@ -549,7 +548,7 @@ player_3_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_3_game_stats_fixture.kill_participation,
     champion_damage_share=player_3_game_stats_fixture.champion_damage_share,
     wards_placed=player_3_game_stats_fixture.wards_placed,
-    wards_destroyed=player_3_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_3_game_stats_fixture.wards_destroyed,
 )
 
 player_4_game_data_fixture = schemas.PlayerGameData(
@@ -566,7 +565,7 @@ player_4_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_4_game_stats_fixture.kill_participation,
     champion_damage_share=player_4_game_stats_fixture.champion_damage_share,
     wards_placed=player_4_game_stats_fixture.wards_placed,
-    wards_destroyed=player_4_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_4_game_stats_fixture.wards_destroyed,
 )
 
 player_5_game_data_fixture = schemas.PlayerGameData(
@@ -583,7 +582,7 @@ player_5_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_5_game_stats_fixture.kill_participation,
     champion_damage_share=player_5_game_stats_fixture.champion_damage_share,
     wards_placed=player_5_game_stats_fixture.wards_placed,
-    wards_destroyed=player_5_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_5_game_stats_fixture.wards_destroyed,
 )
 
 player_6_game_data_fixture = schemas.PlayerGameData(
@@ -600,7 +599,7 @@ player_6_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_6_game_stats_fixture.kill_participation,
     champion_damage_share=player_6_game_stats_fixture.champion_damage_share,
     wards_placed=player_6_game_stats_fixture.wards_placed,
-    wards_destroyed=player_6_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_6_game_stats_fixture.wards_destroyed,
 )
 
 player_7_game_data_fixture = schemas.PlayerGameData(
@@ -617,7 +616,7 @@ player_7_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_7_game_stats_fixture.kill_participation,
     champion_damage_share=player_7_game_stats_fixture.champion_damage_share,
     wards_placed=player_7_game_stats_fixture.wards_placed,
-    wards_destroyed=player_7_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_7_game_stats_fixture.wards_destroyed,
 )
 
 player_8_game_data_fixture = schemas.PlayerGameData(
@@ -634,7 +633,7 @@ player_8_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_8_game_stats_fixture.kill_participation,
     champion_damage_share=player_8_game_stats_fixture.champion_damage_share,
     wards_placed=player_8_game_stats_fixture.wards_placed,
-    wards_destroyed=player_8_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_8_game_stats_fixture.wards_destroyed,
 )
 
 player_9_game_data_fixture = schemas.PlayerGameData(
@@ -651,7 +650,7 @@ player_9_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_9_game_stats_fixture.kill_participation,
     champion_damage_share=player_9_game_stats_fixture.champion_damage_share,
     wards_placed=player_9_game_stats_fixture.wards_placed,
-    wards_destroyed=player_9_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_9_game_stats_fixture.wards_destroyed,
 )
 
 player_10_game_data_fixture = schemas.PlayerGameData(
@@ -668,11 +667,9 @@ player_10_game_data_fixture = schemas.PlayerGameData(
     kill_participation=player_10_game_stats_fixture.kill_participation,
     champion_damage_share=player_10_game_stats_fixture.champion_damage_share,
     wards_placed=player_10_game_stats_fixture.wards_placed,
-    wards_destroyed=player_10_game_stats_fixture.wards_destroyed
+    wards_destroyed=player_10_game_stats_fixture.wards_destroyed,
 )
 
 riot_schedule_fixture = schemas.StoredSchedule(
-    schedule_name="test_riot_schedule",
-    older_token_key="olderToken",
-    newer_token_key="newerToken"
+    schedule_name="test_riot_schedule", older_token_key="olderToken", newer_token_key="newerToken"
 )

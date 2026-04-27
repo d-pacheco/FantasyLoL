@@ -12,9 +12,7 @@ class TestCrudFantasyLeagueDraftOrder(TestBase):
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         user = fantasy_fixtures.user_fixture
         draft_order = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id,
-            user_id=user.id,
-            position=1
+            fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
 
         # Act and Assert
@@ -26,25 +24,19 @@ class TestCrudFantasyLeagueDraftOrder(TestBase):
         self.assertEqual(draft_order, draft_order_after_create[0])
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league_draft_order(draft_order)
-        self.assertIn(
-            'duplicate key value violates unique constraint',
-            str(context.exception)
-        )
+        self.assertIn("duplicate key value violates unique constraint", str(context.exception))
 
     def test_delete_fantasy_league_draft_order(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         user = fantasy_fixtures.user_fixture
         draft_order = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id,
-            user_id=user.id,
-            position=1
+            fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
         self.db.create_fantasy_league_draft_order(draft_order)
 
         # Act and Assert
-        draft_order_before_delete = self.db.\
-            get_fantasy_league_draft_order(fantasy_league.id)
+        draft_order_before_delete = self.db.get_fantasy_league_draft_order(fantasy_league.id)
         self.assertEqual(1, len(draft_order_before_delete))
         self.db.delete_fantasy_league_draft_order(draft_order)
         draft_order_after_delete = self.db.get_fantasy_league_draft_order(fantasy_league.id)
@@ -57,9 +49,7 @@ class TestCrudFantasyLeagueDraftOrder(TestBase):
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         user = fantasy_fixtures.user_fixture
         draft_order = FantasyLeagueDraftOrder(
-            fantasy_league_id=fantasy_league.id,
-            user_id=user.id,
-            position=1
+            fantasy_league_id=fantasy_league.id, user_id=user.id, position=1
         )
         self.db.create_fantasy_league_draft_order(draft_order)
         new_position = 2
@@ -68,8 +58,7 @@ class TestCrudFantasyLeagueDraftOrder(TestBase):
 
         # Act and Assert
         self.assertNotEqual(draft_order.position, new_position)
-        draft_order_before_update = self.db.\
-            get_fantasy_league_draft_order(fantasy_league.id)
+        draft_order_before_update = self.db.get_fantasy_league_draft_order(fantasy_league.id)
         self.assertEqual(1, len(draft_order_before_update))
         self.assertEqual(draft_order, draft_order_before_update[0])
         self.db.update_fantasy_league_draft_order_position(draft_order, new_position)

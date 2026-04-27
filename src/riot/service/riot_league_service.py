@@ -6,7 +6,7 @@ from src.common.schemas.search_parameters import LeagueSearchParameters
 from src.db.database_service import DatabaseService
 from src.db.models import LeagueModel
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotLeagueService:

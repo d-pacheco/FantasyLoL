@@ -21,7 +21,7 @@ class GameStatsEndpointV1Test(TestBase):
         self.app = FastAPI()
         self.app.include_router(endpoint.router, prefix="/api/v1")
         for route in self.app.routes:
-            for dep in getattr(route, 'dependencies', []):
+            for dep in getattr(route, "dependencies", []):
                 if isinstance(dep.dependency, JWTBearer):
                     self.app.dependency_overrides[dep.dependency] = lambda: {}
         disable_installed_extensions_check()
@@ -36,7 +36,7 @@ class GameStatsEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_STATS_BASE_URL}/player")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -46,7 +46,7 @@ class GameStatsEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_STATS_BASE_URL}/player")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(0, len(items))
 
     def test_get_player_stats_filter_by_game_id_existing_data(self):
@@ -54,12 +54,10 @@ class GameStatsEndpointV1Test(TestBase):
         expected = fixture.model_dump()
         self.mock_service.get_player_stats.return_value = [fixture]
 
-        response = self.client.get(
-            f"{GAME_STATS_BASE_URL}/player?game_id={fixture.game_id}"
-        )
+        response = self.client.get(f"{GAME_STATS_BASE_URL}/player?game_id={fixture.game_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -67,12 +65,10 @@ class GameStatsEndpointV1Test(TestBase):
         fixture = fixtures.player_1_game_data_fixture
         self.mock_service.get_player_stats.return_value = []
 
-        response = self.client.get(
-            f"{GAME_STATS_BASE_URL}/player?game_id={fixture.game_id}"
-        )
+        response = self.client.get(f"{GAME_STATS_BASE_URL}/player?game_id={fixture.game_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(0, len(items))
 
     def test_get_player_stats_filter_by_player_id_existing_data(self):
@@ -80,12 +76,10 @@ class GameStatsEndpointV1Test(TestBase):
         expected = fixture.model_dump()
         self.mock_service.get_player_stats.return_value = [fixture]
 
-        response = self.client.get(
-            f"{GAME_STATS_BASE_URL}/player?player_id={fixture.player_id}"
-        )
+        response = self.client.get(f"{GAME_STATS_BASE_URL}/player?player_id={fixture.player_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -93,10 +87,8 @@ class GameStatsEndpointV1Test(TestBase):
         fixture = fixtures.player_1_game_data_fixture
         self.mock_service.get_player_stats.return_value = []
 
-        response = self.client.get(
-            f"{GAME_STATS_BASE_URL}/player?player_id={fixture.player_id}"
-        )
+        response = self.client.get(f"{GAME_STATS_BASE_URL}/player?player_id={fixture.player_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(0, len(items))

@@ -8,7 +8,7 @@ from src.db.models import ProfessionalTeamModel
 
 from src.riot.exceptions import ProfessionalTeamNotFoundException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotProfessionalTeamService:

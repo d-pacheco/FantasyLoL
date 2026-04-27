@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 from src.common.exceptions import FantasyLolException
 from src.riot_scraper.job_runner import JobRunner
 
-JOB_RUNNER_PATH = 'src.riot_scraper.job_runner'
+JOB_RUNNER_PATH = "src.riot_scraper.job_runner"
 
 
 class TestJobRunner(TestBase):
@@ -18,7 +18,7 @@ class TestJobRunner(TestBase):
         # Assert
         job_function_mock.assert_called_once()
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     def test_run_retry_job_with_exception_then_success(self, sleep_mock):
         # Arrange
         job_function_mock = MagicMock()
@@ -34,7 +34,7 @@ class TestJobRunner(TestBase):
         self.assertEqual(job_function_mock.call_count, max_retries + 1)
         sleep_mock.assert_called_once()
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     def test_run_retry_job_with_max_retries_exceeded(self, sleep_mock):
         # Arrange
         exception_message = "Test exception"
@@ -43,11 +43,11 @@ class TestJobRunner(TestBase):
         max_retries = 2
 
         # Act
-        with patch(f'{JOB_RUNNER_PATH}.logger.error') as log_error_mock:
+        with patch(f"{JOB_RUNNER_PATH}.logger.error") as log_error_mock:
             JobRunner.run_retry_job(job_function_mock, job_name, max_retries)
 
         # Assert
         job_function_mock.assert_called_with()
         self.assertEqual(job_function_mock.call_count, max_retries + 1)
         self.assertEqual(sleep_mock.call_count, max_retries)
-        log_error_mock.assert_called_once_with(f'{job_name} failed: {exception_message}')
+        log_error_mock.assert_called_once_with(f"{job_name} failed: {exception_message}")

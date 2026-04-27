@@ -4,7 +4,4 @@ from http import HTTPStatus
 
 class FantasyDraftException(HTTPException):
     def __init__(self, detail: str) -> None:
-        super().__init__(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=detail
-        )
+        super().__init__(status_code=HTTPStatus.BAD_REQUEST, detail=detail)

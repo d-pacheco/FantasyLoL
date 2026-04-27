@@ -1,10 +1,6 @@
 from sqlalchemy import text
 
-from src.common.schemas.riot_data_schemas import (
-    League,
-    RiotLeagueID,
-    ProPlayerID
-)
+from src.common.schemas.riot_data_schemas import League, RiotLeagueID, ProPlayerID
 from src.db.models import LeagueModel
 
 
@@ -26,9 +22,9 @@ def get_leagues(session, filters: list | None = None) -> list[League]:
 
 
 def get_league_by_id(session, league_id: RiotLeagueID) -> League | None:
-    db_league: LeagueModel | None = session.query(LeagueModel)\
-        .filter(LeagueModel.id == league_id)\
-        .first()
+    db_league: LeagueModel | None = (
+        session.query(LeagueModel).filter(LeagueModel.id == league_id).first()
+    )
     if db_league is None:
         return None
     else:
@@ -36,11 +32,11 @@ def get_league_by_id(session, league_id: RiotLeagueID) -> League | None:
 
 
 def update_league_fantasy_available_status(
-        session, league_id: RiotLeagueID, new_status: bool
+    session, league_id: RiotLeagueID, new_status: bool
 ) -> League | None:
-    db_league: LeagueModel | None = session.query(LeagueModel)\
-        .filter(LeagueModel.id == league_id)\
-        .first()
+    db_league: LeagueModel | None = (
+        session.query(LeagueModel).filter(LeagueModel.id == league_id).first()
+    )
 
     if db_league is None:
         return None

@@ -20,7 +20,7 @@ MythicForge is composed of three microservices:
 - JWT authentication (PyJWT + bcrypt)
 - Docker + Docker Compose
 - GitHub Actions (CI/CD)
-- mypy, flake8, autopep8 (code quality)
+- mypy, ruff (code quality)
 
 ## Project Structure
 
@@ -121,11 +121,11 @@ pip install ".[dev]"
 ### Linting
 
 ```bash
-# Run all linters (flake8 + mypy)
+# Run all checks (ruff lint + ruff format check + mypy)
 ./scripts/linter.sh
 
 # Individual checks
-./scripts/linter.sh --flake8
+./scripts/linter.sh --lint
 ./scripts/linter.sh --mypy
 
 # Auto-format code

@@ -8,15 +8,15 @@ from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 from src.riot_scraper.timestamp_util import TimestampUtil
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotGameDataScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            riot_api_requester: RiotApiClient,
-            job_runner: JobRunner
+        self,
+        database_service: DatabaseService,
+        riot_api_requester: RiotApiClient,
+        job_runner: JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = riot_api_requester
@@ -25,7 +25,7 @@ class RiotGameDataScraper:
     def scrape_game(self, game_id: RiotGameID):
         logger.debug(f"Starting for game id {game_id}")
         start_time = self.__get_game_start_time(game_id)
-        assert (start_time is not None)
+        assert start_time is not None
 
         end_time = None
         game_finished = False
@@ -36,7 +36,7 @@ class RiotGameDataScraper:
         current_time = TimestampUtil.round_to_10_seconds(start_time)
         while not game_finished:
             current_window = self.riot_api_requester.get_game_window(game_id, current_time)
-            assert (current_window is not None)
+            assert current_window is not None
 
             paused_frame = get_paused_frame(current_window.frames)
             if paused_frame and not paused_timestamp:
@@ -49,14 +49,13 @@ class RiotGameDataScraper:
                 unpause_timestamp = None
 
             game_finished = any(
-                frame.gameState == LiveGameState.FINISHED
-                for frame in current_window.frames
+                frame.gameState == LiveGameState.FINISHED for frame in current_window.frames
             )
             if game_finished:
                 end_time = current_window.frames[-1].rfc460Timestamp
             current_time = TimestampUtil.add_10_seconds(current_time)
 
-        assert (end_time is not None)
+        assert end_time is not None
         total_game_time = get_game_duration(start_time, end_time, pauses)
 
         minutes = total_game_time // 60
@@ -72,7 +71,7 @@ class RiotGameDataScraper:
             initial_start_window.frames[0].rfc460Timestamp
         )
         start_window = self.riot_api_requester.get_game_window(game_id, start_window_time)
-        assert (start_window is not None)
+        assert start_window is not None
 
         start_time = None
         for frame in start_window.frames:
@@ -89,7 +88,7 @@ def get_game_duration(start_time: str, end_time: str, pauses: list[tuple[str, st
     for pause_start, pause_end in pauses:
         pause_start_dt = TimestampUtil.parse_rfc3339(pause_start)
         pause_end_dt = TimestampUtil.parse_rfc3339(pause_end)
-        total_pause += (pause_end_dt - pause_start_dt)
+        total_pause += pause_end_dt - pause_start_dt
 
     effective_duration = end_dt - start_dt - total_pause
     total_seconds = int(effective_duration.total_seconds())

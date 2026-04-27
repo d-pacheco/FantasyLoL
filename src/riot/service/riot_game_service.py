@@ -6,7 +6,7 @@ from src.db.database_service import DatabaseService
 from src.db.models import GameModel
 from src.riot.exceptions import GameNotFoundException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotGameService:

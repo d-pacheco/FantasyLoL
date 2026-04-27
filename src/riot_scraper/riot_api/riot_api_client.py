@@ -15,7 +15,7 @@ from src.riot_scraper.riot_api.schemas.get_schedule import GetScheduleResponse
 from src.riot_scraper.riot_api.schemas.get_teams import GetTeamsResponse
 from src.riot_scraper.riot_api.schemas.get_tournament import GetTournamentsResponse
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotApiClient:
@@ -26,7 +26,7 @@ class RiotApiClient:
         self.default_headers = {
             "Origin": "https://lolesports.com",
             "Referrer": "https://lolesports.com",
-            "x-api-key": app_config.RIOT_API_KEY
+            "x-api-key": app_config.RIOT_API_KEY,
         }
 
     def make_request(self, url, headers=None) -> Response:
@@ -38,9 +38,7 @@ class RiotApiClient:
         event_details_url = f"{self.esports_api_url}/getEventDetails?hl=en-GB&id={match_id}"
         response = self.make_request(event_details_url)
         validate_response(
-            [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
-            response.status_code,
-            event_details_url
+            [HTTPStatus.OK, HTTPStatus.NO_CONTENT], response.status_code, event_details_url
         )
         if response.status_code == HTTPStatus.NO_CONTENT:
             return None
@@ -48,7 +46,7 @@ class RiotApiClient:
             return EventDetailsResponse.model_validate(response.json())
 
     def get_games(self, game_ids: list[RiotGameID]) -> GetGamesResponse:
-        game_ids_str = ','.join(map(str, game_ids))
+        game_ids_str = ",".join(map(str, game_ids))
         url = f"{self.esports_api_url}/getGames?hl=en-GB&id={game_ids_str}"
         response = self.make_request(url)
         validate_response([HTTPStatus.OK], response.status_code, url)
@@ -77,37 +75,25 @@ class RiotApiClient:
         return GetTeamsResponse.model_validate(response.json())
 
     def get_game_window(
-            self,
-            game_id: RiotGameID,
-            time_stamp: str | None = None
+        self, game_id: RiotGameID, time_stamp: str | None = None
     ) -> GetLiveWindowResponse | None:
         if time_stamp:
             url = f"{self.esports_feed_url}/window/{game_id}?hl=en-GB&startingTime={time_stamp}"
         else:
             url = f"{self.esports_feed_url}/window/{game_id}?hl=en-GB"
         response = self.make_request(url)
-        validate_response(
-            [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
-            response.status_code,
-            url
-        )
+        validate_response([HTTPStatus.OK, HTTPStatus.NO_CONTENT], response.status_code, url)
         if response.status_code == HTTPStatus.NO_CONTENT:
             return None
 
         return GetLiveWindowResponse.model_validate(response.json())
 
     def get_game_details(
-            self,
-            game_id: RiotGameID,
-            time_stamp: str
+        self, game_id: RiotGameID, time_stamp: str
     ) -> GetLiveDetailsResponse | None:
         url = f"{self.esports_feed_url}/details/{game_id}?hl=en-GB&startingTime={time_stamp}"
         response = self.make_request(url)
-        validate_response(
-            [HTTPStatus.OK, HTTPStatus.NO_CONTENT],
-            response.status_code,
-            url
-        )
+        validate_response([HTTPStatus.OK, HTTPStatus.NO_CONTENT], response.status_code, url)
         if response.status_code == HTTPStatus.NO_CONTENT:
             return None
 

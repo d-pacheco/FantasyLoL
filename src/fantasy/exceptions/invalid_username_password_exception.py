@@ -4,7 +4,4 @@ from http import HTTPStatus
 
 class InvalidUsernameOrPasswordException(HTTPException):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail="Invalid username/password"
-        )
+        super().__init__(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid username/password")

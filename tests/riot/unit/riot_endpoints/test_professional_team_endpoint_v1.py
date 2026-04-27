@@ -22,7 +22,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         self.app = FastAPI()
         self.app.include_router(endpoint.router, prefix="/api/v1")
         for route in self.app.routes:
-            for dep in getattr(route, 'dependencies', []):
+            for dep in getattr(route, "dependencies", []):
                 if isinstance(dep.dependency, JWTBearer):
                     self.app.dependency_overrides[dep.dependency] = lambda: {}
         disable_installed_extensions_check()
@@ -37,7 +37,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(f"{TEAM_BASE_URL}?slug={team_fixture.slug}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -49,7 +49,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(f"{TEAM_BASE_URL}?name={team_fixture.name}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -61,7 +61,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(f"{TEAM_BASE_URL}?code={team_fixture.code}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -73,7 +73,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(f"{TEAM_BASE_URL}?status={team_fixture.status}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -85,7 +85,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(f"{TEAM_BASE_URL}?league={team_fixture.home_league}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -97,7 +97,7 @@ class ProfessionalTeamEndpointV1Test(TestBase):
         response = self.client.get(TEAM_BASE_URL)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 

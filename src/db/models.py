@@ -7,7 +7,7 @@ from sqlalchemy import (
     JSON,
     LargeBinary,
     PrimaryKeyConstraint,
-    String
+    String,
 )
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -16,7 +16,7 @@ from src.common.schemas.riot_data_schemas import GameState, PlayerRole, MatchSta
 from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
-    UserAccountStatus
+    UserAccountStatus,
 )
 
 
@@ -103,9 +103,7 @@ class ProfessionalPlayerModel(Base):  # type: ignore
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('id', 'team_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("id", "team_id"),)
 
 
 class PlayerGameMetadataModel(Base):  # type: ignore
@@ -117,9 +115,7 @@ class PlayerGameMetadataModel(Base):  # type: ignore
     champion_id = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('game_id', 'player_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("game_id", "player_id"),)
 
 
 class PlayerGameStatsModel(Base):  # type: ignore
@@ -137,9 +133,7 @@ class PlayerGameStatsModel(Base):  # type: ignore
     wards_placed = Column(Integer)
     wards_destroyed = Column(Integer)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('game_id', 'participant_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("game_id", "participant_id"),)
 
 
 class TeamGameStatsModel(Base):
@@ -153,9 +147,7 @@ class TeamGameStatsModel(Base):
     barons = Column(Integer)
     total_kills = Column(Integer)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('game_id', 'team_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("game_id", "team_id"),)
 
 
 class ScheduleModel(Base):  # type: ignore
@@ -172,8 +164,9 @@ class ScheduleModel(Base):  # type: ignore
 class UserModel(Base):  # type: ignore
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()),
-                unique=True, nullable=False)
+    id = Column(
+        String, primary_key=True, default=lambda: str(uuid.uuid4()), unique=True, nullable=False
+    )
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(LargeBinary, nullable=False)
@@ -183,10 +176,10 @@ class UserModel(Base):  # type: ignore
     verification_token = Column(String)
 
     def set_permissions(self, permissions_list):
-        self.permissions = ','.join(permissions_list)
+        self.permissions = ",".join(permissions_list)
 
     def get_permissions(self):
-        return self.permissions.split(',') if self.permissions else []
+        return self.permissions.split(",") if self.permissions else []
 
 
 class FantasyLeagueModel(Base):  # type: ignore
@@ -209,9 +202,7 @@ class FantasyLeagueMembershipModel(Base):  # type: ignore
     user_id = Column(String, primary_key=True, nullable=False)
     status = Column(Enum(FantasyLeagueMembershipStatus), nullable=False)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('league_id', 'user_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("league_id", "user_id"),)
 
 
 class FantasyLeagueScoringSettingModel(Base):  # type: ignore
@@ -235,9 +226,7 @@ class FantasyLeagueDraftOrderModel(Base):  # type: ignore
     user_id = Column(String, primary_key=True, nullable=False)
     position = Column(Integer, nullable=False)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('fantasy_league_id', 'user_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id"),)
 
 
 class FantasyTeamModel(Base):  # type: ignore
@@ -252,6 +241,4 @@ class FantasyTeamModel(Base):  # type: ignore
     adc_player_id = Column(String, nullable=True)
     support_player_id = Column(String, nullable=True)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('fantasy_league_id', 'user_id', 'week'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id", "week"),)

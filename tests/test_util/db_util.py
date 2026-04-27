@@ -8,12 +8,14 @@ class TestDatabaseService:
         self.connection_provider = connection_provider
 
     def get_all_league_memberships(
-            self,
-            league_id: FantasyLeagueID
+        self, league_id: FantasyLeagueID
     ) -> list[models.FantasyLeagueMembershipModel]:
         with self.connection_provider.get_db() as db:
-            return db.query(models.FantasyLeagueMembershipModel) \
-                .filter(models.FantasyLeagueMembershipModel.league_id == league_id).all()
+            return (
+                db.query(models.FantasyLeagueMembershipModel)
+                .filter(models.FantasyLeagueMembershipModel.league_id == league_id)
+                .all()
+            )
 
     def get_all_game_metadata(self):
         with self.connection_provider.get_db() as db:

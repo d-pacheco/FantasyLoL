@@ -7,7 +7,7 @@ from src.db.database_service import DatabaseService
 from src.db.models import TournamentModel
 from src.riot.exceptions import TournamentNotFoundException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotTournamentService:

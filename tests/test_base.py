@@ -4,34 +4,33 @@ import os
 from sqlalchemy import MetaData
 
 # JWT Auth Config Settings:
-os.environ['AUTH_SECRET'] = "1234567890"
-os.environ['AUTH_ALGORITHM'] = "HS256"
+os.environ["AUTH_SECRET"] = "1234567890"
+os.environ["AUTH_ALGORITHM"] = "HS256"
 
 # Email Verification Config Settings:
-os.environ['VERIFICATION_DOMAIN_URL'] = "http://localhost"
-os.environ['VERIFICATION_SENDER_EMAIL'] = "testEmail@gmail.com"
-os.environ['VERIFICATION_SENDER_PASSWORD'] = "testpassword"
-os.environ['VERIFICATION_SMTP_HOST'] = "smtp.gmail.com"
-os.environ['VERIFICATION_SMTP_PORT'] = "465"
+os.environ["VERIFICATION_DOMAIN_URL"] = "http://localhost"
+os.environ["VERIFICATION_SENDER_EMAIL"] = "testEmail@gmail.com"
+os.environ["VERIFICATION_SENDER_PASSWORD"] = "testpassword"
+os.environ["VERIFICATION_SMTP_HOST"] = "smtp.gmail.com"
+os.environ["VERIFICATION_SMTP_PORT"] = "465"
 
 from tests.test_util.db_util import TestDatabaseService
 from src.db import models  # type: ignore
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
 
-RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = \
-    'src.riot_scraper.riot_api_requester.cloudscraper.create_scraper'
+RIOT_API_REQUESTER_CLOUDSCRAPER_PATH = (
+    "src.riot_scraper.riot_api_requester.cloudscraper.create_scraper"
+)
 
-BASE_CRUD_PATH = 'src.db.crud'
+BASE_CRUD_PATH = "src.db.crud"
 
 TEST_DATABASE_URL = os.environ.get(
-    'TEST_DATABASE_URL',
-    'postgresql://postgres:postgres@localhost:5432/fantasy_lol_test'
+    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/fantasy_lol_test"
 )
 
 
 class TestBase(unittest.TestCase):
-
     db_provider: DatabaseConnectionProvider
     db: DatabaseService
     test_db: TestDatabaseService
@@ -48,6 +47,7 @@ class TestBase(unittest.TestCase):
             def setUpOverride(self, *args, **kwargs):
                 TestBase.setUp(self)
                 return orig_setUp(self, *args, **kwargs)
+
             cls.setUp = setUpOverride  # type: ignore
 
     def setUp(self):

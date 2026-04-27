@@ -8,8 +8,8 @@ from src.fantasy.exceptions import UserAlreadyExistsException, InvalidUsernameOr
 from src.fantasy.service import UserService
 from src.auth import token_response
 
-BASE_USER_SERVICE_PATH = 'src.fantasy.service.fantasy_user_service.UserService'
-SIGN_JWT_PATH = 'src.fantasy.service.fantasy_user_service.sign_jwt'
+BASE_USER_SERVICE_PATH = "src.fantasy.service.fantasy_user_service.UserService"
+SIGN_JWT_PATH = "src.fantasy.service.fantasy_user_service.sign_jwt"
 
 
 class UserServiceTest(TestBase):
@@ -21,14 +21,15 @@ class UserServiceTest(TestBase):
     def tearDown(self):
         self.mock_db_service.reset_mock()
 
-    @patch(f'{BASE_USER_SERVICE_PATH}.generate_verification_token')
-    @patch(f'{BASE_USER_SERVICE_PATH}.validate_username_and_email')
-    @patch(f'{BASE_USER_SERVICE_PATH}.create_new_user')
+    @patch(f"{BASE_USER_SERVICE_PATH}.generate_verification_token")
+    @patch(f"{BASE_USER_SERVICE_PATH}.validate_username_and_email")
+    @patch(f"{BASE_USER_SERVICE_PATH}.create_new_user")
     def test_user_signup(
-            self,
-            mock_create_new_user: MagicMock,
-            mock_validate_username_and_email: MagicMock,
-            mock_generate_verification_token: MagicMock):
+        self,
+        mock_create_new_user: MagicMock,
+        mock_validate_username_and_email: MagicMock,
+        mock_generate_verification_token: MagicMock,
+    ):
         # Arrange
         verification_token = "123"
         create_user_fixture = fantasy_fixtures.user_create_fixture
@@ -47,9 +48,7 @@ class UserServiceTest(TestBase):
             create_user_fixture.username, create_user_fixture.email
         )
         mock_create_new_user.assert_called_once_with(
-            create_user_fixture,
-            expected_user.get_permissions(),
-            verification_token
+            create_user_fixture, expected_user.get_permissions(), verification_token
         )
         self.mock_db_service.create_user.assert_called_once_with(expected_user)
 
@@ -74,7 +73,7 @@ class UserServiceTest(TestBase):
         # Arrange
         user = fantasy_fixtures.user_fixture
         signup_username = user.username
-        signup_email = 'newEmail@example.com'
+        signup_email = "newEmail@example.com"
 
         self.mock_db_service.get_user_by_username.return_value = user
         self.mock_db_service.get_user_by_email.return_value = None
@@ -84,14 +83,14 @@ class UserServiceTest(TestBase):
             self.user_service.validate_username_and_email(
                 username=signup_username, email=signup_email
             )
-        self.assertIn('Username already in use', str(context.exception))
+        self.assertIn("Username already in use", str(context.exception))
         self.mock_db_service.get_user_by_username.assert_called_once_with(signup_username)
         self.mock_db_service.get_user_by_email.assert_not_called()
 
     def test_validate_username_and_email_exception_email_in_use(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
-        signup_username = 'newUser'
+        signup_username = "newUser"
         signup_email = user.email
 
         self.mock_db_service.get_user_by_username.return_value = None
@@ -102,14 +101,15 @@ class UserServiceTest(TestBase):
             self.user_service.validate_username_and_email(
                 username=signup_username, email=signup_email
             )
-        self.assertIn('Email already in use', str(context.exception))
+        self.assertIn("Email already in use", str(context.exception))
         self.mock_db_service.get_user_by_username.assert_called_once_with(signup_username)
         self.mock_db_service.get_user_by_email.assert_called_once_with(signup_email)
 
-    @patch(f'{BASE_USER_SERVICE_PATH}.generate_new_valid_id')
-    @patch(f'{BASE_USER_SERVICE_PATH}.hash_password')
+    @patch(f"{BASE_USER_SERVICE_PATH}.generate_new_valid_id")
+    @patch(f"{BASE_USER_SERVICE_PATH}.hash_password")
     def test_create_new_user(
-            self, mock_hash_password: MagicMock, mock_generate_new_valid_id: MagicMock):
+        self, mock_hash_password: MagicMock, mock_generate_new_valid_id: MagicMock
+    ):
         # Arrange
         verification_token = "123"
         user_create_fixture = fantasy_fixtures.user_create_fixture
@@ -121,9 +121,7 @@ class UserServiceTest(TestBase):
 
         # Act
         new_user = self.user_service.create_new_user(
-            user_create_fixture,
-            user_fixture.get_permissions(),
-            verification_token
+            user_create_fixture, user_fixture.get_permissions(), verification_token
         )
 
         # Assert
@@ -131,7 +129,7 @@ class UserServiceTest(TestBase):
         mock_hash_password.assert_called_once_with(user_create_fixture.password)
         mock_generate_new_valid_id.assert_called_once()
 
-    @patch('uuid.uuid4', side_effect=['id1', 'id2', 'id3', 'id4'])
+    @patch("uuid.uuid4", side_effect=["id1", "id2", "id3", "id4"])
     def test_generate_new_valid_id(self, mock_uuid4: MagicMock):
         # Arrange
         self.mock_db_service.get_user_by_id.side_effect = [MagicMock(), None, None, None]
@@ -140,15 +138,15 @@ class UserServiceTest(TestBase):
         generated_id = self.user_service.generate_new_valid_id()
 
         # Assert
-        self.assertEqual(generated_id, 'id2')
+        self.assertEqual(generated_id, "id2")
         mock_uuid4.assert_called()
         self.assertEqual(mock_uuid4.call_count, 2)
-        self.mock_db_service.get_user_by_id.assert_any_call('id1')
-        self.mock_db_service.get_user_by_id.assert_any_call('id2')
-        self.mock_db_service.get_user_by_id.assert_called_with('id2')
+        self.mock_db_service.get_user_by_id.assert_any_call("id1")
+        self.mock_db_service.get_user_by_id.assert_any_call("id2")
+        self.mock_db_service.get_user_by_id.assert_called_with("id2")
 
-    @patch('bcrypt.gensalt', return_value=b'$2b$12$abcdefghijklmnopqrstuv')
-    @patch('bcrypt.hashpw', return_value=b'hashed_password')
+    @patch("bcrypt.gensalt", return_value=b"$2b$12$abcdefghijklmnopqrstuv")
+    @patch("bcrypt.hashpw", return_value=b"hashed_password")
     def test_hash_password(self, mock_hashpw: MagicMock, mock_gensalt: MagicMock):
         # Arrange
         password = "secure_password"
@@ -157,10 +155,10 @@ class UserServiceTest(TestBase):
         hashed_password = self.user_service.hash_password(password)
 
         # Assert
-        self.assertEqual(hashed_password, b'hashed_password')
+        self.assertEqual(hashed_password, b"hashed_password")
         mock_gensalt.assert_called_once()
         mock_hashpw.assert_called_once_with(
-            password.encode('utf-8'), b'$2b$12$abcdefghijklmnopqrstuv'
+            password.encode("utf-8"), b"$2b$12$abcdefghijklmnopqrstuv"
         )
 
     @patch(SIGN_JWT_PATH)

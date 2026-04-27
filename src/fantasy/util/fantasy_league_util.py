@@ -8,7 +8,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrderResponse,
     FantasyLeagueID,
     FantasyLeagueStatus,
-    UserID
+    UserID,
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID
 
@@ -18,7 +18,7 @@ from src.fantasy.exceptions import (
     FantasyLeagueNotFoundException,
     FantasyLeagueInvalidRequiredStateException,
     FantasyUnavailableException,
-    DraftOrderException
+    DraftOrderException,
 )
 
 
@@ -27,9 +27,10 @@ class FantasyLeagueUtil:
         self.db = database_service
 
     def validate_league(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            required_states: list[FantasyLeagueStatus] | None = None) -> FantasyLeague:
+        self,
+        fantasy_league_id: FantasyLeagueID,
+        required_states: list[FantasyLeagueStatus] | None = None,
+    ) -> FantasyLeague:
         fantasy_league = self.db.get_fantasy_league_by_id(fantasy_league_id)
         if fantasy_league is None:
             raise FantasyLeagueNotFoundException()
@@ -51,7 +52,7 @@ class FantasyLeagueUtil:
                 raise FantasyUnavailableException(league_id)
 
     def update_fantasy_leagues_current_draft_position(self, fantasy_league: FantasyLeague) -> None:
-        assert (fantasy_league.current_draft_position is not None)
+        assert fantasy_league.current_draft_position is not None
         if fantasy_league.current_draft_position + 1 <= fantasy_league.number_of_teams:
             new_draft_position = fantasy_league.current_draft_position + 1
         else:
@@ -72,16 +73,14 @@ class FantasyLeagueUtil:
             ).position
 
         new_draft_position = FantasyLeagueDraftOrder(
-            fantasy_league_id=league_id,
-            user_id=user_id,
-            position=max_position + 1
+            fantasy_league_id=league_id, user_id=user_id, position=max_position + 1
         )
         self.db.create_fantasy_league_draft_order(new_draft_position)
 
     @staticmethod
     def validate_draft_order(
-            current_draft_order: list[FantasyLeagueDraftOrder],
-            updated_draft_order: list[FantasyLeagueDraftOrderResponse]
+        current_draft_order: list[FantasyLeagueDraftOrder],
+        updated_draft_order: list[FantasyLeagueDraftOrderResponse],
     ) -> None:
         member_ids = [draft_position.user_id for draft_position in current_draft_order]
 
@@ -103,9 +102,7 @@ class FantasyLeagueUtil:
             )
 
     def update_draft_order_on_player_leave(
-            self,
-            user_id: UserID,
-            league_id: FantasyLeagueID
+        self, user_id: UserID, league_id: FantasyLeagueID
     ) -> None:
         current_draft_order = self.db.get_fantasy_league_draft_order(league_id)
 
@@ -127,18 +124,14 @@ class FantasyLeagueUtil:
                     draft_position, draft_position.position - 1
                 )
 
-    def get_leagues_current_week(
-            self,
-            riot_league_id: RiotLeagueID
-    ) -> int | None:
+    def get_leagues_current_week(self, riot_league_id: RiotLeagueID) -> int | None:
         non_week_blocks = [
             "playoffs",
             "groups",
             "finals",
             "swiss",
-            "play-ins"
-            "play in knockouts",
-            "play in groups"
+            "play-ins" "play in knockouts",
+            "play in groups",
         ]
 
         utc_now = datetime.now(pytz.utc)
@@ -183,6 +176,4 @@ def get_week_from_block_name(block_name: str) -> int:
 
 
 def parse_match_time(start_time: str) -> datetime:
-    return datetime.fromisoformat(
-        start_time.replace("Z", "")
-    ).replace(tzinfo=timezone.utc)
+    return datetime.fromisoformat(start_time.replace("Z", "")).replace(tzinfo=timezone.utc)

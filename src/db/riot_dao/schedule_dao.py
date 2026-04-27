@@ -3,9 +3,9 @@ from src.db.models import ScheduleModel
 
 
 def get_schedule(session, schedule_name: str) -> StoredSchedule | None:
-    db_schedule: ScheduleModel | None = session.query(ScheduleModel)\
-        .filter(ScheduleModel.schedule_name == schedule_name)\
-        .first()
+    db_schedule: ScheduleModel | None = (
+        session.query(ScheduleModel).filter(ScheduleModel.schedule_name == schedule_name).first()
+    )
     if db_schedule is None:
         return None
     else:

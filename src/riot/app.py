@@ -12,7 +12,7 @@ from src.riot.endpoints import (
     MatchEndpoint,
     ProfessionalPlayerEndpoint,
     ProfessionalTeamEndpoint,
-    TournamentEndpoint
+    TournamentEndpoint,
 )
 from src.riot.service import (
     RiotGameService,
@@ -21,7 +21,7 @@ from src.riot.service import (
     RiotMatchService,
     RiotProfessionalPlayerService,
     RiotProfessionalTeamService,
-    RiotTournamentService
+    RiotTournamentService,
 )
 
 

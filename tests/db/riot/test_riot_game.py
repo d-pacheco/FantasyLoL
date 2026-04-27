@@ -36,7 +36,7 @@ class TestCrudRiotGame(TestBase):
         games_to_save = [
             riot_fixtures.game_1_fixture_completed,
             riot_fixtures.game_2_fixture_inprogress,
-            riot_fixtures.game_3_fixture_unstarted
+            riot_fixtures.game_3_fixture_unstarted,
         ]
 
         # Act

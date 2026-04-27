@@ -4,21 +4,12 @@ import sys
 from src.db import DatabaseConnectionProvider, DatabaseService
 from src.common.config import app_config
 from src.fantasy import app
-from src.fantasy.service import (
-    FantasyLeagueService,
-    FantasyTeamService,
-    UserService
-)
-from src.fantasy.endpoints import (
-    FantasyLeagueEndpoint,
-    FantasyTeamEndpoint,
-    UserEndpointV1
-)
+from src.fantasy.service import FantasyLeagueService, FantasyTeamService, UserService
+from src.fantasy.endpoints import FantasyLeagueEndpoint, FantasyTeamEndpoint, UserEndpointV1
 from src.common.logger import configure_logger
 
 
 def main():
-
     configure_logger("fantasy-lol")
 
     # Create database service

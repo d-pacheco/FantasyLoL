@@ -11,11 +11,16 @@ def put_player_metadata(session, player_metadata: PlayerGameMetadata) -> None:
 
 
 def get_player_metadata(
-        session, player_id: ProPlayerID, game_id: RiotGameID
+    session, player_id: ProPlayerID, game_id: RiotGameID
 ) -> PlayerGameMetadata | None:
-    db_player_metadata: PlayerGameMetadataModel | None = session.query(PlayerGameMetadataModel)\
-        .filter(PlayerGameMetadataModel.player_id == player_id,
-                PlayerGameMetadataModel.game_id == game_id).first()
+    db_player_metadata: PlayerGameMetadataModel | None = (
+        session.query(PlayerGameMetadataModel)
+        .filter(
+            PlayerGameMetadataModel.player_id == player_id,
+            PlayerGameMetadataModel.game_id == game_id,
+        )
+        .first()
+    )
     if db_player_metadata is None:
         return None
     else:

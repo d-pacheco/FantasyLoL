@@ -7,7 +7,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     FantasyLeagueMembership,
     FantasyLeagueMembershipStatus,
-    UserID
+    UserID,
 )
 
 
@@ -19,7 +19,7 @@ class TestCrudFantasyLeagueMembership(TestBase):
         membership = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.ACCEPTED
+            status=FantasyLeagueMembershipStatus.ACCEPTED,
         )
 
         # Act and Assert
@@ -34,10 +34,7 @@ class TestCrudFantasyLeagueMembership(TestBase):
         self.assertEqual(membership, membership_after_create)
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league_membership(membership)
-        self.assertIn(
-            'duplicate key value violates unique constraint',
-            str(context.exception)
-        )
+        self.assertIn("duplicate key value violates unique constraint", str(context.exception))
 
     def test_get_pending_and_accepted_members_for_league(self):
         # Arrange
@@ -49,22 +46,22 @@ class TestCrudFantasyLeagueMembership(TestBase):
         user_membership_accepted = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.ACCEPTED
+            status=FantasyLeagueMembershipStatus.ACCEPTED,
         )
         user_2_membership_pending = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user_2.id,
-            status=FantasyLeagueMembershipStatus.PENDING
+            status=FantasyLeagueMembershipStatus.PENDING,
         )
         user_3_membership_revoked = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user_3.id,
-            status=FantasyLeagueMembershipStatus.REVOKED
+            status=FantasyLeagueMembershipStatus.REVOKED,
         )
         user_4_membership_declined = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user_4.id,
-            status=FantasyLeagueMembershipStatus.DECLINED
+            status=FantasyLeagueMembershipStatus.DECLINED,
         )
         self.db.create_fantasy_league_membership(user_membership_accepted)
         self.db.create_fantasy_league_membership(user_2_membership_pending)
@@ -91,7 +88,7 @@ class TestCrudFantasyLeagueMembership(TestBase):
         membership = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.PENDING
+            status=FantasyLeagueMembershipStatus.PENDING,
         )
         new_status = FantasyLeagueMembershipStatus.ACCEPTED
         expected_updated_membership = membership.model_copy(deep=True)
@@ -112,14 +109,13 @@ class TestCrudFantasyLeagueMembership(TestBase):
         membership = FantasyLeagueMembership(
             league_id=fantasy_league.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.PENDING
+            status=FantasyLeagueMembershipStatus.PENDING,
         )
         self.db.create_fantasy_league_membership(membership)
 
         # Act and Assert
         self.assertEqual(
-            membership,
-            self.db.get_user_membership_for_fantasy_league(user.id, fantasy_league.id)
+            membership, self.db.get_user_membership_for_fantasy_league(user.id, fantasy_league.id)
         )
         self.assertIsNone(
             self.db.get_user_membership_for_fantasy_league(UserID("123"), fantasy_league.id)
@@ -138,12 +134,12 @@ class TestCrudFantasyLeagueMembership(TestBase):
         membership_1 = FantasyLeagueMembership(
             league_id=fantasy_league_1.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.PENDING
+            status=FantasyLeagueMembershipStatus.PENDING,
         )
         membership_2 = FantasyLeagueMembership(
             league_id=fantasy_league_2.id,
             user_id=user.id,
-            status=FantasyLeagueMembershipStatus.ACCEPTED
+            status=FantasyLeagueMembershipStatus.ACCEPTED,
         )
         self.db.create_fantasy_league_membership(membership_1)
         self.db.create_fantasy_league_membership(membership_2)

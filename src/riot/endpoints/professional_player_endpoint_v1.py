@@ -7,14 +7,15 @@ from src.common.schemas.riot_data_schemas import (
     ProfessionalPlayer,
     PlayerRole,
     ProPlayerID,
-    ProTeamID
+    ProTeamID,
 )
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.riot.service import RiotProfessionalPlayerService
 
 
 def validate_role_parameter(
-        role: PlayerRole = Query(None, description="Filter by players role")) -> PlayerRole:
+    role: PlayerRole = Query(None, description="Filter by players role"),
+) -> PlayerRole:
     return role
 
 
@@ -29,22 +30,16 @@ class ProfessionalPlayerEndpoint(Routable):
         tags=["Professional Players"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[ProfessionalPlayer],
-        responses={
-            200: {
-                "model": Page[ProfessionalPlayer]
-            }
-        }
+        responses={200: {"model": Page[ProfessionalPlayer]}},
     )
     def get_riot_professional_players(
-            self,
-            summoner_name: str = Query(None, description="Filter by players summoner name"),
-            role: PlayerRole = Depends(validate_role_parameter),
-            team_id: ProTeamID = Query(None, description="Filter by players team id")
+        self,
+        summoner_name: str = Query(None, description="Filter by players summoner name"),
+        role: PlayerRole = Depends(validate_role_parameter),
+        team_id: ProTeamID = Query(None, description="Filter by players team id"),
     ) -> Page[ProfessionalPlayer]:
         search_params = PlayerSearchParameters(
-            summoner_name=summoner_name,
-            role=role,
-            team_id=team_id
+            summoner_name=summoner_name, role=role, team_id=team_id
         )
         players = self.__player_service.get_players(search_params)
         return paginate(players)
@@ -56,21 +51,16 @@ class ProfessionalPlayerEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=ProfessionalPlayer,
         responses={
-            200: {
-                "model": ProfessionalPlayer
-            },
+            200: {"model": ProfessionalPlayer},
             404: {
                 "description": "Not Found",
                 "content": {
-                    "application/json": {
-                        "example": {"detail": "Professional Player not found"}
-                    }
-                }
-            }
-        }
+                    "application/json": {"example": {"detail": "Professional Player not found"}}
+                },
+            },
+        },
     )
     def get_professional_team_by_id(
-            self,
-            professional_player_id: ProPlayerID
+        self, professional_player_id: ProPlayerID
     ) -> ProfessionalPlayer:
         return self.__player_service.get_player_by_id(professional_player_id)

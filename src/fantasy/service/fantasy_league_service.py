@@ -12,7 +12,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueScoringSettings,
     FantasyLeagueDraftOrderResponse,
     UserAccountStatus,
-    UserID
+    UserID,
 )
 
 from src.fantasy.exceptions import (
@@ -20,7 +20,7 @@ from src.fantasy.exceptions import (
     FantasyLeagueSettingsException,
     FantasyLeagueStartDraftException,
     ForbiddenException,
-    UserNotFoundException
+    UserNotFoundException,
 )
 
 from src.fantasy.util import FantasyLeagueUtil
@@ -32,9 +32,8 @@ class FantasyLeagueService:
         self.fantasy_league_util = FantasyLeagueUtil(database_service)
 
     def create_fantasy_league(
-            self,
-            owner_id: UserID,
-            league_settings: FantasyLeagueSettings) -> FantasyLeague:
+        self, owner_id: UserID, league_settings: FantasyLeagueSettings
+    ) -> FantasyLeague:
         if len(league_settings.available_leagues) > 0:
             self.fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 
@@ -45,7 +44,7 @@ class FantasyLeagueService:
             status=FantasyLeagueStatus.PRE_DRAFT,
             name=league_settings.name,
             number_of_teams=league_settings.number_of_teams,
-            available_leagues=league_settings.available_leagues
+            available_leagues=league_settings.available_leagues,
         )
         self.db.create_fantasy_league(new_fantasy_league)
 
@@ -69,9 +68,8 @@ class FantasyLeagueService:
         return new_id
 
     def get_fantasy_league_settings(
-            self,
-            owner_id: UserID,
-            league_id: FantasyLeagueID) -> FantasyLeagueSettings:
+        self, owner_id: UserID, league_id: FantasyLeagueID
+    ) -> FantasyLeagueSettings:
         fantasy_league_model = self.fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
@@ -79,15 +77,16 @@ class FantasyLeagueService:
         league_settings = FantasyLeagueSettings(
             name=fantasy_league_model.name,
             number_of_teams=fantasy_league_model.number_of_teams,
-            available_leagues=fantasy_league_model.available_leagues
+            available_leagues=fantasy_league_model.available_leagues,
         )
         return league_settings
 
     def update_fantasy_league_settings(
-            self,
-            owner_id: UserID,
-            league_id: FantasyLeagueID,
-            updated_league_settings: FantasyLeagueSettings) -> FantasyLeagueSettings:
+        self,
+        owner_id: UserID,
+        league_id: FantasyLeagueID,
+        updated_league_settings: FantasyLeagueSettings,
+    ) -> FantasyLeagueSettings:
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -116,26 +115,26 @@ class FantasyLeagueService:
         updated_fantasy_league_settings = FantasyLeagueSettings(
             name=updated_fantasy_league.name,
             number_of_teams=updated_fantasy_league.number_of_teams,
-            available_leagues=updated_league_settings.available_leagues
+            available_leagues=updated_league_settings.available_leagues,
         )
         return updated_fantasy_league_settings
 
     def get_scoring_settings(
-            self,
-            owner_id: UserID,
-            league_id: FantasyLeagueID) -> FantasyLeagueScoringSettings:
+        self, owner_id: UserID, league_id: FantasyLeagueID
+    ) -> FantasyLeagueScoringSettings:
         fantasy_league_model = self.fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != owner_id:
             raise ForbiddenException()
         scoring_settings = self.db.get_fantasy_league_scoring_settings_by_id(league_id)
-        assert (scoring_settings is not None)
+        assert scoring_settings is not None
         return scoring_settings
 
     def update_scoring_settings(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID,
-            scoring_settings: FantasyLeagueScoringSettings) -> FantasyLeagueScoringSettings:
+        self,
+        fantasy_league_id: FantasyLeagueID,
+        user_id: UserID,
+        scoring_settings: FantasyLeagueScoringSettings,
+    ) -> FantasyLeagueScoringSettings:
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -148,7 +147,7 @@ class FantasyLeagueService:
         return scoring_settings
 
     def get_users_pending_and_accepted_fantasy_leagues(
-            self, user_id: UserID
+        self, user_id: UserID
     ) -> UsersFantasyLeagues:
         pending_fantasy_leagues = self.db.get_users_fantasy_leagues_with_membership_status(
             user_id, FantasyLeagueMembershipStatus.PENDING
@@ -157,13 +156,12 @@ class FantasyLeagueService:
             user_id, FantasyLeagueMembershipStatus.ACCEPTED
         )
         users_fantasy_leagues = UsersFantasyLeagues(
-            pending=pending_fantasy_leagues,
-            accepted=accepted_fantasy_leagues
+            pending=pending_fantasy_leagues, accepted=accepted_fantasy_leagues
         )
         return users_fantasy_leagues
 
     def send_fantasy_league_invite(
-            self, owner_id: UserID, league_id: FantasyLeagueID, username: str
+        self, owner_id: UserID, league_id: FantasyLeagueID, username: str
     ) -> None:
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
@@ -197,13 +195,17 @@ class FantasyLeagueService:
             if membership.user_id == user_id:
                 user_membership = membership
 
-        if (user_membership is None
-                or user_membership.status == FantasyLeagueMembershipStatus.DECLINED
-                or user_membership.status == FantasyLeagueMembershipStatus.REVOKED):
+        if (
+            user_membership is None
+            or user_membership.status == FantasyLeagueMembershipStatus.DECLINED
+            or user_membership.status == FantasyLeagueMembershipStatus.REVOKED
+        ):
             raise FantasyLeagueInviteException(f"No pending invites to join league: {league_id}")
 
-        if (user_membership.status == FantasyLeagueMembershipStatus.PENDING
-                and fantasy_league_model.number_of_teams < accepted_member_count + 1):
+        if (
+            user_membership.status == FantasyLeagueMembershipStatus.PENDING
+            and fantasy_league_model.number_of_teams < accepted_member_count + 1
+        ):
             raise FantasyLeagueInviteException("Fantasy league is full")
 
         self.db.update_fantasy_league_membership_status(
@@ -229,10 +231,8 @@ class FantasyLeagueService:
             raise FantasyLeagueInviteException(f"You are not a member of the league: {league_id}")
 
     def revoke_from_fantasy_league(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID,
-            user_to_remove_id: UserID) -> None:
+        self, fantasy_league_id: FantasyLeagueID, user_id: UserID, user_to_remove_id: UserID
+    ) -> None:
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -247,8 +247,10 @@ class FantasyLeagueService:
         user_to_remove_membership = self.db.get_user_membership_for_fantasy_league(
             user_to_remove_id, fantasy_league_id
         )
-        if user_to_remove_membership is None or \
-                user_to_remove_membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
+        if (
+            user_to_remove_membership is None
+            or user_to_remove_membership.status != FantasyLeagueMembershipStatus.ACCEPTED
+        ):
             raise FantasyLeagueInviteException(
                 f"No accepted membership: User {user_to_remove_id} does not have an accepted "
                 f"membership to the fantasy league {fantasy_league_id}"
@@ -258,12 +260,12 @@ class FantasyLeagueService:
             user_to_remove_membership, FantasyLeagueMembershipStatus.REVOKED
         )
         self.fantasy_league_util.update_draft_order_on_player_leave(
-            user_to_remove_id, fantasy_league_id)
+            user_to_remove_id, fantasy_league_id
+        )
 
     def get_fantasy_league_draft_order(
-            self,
-            user_id: UserID,
-            league_id: FantasyLeagueID) -> list[FantasyLeagueDraftOrderResponse]:
+        self, user_id: UserID, league_id: FantasyLeagueID
+    ) -> list[FantasyLeagueDraftOrderResponse]:
         fantasy_league_model = self.fantasy_league_util.validate_league(league_id)
         if fantasy_league_model.owner_id != user_id:
             raise ForbiddenException()
@@ -281,10 +283,11 @@ class FantasyLeagueService:
         return draft_order_response
 
     def update_fantasy_league_draft_order(
-            self,
-            user_id: UserID,
-            league_id: FantasyLeagueID,
-            updated_draft_order: list[FantasyLeagueDraftOrderResponse]) -> None:
+        self,
+        user_id: UserID,
+        league_id: FantasyLeagueID,
+        updated_draft_order: list[FantasyLeagueDraftOrderResponse],
+    ) -> None:
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -295,10 +298,13 @@ class FantasyLeagueService:
         self.fantasy_league_util.validate_draft_order(current_draft_order, updated_draft_order)
 
         for updated_position in updated_draft_order:
-            db_draft_position = next((
-                db_model
-                for db_model in current_draft_order
-                if db_model.user_id == updated_position.user_id), None
+            db_draft_position = next(
+                (
+                    db_model
+                    for db_model in current_draft_order
+                    if db_model.user_id == updated_position.user_id
+                ),
+                None,
             )
             if db_draft_position is None:
                 # This should never be hit if validation succeeds
@@ -339,13 +345,9 @@ class FantasyLeagueService:
         self.db.update_fantasy_league_current_draft_position(fantasy_league_id, 1)
 
     def create_fantasy_league_membership(
-            self,
-            league_id: FantasyLeagueID,
-            user_id: UserID,
-            status: FantasyLeagueMembershipStatus) -> None:
+        self, league_id: FantasyLeagueID, user_id: UserID, status: FantasyLeagueMembershipStatus
+    ) -> None:
         fantasy_league_membership = FantasyLeagueMembership(
-            league_id=league_id,
-            user_id=user_id,
-            status=status
+            league_id=league_id, user_id=user_id, status=status
         )
         self.db.create_fantasy_league_membership(fantasy_league_membership)

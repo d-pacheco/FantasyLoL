@@ -9,7 +9,7 @@ from src.common.schemas.fantasy_schemas import User, UserAccountStatus
 from src.fantasy.exceptions import (
     UserAlreadyExistsException,
     InvalidUsernameOrPasswordException,
-    UserVerificationException
+    UserVerificationException,
 )
 from src.fantasy.service import UserService
 
@@ -40,9 +40,9 @@ class UserServiceIntegrationTest(TestBase):
         self.assertTrue(uuid.UUID(user_from_db.id, version=4))
         self.assertEqual(user_from_db.username, user_create_fixture.username)
         self.assertEqual(user_from_db.email, user_create_fixture.email)
-        self.assertTrue(bcrypt.checkpw(
-            str.encode(user_create_fixture.password), user_from_db.password
-        ))
+        self.assertTrue(
+            bcrypt.checkpw(str.encode(user_create_fixture.password), user_from_db.password)
+        )
         self.assertFalse(user_from_db.verified)
         self.assertIsNotNone(user_from_db.verification_token)
 
@@ -57,7 +57,7 @@ class UserServiceIntegrationTest(TestBase):
         with self.assertRaises(UserAlreadyExistsException) as context:
             self.user_service.user_signup(modified_user_create)
 
-        self.assertIn('Username already in use', str(context.exception))
+        self.assertIn("Username already in use", str(context.exception))
 
     def test_user_signup_email_already_in_use_exception(self):
         # Arrange
@@ -70,7 +70,7 @@ class UserServiceIntegrationTest(TestBase):
         with self.assertRaises(UserAlreadyExistsException) as context:
             self.user_service.user_signup(modified_user_create)
 
-        self.assertIn('Email already in use', str(context.exception))
+        self.assertIn("Email already in use", str(context.exception))
 
     def test_user_login_successful(self):
         # Arrange

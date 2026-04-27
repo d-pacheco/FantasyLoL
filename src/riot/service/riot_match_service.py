@@ -6,7 +6,7 @@ from src.db.database_service import DatabaseService
 from src.db.models import MatchModel
 from src.riot.exceptions import MatchNotFoundException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotMatchService:

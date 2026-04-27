@@ -10,7 +10,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyTeam,
     User,
     UserAccountStatus,
-    UserID
+    UserID,
 )
 from src.common.schemas.riot_data_schemas import (
     League,
@@ -29,7 +29,8 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
-    StoredSchedule, TeamGameStats
+    StoredSchedule,
+    TeamGameStats,
 )
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
@@ -37,7 +38,7 @@ from src.db.fantasy_dao import (
     fantasy_league_dao,
     fantasy_team_dao,
     membership_dao,
-    user_dao
+    user_dao,
 )
 from src.db.riot_dao import (
     game_dao,
@@ -49,7 +50,7 @@ from src.db.riot_dao import (
     schedule_dao,
     team_dao,
     team_stats_dao,
-    tournament_dao
+    tournament_dao,
 )
 
 
@@ -141,7 +142,7 @@ class DatabaseService:
             player_metadata_dao.put_player_metadata(db, player_metadata)
 
     def get_player_metadata(
-            self, player_id: ProPlayerID, game_id: RiotGameID
+        self, player_id: ProPlayerID, game_id: RiotGameID
     ) -> PlayerGameMetadata | None:
         with self.connection_provider.get_db() as db:
             return player_metadata_dao.get_player_metadata(db, player_id, game_id)
@@ -154,9 +155,7 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             player_stats_dao.put_player_stats(db, player_stats)
 
-    def get_player_stats(
-            self, game_id: RiotGameID, participant_id: int
-    ) -> PlayerGameStats | None:
+    def get_player_stats(self, game_id: RiotGameID, participant_id: int) -> PlayerGameStats | None:
         with self.connection_provider.get_db() as db:
             return player_stats_dao.get_player_stats(db, game_id, participant_id)
 
@@ -185,7 +184,7 @@ class DatabaseService:
             return riot_league_dao.get_league_by_id(db, league_id)
 
     def update_league_fantasy_available_status(
-            self, league_id: RiotLeagueID, new_status: bool
+        self, league_id: RiotLeagueID, new_status: bool
     ) -> League | None:
         with self.connection_provider.get_db() as db:
             return riot_league_dao.update_league_fantasy_available_status(db, league_id, new_status)
@@ -234,7 +233,7 @@ class DatabaseService:
             draft_order_dao.create_fantasy_league_draft_order(db, draft_order)
 
     def get_fantasy_league_draft_order(
-            self, fantasy_league_id: FantasyLeagueID
+        self, fantasy_league_id: FantasyLeagueID
     ) -> list[FantasyLeagueDraftOrder]:
         with self.connection_provider.get_db() as db:
             return draft_order_dao.get_fantasy_league_draft_order(db, fantasy_league_id)
@@ -244,7 +243,7 @@ class DatabaseService:
             draft_order_dao.delete_fantasy_league_draft_order(db, draft_order)
 
     def update_fantasy_league_draft_order_position(
-            self, draft_order: FantasyLeagueDraftOrder, new_position: int
+        self, draft_order: FantasyLeagueDraftOrder, new_position: int
     ) -> None:
         with self.connection_provider.get_db() as db:
             draft_order_dao.update_fantasy_league_draft_order_position(
@@ -255,20 +254,18 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             fantasy_league_dao.create_fantasy_league(db, fantasy_league)
 
-    def get_fantasy_league_by_id(
-            self, fantasy_league_id: FantasyLeagueID
-    ) -> FantasyLeague | None:
+    def get_fantasy_league_by_id(self, fantasy_league_id: FantasyLeagueID) -> FantasyLeague | None:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.get_fantasy_league_by_id(db, fantasy_league_id)
 
     def put_fantasy_league_scoring_settings(
-            self, scoring_settings: FantasyLeagueScoringSettings
+        self, scoring_settings: FantasyLeagueScoringSettings
     ) -> None:
         with self.connection_provider.get_db() as db:
             fantasy_league_dao.put_fantasy_league_scoring_settings(db, scoring_settings)
 
     def get_fantasy_league_scoring_settings_by_id(
-            self, fantasy_league_id: FantasyLeagueID
+        self, fantasy_league_id: FantasyLeagueID
     ) -> FantasyLeagueScoringSettings | None:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.get_fantasy_league_scoring_settings_by_id(
@@ -276,7 +273,7 @@ class DatabaseService:
             )
 
     def update_fantasy_league_settings(
-            self, fantasy_league_id: FantasyLeagueID, settings: FantasyLeagueSettings
+        self, fantasy_league_id: FantasyLeagueID, settings: FantasyLeagueSettings
     ) -> FantasyLeague:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.update_fantasy_league_settings(
@@ -284,7 +281,7 @@ class DatabaseService:
             )
 
     def update_fantasy_league_status(
-            self, fantasy_league_id: FantasyLeagueID, new_status: FantasyLeagueStatus
+        self, fantasy_league_id: FantasyLeagueID, new_status: FantasyLeagueStatus
     ) -> FantasyLeague:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.update_fantasy_league_status(
@@ -292,7 +289,7 @@ class DatabaseService:
             )
 
     def update_fantasy_league_current_draft_position(
-            self, fantasy_league_id: FantasyLeagueID, new_current_draft_position: int
+        self, fantasy_league_id: FantasyLeagueID, new_current_draft_position: int
     ) -> FantasyLeague:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.update_fantasy_league_current_draft_position(
@@ -304,44 +301,45 @@ class DatabaseService:
             fantasy_team_dao.put_fantasy_team(db, fantasy_team)
 
     def get_all_fantasy_teams_for_user(
-            self, fantasy_league_id: FantasyLeagueID, user_id: UserID
+        self, fantasy_league_id: FantasyLeagueID, user_id: UserID
     ) -> list[FantasyTeam]:
         with self.connection_provider.get_db() as db:
             return fantasy_team_dao.get_all_fantasy_teams_for_user(db, fantasy_league_id, user_id)
 
     def get_all_fantasy_teams_for_week(
-            self, fantasy_league_id: FantasyLeagueID, week: int
+        self, fantasy_league_id: FantasyLeagueID, week: int
     ) -> list[FantasyTeam]:
         with self.connection_provider.get_db() as db:
             return fantasy_team_dao.get_all_fantasy_teams_for_week(db, fantasy_league_id, week)
 
     def create_fantasy_league_membership(
-            self, fantasy_league_membership: FantasyLeagueMembership
+        self, fantasy_league_membership: FantasyLeagueMembership
     ) -> None:
         with self.connection_provider.get_db() as db:
             membership_dao.create_fantasy_league_membership(db, fantasy_league_membership)
 
     def get_pending_and_accepted_members_for_league(
-            self, fantasy_league_id: FantasyLeagueID
+        self, fantasy_league_id: FantasyLeagueID
     ) -> list[FantasyLeagueMembership]:
         with self.connection_provider.get_db() as db:
             return membership_dao.get_pending_and_accepted_members_for_league(db, fantasy_league_id)
 
     def update_fantasy_league_membership_status(
-            self, membership: FantasyLeagueMembership, new_status: FantasyLeagueMembershipStatus
+        self, membership: FantasyLeagueMembership, new_status: FantasyLeagueMembershipStatus
     ) -> None:
         with self.connection_provider.get_db() as db:
             membership_dao.update_fantasy_league_membership_status(db, membership, new_status)
 
     def get_user_membership_for_fantasy_league(
-            self, user_id: UserID, fantasy_league_id: FantasyLeagueID
+        self, user_id: UserID, fantasy_league_id: FantasyLeagueID
     ) -> FantasyLeagueMembership | None:
         with self.connection_provider.get_db() as db:
-            return membership_dao.get_user_membership_for_fantasy_league(db, user_id,
-                                                                         fantasy_league_id)
+            return membership_dao.get_user_membership_for_fantasy_league(
+                db, user_id, fantasy_league_id
+            )
 
     def get_users_fantasy_leagues_with_membership_status(
-            self, user_id: UserID, membership_status: FantasyLeagueMembershipStatus
+        self, user_id: UserID, membership_status: FantasyLeagueMembershipStatus
     ) -> list[FantasyLeague]:
         with self.connection_provider.get_db() as db:
             return membership_dao.get_users_fantasy_leagues_with_membership_status(
@@ -365,7 +363,7 @@ class DatabaseService:
             return user_dao.get_user_by_email(db, email)
 
     def update_user_account_status(
-            self, user_id: UserID, account_status: UserAccountStatus
+        self, user_id: UserID, account_status: UserAccountStatus
     ) -> None:
         with self.connection_provider.get_db() as db:
             user_dao.update_user_account_status(db, user_id, account_status)
@@ -379,9 +377,7 @@ class DatabaseService:
             return user_dao.get_user_by_verification_token(db, verification_token)
 
     def update_user_verification_token(
-            self,
-            user_id: UserID,
-            verification_token: str | None
+        self, user_id: UserID, verification_token: str | None
     ) -> None:
         with self.connection_provider.get_db() as db:
             user_dao.update_user_verification_token(db, user_id, verification_token)

@@ -8,18 +8,15 @@ from src.common.schemas.riot_data_schemas import RiotLeagueID
 
 
 class TestCrudFantasyLeague(TestBase):
-
     def test_create_fantasy_league(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
 
         # Act and Assert
-        fantasy_league_before_create = self.db.\
-            get_fantasy_league_by_id(fantasy_league.id)
+        fantasy_league_before_create = self.db.get_fantasy_league_by_id(fantasy_league.id)
         self.assertIsNone(fantasy_league_before_create)
         self.db.create_fantasy_league(fantasy_league)
-        fantasy_league_after_create = self.db.\
-            get_fantasy_league_by_id(fantasy_league.id)
+        fantasy_league_after_create = self.db.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(fantasy_league, fantasy_league_after_create)
 
     def test_create_fantasy_league_with_an_existing_id(self):
@@ -30,7 +27,7 @@ class TestCrudFantasyLeague(TestBase):
         # Act and Assert
         with self.assertRaises(IntegrityError) as context:
             self.db.create_fantasy_league(fantasy_league)
-        self.assertIn('duplicate key value violates unique constraint', str(context.exception))
+        self.assertIn("duplicate key value violates unique constraint", str(context.exception))
 
     def test_get_fantasy_league_by_id(self):
         # Arrange
@@ -38,10 +35,7 @@ class TestCrudFantasyLeague(TestBase):
         self.db.create_fantasy_league(fantasy_league)
 
         # Act and Assert
-        self.assertEqual(
-            fantasy_league,
-            self.db.get_fantasy_league_by_id(fantasy_league.id)
-        )
+        self.assertEqual(fantasy_league, self.db.get_fantasy_league_by_id(fantasy_league.id))
         self.assertIsNone(self.db.get_fantasy_league_by_id(FantasyLeagueID("123")))
 
     def test_put_fantasy_league_scoring_settings(self):
@@ -51,17 +45,20 @@ class TestCrudFantasyLeague(TestBase):
         updated_scoring_settings.kills = scoring_settings.kills + 1
 
         # Act and Assert
-        scoring_settings_before_create = self.db.\
-            get_fantasy_league_scoring_settings_by_id(scoring_settings.fantasy_league_id)
+        scoring_settings_before_create = self.db.get_fantasy_league_scoring_settings_by_id(
+            scoring_settings.fantasy_league_id
+        )
         self.assertIsNone(scoring_settings_before_create)
         self.db.put_fantasy_league_scoring_settings(scoring_settings)
-        scoring_settings_after_create = self.db.\
-            get_fantasy_league_scoring_settings_by_id(scoring_settings.fantasy_league_id)
+        scoring_settings_after_create = self.db.get_fantasy_league_scoring_settings_by_id(
+            scoring_settings.fantasy_league_id
+        )
         self.assertEqual(scoring_settings, scoring_settings_after_create)
 
         self.db.put_fantasy_league_scoring_settings(updated_scoring_settings)
-        scoring_settings_after_update = self.db.\
-            get_fantasy_league_scoring_settings_by_id(scoring_settings.fantasy_league_id)
+        scoring_settings_after_update = self.db.get_fantasy_league_scoring_settings_by_id(
+            scoring_settings.fantasy_league_id
+        )
         self.assertEqual(updated_scoring_settings, scoring_settings_after_update)
 
     def test_get_fantasy_league_scoring_settings_by_id(self):
@@ -72,13 +69,9 @@ class TestCrudFantasyLeague(TestBase):
         # Act and Assert
         self.assertEqual(
             scoring_settings,
-            self.db.get_fantasy_league_scoring_settings_by_id(
-                scoring_settings.fantasy_league_id
-            )
+            self.db.get_fantasy_league_scoring_settings_by_id(scoring_settings.fantasy_league_id),
         )
-        self.assertIsNone(
-            self.db.get_fantasy_league_scoring_settings_by_id(FantasyLeagueID("123"))
-        )
+        self.assertIsNone(self.db.get_fantasy_league_scoring_settings_by_id(FantasyLeagueID("123")))
 
     def test_update_fantasy_league_settings_name(self):
         # Arrange
@@ -112,12 +105,10 @@ class TestCrudFantasyLeague(TestBase):
 
         # Assert
         self.assertEqual(
-            updated_fantasy_league_settings.number_of_teams,
-            updated_fantasy_league.number_of_teams
+            updated_fantasy_league_settings.number_of_teams, updated_fantasy_league.number_of_teams
         )
         self.assertNotEqual(
-            updated_fantasy_league_settings.number_of_teams,
-            fantasy_league.number_of_teams
+            updated_fantasy_league_settings.number_of_teams, fantasy_league.number_of_teams
         )
         self.assertEqual(updated_fantasy_league.name, fantasy_league.name)
         self.assertEqual(updated_fantasy_league.available_leagues, fantasy_league.available_leagues)
@@ -137,11 +128,10 @@ class TestCrudFantasyLeague(TestBase):
         # Assert
         self.assertEqual(
             updated_fantasy_league_settings.available_leagues,
-            updated_fantasy_league.available_leagues
+            updated_fantasy_league.available_leagues,
         )
         self.assertNotEqual(
-            updated_fantasy_league_settings.available_leagues,
-            fantasy_league.available_leagues
+            updated_fantasy_league_settings.available_leagues, fantasy_league.available_leagues
         )
         self.assertEqual(updated_fantasy_league.name, fantasy_league.name)
         self.assertEqual(updated_fantasy_league.number_of_teams, fantasy_league.number_of_teams)
@@ -152,9 +142,7 @@ class TestCrudFantasyLeague(TestBase):
 
         # Act and Assert
         with self.assertRaises(AssertionError):
-            self.db.update_fantasy_league_settings(
-                FantasyLeagueID("123"), fantasy_league_settings
-            )
+            self.db.update_fantasy_league_settings(FantasyLeagueID("123"), fantasy_league_settings)
 
     def test_update_fantasy_league_status(self):
         # Arrange
@@ -166,9 +154,7 @@ class TestCrudFantasyLeague(TestBase):
 
         # Act and Assert
         self.assertNotEqual(fantasy_league.status, new_status)
-        updated_fantasy_league = self.db.update_fantasy_league_status(
-            fantasy_league.id, new_status
-        )
+        updated_fantasy_league = self.db.update_fantasy_league_status(fantasy_league.id, new_status)
         self.assertEqual(expected_updated_fantasy_league, updated_fantasy_league)
         with self.assertRaises(AssertionError):
             self.db.update_fantasy_league_status(FantasyLeagueID("123"), new_status)

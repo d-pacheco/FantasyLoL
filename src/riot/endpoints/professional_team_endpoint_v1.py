@@ -19,26 +19,18 @@ class ProfessionalTeamEndpoint(Routable):
         tags=["Professional Teams"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[ProfessionalTeam],
-        responses={
-            200: {
-                "model": Page[ProfessionalTeam]
-            }
-        }
+        responses={200: {"model": Page[ProfessionalTeam]}},
     )
     def get_riot_professional_teams(
-            self,
-            slug: str = Query(None, description="Filter by professional teams slug"),
-            name: str = Query(None, description="Filter by professional teams name"),
-            code: str = Query(None, description="Filter by professional teams code"),
-            status: str = Query(None, description="Filter by professional teams status"),
-            league: str = Query(None, description="Filter by professional teams home league")
+        self,
+        slug: str = Query(None, description="Filter by professional teams slug"),
+        name: str = Query(None, description="Filter by professional teams name"),
+        code: str = Query(None, description="Filter by professional teams code"),
+        status: str = Query(None, description="Filter by professional teams status"),
+        league: str = Query(None, description="Filter by professional teams home league"),
     ) -> Page[ProfessionalTeam]:
         search_parameters = TeamSearchParameters(
-            slug=slug,
-            name=name,
-            code=code,
-            status=status,
-            league=league
+            slug=slug, name=name, code=code, status=status, league=league
         )
         teams = self.__team_service.get_teams(search_parameters)
         return paginate(teams)
@@ -50,21 +42,14 @@ class ProfessionalTeamEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=ProfessionalTeam,
         responses={
-            200: {
-                "model": ProfessionalTeam
-            },
+            200: {"model": ProfessionalTeam},
             404: {
                 "description": "Not Found",
                 "content": {
-                    "application/json": {
-                        "example": {"detail": "Professional Team not found"}
-                    }
-                }
-            }
-        }
+                    "application/json": {"example": {"detail": "Professional Team not found"}}
+                },
+            },
+        },
     )
-    def get_professional_team_by_id(
-            self,
-            professional_team_id: ProTeamID
-    ) -> ProfessionalTeam:
+    def get_professional_team_by_id(self, professional_team_id: ProTeamID) -> ProfessionalTeam:
         return self.__team_service.get_team_by_id(professional_team_id)
