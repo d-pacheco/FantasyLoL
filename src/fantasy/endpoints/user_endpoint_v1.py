@@ -2,7 +2,8 @@ from classy_fastapi import Routable, get, post, put
 from fastapi import Body, Depends
 
 from src.auth import JWTBearer
-from src.common.schemas.fantasy_schemas import UserCreate, UserLogin, UserID, EmailRequest
+from src.auth.auth_principal import AuthPrincipal
+from src.common.schemas.fantasy_schemas import UserCreate, UserLogin, EmailRequest
 from src.fantasy.service import UserService
 
 
@@ -34,12 +35,13 @@ class UserEndpointV1(Routable):
         path="/user/delete",
         description="Delete a Fantasy League of Legends account.",
         tags=["Users"],
-        dependencies=[Depends(JWTBearer())],
         status_code=204,
     )
-    def user_delete(self, decoded_token: dict = Depends(JWTBearer())):
-        user_id = UserID(decoded_token.get("user_id"))  # type: ignore
-        self.__user_service.delete_user(user_id)
+    def user_delete(
+        self,
+        principal: AuthPrincipal = Depends(JWTBearer()),
+    ):
+        self.__user_service.delete_user(principal.user_id)
 
     @get(
         path="/user/verify-email/{token}",
