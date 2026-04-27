@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer
 import logging
 
 from .auth_handler import decode_jwt  # type: ignore
+from .auth_principal import AuthPrincipal
 
 logger = logging.getLogger("fantasy-lol")
 
@@ -12,7 +13,7 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.required_permissions = required_permissions or []
 
-    async def __call__(self, request: Request):
+    async def __call__(self, request: Request) -> AuthPrincipal:  # type: ignore[override]
         credentials = await super(JWTBearer, self).__call__(request)
 
         if credentials:
@@ -26,7 +27,10 @@ class JWTBearer(HTTPBearer):
             if not self.has_permissions(payload):
                 raise HTTPException(status_code=403, detail="Insufficient permissions.")
 
-            return payload
+            return AuthPrincipal(
+                user_id=payload.get("user_id", ""),
+                permissions=payload.get("permissions", []),
+            )
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
