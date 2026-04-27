@@ -19,9 +19,11 @@ def get_players(session, filters: list | None = None) -> list[ProfessionalPlayer
 
 
 def get_player_by_id(session, player_id: ProPlayerID) -> ProfessionalPlayer | None:
-    db_player: ProfessionalPlayerModel | None = session.query(ProfessionalPlayerModel)\
-        .filter(ProfessionalPlayerModel.id == player_id)\
+    db_player: ProfessionalPlayerModel | None = (
+        session.query(ProfessionalPlayerModel)
+        .filter(ProfessionalPlayerModel.id == player_id)
         .first()
+    )
     if db_player is None:
         return None
     else:

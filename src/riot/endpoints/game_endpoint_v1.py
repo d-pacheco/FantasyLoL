@@ -23,21 +23,14 @@ class GameEndpoint(Routable):
         tags=["Games"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Game],
-        responses={
-            200: {
-                "model": Page[Game]
-            }
-        }
+        responses={200: {"model": Page[Game]}},
     )
     def get_riot_games(
-            self,
-            state: GameState = Depends(validate_status_parameter),
-            match_id: RiotMatchID = Query(None, description="Filter by game match id")
+        self,
+        state: GameState = Depends(validate_status_parameter),
+        match_id: RiotMatchID = Query(None, description="Filter by game match id"),
     ) -> Page[Game]:
-        search_parameters = GameSearchParameters(
-            state=state,
-            match_id=match_id
-        )
+        search_parameters = GameSearchParameters(state=state, match_id=match_id)
         games = self.__game_service.get_games(search_parameters)
         return paginate(games)
 
@@ -48,21 +41,12 @@ class GameEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Game,
         responses={
-            200: {
-                "model": Game
-            },
+            200: {"model": Game},
             404: {
                 "description": "Not Found",
-                "content": {
-                    "application/json": {
-                        "example": {"detail": "Game not found"}
-                    }
-                }
-            }
-        }
+                "content": {"application/json": {"example": {"detail": "Game not found"}}},
+            },
+        },
     )
-    def get_riot_game_by_id(
-            self,
-            game_id: RiotGameID
-    ) -> Game:
+    def get_riot_game_by_id(self, game_id: RiotGameID) -> Game:
         return self.__game_service.get_game_by_id(game_id)

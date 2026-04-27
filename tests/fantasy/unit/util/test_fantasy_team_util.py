@@ -8,7 +8,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     FantasyLeagueDraftOrder,
     FantasyTeam,
-    UserID
+    UserID,
 )
 from src.common.schemas.riot_data_schemas import RiotLeagueID, ProPlayerID
 
@@ -84,13 +84,15 @@ class TestFantasyTeamUtil(TestBase):
 
         # Act
         is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(
-            fantasy_league, user.id)
+            fantasy_league, user.id
+        )
 
         # Assert
         self.assertTrue(is_turn_to_draft)
         self.assertEqual(fantasy_league.current_draft_position, user_draft_position.position)
         self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
-            fantasy_league.id)
+            fantasy_league.id
+        )
 
     def test_is_users_position_to_draft_false(self):
         # Arrange
@@ -108,13 +110,15 @@ class TestFantasyTeamUtil(TestBase):
 
         # Act
         is_turn_to_draft = self.fantasy_team_util.is_users_position_to_draft(
-            fantasy_league, user.id)
+            fantasy_league, user.id
+        )
 
         # Assert
         self.assertFalse(is_turn_to_draft)
         self.assertNotEqual(fantasy_league.current_draft_position, user_draft_position.position)
         self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
-            fantasy_league.id)
+            fantasy_league.id
+        )
 
     def test_is_users_position_to_draft_no_user_draft_position_found_exception(self):
         # Arrange
@@ -133,10 +137,12 @@ class TestFantasyTeamUtil(TestBase):
         # Act and Assert
         with self.assertRaises(FantasyDraftException) as context:
             self.fantasy_team_util.is_users_position_to_draft(
-                fantasy_league, UserID("notFoundUserId"))
+                fantasy_league, UserID("notFoundUserId")
+            )
         self.assertIn("Could not find draft position", str(context.exception))
         self.mock_db_service.get_fantasy_league_draft_order.assert_called_once_with(
-            fantasy_league.id)
+            fantasy_league.id
+        )
 
     def test_all_teams_fully_drafted_true(self):
         # Arrange
@@ -246,7 +252,7 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league.id,
             UserID("123"),
             fantasy_league.current_week,
-            set_jungle_player_id=False
+            set_jungle_player_id=False,
         )
         fantasy_teams.append(missing_jungle_player_team)
         self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
@@ -330,7 +336,7 @@ class TestFantasyTeamUtil(TestBase):
             fantasy_league.id,
             UserID("123"),
             fantasy_league.current_week,
-            set_support_player_id=False
+            set_support_player_id=False,
         )
         fantasy_teams.append(missing_support_player_team)
         self.mock_db_service.get_all_fantasy_teams_for_week.return_value = fantasy_teams
@@ -348,14 +354,15 @@ class TestFantasyTeamUtil(TestBase):
 
 
 def create_fantasy_team(
-        fantasy_league_id: FantasyLeagueID,
-        user_id: UserID,
-        week: int,
-        set_top_player_id: bool = True,
-        set_jungle_player_id: bool = True,
-        set_mid_player_id: bool = True,
-        set_adc_player_id: bool = True,
-        set_support_player_id: bool = True) -> FantasyTeam:
+    fantasy_league_id: FantasyLeagueID,
+    user_id: UserID,
+    week: int,
+    set_top_player_id: bool = True,
+    set_jungle_player_id: bool = True,
+    set_mid_player_id: bool = True,
+    set_adc_player_id: bool = True,
+    set_support_player_id: bool = True,
+) -> FantasyTeam:
     return FantasyTeam(
         fantasy_league_id=fantasy_league_id,
         user_id=user_id,

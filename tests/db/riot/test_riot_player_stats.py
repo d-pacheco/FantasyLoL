@@ -49,11 +49,9 @@ class TestCrudRiotPlayerStats(TestBase):
         # Act and Assert
         self.assertEqual(
             player_stats,
-            self.db.get_player_stats(player_stats.game_id, player_stats.participant_id)
+            self.db.get_player_stats(player_stats.game_id, player_stats.participant_id),
         )
-        self.assertIsNone(
-            self.db.get_player_stats(RiotGameID("123"), player_stats.participant_id)
-        )
+        self.assertIsNone(self.db.get_player_stats(RiotGameID("123"), player_stats.participant_id))
         self.assertIsNone(self.db.get_player_stats(player_stats.game_id, 123))
 
     def test_get_game_ids_to_fetch_player_stats_for_completed_game_without_10_rows(self):
@@ -229,6 +227,6 @@ class TestCrudRiotPlayerStats(TestBase):
             kill_participation=int(0.5),
             champion_damage_share=int(0.2),
             wards_placed=10,
-            wards_destroyed=10
+            wards_destroyed=10,
         )
         self.db.put_player_stats(player_game_stats)

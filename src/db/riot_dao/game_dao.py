@@ -41,9 +41,9 @@ def update_game_last_stats_fetch(session, game_id: RiotGameID, last_fetch: bool)
 
 
 def get_games_with_last_stats_fetch(session, last_stats_fetch: bool) -> list[Game]:
-    game_models = session.query(GameModel).filter(
-        GameModel.last_stats_fetch == last_stats_fetch
-    ).all()
+    game_models = (
+        session.query(GameModel).filter(GameModel.last_stats_fetch == last_stats_fetch).all()
+    )
     return [Game.model_validate(game_model) for game_model in game_models]
 
 
@@ -73,9 +73,7 @@ def get_games_to_check_state(session) -> list[RiotGameID]:
 
 
 def get_game_by_id(session, game_id: RiotGameID) -> Game | None:
-    game_model: GameModel | None = session.query(GameModel).filter(
-        GameModel.id == game_id
-    ).first()
+    game_model: GameModel | None = session.query(GameModel).filter(GameModel.id == game_id).first()
     if game_model is None:
         return None
     else:

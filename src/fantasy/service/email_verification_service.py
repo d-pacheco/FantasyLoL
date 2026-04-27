@@ -25,8 +25,8 @@ class EmailVerificationService:
             message.attach(text_part)
 
             with smtplib.SMTP_SSL(
-                    self.verification_config.smtp_host,
-                    self.verification_config.smtp_port) as server:
+                self.verification_config.smtp_host, self.verification_config.smtp_port
+            ) as server:
                 server.login(sender_email, password)
                 server.sendmail(sender_email, user_email, message.as_string())
         except Exception as e:

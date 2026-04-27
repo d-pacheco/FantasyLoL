@@ -8,8 +8,9 @@ from src.common.schemas.search_parameters import TournamentSearchParameters
 from src.riot.service import RiotTournamentService
 
 
-def validate_status_parameter(status: TournamentStatus = Query(
-        None, description="Status of tournament")):
+def validate_status_parameter(
+    status: TournamentStatus = Query(None, description="Status of tournament"),
+):
     return status
 
 
@@ -24,15 +25,10 @@ class TournamentEndpoint(Routable):
         tags=["Tournaments"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[Tournament],
-        responses={
-            200: {
-                "model": Page[Tournament]
-            }
-        }
+        responses={200: {"model": Page[Tournament]}},
     )
     def get_riot_tournaments(
-            self,
-            status: TournamentStatus = Depends(validate_status_parameter)
+        self, status: TournamentStatus = Depends(validate_status_parameter)
     ) -> Page[Tournament]:
         search_parameters = TournamentSearchParameters(status=status)
         tournaments = self.__tournament_service.get_tournaments(search_parameters)
@@ -45,21 +41,12 @@ class TournamentEndpoint(Routable):
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Tournament,
         responses={
-            200: {
-                "model": Tournament
-            },
+            200: {"model": Tournament},
             404: {
                 "description": "Not Found",
-                "content": {
-                    "application/json": {
-                        "example": {"detail": "Tournament not found"}
-                    }
-                }
-            }
-        }
+                "content": {"application/json": {"example": {"detail": "Tournament not found"}}},
+            },
+        },
     )
-    def get_riot_tournaments_by_id(
-            self,
-            tournament_id: RiotTournamentID
-    ) -> Tournament:
+    def get_riot_tournaments_by_id(self, tournament_id: RiotTournamentID) -> Tournament:
         return self.__tournament_service.get_tournament_by_id(tournament_id)

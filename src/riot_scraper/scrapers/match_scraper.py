@@ -7,15 +7,15 @@ from src.riot_scraper.riot_api.schemas.get_schedule import Schedule
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotMatchScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            riot_api_requester: RiotApiClient,
-            job_runner=JobRunner
+        self,
+        database_service: DatabaseService,
+        riot_api_requester: RiotApiClient,
+        job_runner=JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = riot_api_requester
@@ -25,7 +25,7 @@ class RiotMatchScraper:
         self.job_runner.run_retry_job(
             job_function=self.fetch_new_schedule_job,
             job_name="fetch schedule from riot job",
-            max_retries=3
+            max_retries=3,
         )
 
     def fetch_matches_with_missing_data(self) -> None:
@@ -37,7 +37,7 @@ class RiotMatchScraper:
 
         earliest_start = datetime.fromisoformat(earliest_match.start_time.replace("Z", "+00:00"))
         riot_schedule = self.db.get_schedule("riot_schedule")
-        assert (riot_schedule is not None)
+        assert riot_schedule is not None
         current_page_token = riot_schedule.older_token_key
 
         while True:
@@ -73,9 +73,7 @@ class RiotMatchScraper:
             if len(matches) == 0:
                 logger.info(f"No matches found for page token {current_page_token}")
             else:
-                logger.info(
-                    f"{len(matches)} matches found for page token {current_page_token}"
-                )
+                logger.info(f"{len(matches)} matches found for page token {current_page_token}")
 
             for match in matches:
                 self.db.put_match(match)
@@ -99,8 +97,7 @@ class RiotMatchScraper:
         # After which fetch new schedule should only be used
 
         # Save the starting schedule into the database
-        logger.warning("Fetching entire schedule. "
-                       "This should only occur on new deployments")
+        logger.warning("Fetching entire schedule. " "This should only occur on new deployments")
         get_schedule_response = self.riot_api_requester.get_schedule()
         schedule = get_schedule_response.data.schedule
         matches = self.__get_matches_from_schedule(schedule)
@@ -116,16 +113,14 @@ class RiotMatchScraper:
             riot_curr_token = schedule.pages.older
 
         riot_schedule = StoredSchedule(
-            schedule_name="riot_schedule",
-            older_token_key=None,
-            newer_token_key=riot_curr_token
+            schedule_name="riot_schedule", older_token_key=None, newer_token_key=riot_curr_token
         )
 
         # Used as a save point if we encounter an error during back prop
         entire_schedule = StoredSchedule(
             schedule_name="entire_schedule",
             older_token_key=schedule.pages.older,
-            newer_token_key=None
+            newer_token_key=None,
         )
         self.db.update_schedule(riot_schedule)
         self.db.update_schedule(entire_schedule)
@@ -136,7 +131,7 @@ class RiotMatchScraper:
     def backprop_older_schedules(self) -> None:
         logger.info("Back propagating older schedule")
         entire_schedule = self.db.get_schedule("entire_schedule")
-        assert (entire_schedule is not None)
+        assert entire_schedule is not None
         current_page_token = entire_schedule.older_token_key
 
         no_more_schedules = False
@@ -177,14 +172,14 @@ class RiotMatchScraper:
                 if match.teams[1].result:
                     team_2_wins = match.teams[1].result.gameWins
             if event.state == MatchState.COMPLETED:
-                assert (match.teams[0].result is not None)
+                assert match.teams[0].result is not None
                 if match.teams[0].result.outcome == "win":
                     winning_team = match.teams[0].name
                 else:
                     winning_team = match.teams[1].name
 
             get_event_details_response = self.riot_api_requester.get_event_details(match.id)
-            assert (get_event_details_response is not None)
+            assert get_event_details_response is not None
 
             new_match = Match(
                 id=match.id,
@@ -199,7 +194,7 @@ class RiotMatchScraper:
                 state=event.state,
                 team_1_wins=team_1_wins,
                 team_2_wins=team_2_wins,
-                winning_team=winning_team
+                winning_team=winning_team,
             )
             matches_from_schedule.append(new_match)
 
@@ -209,7 +204,8 @@ class RiotMatchScraper:
 def get_earliest_past_match(tbd_matches: list[Match]) -> Match | None:
     now_utc = datetime.now(timezone.utc)
     past_tbd_matches = [
-        match for match in tbd_matches
+        match
+        for match in tbd_matches
         if datetime.fromisoformat(match.start_time.replace("Z", "+00:00")) < now_utc
     ]
 
@@ -217,6 +213,5 @@ def get_earliest_past_match(tbd_matches: list[Match]) -> Match | None:
         return None
 
     return min(
-        past_tbd_matches,
-        key=lambda m: datetime.fromisoformat(m.start_time.replace("Z", "+00:00"))
+        past_tbd_matches, key=lambda m: datetime.fromisoformat(m.start_time.replace("Z", "+00:00"))
     )

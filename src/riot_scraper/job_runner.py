@@ -4,7 +4,7 @@ from typing import Callable
 
 from src.common.exceptions import FantasyLolException
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class JobRunner:
@@ -22,8 +22,9 @@ class JobRunner:
             except FantasyLolException as e:
                 retry_count += 1
                 error = e
-                logger.warning(f"An error occurred during {job_name}."
-                               f" Retry attempt: {retry_count}")
+                logger.warning(
+                    f"An error occurred during {job_name}." f" Retry attempt: {retry_count}"
+                )
                 if retry_count <= max_retries:
                     time.sleep(5)
         if job_completed:

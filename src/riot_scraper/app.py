@@ -16,7 +16,7 @@ from src.riot_scraper.scrapers import (
     RiotLeagueScraper,
     RiotMatchScraper,
     RiotTeamScraper,
-    RiotTournamentScraper
+    RiotTournamentScraper,
 )
 from src.riot_scraper.job_scheduler import JobScheduler
 from src.riot_scraper.job_runner_endpoint import JobRunnerEndpoint
@@ -46,7 +46,7 @@ def configure_job_schedule(db_service: DatabaseService) -> JobScheduler:
         league_service=league_scraper,
         match_service=match_scraper,
         team_service=team_scraper,
-        tournament_service=tournament_scraper
+        tournament_service=tournament_scraper,
     )
     return job_scheduler
 
@@ -67,7 +67,7 @@ def configure_api_endpoints(job_runner_endpoint: JobRunnerEndpoint) -> FastAPI:
 
 
 def main():
-    configure_logger('scraper')
+    configure_logger("scraper")
 
     connection_provider = DatabaseConnectionProvider(app_config.DATABASE_URL)
     database_service = DatabaseService(connection_provider)

@@ -1,22 +1,28 @@
 import logging
 
-from src.common.schemas.riot_data_schemas import RiotGameID, PlayerGameMetadata, ProPlayerID, \
-    TeamGameStats, ProTeamID, PlayerGameStats
+from src.common.schemas.riot_data_schemas import (
+    RiotGameID,
+    PlayerGameMetadata,
+    ProPlayerID,
+    TeamGameStats,
+    ProTeamID,
+    PlayerGameStats,
+)
 from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.schemas.get_live_window import TeamMetaData, TeamWindowFrame
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 from src.riot_scraper.timestamp_util import TimestampUtil
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotGameStatsScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            riot_api_requester: RiotApiClient,
-            job_runner: JobRunner
+        self,
+        database_service: DatabaseService,
+        riot_api_requester: RiotApiClient,
+        job_runner: JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = riot_api_requester
@@ -24,9 +30,7 @@ class RiotGameStatsScraper:
 
     def run_player_metadata_retry_job(self):
         self.job_runner.run_retry_job(
-            job_function=self.run_player_metadata_job,
-            job_name="player metadata job",
-            max_retries=3
+            job_function=self.run_player_metadata_job, job_name="player metadata job", max_retries=3
         )
 
     def run_player_metadata_job(self) -> None:
@@ -46,12 +50,10 @@ class RiotGameStatsScraper:
                 return
 
             blue_team_player_metadata = parse_team_metadata(
-                window_response.gameMetadata.blueTeamMetadata,
-                game_id
+                window_response.gameMetadata.blueTeamMetadata, game_id
             )
             red_team_player_metadata = parse_team_metadata(
-                window_response.gameMetadata.redTeamMetadata,
-                game_id
+                window_response.gameMetadata.redTeamMetadata, game_id
             )
             for player_metadata in blue_team_player_metadata + red_team_player_metadata:
                 self.db.put_player_metadata(player_metadata)
@@ -61,9 +63,7 @@ class RiotGameStatsScraper:
 
     def run_player_stats_retry_job(self):
         self.job_runner.run_retry_job(
-            job_function=self.run_player_stats_job,
-            job_name="player stats job",
-            max_retries=3
+            job_function=self.run_player_stats_job, job_name="player stats job", max_retries=3
         )
 
     def run_player_stats_job(self):
@@ -123,7 +123,7 @@ class RiotGameStatsScraper:
                 kill_participation=round(participant.killParticipation * 100),
                 champion_damage_share=round(participant.championDamageShare * 100),
                 wards_placed=participant.wardsPlaced,
-                wards_destroyed=participant.wardsDestroyed
+                wards_destroyed=participant.wardsDestroyed,
             )
             player_stats.append(new_player_stats)
 
@@ -143,40 +143,40 @@ class RiotGameStatsScraper:
         blue_team_stats = get_team_stats_from_frame(
             game_id,
             window_response.gameMetadata.blueTeamMetadata.esportsTeamId,
-            last_frame.blueTeam
+            last_frame.blueTeam,
         )
         red_team_stats = get_team_stats_from_frame(
             game_id,
             window_response.gameMetadata.blueTeamMetadata.esportsTeamId,
-            last_frame.blueTeam
+            last_frame.blueTeam,
         )
 
         return [blue_team_stats, red_team_stats]
 
 
 def parse_team_metadata(
-        team_metadata: TeamMetaData,
-        game_id: RiotGameID
+    team_metadata: TeamMetaData, game_id: RiotGameID
 ) -> list[PlayerGameMetadata]:
     player_metadata_for_team = []
     for participant in team_metadata.participantMetadata:
-        player_id = participant.esportsPlayerId if participant.esportsPlayerId \
+        player_id = (
+            participant.esportsPlayerId
+            if participant.esportsPlayerId
             else ProPlayerID(str(participant.participantId))
+        )
         new_player_metadata = PlayerGameMetadata(
             game_id=game_id,
             participant_id=participant.participantId,
             champion_id=participant.championId,
             role=participant.role,
-            player_id=player_id  # Weird edge case where it doesn't exist for some games
+            player_id=player_id,  # Weird edge case where it doesn't exist for some games
         )
         player_metadata_for_team.append(new_player_metadata)
     return player_metadata_for_team
 
 
 def get_team_stats_from_frame(
-        game_id: RiotGameID,
-        team_id: ProTeamID,
-        team_frame: TeamWindowFrame
+    game_id: RiotGameID, team_id: ProTeamID, team_frame: TeamWindowFrame
 ) -> TeamGameStats:
     return TeamGameStats(
         game_id=game_id,
@@ -185,5 +185,5 @@ def get_team_stats_from_frame(
         inhibitors=team_frame.inhibitors,
         towers=team_frame.towers,
         barons=team_frame.barons,
-        total_kills=team_frame.totalKills
+        total_kills=team_frame.totalKills,
     )

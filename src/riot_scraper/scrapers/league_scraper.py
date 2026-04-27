@@ -5,15 +5,15 @@ from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotLeagueScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            riot_api_requester: RiotApiClient,
-            job_runner: JobRunner
+        self,
+        database_service: DatabaseService,
+        riot_api_requester: RiotApiClient,
+        job_runner: JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = riot_api_requester
@@ -23,7 +23,7 @@ class RiotLeagueScraper:
         self.job_runner.run_retry_job(
             job_function=self.fetch_leagues_from_riot_job,
             job_name="Fetch leagues from riot job",
-            max_retries=3
+            max_retries=3,
         )
 
     def fetch_leagues_from_riot_job(self):
@@ -36,6 +36,6 @@ class RiotLeagueScraper:
                 name=league.slug,
                 region=league.region,
                 image=league.image,
-                priority=league.displayPriority.position
+                priority=league.displayPriority.position,
             )
             self.db.put_league(new_league)

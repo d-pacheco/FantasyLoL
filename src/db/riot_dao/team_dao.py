@@ -20,9 +20,9 @@ def get_teams(session, filters: list | None = None) -> list[ProfessionalTeam]:
 
 
 def get_team_by_id(session, team_id: ProTeamID) -> ProfessionalTeam | None:
-    db_team: ProfessionalTeamModel | None = session.query(ProfessionalTeamModel)\
-        .filter(ProfessionalTeamModel.id == team_id)\
-        .first()
+    db_team: ProfessionalTeamModel | None = (
+        session.query(ProfessionalTeamModel).filter(ProfessionalTeamModel.id == team_id).first()
+    )
     if db_team is None:
         return None
     else:

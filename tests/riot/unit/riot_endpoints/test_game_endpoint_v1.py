@@ -23,7 +23,7 @@ class GameEndpointV1Test(TestBase):
         self.app = FastAPI()
         self.app.include_router(endpoint.router, prefix="/api/v1")
         for route in self.app.routes:
-            for dep in getattr(route, 'dependencies', []):
+            for dep in getattr(route, "dependencies", []):
                 if isinstance(dep.dependency, JWTBearer):
                     self.app.dependency_overrides[dep.dependency] = lambda: {}
         disable_installed_extensions_check()
@@ -38,7 +38,7 @@ class GameEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_BASE_URL}?state={GameState.COMPLETED.value}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -50,7 +50,7 @@ class GameEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_BASE_URL}?state={GameState.INPROGRESS.value}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -62,7 +62,7 @@ class GameEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_BASE_URL}?state={GameState.UNSTARTED.value}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -74,7 +74,7 @@ class GameEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_BASE_URL}?state={GameState.UNNEEDED.value}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -90,7 +90,7 @@ class GameEndpointV1Test(TestBase):
         response = self.client.get(f"{GAME_BASE_URL}?match_id={game_fixture.match_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 

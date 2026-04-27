@@ -6,10 +6,11 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyTeam,
-    UserID
+    UserID,
 )
-from src.common.exceptions.professional_player_not_found_exception import \
-    ProfessionalPlayerNotFoundException
+from src.common.exceptions.professional_player_not_found_exception import (
+    ProfessionalPlayerNotFoundException,
+)
 from src.fantasy.exceptions import FantasyMembershipException, FantasyDraftException
 from src.fantasy.util import FantasyTeamUtil, FantasyLeagueUtil
 
@@ -21,13 +22,11 @@ class FantasyTeamService:
         self.fantasy_team_util = FantasyTeamUtil(database_service)
 
     def get_all_fantasy_team_weeks(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID
+        self, fantasy_league_id: FantasyLeagueID, user_id: UserID
     ) -> list[FantasyTeam]:
         self.fantasy_league_util.validate_league(
             fantasy_league_id,
-            [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
+            [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED],
         )
         self.validate_user_membership(user_id, fantasy_league_id)
 
@@ -37,10 +36,7 @@ class FantasyTeamService:
         return fantasy_team_weeks
 
     def pickup_player(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID,
-            player_id: ProPlayerID
+        self, fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: ProPlayerID
     ) -> FantasyTeam:
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
@@ -49,8 +45,9 @@ class FantasyTeamService:
         self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         self.validate_user_membership(user_id, fantasy_league_id)
 
-        if (fantasy_league.status == FantasyLeagueStatus.DRAFT) \
-                and not self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id):
+        if (
+            fantasy_league.status == FantasyLeagueStatus.DRAFT
+        ) and not self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id):
             raise FantasyDraftException(
                 f"Invalid user draft position: The draft position for the user "
                 f"with ID {user_id} is not the current draft position for fantasy league "
@@ -62,9 +59,7 @@ class FantasyTeamService:
             raise FantasyDraftException(
                 f"Slot not available for role ({professional_player.role}) to draft new player"
             )
-        recent_fantasy_team.set_player_id_for_role(
-            professional_player.id, professional_player.role
-        )
+        recent_fantasy_team.set_player_id_for_role(professional_player.id, professional_player.role)
 
         if self.player_already_drafted(professional_player, fantasy_league):
             raise FantasyDraftException(
@@ -82,9 +77,7 @@ class FantasyTeamService:
         return recent_fantasy_team
 
     def drop_player(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID, player_id: ProPlayerID
+        self, fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: ProPlayerID
     ) -> FantasyTeam:
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
@@ -93,8 +86,10 @@ class FantasyTeamService:
         professional_player = self.get_player_from_db(player_id)
 
         recent_fantasy_team = self.get_users_most_recent_fantasy_team(fantasy_league, user_id)
-        if recent_fantasy_team.get_player_id_for_role(professional_player.role) \
-                != professional_player.id:
+        if (
+            recent_fantasy_team.get_player_id_for_role(professional_player.role)
+            != professional_player.id
+        ):
             raise FantasyDraftException(
                 f"Player not drafted: User {user_id} does not have player "
                 f"{professional_player.id} currently drafted in fantasy league {fantasy_league_id}"
@@ -105,11 +100,11 @@ class FantasyTeamService:
         return recent_fantasy_team
 
     def swap_players(
-            self,
-            fantasy_league_id: FantasyLeagueID,
-            user_id: UserID,
-            player_to_drop_id: ProPlayerID,
-            player_to_pickup_id: ProPlayerID
+        self,
+        fantasy_league_id: FantasyLeagueID,
+        user_id: UserID,
+        player_to_drop_id: ProPlayerID,
+        player_to_pickup_id: ProPlayerID,
     ) -> FantasyTeam:
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
@@ -118,7 +113,8 @@ class FantasyTeamService:
         pro_player_to_drop = self.get_player_from_db(player_to_drop_id)
         pro_player_to_pickup = self.get_player_from_db(player_to_pickup_id)
         self.fantasy_team_util.validate_player_from_available_league(
-            fantasy_league, player_to_pickup_id)
+            fantasy_league, player_to_pickup_id
+        )
 
         if pro_player_to_drop.role != pro_player_to_pickup.role:
             raise FantasyDraftException(
@@ -128,8 +124,10 @@ class FantasyTeamService:
             )
 
         recent_fantasy_team = self.get_users_most_recent_fantasy_team(fantasy_league, user_id)
-        if recent_fantasy_team.get_player_id_for_role(pro_player_to_drop.role) \
-                != pro_player_to_drop.id:
+        if (
+            recent_fantasy_team.get_player_id_for_role(pro_player_to_drop.role)
+            != pro_player_to_drop.id
+        ):
             raise FantasyDraftException(
                 f"Player not drafted: User {user_id} does not have player "
                 f"{pro_player_to_drop.id} currently drafted in fantasy league {fantasy_league_id}"
@@ -150,8 +148,10 @@ class FantasyTeamService:
 
     def validate_user_membership(self, user_id: UserID, fantasy_league_id: FantasyLeagueID) -> None:
         user_membership = self.db.get_user_membership_for_fantasy_league(user_id, fantasy_league_id)
-        if user_membership is None or \
-                user_membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
+        if (
+            user_membership is None
+            or user_membership.status != FantasyLeagueMembershipStatus.ACCEPTED
+        ):
             raise FantasyMembershipException(
                 f"User ({user_id}) is not apart of the fantasy league ({fantasy_league_id})"
             )
@@ -163,28 +163,25 @@ class FantasyTeamService:
         return pro_player
 
     def get_users_most_recent_fantasy_team(
-            self,
-            fantasy_league: FantasyLeague,
-            user_id: UserID) -> FantasyTeam:
+        self, fantasy_league: FantasyLeague, user_id: UserID
+    ) -> FantasyTeam:
         fantasy_teams_by_week = self.db.get_all_fantasy_teams_for_user(fantasy_league.id, user_id)
         if len(fantasy_teams_by_week) != 0:
             fantasy_teams_by_week.sort(key=lambda x: x.week)
             recent_fantasy_team = FantasyTeam.model_validate(fantasy_teams_by_week[-1])
         else:
-            current_week = fantasy_league.current_week \
-                if fantasy_league.current_week is not None else 0
+            current_week = (
+                fantasy_league.current_week if fantasy_league.current_week is not None else 0
+            )
             recent_fantasy_team = FantasyTeam(
-                fantasy_league_id=fantasy_league.id,
-                user_id=user_id,
-                week=current_week
+                fantasy_league_id=fantasy_league.id, user_id=user_id, week=current_week
             )
         return recent_fantasy_team
 
     def player_already_drafted(
-            self,
-            professional_player: ProfessionalPlayer,
-            fantasy_league: FantasyLeague) -> bool:
-        assert (fantasy_league.current_week is not None)
+        self, professional_player: ProfessionalPlayer, fantasy_league: FantasyLeague
+    ) -> bool:
+        assert fantasy_league.current_week is not None
         all_fantasy_teams_for_curr_week = self.db.get_all_fantasy_teams_for_week(
             fantasy_league.id, fantasy_league.current_week
         )

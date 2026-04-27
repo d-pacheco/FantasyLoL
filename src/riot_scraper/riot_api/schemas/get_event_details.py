@@ -5,7 +5,7 @@ from src.common.schemas.riot_data_schemas import (
     RiotTournamentID,
     RiotLeagueID,
     ProTeamID,
-    RiotMatchID
+    RiotMatchID,
 )
 
 

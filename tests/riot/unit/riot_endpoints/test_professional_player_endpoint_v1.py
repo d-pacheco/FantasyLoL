@@ -22,7 +22,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
         self.app = FastAPI()
         self.app.include_router(endpoint.router, prefix="/api/v1")
         for route in self.app.routes:
-            for dep in getattr(route, 'dependencies', []):
+            for dep in getattr(route, "dependencies", []):
                 if isinstance(dep.dependency, JWTBearer):
                     self.app.dependency_overrides[dep.dependency] = lambda: {}
         disable_installed_extensions_check()
@@ -39,7 +39,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
         )
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -51,7 +51,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
         response = self.client.get(f"{PLAYER_BASE_URL}?role={player_fixture.role.value}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -63,7 +63,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
         response = self.client.get(f"{PLAYER_BASE_URL}?team_id={player_fixture.team_id}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -75,7 +75,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
         response = self.client.get(PLAYER_BASE_URL)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
 
@@ -91,8 +91,7 @@ class ProfessionalPlayerEndpointV1Test(TestBase):
 
     def test_get_player_by_id_not_found(self):
         player_fixture = fixtures.player_1_fixture
-        self.mock_service.get_player_by_id.side_effect = \
-            ProfessionalPlayerNotFoundException()
+        self.mock_service.get_player_by_id.side_effect = ProfessionalPlayerNotFoundException()
 
         response = self.client.get(f"{PLAYER_BASE_URL}/{player_fixture.id}")
 

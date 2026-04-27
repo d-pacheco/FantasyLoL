@@ -35,7 +35,10 @@ class LeagueServiceTest(TestBase):
 
         # Assert
         self.assertIsInstance(leagues_from_db, list)
-        self.assertEqual(0, len(leagues_from_db), )
+        self.assertEqual(
+            0,
+            len(leagues_from_db),
+        )
 
     def test_get_leagues_by_region_existing_league(self):
         # Arrange
@@ -142,8 +145,7 @@ class LeagueServiceTest(TestBase):
         # Assert
         self.assertEqual(expected_updated_league, updated_league)
         self.assertNotEqual(
-            expected_updated_league.fantasy_available,
-            fantasy_league.fantasy_available
+            expected_updated_league.fantasy_available, fantasy_league.fantasy_available
         )
 
     def test_update_fantasy_available_to_false(self):
@@ -161,8 +163,7 @@ class LeagueServiceTest(TestBase):
         # Assert
         self.assertEqual(expected_updated_league, updated_league)
         self.assertNotEqual(
-            expected_updated_league.fantasy_available,
-            fantasy_league.fantasy_available
+            expected_updated_league.fantasy_available, fantasy_league.fantasy_available
         )
 
     def test_update_fantasy_available_non_existing_league_exception(self):

@@ -5,15 +5,15 @@ from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 
-logger = logging.getLogger('scraper')
+logger = logging.getLogger("scraper")
 
 
 class RiotTeamScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            riot_api_requester: RiotApiClient,
-            job_runner: JobRunner
+        self,
+        database_service: DatabaseService,
+        riot_api_requester: RiotApiClient,
+        job_runner: JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = riot_api_requester
@@ -23,7 +23,7 @@ class RiotTeamScraper:
         self.job_runner.run_retry_job(
             job_function=self.fetch_professional_teams_from_riot_job,
             job_name="fetch teams from riot job",
-            max_retries=3
+            max_retries=3,
         )
 
     def fetch_professional_teams_from_riot_job(self) -> None:
@@ -39,7 +39,7 @@ class RiotTeamScraper:
                 alternative_image=team.alternativeImage,
                 background_image=team.backgroundImage,
                 status=team.status,
-                home_league=team.homeLeague.name if team.homeLeague else None
+                home_league=team.homeLeague.name if team.homeLeague else None,
             )
             self.db.put_team(new_team)
 
@@ -49,6 +49,6 @@ class RiotTeamScraper:
                     summoner_name=player.summonerName,
                     image=player.image,
                     role=player.role,
-                    team_id=team.id
+                    team_id=team.id,
                 )
                 self.db.put_player(new_player)

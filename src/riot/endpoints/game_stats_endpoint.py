@@ -19,20 +19,13 @@ class GameStatsEndpoint(Routable):
         tags=["Game Stats"],
         dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
         response_model=Page[PlayerGameData],
-        responses={
-            200: {
-                "model": Page[PlayerGameData]
-            }
-        }
+        responses={200: {"model": Page[PlayerGameData]}},
     )
     def get_game_stats_for_game(
-            self,
-            game_id: RiotGameID = Query(None, description="Game id"),
-            player_id: ProPlayerID = Query(None, description="The id of the player to search for")
+        self,
+        game_id: RiotGameID = Query(None, description="Game id"),
+        player_id: ProPlayerID = Query(None, description="The id of the player to search for"),
     ) -> Page[PlayerGameData]:
-        search_parameters = PlayerGameStatsSearchParameters(
-            game_id=game_id,
-            player_id=player_id
-        )
+        search_parameters = PlayerGameStatsSearchParameters(game_id=game_id, player_id=player_id)
         player_game_stats = self.__game_stats_service.get_player_stats(search_parameters)
         return paginate(player_game_stats)

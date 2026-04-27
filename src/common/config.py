@@ -38,24 +38,14 @@ class AppConfig(BaseSettings):
     ESPORTS_FEED_URL: str = "https://feed.lolesports.com/livestats/v1"
 
     # Job schedules
-    LEAGUE_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
-        trigger="cron", hour="10", minute="00"
-    )
+    LEAGUE_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", hour="10", minute="00")
     TOURNAMENT_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
         trigger="cron", hour="10", minute="05"
     )
-    TEAM_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
-        trigger="cron", hour="10", minute="10"
-    )
-    MATCH_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
-        trigger="cron", minute="30"
-    )
-    GAME_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
-        trigger="cron", minute="45"
-    )
-    GAME_STATS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
-        trigger="cron", minute="*/5"
-    )
+    TEAM_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", hour="10", minute="10")
+    MATCH_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="30")
+    GAME_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="45")
+    GAME_STATS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/5")
 
 
 app_config = AppConfig()  # type: ignore[call-arg]

@@ -6,7 +6,7 @@ from src.db.database_service import DatabaseService
 from src.db.models import ProfessionalPlayerModel
 from src.common.exceptions import ProfessionalPlayerNotFoundException
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotProfessionalPlayerService:

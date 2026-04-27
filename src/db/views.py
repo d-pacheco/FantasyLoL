@@ -24,9 +24,7 @@ class PlayerGameView(Base):  # type: ignore
     wards_placed = Column(Integer)
     wards_destroyed = Column(Integer)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('game_id', 'player_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("game_id", "player_id"),)
 
 
 create_player_game_view_query = text("""

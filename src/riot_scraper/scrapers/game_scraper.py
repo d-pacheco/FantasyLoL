@@ -5,15 +5,15 @@ from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 
-logger = logging.getLogger('riot')
+logger = logging.getLogger("riot")
 
 
 class RiotGameScraper:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            api_requester: RiotApiClient,
-            job_runner: JobRunner,
+        self,
+        database_service: DatabaseService,
+        api_requester: RiotApiClient,
+        job_runner: JobRunner,
     ):
         self.db = database_service
         self.riot_api_requester = api_requester
@@ -23,13 +23,13 @@ class RiotGameScraper:
         self.job_runner.run_retry_job(
             job_function=self.fetch_games_from_match_ids_job,
             job_name="fetch games from match ids job",
-            max_retries=3
+            max_retries=3,
         )
 
     def fetch_games_from_match_ids_job(self, batch_size: int = 25):
         match_ids = self.db.get_match_ids_without_games()
         for i in range(0, len(match_ids), batch_size):
-            batch = match_ids[i:i + batch_size]
+            batch = match_ids[i : i + batch_size]
             self.process_batch_match_ids(batch)
 
     def process_batch_match_ids(self, match_ids: list[RiotMatchID]):
@@ -52,7 +52,7 @@ class RiotGameScraper:
                     state=GameState(game.state),
                     red_team=ProTeamID(red_team_id),
                     blue_team=ProTeamID(blue_team_id),
-                    match_id=match_id
+                    match_id=match_id,
                 )
                 all_fetched_games.append(new_game)
         self.db.bulk_save_games(all_fetched_games)
@@ -61,14 +61,16 @@ class RiotGameScraper:
         self.job_runner.run_retry_job(
             job_function=self.update_game_states_job,
             job_name="update game states job",
-            max_retries=3
+            max_retries=3,
         )
 
     def update_game_states_job(self):
         game_ids = self.db.get_games_to_check_state()
 
         batch_size = 10
-        game_id_batches = [game_ids[i:i + batch_size] for i in range(0, len(game_ids), batch_size)]
+        game_id_batches = [
+            game_ids[i : i + batch_size] for i in range(0, len(game_ids), batch_size)
+        ]
 
         for batch in game_id_batches:
             get_games_response = self.riot_api_requester.get_games(batch)

@@ -4,7 +4,4 @@ from http import HTTPStatus
 
 class GameNotFoundException(HTTPException):
     def __init__(self) -> None:
-        super().__init__(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Game not found"
-        )
+        super().__init__(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")

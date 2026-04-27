@@ -4,7 +4,7 @@ import logging
 
 from .auth_handler import decode_jwt  # type: ignore
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger("fantasy-lol")
 
 
 class JWTBearer(HTTPBearer):

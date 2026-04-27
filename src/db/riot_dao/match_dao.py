@@ -22,9 +22,9 @@ def get_matches(session, filters: list | None = None) -> list[Match]:
 
 
 def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
-    db_match: MatchModel | None = session.query(MatchModel).filter(
-        MatchModel.id == match_id
-    ).first()
+    db_match: MatchModel | None = (
+        session.query(MatchModel).filter(MatchModel.id == match_id).first()
+    )
     if db_match is None:
         return None
     else:
@@ -45,10 +45,10 @@ def get_match_ids_without_games(session) -> list[RiotMatchID]:
 
 
 def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) -> None:
-    db_match: MatchModel | None = (session.query(MatchModel)
-                                   .filter(MatchModel.id == match_id)
-                                   .first())
-    assert (db_match is not None)
+    db_match: MatchModel | None = (
+        session.query(MatchModel).filter(MatchModel.id == match_id).first()
+    )
+    assert db_match is not None
     db_match.has_games = new_has_games
     session.merge(db_match)
     session.commit()
@@ -62,11 +62,11 @@ def get_matches_for_league_with_active_tournament(session, league_id: RiotLeague
         .where(
             LeagueModel.id == league_id,
             func.current_date().between(
-                cast(TournamentModel.start_date, Date),
-                cast(TournamentModel.end_date, Date)
+                cast(TournamentModel.start_date, Date), cast(TournamentModel.end_date, Date)
             ),
-            func.substr(MatchModel.start_time, 1, 10)
-            .between(TournamentModel.start_date, TournamentModel.end_date)
+            func.substr(MatchModel.start_time, 1, 10).between(
+                TournamentModel.start_date, TournamentModel.end_date
+            ),
         )
     )
 
@@ -77,18 +77,16 @@ def get_matches_for_league_with_active_tournament(session, league_id: RiotLeague
 
 
 def get_miss_data_matches(session) -> list[Match]:
-    match_models = session.execute(
-        select(MatchModel).where(
-            or_(
+    match_models = (
+        session.execute(
+            select(MatchModel).where(
                 or_(
-                    MatchModel.team_1_name == "TBD",
-                    MatchModel.team_2_name == "TBD"
-                ),
-                or_(
-                    MatchModel.state == "UNSTARTED",
-                    MatchModel.state == "INPROGRESS"
+                    or_(MatchModel.team_1_name == "TBD", MatchModel.team_2_name == "TBD"),
+                    or_(MatchModel.state == "UNSTARTED", MatchModel.state == "INPROGRESS"),
                 )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [Match.model_validate(match_model) for match_model in match_models]

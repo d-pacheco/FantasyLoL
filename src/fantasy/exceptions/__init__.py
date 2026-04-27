@@ -1,7 +1,8 @@
 from .draft_order_exception import DraftOrderException  # noqa: F401
 from .fantasy_draft_exception import FantasyDraftException  # noqa: F401
-from .fantasy_league_invalid_required_state_exception import \
-    FantasyLeagueInvalidRequiredStateException  # noqa: F401
+from .fantasy_league_invalid_required_state_exception import (  # noqa: F401
+    FantasyLeagueInvalidRequiredStateException,
+)
 from .fantasy_league_invite_exception import FantasyLeagueInviteException  # noqa: F401
 from .fantasy_league_not_found_exception import FantasyLeagueNotFoundException  # noqa: F401
 from .fantasy_league_settings_exception import FantasyLeagueSettingsException  # noqa: F401

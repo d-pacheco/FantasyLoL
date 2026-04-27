@@ -15,12 +15,9 @@ class UserEndpointV1(Routable):
         path="/user/signup",
         description="Signup for Fantasy League of Legends.",
         tags=["Users"],
-        response_model=None
+        response_model=None,
     )
-    def user_signup(
-            self,
-            user: UserCreate = Body(...)
-    ) -> dict:
+    def user_signup(self, user: UserCreate = Body(...)) -> dict:
         response_message = self.__user_service.user_signup(user)
         return {"message": response_message}
 
@@ -28,12 +25,9 @@ class UserEndpointV1(Routable):
         path="/user/login",
         description="Login to a Fantasy League of Legends account.",
         tags=["Users"],
-        response_model=None
+        response_model=None,
     )
-    def user_login(
-            self,
-            credentials: UserLogin = Body(...)
-    ) -> dict:
+    def user_login(self, credentials: UserLogin = Body(...)) -> dict:
         return self.__user_service.login_user(credentials)
 
     @put(
@@ -41,12 +35,9 @@ class UserEndpointV1(Routable):
         description="Delete a Fantasy League of Legends account.",
         tags=["Users"],
         dependencies=[Depends(JWTBearer())],
-        status_code=204
+        status_code=204,
     )
-    def user_delete(
-            self,
-            decoded_token: dict = Depends(JWTBearer())
-    ):
+    def user_delete(self, decoded_token: dict = Depends(JWTBearer())):
         user_id = UserID(decoded_token.get("user_id"))  # type: ignore
         self.__user_service.delete_user(user_id)
 
@@ -54,12 +45,9 @@ class UserEndpointV1(Routable):
         path="/user/verify-email/{token}",
         description="Verify the email of a Fantasy account.",
         tags=["Users"],
-        status_code=202
+        status_code=202,
     )
-    def verify_email(
-            self,
-            token: str
-    ):
+    def verify_email(self, token: str):
         verification_message = self.__user_service.verify_user_email(token)
         return {"message": verification_message}
 
@@ -67,12 +55,9 @@ class UserEndpointV1(Routable):
         path="/user/request-verification-email",
         description="Request a verification email for a Fantasy account.",
         tags=["Users"],
-        status_code=201
+        status_code=201,
     )
-    def request_verification_email(
-            self,
-            request: EmailRequest
-    ):
+    def request_verification_email(self, request: EmailRequest):
         user_email = request.email
         self.__user_service.request_verification_email(user_email)
         return {"message": f"A new verification email has been sent to {user_email} if it exists."}

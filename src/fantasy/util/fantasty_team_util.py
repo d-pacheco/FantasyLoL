@@ -11,9 +11,7 @@ class FantasyTeamUtil:
         self.db = database_service
 
     def validate_player_from_available_league(
-            self,
-            fantasy_league: FantasyLeague,
-            player_id: ProPlayerID
+        self, fantasy_league: FantasyLeague, player_id: ProPlayerID
     ) -> None:
         player_league_ids = self.db.get_league_ids_for_player(player_id)
         in_allowed_league = False
@@ -45,7 +43,7 @@ class FantasyTeamUtil:
         return users_draft_position == fantasy_league.current_draft_position
 
     def all_teams_fully_drafted(self, fantasy_league: FantasyLeague) -> bool:
-        assert (fantasy_league.current_week is not None)
+        assert fantasy_league.current_week is not None
         fantasy_league_teams = self.db.get_all_fantasy_teams_for_week(
             fantasy_league.id, fantasy_league.current_week
         )

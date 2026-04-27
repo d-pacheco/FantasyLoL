@@ -24,7 +24,7 @@ class LeagueEndpointV1Test(TestBase):
         self.app.include_router(endpoint.router, prefix="/api/v1")
         # Override every JWTBearer instance used in route dependencies
         for route in self.app.routes:
-            for dep in getattr(route, 'dependencies', []):
+            for dep in getattr(route, "dependencies", []):
                 if isinstance(dep.dependency, JWTBearer):
                     self.app.dependency_overrides[dep.dependency] = lambda: {}
         disable_installed_extensions_check()
@@ -39,7 +39,7 @@ class LeagueEndpointV1Test(TestBase):
         response = self.client.get(LEAGUE_BASE_URL)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
         self.mock_service.get_leagues.assert_called_once_with(LeagueSearchParameters())
@@ -52,7 +52,7 @@ class LeagueEndpointV1Test(TestBase):
         response = self.client.get(f"{LEAGUE_BASE_URL}?name={league_fixture.name}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
         self.mock_service.get_leagues.assert_called_once_with(
@@ -67,7 +67,7 @@ class LeagueEndpointV1Test(TestBase):
         response = self.client.get(f"{LEAGUE_BASE_URL}?region={league_fixture.region}")
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
         self.mock_service.get_leagues.assert_called_once_with(
@@ -84,7 +84,7 @@ class LeagueEndpointV1Test(TestBase):
         )
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        items = response.json().get('items')
+        items = response.json().get("items")
         self.assertEqual(1, len(items))
         self.assertEqual(expected, items[0])
         self.mock_service.get_leagues.assert_called_once_with(
@@ -104,8 +104,7 @@ class LeagueEndpointV1Test(TestBase):
 
     def test_get_league_by_id_not_found(self):
         league_fixture = fixtures.league_1_fixture
-        self.mock_service.get_league_by_id.side_effect = \
-            LeagueNotFoundException(league_fixture.id)
+        self.mock_service.get_league_by_id.side_effect = LeagueNotFoundException(league_fixture.id)
 
         response = self.client.get(f"{LEAGUE_BASE_URL}/{league_fixture.id}")
 

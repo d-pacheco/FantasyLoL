@@ -4,16 +4,14 @@ import logging
 
 from src.common import app_config
 
-logger = logging.getLogger('fantasy-lol')
+logger = logging.getLogger("fantasy-lol")
 
 JWT_SECRET = app_config.AUTH_SECRET
 JWT_ALGORITHM = app_config.AUTH_ALGORITHM
 
 
 def token_response(token: str):
-    return {
-        "access_token": token
-    }
+    return {"access_token": token}
 
 
 def sign_jwt(user_id: str, permissions: list[str]) -> dict[str, str]:
@@ -21,7 +19,7 @@ def sign_jwt(user_id: str, permissions: list[str]) -> dict[str, str]:
         "user_id": user_id,
         "permissions": permissions,
         "exp": time.time() + 86400,  # Token is valid for 24 hours
-        "iat": time.time()
+        "iat": time.time(),
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 

@@ -7,7 +7,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerRole,
     ProPlayerID,
     RiotGameID,
-    PlayerGameMetadata
+    PlayerGameMetadata,
 )
 
 
@@ -55,16 +55,10 @@ class TestCrudRiotPlayerMetadata(TestBase):
         # Act and Assert
         self.assertEqual(
             player_metadata,
-            self.db.get_player_metadata(
-                player_metadata.player_id, player_metadata.game_id
-            )
+            self.db.get_player_metadata(player_metadata.player_id, player_metadata.game_id),
         )
-        self.assertIsNone(
-            self.db.get_player_metadata(ProPlayerID("123"), player_metadata.game_id)
-        )
-        self.assertIsNone(
-            self.db.get_player_metadata(player_metadata.player_id, RiotGameID("123"))
-        )
+        self.assertIsNone(self.db.get_player_metadata(ProPlayerID("123"), player_metadata.game_id))
+        self.assertIsNone(self.db.get_player_metadata(player_metadata.player_id, RiotGameID("123")))
 
     def test_get_games_without_player_metadata_completed_game_without_10_rows(self):
         game = riot_fixtures.game_1_fixture_completed
@@ -124,6 +118,6 @@ class TestCrudRiotPlayerMetadata(TestBase):
             player_id=ProPlayerID(str(random.randint(1, 9999999))),
             participant_id=participant_id,
             champion_id=f"championId{participant_id}",
-            role=role
+            role=role,
         )
         self.db.put_player_metadata(player_metadata)

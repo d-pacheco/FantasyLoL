@@ -10,12 +10,12 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
     FantasyLeagueSettings,
     FantasyLeagueStatus,
-    UserID
+    UserID,
 )
 from src.fantasy.exceptions import FantasyLeagueNotFoundException, ForbiddenException
 from src.fantasy.service import FantasyLeagueService
 
-FANTASY_LEAGUE_SERV_PATH = 'src.fantasy.service.fantasy_league_service.FantasyLeagueService'
+FANTASY_LEAGUE_SERV_PATH = "src.fantasy.service.fantasy_league_service.FantasyLeagueService"
 
 
 class TestFantasyLeagueService(TestBase):
@@ -26,7 +26,7 @@ class TestFantasyLeagueService(TestBase):
     def tearDown(self):
         self.mock_db_service.reset_mock()
 
-    @patch(f'{FANTASY_LEAGUE_SERV_PATH}.generate_new_valid_id')
+    @patch(f"{FANTASY_LEAGUE_SERV_PATH}.generate_new_valid_id")
     def test_create_fantasy_league(self, mock_generate_new_valid_id: MagicMock):
         # Arrange
         fantasy_league_id = FantasyLeagueID(str(uuid.uuid4()))
@@ -36,7 +36,7 @@ class TestFantasyLeagueService(TestBase):
             id=fantasy_league_id,
             owner_id=owner_id,
             status=FantasyLeagueStatus.PRE_DRAFT,
-            name=fantasy_league_settings.name
+            name=fantasy_league_settings.name,
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = expected_fantasy_league
         mock_generate_new_valid_id.return_value = fantasy_league_id
@@ -51,7 +51,7 @@ class TestFantasyLeagueService(TestBase):
         mock_generate_new_valid_id.assert_called_once()
         self.mock_db_service.create_fantasy_league.assert_called_once_with(expected_fantasy_league)
 
-    @patch('uuid.uuid4', side_effect=['id1', 'id2'])
+    @patch("uuid.uuid4", side_effect=["id1", "id2"])
     def test_generate_new_valid_id(self, mock_uuid4: MagicMock):
         # Arrange
         mock_get_fantasy_league_by_id = MagicMock(side_effect=[MagicMock(), None])
@@ -61,12 +61,12 @@ class TestFantasyLeagueService(TestBase):
         generated_id = self.fantasy_league_service.generate_new_valid_id()
 
         # Assert
-        self.assertEqual(generated_id, 'id2')
+        self.assertEqual(generated_id, "id2")
         mock_uuid4.assert_called()
         self.assertEqual(mock_uuid4.call_count, 2)
-        mock_get_fantasy_league_by_id.assert_any_call('id1')
-        mock_get_fantasy_league_by_id.assert_any_call('id2')
-        mock_get_fantasy_league_by_id.assert_called_with('id2')
+        mock_get_fantasy_league_by_id.assert_any_call("id1")
+        mock_get_fantasy_league_by_id.assert_any_call("id2")
+        mock_get_fantasy_league_by_id.assert_called_with("id2")
 
     def test_get_fantasy_league_settings_successful(self):
         # Arrange
@@ -119,8 +119,7 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         expected_updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league",
-            number_of_teams=10
+            name="Update fantasy league", number_of_teams=10
         )
         expected_updated_league = copy.deepcopy(fantasy_league)
         expected_updated_league.name = expected_updated_league_settings.name
@@ -148,8 +147,7 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league",
-            number_of_teams=10
+            name="Update fantasy league", number_of_teams=10
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = None
 
@@ -168,8 +166,7 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league",
-            number_of_teams=10
+            name="Update fantasy league", number_of_teams=10
         )
 
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league

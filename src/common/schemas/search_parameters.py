@@ -8,7 +8,7 @@ from .riot_data_schemas import (
     ProPlayerID,
     ProTeamID,
     PlayerRole,
-    TournamentStatus
+    TournamentStatus,
 )
 
 

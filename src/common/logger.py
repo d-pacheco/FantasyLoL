@@ -24,7 +24,7 @@ def configure_logger(logger_name: str):
         mode="a+",
         maxBytes=max_file_size,
         backupCount=backup_count,
-        encoding="utf-8"
+        encoding="utf-8",
     )
     file_handler.setLevel(logging_level)
     file_handler.setFormatter(formatter)

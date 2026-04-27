@@ -8,13 +8,13 @@ from src.common.schemas.fantasy_schemas import (
     User,
     UserLogin,
     UserID,
-    UserAccountStatus
+    UserAccountStatus,
 )
 from src.db.database_service import DatabaseService
 from src.fantasy.exceptions import (
     UserAlreadyExistsException,
     InvalidUsernameOrPasswordException,
-    UserVerificationException
+    UserVerificationException,
 )
 from .email_verification_service import EmailVerificationService
 
@@ -23,9 +23,9 @@ DEFAULT_PERMISSIONS = [Permissions.FANTASY_READ, Permissions.FANTASY_WRITE, Perm
 
 class UserService:
     def __init__(
-            self,
-            database_service: DatabaseService,
-            email_verification_service: EmailVerificationService = EmailVerificationService()
+        self,
+        database_service: DatabaseService,
+        email_verification_service: EmailVerificationService = EmailVerificationService(),
     ):
         self.db = database_service
         self.email_verification_service = email_verification_service
@@ -54,10 +54,10 @@ class UserService:
             raise UserAlreadyExistsException("Email already in use")
 
     def create_new_user(
-            self,
-            user_create: UserCreate,
-            permissions: list[Permissions],
-            verification_token: str | None = None
+        self,
+        user_create: UserCreate,
+        permissions: list[Permissions],
+        verification_token: str | None = None,
     ) -> User:
         new_id = self.generate_new_valid_id()
         hashed_password = self.hash_password(user_create.password)
@@ -69,7 +69,7 @@ class UserService:
             password=hashed_password,
             account_status=UserAccountStatus.PENDING_VERIFICATION,
             verified=False,
-            verification_token=verification_token
+            verification_token=verification_token,
         )
         user.set_permissions(permissions)
         return user
@@ -95,9 +95,7 @@ class UserService:
         if not user.verified:
             raise UserVerificationException("You must verify your email before logging in.")
 
-        passwords_match = bcrypt.checkpw(
-            user_credentials.password.encode(), user.password
-        )
+        passwords_match = bcrypt.checkpw(user_credentials.password.encode(), user.password)
         if not passwords_match:
             raise InvalidUsernameOrPasswordException()
 
@@ -127,8 +125,7 @@ class UserService:
     def send_verification_email_to_user(self, user_email: str) -> str:
         verification_token = self.generate_verification_token()
         email_sent_successfully = self.email_verification_service.send_verification_email(
-            user_email,
-            verification_token
+            user_email, verification_token
         )
         if not email_sent_successfully:
             raise UserVerificationException("Invalid email address provided.")
