@@ -7,8 +7,6 @@ COPY ../src /app/src
 
 RUN pip install --no-cache-dir .
 
-COPY ../.env /app
-
 EXPOSE 8002
 
 ENV PYTHONPATH="/app/src"

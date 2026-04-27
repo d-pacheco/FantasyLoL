@@ -7,8 +7,6 @@ COPY ../src /app/src
 
 RUN pip install --no-cache-dir .
 
-COPY ../.env /app
-
 ENV PYTHONPATH="/app/src"
 
 CMD ["python", "-m", "riot_scraper.app"]
