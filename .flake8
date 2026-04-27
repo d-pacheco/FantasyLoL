@@ -2,9 +2,3 @@
 max-line-length = 100
 ignore = E402, W503, W504
 exclude = .github,__pycache__,.vscode,venv,.venv,.idea,out
-
-[autopep8]
-max-line-length = 100
-
-[mypy]
-plugins = sqlalchemy.ext.mypy.plugin

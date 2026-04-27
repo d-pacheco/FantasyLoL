@@ -61,7 +61,7 @@ scripts/             # Helper scripts for linting, testing, local Docker
 
 3. Install dependencies:
    ```bash
-   pip install -r requirements-base.txt
+   pip install .
    ```
 
 4. Create a `.env` file in the project root:
@@ -115,7 +115,7 @@ Or use the helper script:
 Install dev dependencies:
 
 ```bash
-pip install -r requirements-dev.txt
+pip install ".[dev]"
 ```
 
 ### Linting
