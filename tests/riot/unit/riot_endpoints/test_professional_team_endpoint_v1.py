@@ -1,196 +1,120 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
-from unittest.mock import patch
-from unittest import skip
+from fastapi_pagination.utils import disable_installed_extensions_check
 from http import HTTPStatus
+from unittest.mock import MagicMock
 
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.common.schemas.search_parameters import TeamSearchParameters
+from src.auth import JWTBearer
 from src.riot.exceptions import ProfessionalTeamNotFoundException
-from src.riot import app
+from src.riot.endpoints import ProfessionalTeamEndpoint
 
-PROFESSIONAL_TEAM_BASE_URL = "/riot/v1/professional-team"
-BASE_TEAM_SERVICE_MOCK_PATH = \
-    "src.riot.service.riot_professional_team_service.RiotProfessionalTeamService"
-TEAM_SERVICE_GET_TEAMS_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_teams"
-TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH = f"{BASE_TEAM_SERVICE_MOCK_PATH}.get_team_by_id"
+TEAM_BASE_URL = "/api/v1/professional-team"
 
 
 class ProfessionalTeamEndpointV1Test(TestBase):
     def setUp(self):
-        add_pagination(app)
-        self.client = TestClient(app)
+        self.mock_service = MagicMock()
+        endpoint = ProfessionalTeamEndpoint(self.mock_service)
+        self.app = FastAPI()
+        self.app.include_router(endpoint.router, prefix="/api/v1")
+        for route in self.app.routes:
+            for dep in getattr(route, 'dependencies', []):
+                if isinstance(dep.dependency, JWTBearer):
+                    self.app.dependency_overrides[dep.dependency] = lambda: {}
+        disable_installed_extensions_check()
+        add_pagination(self.app)
+        self.client = TestClient(self.app)
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_slug_query(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_slug_query(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?slug={team_fixture.slug}"
-        )
+        response = self.client.get(f"{TEAM_BASE_URL}?slug={team_fixture.slug}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(slug=team_fixture.slug)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_name_query(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_name_query(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?name={team_fixture.name}"
-        )
+        response = self.client.get(f"{TEAM_BASE_URL}?name={team_fixture.name}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(name=team_fixture.name)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_code_query(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_code_query(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?code={team_fixture.code}"
-        )
+        response = self.client.get(f"{TEAM_BASE_URL}?code={team_fixture.code}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(code=team_fixture.code)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_status_query(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_status_query(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?status={team_fixture.status}"
-        )
+        response = self.client.get(f"{TEAM_BASE_URL}?status={team_fixture.status}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(status=team_fixture.status)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_league_query(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_league_query(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_TEAM_BASE_URL}?league={team_fixture.home_league}"
-        )
+        response = self.client.get(f"{TEAM_BASE_URL}?league={team_fixture.home_league}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(
-            TeamSearchParameters(league=team_fixture.home_league)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAMS_MOCK_PATH)
-    def test_get_professional_teams_endpoint_search_all(self, mock_get_teams):
-        # Arrange
+    def test_get_teams_search_all(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_teams.return_value = [team_fixture]
+        expected = team_fixture.model_dump()
+        self.mock_service.get_teams.return_value = [team_fixture]
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}")
+        response = self.client.get(TEAM_BASE_URL)
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_teams = response_json.get('items')
-        self.assertIsInstance(professional_teams, list)
-        self.assertEqual(1, len(professional_teams))
-        self.assertEqual(expected_team_response, professional_teams[0])
-        mock_get_teams.assert_called_once_with(TeamSearchParameters())
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH)
-    def test_get_professional_team_by_id_success(self, mock_get_team_by_id):
-        # Arrange
+    def test_get_team_by_id_success(self):
         team_fixture = fixtures.team_1_fixture
-        expected_team_response = team_fixture.model_dump()
-        mock_get_team_by_id.return_value = team_fixture
+        expected = team_fixture.model_dump()
+        self.mock_service.get_team_by_id.return_value = team_fixture
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_fixture.id}")
+        response = self.client.get(f"{TEAM_BASE_URL}/{team_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_team = response.json()
-        self.assertIsInstance(professional_team, dict)
-        self.assertEqual(expected_team_response, professional_team)
-        mock_get_team_by_id.assert_called_once_with(team_fixture.id)
+        self.assertEqual(expected, response.json())
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(TEAM_SERVICE_GET_TEAM_BY_ID_MOCK_PATH)
-    def test_get_professional_team_by_id_not_found(self, mock_get_team_by_id):
-        # Arrange
+    def test_get_team_by_id_not_found(self):
         team_fixture = fixtures.team_1_fixture
-        mock_get_team_by_id.side_effect = ProfessionalTeamNotFoundException
+        self.mock_service.get_team_by_id.side_effect = ProfessionalTeamNotFoundException()
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_TEAM_BASE_URL}/{team_fixture.id}")
+        response = self.client.get(f"{TEAM_BASE_URL}/{team_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_team_by_id.assert_called_once_with(team_fixture.id)

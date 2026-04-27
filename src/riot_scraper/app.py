@@ -61,7 +61,7 @@ def configure_api_endpoints(job_runner_endpoint: JobRunnerEndpoint) -> FastAPI:
             """,
     )
     disable_installed_extensions_check()
-    app.include_router(job_runner_endpoint.router)
+    app.include_router(job_runner_endpoint.router, prefix="/api/v1")
 
     return app
 

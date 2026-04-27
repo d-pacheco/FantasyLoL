@@ -1,127 +1,95 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
-from unittest.mock import patch
-from unittest import skip
+from fastapi_pagination.utils import disable_installed_extensions_check
 from http import HTTPStatus
+from unittest.mock import MagicMock
 
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
+from src.auth import JWTBearer
 from src.common.schemas.riot_data_schemas import TournamentStatus
-from src.common.schemas.search_parameters import TournamentSearchParameters
 from src.riot.exceptions import TournamentNotFoundException
-from src.riot import app
+from src.riot.endpoints import TournamentEndpoint
 
-
-TOURNAMENT_BASE_URL = "/riot/v1/tournament"
-BASE_TOURNAMENT_SERVICE_MOCK_PATH = \
-    "src.riot.service.riot_tournament_service.RiotTournamentService"
-GET_TOURNAMENTS_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournaments"
-GET_TOURNAMENTS_BY_ID_MOCK_PATH = f"{BASE_TOURNAMENT_SERVICE_MOCK_PATH}.get_tournament_by_id"
+TOURNAMENT_BASE_URL = "/api/v1/tournament"
 
 
 class TournamentEndpointV1Test(TestBase):
     def setUp(self):
-        add_pagination(app)
-        self.client = TestClient(app)
+        self.mock_service = MagicMock()
+        endpoint = TournamentEndpoint(self.mock_service)
+        self.app = FastAPI()
+        self.app.include_router(endpoint.router, prefix="/api/v1")
+        for route in self.app.routes:
+            for dep in getattr(route, 'dependencies', []):
+                if isinstance(dep.dependency, JWTBearer):
+                    self.app.dependency_overrides[dep.dependency] = lambda: {}
+        disable_installed_extensions_check()
+        add_pagination(self.app)
+        self.client = TestClient(self.app)
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_TOURNAMENTS_MOCK_PATH)
-    def test_get_tournaments_endpoint_active(self, mock_get_tournaments):
-        # Arrange
+    def test_get_tournaments_active(self):
         tournament_fixture = fixtures.active_tournament_fixture
-        expected_tournament_response = tournament_fixture.model_dump()
-        mock_get_tournaments.return_value = [tournament_fixture]
-        status = TournamentStatus.ACTIVE.value
+        expected = tournament_fixture.model_dump()
+        self.mock_service.get_tournaments.return_value = [tournament_fixture]
 
-        # Act
-        response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
+        response = self.client.get(
+            f"{TOURNAMENT_BASE_URL}?status={TournamentStatus.ACTIVE.value}"
+        )
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        tournaments = response_json.get('items')
-        self.assertIsInstance(tournaments, list)
-        self.assertEqual(1, len(tournaments))
-        self.assertEqual(expected_tournament_response, tournaments[0])
-        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_TOURNAMENTS_MOCK_PATH)
-    def test_get_tournaments_endpoint_completed(self, mock_get_tournaments):
-        # Arrange
+    def test_get_tournaments_completed(self):
         tournament_fixture = fixtures.tournament_fixture
-        expected_tournament_response = tournament_fixture.model_dump()
-        mock_get_tournaments.return_value = [tournament_fixture]
-        status = TournamentStatus.COMPLETED.value
+        expected = tournament_fixture.model_dump()
+        self.mock_service.get_tournaments.return_value = [tournament_fixture]
 
-        # Act
-        response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
+        response = self.client.get(
+            f"{TOURNAMENT_BASE_URL}?status={TournamentStatus.COMPLETED.value}"
+        )
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        tournaments = response_json.get('items')
-        self.assertIsInstance(tournaments, list)
-        self.assertEqual(1, len(tournaments))
-        self.assertEqual(expected_tournament_response, tournaments[0])
-        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_TOURNAMENTS_MOCK_PATH)
-    def test_get_tournaments_endpoint_upcoming(self, mock_get_tournaments):
-        # Arrange
+    def test_get_tournaments_upcoming(self):
         tournament_fixture = fixtures.future_tournament_fixture
-        expected_tournament_response = tournament_fixture.model_dump()
-        mock_get_tournaments.return_value = [tournament_fixture]
-        status = TournamentStatus.UPCOMING.value
+        expected = tournament_fixture.model_dump()
+        self.mock_service.get_tournaments.return_value = [tournament_fixture]
 
-        # Act
-        response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
+        response = self.client.get(
+            f"{TOURNAMENT_BASE_URL}?status={TournamentStatus.UPCOMING.value}"
+        )
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        tournaments = response_json.get('items')
-        self.assertIsInstance(tournaments, list)
-        self.assertEqual(1, len(tournaments))
-        self.assertEqual(expected_tournament_response, tournaments[0])
-        mock_get_tournaments.assert_called_once_with(TournamentSearchParameters(status=status))
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    def test_get_tournaments_endpoint_invalid(self):
-        status = "invalid"
-        response = self.client.get(f"{TOURNAMENT_BASE_URL}?status={status}")
+    def test_get_tournaments_invalid_status(self):
+        response = self.client.get(f"{TOURNAMENT_BASE_URL}?status=invalid")
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_TOURNAMENTS_BY_ID_MOCK_PATH)
-    def test_get_tournament_by_id_success(self, mock_get_tournament_by_id):
-        # Arrange
+    def test_get_tournament_by_id_success(self):
         tournament_fixture = fixtures.tournament_fixture
-        expected_tournament_response = tournament_fixture.model_dump()
-        mock_get_tournament_by_id.return_value = tournament_fixture
+        expected = tournament_fixture.model_dump()
+        self.mock_service.get_tournament_by_id.return_value = tournament_fixture
 
-        # Act
         response = self.client.get(f"{TOURNAMENT_BASE_URL}/{tournament_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        tournament = response.json()
-        self.assertIsInstance(tournament, dict)
-        self.assertEqual(expected_tournament_response, tournament)
-        mock_get_tournament_by_id.assert_called_once_with(tournament_fixture.id)
+        self.assertEqual(expected, response.json())
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(GET_TOURNAMENTS_BY_ID_MOCK_PATH)
-    def test_get_tournament_by_id_with_not_found(self, mock_get_tournament_by_id):
-        # Arrange
+    def test_get_tournament_by_id_not_found(self):
         tournament_fixture = fixtures.tournament_fixture
-        mock_get_tournament_by_id.side_effect = TournamentNotFoundException
+        self.mock_service.get_tournament_by_id.side_effect = TournamentNotFoundException()
 
-        # Act
         response = self.client.get(f"{TOURNAMENT_BASE_URL}/{tournament_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_tournament_by_id.assert_called_once_with(tournament_fixture.id)

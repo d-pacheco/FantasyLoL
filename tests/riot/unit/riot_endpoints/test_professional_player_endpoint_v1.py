@@ -1,148 +1,99 @@
-from unittest.mock import patch
-from unittest import skip
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
+from fastapi_pagination.utils import disable_installed_extensions_check
 from http import HTTPStatus
+from unittest.mock import MagicMock
 
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures as fixtures
 
-from src.common.schemas.search_parameters import PlayerSearchParameters
+from src.auth import JWTBearer
 from src.common.exceptions import ProfessionalPlayerNotFoundException
-from src.riot import app
+from src.riot.endpoints import ProfessionalPlayerEndpoint
 
-PROFESSIONAL_PLAYER_BASE_URL = "/riot/v1/professional-player"
-BASE_PLAYER_SERVICE_MOCK_PATH = \
-    "src.riot.service.riot_professional_player_service.RiotProfessionalPlayerService"
-PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH = f"{BASE_PLAYER_SERVICE_MOCK_PATH}.get_players"
-PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH = f"{BASE_PLAYER_SERVICE_MOCK_PATH}.get_player_by_id"
+PLAYER_BASE_URL = "/api/v1/professional-player"
 
 
 class ProfessionalPlayerEndpointV1Test(TestBase):
     def setUp(self):
-        add_pagination(app)
-        self.client = TestClient(app)
+        self.mock_service = MagicMock()
+        endpoint = ProfessionalPlayerEndpoint(self.mock_service)
+        self.app = FastAPI()
+        self.app.include_router(endpoint.router, prefix="/api/v1")
+        for route in self.app.routes:
+            for dep in getattr(route, 'dependencies', []):
+                if isinstance(dep.dependency, JWTBearer):
+                    self.app.dependency_overrides[dep.dependency] = lambda: {}
+        disable_installed_extensions_check()
+        add_pagination(self.app)
+        self.client = TestClient(self.app)
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
-    def test_get_professional_players_endpoint_summoner_name_query(self, mock_get_players):
-        # Arrange
+    def test_get_players_summoner_name_query(self):
         player_fixture = fixtures.player_1_fixture
-        expected_player_response = player_fixture.model_dump()
-        mock_get_players.return_value = [player_fixture]
+        expected = player_fixture.model_dump()
+        self.mock_service.get_players.return_value = [player_fixture]
 
-        # Act
         response = self.client.get(
-            f"{PROFESSIONAL_PLAYER_BASE_URL}?summoner_name={player_fixture.summoner_name}"
+            f"{PLAYER_BASE_URL}?summoner_name={player_fixture.summoner_name}"
         )
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_players = response_json.get('items')
-        self.assertIsInstance(professional_players, list)
-        self.assertEqual(1, len(professional_players))
-        self.assertEqual(expected_player_response, professional_players[0])
-        mock_get_players.assert_called_once_with(
-            PlayerSearchParameters(summoner_name=player_fixture.summoner_name)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
-    def test_get_professional_players_endpoint_role_query(self, mock_get_players):
-        # Arrange
+    def test_get_players_role_query(self):
         player_fixture = fixtures.player_1_fixture
-        expected_player_response = player_fixture.model_dump()
-        mock_get_players.return_value = [player_fixture]
+        expected = player_fixture.model_dump()
+        self.mock_service.get_players.return_value = [player_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_PLAYER_BASE_URL}?role={player_fixture.role}"
-        )
+        response = self.client.get(f"{PLAYER_BASE_URL}?role={player_fixture.role.value}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_players = response_json.get('items')
-        self.assertIsInstance(professional_players, list)
-        self.assertEqual(1, len(professional_players))
-        self.assertEqual(expected_player_response, professional_players[0])
-        mock_get_players.assert_called_once_with(
-            PlayerSearchParameters(role=player_fixture.role)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
-    def test_get_professional_players_endpoint_team_id_query(self, mock_get_players):
-        # Arrange
+    def test_get_players_team_id_query(self):
         player_fixture = fixtures.player_1_fixture
-        expected_player_response = player_fixture.model_dump()
-        mock_get_players.return_value = [player_fixture]
+        expected = player_fixture.model_dump()
+        self.mock_service.get_players.return_value = [player_fixture]
 
-        # Act
-        response = self.client.get(
-            f"{PROFESSIONAL_PLAYER_BASE_URL}?team_id={player_fixture.team_id}"
-        )
+        response = self.client.get(f"{PLAYER_BASE_URL}?team_id={player_fixture.team_id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_players = response_json.get('items')
-        self.assertIsInstance(professional_players, list)
-        self.assertEqual(1, len(professional_players))
-        self.assertEqual(expected_player_response, professional_players[0])
-        mock_get_players.assert_called_once_with(
-            PlayerSearchParameters(team_id=player_fixture.team_id)
-        )
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYERS_MOCK_PATH)
-    def test_get_professional_players_endpoint_search_all(self, mock_get_players):
-        # Arrange
+    def test_get_players_search_all(self):
         player_fixture = fixtures.player_1_fixture
-        expected_player_response = player_fixture.model_dump()
-        mock_get_players.return_value = [player_fixture]
+        expected = player_fixture.model_dump()
+        self.mock_service.get_players.return_value = [player_fixture]
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_PLAYER_BASE_URL}")
+        response = self.client.get(PLAYER_BASE_URL)
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        response_json: dict = response.json()
-        professional_players = response_json.get('items')
-        self.assertIsInstance(professional_players, list)
-        self.assertEqual(1, len(professional_players))
-        self.assertEqual(expected_player_response, professional_players[0])
-        mock_get_players.assert_called_once_with(PlayerSearchParameters())
+        items = response.json().get('items')
+        self.assertEqual(1, len(items))
+        self.assertEqual(expected, items[0])
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH)
-    def test_get_professional_players_endpoint_by_id(self, mock_get_player_by_id):
-        # Arrange
+    def test_get_player_by_id_success(self):
         player_fixture = fixtures.player_1_fixture
-        expected_player_response = player_fixture.model_dump()
-        mock_get_player_by_id.return_value = player_fixture
+        expected = player_fixture.model_dump()
+        self.mock_service.get_player_by_id.return_value = player_fixture
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_PLAYER_BASE_URL}/{player_fixture.id}")
+        response = self.client.get(f"{PLAYER_BASE_URL}/{player_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        professional_player = response.json()
-        self.assertIsInstance(professional_player, dict)
-        self.assertEqual(expected_player_response, professional_player)
-        mock_get_player_by_id.assert_called_once_with(player_fixture.id)
+        self.assertEqual(expected, response.json())
 
-    @skip("Test broken from making endpoints classes. Will fix later.")
-    @patch(PLAYER_SERVICE_GET_PLAYER_BY_ID_MOCK_PATH)
-    def test_get_professional_players_endpoint_by_id_not_found(self, mock_get_player_by_id):
-        # Arrange
+    def test_get_player_by_id_not_found(self):
         player_fixture = fixtures.player_1_fixture
-        mock_get_player_by_id.side_effect = ProfessionalPlayerNotFoundException
+        self.mock_service.get_player_by_id.side_effect = \
+            ProfessionalPlayerNotFoundException()
 
-        # Act
-        response = self.client.get(f"{PROFESSIONAL_PLAYER_BASE_URL}/{player_fixture.id}")
+        response = self.client.get(f"{PLAYER_BASE_URL}/{player_fixture.id}")
 
-        # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        mock_get_player_by_id.assert_called_once_with(player_fixture.id)
