@@ -141,7 +141,7 @@ pip install ".[dev]"
 Or directly:
 
 ```bash
-python -m unittest discover -s tests -p "test*.py"
+pytest
 ```
 
 ## API Highlights
