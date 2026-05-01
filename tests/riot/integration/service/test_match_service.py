@@ -12,6 +12,8 @@ class MatchServiceTest(TestBase):
         super().setUp()
         self.db.put_league(riot_fixtures.league_1_fixture)
         self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
         self.match_service = RiotMatchService(self.db)
 
     def test_get_matches_by_league_slug_existing_match(self):

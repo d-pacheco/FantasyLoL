@@ -181,6 +181,8 @@ class RiotMatchScraper:
             get_event_details_response = self.riot_api_requester.get_event_details(match.id)
             assert get_event_details_response is not None
 
+            event_detail = get_event_details_response.data.event
+
             new_match = Match(
                 id=match.id,
                 start_time=event.startTime,
@@ -188,7 +190,7 @@ class RiotMatchScraper:
                 league_slug=event.league.slug,
                 strategy_type=match.strategy.type,
                 strategy_count=match.strategy.count,
-                tournament_id=get_event_details_response.data.event.tournament.id,
+                tournament_id=event_detail.tournament.id,
                 team_1_name=match.teams[0].name,
                 team_2_name=match.teams[1].name,
                 state=event.state,

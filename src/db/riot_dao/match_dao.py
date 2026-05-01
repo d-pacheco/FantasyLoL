@@ -1,12 +1,27 @@
+import logging
+
 from sqlalchemy import text, select, func, or_, cast, Date
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID
-from src.db.models import MatchModel, EventTeamsModel, LeagueModel, TournamentModel
+from src.db.models import (
+    MatchModel,
+    EventTeamsModel,
+    LeagueModel,
+    TournamentModel,
+    ProfessionalTeamModel,
+)
 from src.db.views import MatchView
+
+logger = logging.getLogger("riot")
+
+
+def _resolve_team_by_name(session, team_name: str):
+    return (
+        session.query(ProfessionalTeamModel).filter(ProfessionalTeamModel.name == team_name).first()
+    )
 
 
 def put_match(session, match: Match) -> None:
-    # Resolve league_id from league_slug
     league = session.query(LeagueModel).filter(LeagueModel.slug == match.league_slug).first()
     league_id = league.id if league else None
 
@@ -24,7 +39,6 @@ def put_match(session, match: Match) -> None:
     session.merge(db_match)
     session.flush()
 
-    # Determine winning outcome
     winning_team = match.winning_team
     team_1_outcome = (
         "win"
@@ -37,27 +51,27 @@ def put_match(session, match: Match) -> None:
         else ("loss" if winning_team and winning_team != match.team_2_name else None)
     )
 
-    # We don't have team IDs in the Match schema, so store team_name as team_id placeholder
-    # Use team_name as the identifier since that's what the flat schema provides
-    if match.team_1_name:
-        et1 = EventTeamsModel(
+    for side, name, game_wins, outcome in [
+        (1, match.team_1_name, match.team_1_wins, team_1_outcome),
+        (2, match.team_2_name, match.team_2_wins, team_2_outcome),
+    ]:
+        if not name:
+            continue
+        team = _resolve_team_by_name(session, name)
+        if team is None:
+            logger.warning(f"Team '{name}' not found in professional_teams, skipping event_team")
+            continue
+        et = EventTeamsModel(
             match_id=match.id,
-            team_name=match.team_1_name,
-            side=1,
-            game_wins=match.team_1_wins,
-            outcome=team_1_outcome,
+            team_id=team.id,
+            side=side,
+            team_code=team.code,
+            team_name=name,
+            team_image=team.image,
+            game_wins=game_wins,
+            outcome=outcome,
         )
-        session.merge(et1)
-
-    if match.team_2_name:
-        et2 = EventTeamsModel(
-            match_id=match.id,
-            team_name=match.team_2_name,
-            side=2,
-            game_wins=match.team_2_wins,
-            outcome=team_2_outcome,
-        )
-        session.merge(et2)
+        session.merge(et)
 
     session.commit()
 

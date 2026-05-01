@@ -9,6 +9,8 @@ class TestCrudRiotMatch(TestBase):
     def setUp(self):
         self.db.put_league(riot_fixtures.league_1_fixture)
         self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
 
     def test_put_match_no_existing_match(self):
         # Arrange
