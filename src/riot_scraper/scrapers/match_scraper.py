@@ -32,6 +32,17 @@ class RiotMatchScraper:
             for event in schedule.events:
                 if event.type != "match" or event.match is None:
                     continue
+                match_ids.append(event.match.id)
+
+            # Check if all matches on this page already exist — early exit
+            if match_ids and self.db.all_exist(match_ids):
+                logger.info(f"All {len(match_ids)} matches on page already exist, stopping sync")
+                break
+
+            # Save matches from this page
+            for event in schedule.events:
+                if event.type != "match" or event.match is None:
+                    continue
                 match = event.match
                 teams = []
                 for i, team in enumerate(match.teams):
@@ -60,15 +71,11 @@ class RiotMatchScraper:
                     teams=teams,
                 )
                 self.db.save_from_schedule(schedule_match)
-                match_ids.append(match.id)
 
-            if match_ids and self.db.all_exist(match_ids):
-                older = schedule.pages.older
-                if older is None or self.db.all_exist(match_ids):
-                    # Check if we should continue to older pages
-                    if page_token is not None:
-                        break
+            logger.info(f"Saved {len(match_ids)} matches from schedule page")
+
             if schedule.pages.older is None:
+                logger.info("No older page token, stopping sync")
                 break
             page_token = schedule.pages.older
 
