@@ -55,17 +55,24 @@ class MatchModel(Base):  # type: ignore
     id = Column(String, primary_key=True, index=True)
     start_time = Column(String)
     block_name = Column(String)
-    league_slug = Column(String)
+    league_id = Column(String, ForeignKey("leagues.id", ondelete="CASCADE"))
     strategy_type = Column(String)
     strategy_count = Column(Integer)
     tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="CASCADE"))
-    team_1_name = Column(String)
-    team_2_name = Column(String)
     has_games = Column(Boolean, default=True)
     state = Column(Enum(MatchState), nullable=False)
-    team_1_wins = Column(Integer, nullable=True)
-    team_2_wins = Column(Integer, nullable=True)
-    winning_team = Column(String, nullable=True)
+
+
+class EventTeamsModel(Base):  # type: ignore
+    __tablename__ = "event_teams"
+
+    match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"), primary_key=True)
+    team_name = Column(String, primary_key=True)
+    side = Column(Integer, nullable=False)
+    game_wins = Column(Integer, nullable=True)
+    outcome = Column(String, nullable=True)
+
+    __table_args__ = (PrimaryKeyConstraint("match_id", "team_name"),)
 
 
 class GameModel(Base):  # type: ignore

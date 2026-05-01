@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Enum, Integer, String, PrimaryKeyConstraint, text
+from sqlalchemy import Boolean, Column, Enum, Integer, String, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 
-from src.common.schemas.riot_data_schemas import PlayerRole
+from src.common.schemas.riot_data_schemas import MatchState, PlayerRole
 
 Base = declarative_base()
 
@@ -48,4 +48,51 @@ create_player_game_view_query = text("""
         player_game_metadata m
     JOIN
         player_game_stats s ON m.game_id = s.game_id AND m.participant_id = s.participant_id
+""")
+
+
+class MatchView(Base):  # type: ignore
+    __tablename__ = "match_view"
+
+    id = Column(String, primary_key=True)
+    start_time = Column(String)
+    block_name = Column(String)
+    league_slug = Column(String)
+    strategy_type = Column(String)
+    strategy_count = Column(Integer)
+    tournament_id = Column(String)
+    team_1_name = Column(String)
+    team_2_name = Column(String)
+    has_games = Column(Boolean)
+    state = Column(Enum(MatchState), nullable=False)
+    team_1_wins = Column(Integer, nullable=True)
+    team_2_wins = Column(Integer, nullable=True)
+    winning_team = Column(String, nullable=True)
+
+
+create_match_view_query = text("""
+    CREATE OR REPLACE VIEW match_view AS
+    SELECT
+        m.id,
+        m.start_time,
+        m.block_name,
+        l.slug AS league_slug,
+        m.strategy_type,
+        m.strategy_count,
+        m.tournament_id,
+        t1.team_name AS team_1_name,
+        t2.team_name AS team_2_name,
+        m.has_games,
+        m.state,
+        t1.game_wins AS team_1_wins,
+        t2.game_wins AS team_2_wins,
+        CASE
+            WHEN t1.outcome = 'win' THEN t1.team_name
+            WHEN t2.outcome = 'win' THEN t2.team_name
+            ELSE NULL
+        END AS winning_team
+    FROM matches m
+    JOIN leagues l ON m.league_id = l.id
+    LEFT JOIN event_teams t1 ON m.id = t1.match_id AND t1.side = 1
+    LEFT JOIN event_teams t2 ON m.id = t2.match_id AND t2.side = 2
 """)

@@ -1,7 +1,7 @@
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 from src.common.schemas.riot_data_schemas import TeamGameStats
-from src.db.models import LeagueModel, ProfessionalTeamModel, GameModel
+from src.db.models import LeagueModel, ProfessionalTeamModel, GameModel, MatchModel, EventTeamsModel
 
 
 class TestCascadeDeletes(TestBase):
@@ -161,3 +161,23 @@ class TestCascadeDeletes(TestBase):
 
         # Assert
         self.assertIsNone(self.db.get_player_stats(stats.game_id, stats.participant_id))
+
+    def test_deleting_match_cascades_to_event_teams(self):
+        # Arrange
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+        match_id = riot_fixtures.match_fixture.id
+
+        with self.db_provider.get_db() as session:
+            rows = session.query(EventTeamsModel).filter(EventTeamsModel.match_id == match_id).all()
+            self.assertTrue(len(rows) > 0)
+
+        # Act
+        with self.db_provider.get_db() as session:
+            session.query(MatchModel).filter(MatchModel.id == match_id).delete()
+            session.commit()
+
+        # Assert
+        with self.db_provider.get_db() as session:
+            rows = session.query(EventTeamsModel).filter(EventTeamsModel.match_id == match_id).all()
+            self.assertEqual(0, len(rows))

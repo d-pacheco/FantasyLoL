@@ -2,7 +2,7 @@ from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID
-from src.db.models import MatchModel
+from src.db.views import MatchView
 
 
 class TestCrudRiotMatch(TestBase):
@@ -71,7 +71,7 @@ class TestCrudRiotMatch(TestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(MatchModel.league_slug == expected_match.league_slug)
+        filters.append(MatchView.league_slug == expected_match.league_slug)
         self.db.put_match(expected_match)
 
         # Act
@@ -88,7 +88,7 @@ class TestCrudRiotMatch(TestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(MatchModel.league_slug == "badFilter")
+        filters.append(MatchView.league_slug == "badFilter")
         self.db.put_match(expected_match)
 
         # Act
@@ -102,7 +102,7 @@ class TestCrudRiotMatch(TestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(MatchModel.tournament_id == expected_match.tournament_id)
+        filters.append(MatchView.tournament_id == expected_match.tournament_id)
         self.db.put_match(expected_match)
 
         # Act
@@ -119,7 +119,7 @@ class TestCrudRiotMatch(TestBase):
         # Arrange
         filters = []
         expected_match = riot_fixtures.match_fixture
-        filters.append(MatchModel.tournament_id == "badFilter")
+        filters.append(MatchView.tournament_id == "badFilter")
         self.db.put_match(expected_match)
 
         # Act
