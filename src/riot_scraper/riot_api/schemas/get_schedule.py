@@ -53,9 +53,9 @@ class ScheduleEvent(BaseModel):
     startTime: str
     state: MatchState
     type: str
-    blockName: str
+    blockName: str | None = None
     league: ScheduleLeague
-    match: ScheduleMatch
+    match: ScheduleMatch | None = None
 
 
 class Schedule(BaseModel):
