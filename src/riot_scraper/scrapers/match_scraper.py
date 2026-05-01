@@ -30,7 +30,7 @@ class RiotMatchScraper:
             match_ids = []
 
             for event in schedule.events:
-                if event.type != "match":
+                if event.type != "match" or event.match is None:
                     continue
                 match = event.match
                 teams = []
@@ -52,7 +52,7 @@ class RiotMatchScraper:
                 schedule_match = ScheduleMatch(
                     id=match.id,
                     start_time=event.startTime,
-                    block_name=event.blockName,
+                    block_name=event.blockName or "",
                     league_slug=event.league.slug,
                     strategy_type=match.strategy.type,
                     strategy_count=match.strategy.count,
