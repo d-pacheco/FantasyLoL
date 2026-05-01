@@ -31,6 +31,9 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameStats,
     StoredSchedule,
     TeamGameStats,
+    GameMetadata,
+    GameParticipantPerks,
+    GameDragons,
 )
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
@@ -42,6 +45,9 @@ from src.db.fantasy_dao import (
 )
 from src.db.riot_dao import (
     game_dao,
+    game_dragons_dao,
+    game_metadata_dao,
+    game_participant_perks_dao,
     match_dao,
     player_dao,
     player_metadata_dao,
@@ -170,6 +176,34 @@ class DatabaseService:
     def put_team_stats(self, team_stats: TeamGameStats) -> None:
         with self.connection_provider.get_db() as db:
             team_stats_dao.put_team_stats(db, team_stats)
+
+    def put_game_metadata(self, metadata: GameMetadata) -> None:
+        with self.connection_provider.get_db() as db:
+            game_metadata_dao.put_game_metadata(db, metadata)
+
+    def get_game_metadata(self, game_id: RiotGameID) -> GameMetadata | None:
+        with self.connection_provider.get_db() as db:
+            return game_metadata_dao.get_game_metadata(db, game_id)
+
+    def put_game_participant_perks(self, perks: GameParticipantPerks) -> None:
+        with self.connection_provider.get_db() as db:
+            game_participant_perks_dao.put_game_participant_perks(db, perks)
+
+    def get_game_participant_perks(
+        self, game_id: RiotGameID, participant_id: int
+    ) -> GameParticipantPerks | None:
+        with self.connection_provider.get_db() as db:
+            return game_participant_perks_dao.get_game_participant_perks(
+                db, game_id, participant_id
+            )
+
+    def put_game_dragon(self, dragon: GameDragons) -> None:
+        with self.connection_provider.get_db() as db:
+            game_dragons_dao.put_game_dragon(db, dragon)
+
+    def get_game_dragons(self, game_id: RiotGameID) -> list[GameDragons]:
+        with self.connection_provider.get_db() as db:
+            return game_dragons_dao.get_game_dragons(db, game_id)
 
     def put_league(self, league: League) -> None:
         with self.connection_provider.get_db() as db:
