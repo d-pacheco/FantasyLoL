@@ -218,17 +218,18 @@ def parse_team_metadata(
 ) -> list[PlayerGameMetadata]:
     player_metadata_for_team = []
     for participant in team_metadata.participantMetadata:
-        player_id = (
-            participant.esportsPlayerId
-            if participant.esportsPlayerId
-            else ProPlayerID(str(participant.participantId))
-        )
+        if not participant.esportsPlayerId:
+            logger.warning(
+                f"Game {game_id}: participant {participant.participantId} "
+                f"({participant.summonerName}) has no esportsPlayerId, skipping"
+            )
+            continue
         new_player_metadata = PlayerGameMetadata(
             game_id=game_id,
             participant_id=participant.participantId,
             champion_id=participant.championId,
             role=participant.role,
-            player_id=player_id,  # Weird edge case where it doesn't exist for some games
+            player_id=participant.esportsPlayerId,
         )
         player_metadata_for_team.append(new_player_metadata)
     return player_metadata_for_team
