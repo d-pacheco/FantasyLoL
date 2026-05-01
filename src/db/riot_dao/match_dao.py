@@ -2,10 +2,11 @@ import logging
 
 from sqlalchemy import text, select, func, or_, cast, Date
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID, ScheduleMatch
+from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID, ScheduleMatch, MatchDetails
 from src.db.models import (
     MatchModel,
     EventTeamsModel,
+    GameModel,
     LeagueModel,
     TournamentModel,
     ProfessionalTeamModel,
@@ -112,6 +113,50 @@ def all_exist(session, match_ids: list[RiotMatchID]) -> bool:
         return True
     count = session.query(MatchModel).filter(MatchModel.id.in_(match_ids)).count()
     return count == len(match_ids)
+
+
+def save_from_details(session, details: MatchDetails) -> None:
+    db_match = session.query(MatchModel).filter(MatchModel.id == details.match_id).first()
+    if db_match is None:
+        return
+    db_match.league_id = details.league_id
+    db_match.tournament_id = details.tournament_id
+    session.merge(db_match)
+    session.flush()
+
+    for team in details.teams:
+        et = (
+            session.query(EventTeamsModel)
+            .filter(
+                EventTeamsModel.match_id == details.match_id,
+                EventTeamsModel.team_code == team.team_code,
+            )
+            .first()
+        )
+        if et is not None:
+            et.team_id = team.team_id
+            session.merge(et)
+
+    for game in details.games:
+        db_game = GameModel(
+            id=game.id,
+            state=game.state,
+            number=game.number,
+            match_id=details.match_id,
+        )
+        session.merge(db_game)
+
+    session.commit()
+
+
+def get_ids_without_games(session) -> list[RiotMatchID]:
+    result = session.execute(text("""
+        SELECT matches.id
+        FROM matches
+        LEFT JOIN games ON matches.id = games.match_id
+        WHERE games.match_id IS NULL AND matches.has_games != False;
+    """))
+    return [RiotMatchID(row[0]) for row in result.fetchall()]
 
 
 def get_matches(session, filters: list | None = None) -> list[Match]:

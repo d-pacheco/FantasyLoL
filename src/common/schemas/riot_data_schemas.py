@@ -413,3 +413,22 @@ class ScheduleMatch(BaseModel):
     strategy_count: int
     state: MatchState
     teams: list[ScheduleTeam] = []
+
+
+class DetailTeam(BaseModel):
+    team_id: ProTeamID
+    team_code: str
+
+
+class DetailGame(BaseModel):
+    id: RiotGameID
+    state: GameState
+    number: int
+
+
+class MatchDetails(BaseModel):
+    match_id: RiotMatchID
+    league_id: RiotLeagueID
+    tournament_id: RiotTournamentID
+    teams: list[DetailTeam] = []
+    games: list[DetailGame] = []
