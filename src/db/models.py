@@ -55,10 +55,13 @@ class MatchModel(Base):  # type: ignore
     id = Column(String, primary_key=True, index=True)
     start_time = Column(String)
     block_name = Column(String)
-    league_id = Column(String, ForeignKey("leagues.id", ondelete="CASCADE"))
+    league_slug = Column(String)
+    league_id = Column(String, ForeignKey("leagues.id", ondelete="CASCADE"), nullable=True)
     strategy_type = Column(String)
     strategy_count = Column(Integer)
-    tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="CASCADE"))
+    tournament_id = Column(
+        String, ForeignKey("tournaments.id", ondelete="CASCADE"), nullable=True
+    )
     has_games = Column(Boolean, default=True)
     state = Column(Enum(MatchState), nullable=False)
 

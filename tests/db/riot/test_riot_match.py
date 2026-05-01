@@ -207,6 +207,26 @@ class TestCrudRiotMatch(TestBase):
         self.assertIsInstance(match_ids_without_games, list)
         self.assertEqual(0, len(match_ids_without_games))
 
+    def test_put_match_without_league_or_tournament(self):
+        # A match saved without league_id or tournament_id should still be retrievable
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.league_slug = "unknown-league"
+        match.tournament_id = None
+        match.team_1_name = None
+        match.team_2_name = None
+        match.team_1_wins = None
+        match.team_2_wins = None
+        match.winning_team = None
+
+        match_before = self.db.get_match_by_id(match.id)
+        self.assertIsNone(match_before)
+        self.db.put_match(match)
+        match_after = self.db.get_match_by_id(match.id)
+        self.assertIsNotNone(match_after)
+        self.assertEqual(match.id, match_after.id)
+        self.assertEqual("unknown-league", match_after.league_slug)
+        self.assertIsNone(match_after.tournament_id)
+
     def test_update_match_has_games(self):
         # Arrange
         match = riot_fixtures.match_fixture.model_copy(deep=True)

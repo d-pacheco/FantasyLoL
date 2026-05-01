@@ -91,7 +91,7 @@ class Match(BaseModel):
     strategy_count: int = Field(
         default=None, description="The number of games for the strategy type", examples=[5]
     )
-    tournament_id: RiotTournamentID = Field(
+    tournament_id: RiotTournamentID | None = Field(
         default=None,
         description="The id of the tournament the match is taking place in",
         examples=["110852926142971547"],

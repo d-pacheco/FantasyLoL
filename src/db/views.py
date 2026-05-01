@@ -76,7 +76,7 @@ create_match_view_query = text("""
         m.id,
         m.start_time,
         m.block_name,
-        l.slug AS league_slug,
+        m.league_slug,
         m.strategy_type,
         m.strategy_count,
         m.tournament_id,
@@ -92,7 +92,6 @@ create_match_view_query = text("""
             ELSE NULL
         END AS winning_team
     FROM matches m
-    JOIN leagues l ON m.league_id = l.id
     LEFT JOIN event_teams t1 ON m.id = t1.match_id AND t1.side = 1
     LEFT JOIN event_teams t2 ON m.id = t2.match_id AND t2.side = 2
 """)

@@ -29,6 +29,7 @@ def put_match(session, match: Match) -> None:
         id=match.id,
         start_time=match.start_time,
         block_name=match.block_name,
+        league_slug=match.league_slug,
         league_id=league_id,
         strategy_type=match.strategy_type,
         strategy_count=match.strategy_count,
