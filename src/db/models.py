@@ -67,12 +67,19 @@ class EventTeamsModel(Base):  # type: ignore
     __tablename__ = "event_teams"
 
     match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"), primary_key=True)
-    team_name = Column(String, primary_key=True)
+    team_id = Column(
+        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), primary_key=True
+    )
     side = Column(Integer, nullable=False)
+    team_code = Column(String, nullable=True)
+    team_name = Column(String, nullable=True)
+    team_image = Column(String, nullable=True)
     game_wins = Column(Integer, nullable=True)
     outcome = Column(String, nullable=True)
+    wins = Column(Integer, nullable=True)
+    losses = Column(Integer, nullable=True)
 
-    __table_args__ = (PrimaryKeyConstraint("match_id", "team_name"),)
+    __table_args__ = (PrimaryKeyConstraint("match_id", "team_id"),)
 
 
 class GameModel(Base):  # type: ignore
