@@ -3,6 +3,8 @@ from tests.test_util import riot_fixtures
 
 from src.common.schemas.riot_data_schemas import (
     Match, RiotMatchID, MatchState, ScheduleMatch, ScheduleTeam,
+    MatchDetails, DetailTeam, DetailGame, RiotLeagueID, RiotTournamentID,
+    RiotGameID, GameState,
 )
 from src.db.models import EventTeamsModel, MatchModel
 from src.db.views import MatchView
@@ -393,3 +395,119 @@ class TestCrudRiotMatch(TestBase):
     def test_all_exist_returns_true_for_empty_list(self):
         result = self.db.all_exist([])
         self.assertTrue(result)
+
+    # --- save_from_details tests ---
+
+    def test_save_from_details_backfills_ids_and_creates_games(self):
+        # First save via schedule (no IDs)
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("detail-001"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=3,
+            state=MatchState.COMPLETED,
+            teams=[
+                ScheduleTeam(side=1, team_code="T1", team_name="Team One", game_wins=2, outcome="win"),
+                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", game_wins=1, outcome="loss"),
+            ],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        # Create league and tournament for FK resolution
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+
+        # Now backfill details
+        details = MatchDetails(
+            match_id=RiotMatchID("detail-001"),
+            league_id=riot_fixtures.league_1_fixture.id,
+            tournament_id=riot_fixtures.tournament_fixture.id,
+            teams=[
+                DetailTeam(team_id=riot_fixtures.team_1_fixture.id, team_code="T1"),
+                DetailTeam(team_id=riot_fixtures.team_2_fixture.id, team_code="T2"),
+            ],
+            games=[
+                DetailGame(id=RiotGameID("game-1"), state=GameState.COMPLETED, number=1),
+                DetailGame(id=RiotGameID("game-2"), state=GameState.COMPLETED, number=2),
+                DetailGame(id=RiotGameID("game-3"), state=GameState.COMPLETED, number=3),
+            ],
+        )
+        self.db.save_from_details(details)
+
+        result = self.db.get_match_by_id(RiotMatchID("detail-001"))
+        self.assertIsNotNone(result)
+        self.assertEqual(riot_fixtures.tournament_fixture.id, result.tournament_id)
+
+        # Verify games were created
+        ids_without_games = self.db.get_ids_without_games()
+        self.assertNotIn(RiotMatchID("detail-001"), ids_without_games)
+
+    def test_save_from_details_is_idempotent(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("detail-002"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.COMPLETED,
+            teams=[
+                ScheduleTeam(side=1, team_code="T1", team_name="Team One", game_wins=1, outcome="win"),
+                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", game_wins=0, outcome="loss"),
+            ],
+        )
+        self.db.save_from_schedule(schedule_match)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+
+        details = MatchDetails(
+            match_id=RiotMatchID("detail-002"),
+            league_id=riot_fixtures.league_1_fixture.id,
+            tournament_id=riot_fixtures.tournament_fixture.id,
+            teams=[],
+            games=[
+                DetailGame(id=RiotGameID("game-idem-1"), state=GameState.COMPLETED, number=1),
+            ],
+        )
+        self.db.save_from_details(details)
+        self.db.save_from_details(details)  # second call should not fail
+
+        result = self.db.get_match_by_id(RiotMatchID("detail-002"))
+        self.assertIsNotNone(result)
+
+    # --- get_ids_without_games tests ---
+
+    def test_get_ids_without_games_returns_matches_needing_backfill(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("no-games-001"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        ids = self.db.get_ids_without_games()
+        self.assertIn(RiotMatchID("no-games-001"), ids)
+
+    def test_get_ids_without_games_excludes_has_games_false(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("no-games-002"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+        self.db.update_match_has_games(RiotMatchID("no-games-002"), False)
+
+        ids = self.db.get_ids_without_games()
+        self.assertNotIn(RiotMatchID("no-games-002"), ids)
