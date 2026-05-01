@@ -359,6 +359,32 @@ class TeamGameStats(BaseModel):
     total_kills: int
 
 
+class GameMetadata(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: RiotGameID
+    patch_version: str
+
+
+class GameParticipantPerks(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: RiotGameID
+    participant_id: int
+    style_id: int
+    sub_style_id: int
+    perks: list[int]
+
+
+class GameDragons(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: RiotGameID
+    dragon_number: int
+    team_id: ProTeamID
+    dragon_type: str
+
+
 class StoredSchedule(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
