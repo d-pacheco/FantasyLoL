@@ -96,12 +96,12 @@ class Match(BaseModel):
         description="The id of the tournament the match is taking place in",
         examples=["110852926142971547"],
     )
-    team_1_name: str = Field(
+    team_1_name: str | None = Field(
         default=None,
         description="The name of the first team participating in the match",
         examples=["WeiboGaming FAW AUDI"],
     )
-    team_2_name: str = Field(
+    team_2_name: str | None = Field(
         default=None,
         description="The name of the second team participating in the match",
         examples=["T1"],
@@ -148,12 +148,12 @@ class Game(BaseModel):
     number: int = Field(
         default=None, description="The game number within the strategy type and count", examples=[1]
     )
-    red_team: ProTeamID = Field(
+    red_team: ProTeamID | None = Field(
         default=None,
         description="The team ID playing on the red side",
         examples=["113770064260414203"],
     )
-    blue_team: ProTeamID = Field(
+    blue_team: ProTeamID | None = Field(
         default=None,
         description="The team ID playing on the blue side",
         examples=["109642680932009857"],
