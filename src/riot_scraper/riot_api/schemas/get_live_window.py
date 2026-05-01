@@ -13,7 +13,7 @@ class ParticipantMetadata(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     participantId: int
-    esportsPlayerId: ProPlayerID
+    esportsPlayerId: ProPlayerID | None = None
     summonerName: str
     championId: str
     role: PlayerRole

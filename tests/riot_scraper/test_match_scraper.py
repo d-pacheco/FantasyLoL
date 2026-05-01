@@ -94,15 +94,8 @@ class TestRiotMatchScraper(TestBase):
 
     def test_sync_schedule_stops_when_all_exist(self):
         event1 = _make_schedule_event("match-sync-002")
-        event2 = _make_schedule_event("match-sync-003")
 
-        # First call returns page with older token, second call returns same matches
-        self.mock_api.get_schedule.side_effect = [
-            _make_schedule_response([event1], older="page-2"),
-            _make_schedule_response([event1]),  # all_exist → stop
-        ]
-
-        # Pre-save match-sync-002 so second page triggers all_exist
+        # Pre-save the match so it already exists
         from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam
         self.db.save_from_schedule(ScheduleMatch(
             id=RiotMatchID("match-sync-002"),
@@ -115,10 +108,13 @@ class TestRiotMatchScraper(TestBase):
             teams=[],
         ))
 
+        # First page: all matches already exist → stop immediately
+        self.mock_api.get_schedule.return_value = _make_schedule_response([event1], older="page-2")
+
         self.scraper.sync_schedule()
 
-        # Should have called get_schedule twice (first page new, second page all_exist)
-        self.assertEqual(2, self.mock_api.get_schedule.call_count)
+        # Should have called get_schedule only once (all_exist on first page)
+        self.assertEqual(1, self.mock_api.get_schedule.call_count)
 
     def test_sync_schedule_makes_zero_get_event_details_calls(self):
         event = _make_schedule_event("match-sync-004")
