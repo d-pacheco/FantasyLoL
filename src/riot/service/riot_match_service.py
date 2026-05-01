@@ -3,7 +3,7 @@ import logging
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.db.database_service import DatabaseService
-from src.db.models import MatchModel
+from src.db.views import MatchView
 from src.riot.exceptions import MatchNotFoundException
 
 logger = logging.getLogger("riot")
@@ -16,9 +16,9 @@ class RiotMatchService:
     def get_matches(self, search_parameters: MatchSearchParameters) -> list[Match]:
         filters = []
         if search_parameters.league_slug is not None:
-            filters.append(MatchModel.league_slug == search_parameters.league_slug)
+            filters.append(MatchView.league_slug == search_parameters.league_slug)
         if search_parameters.tournament_id is not None:
-            filters.append(MatchModel.tournament_id == search_parameters.tournament_id)
+            filters.append(MatchView.tournament_id == search_parameters.tournament_id)
         matches = self.db.get_matches(filters)
         return matches
 
