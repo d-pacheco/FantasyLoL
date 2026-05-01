@@ -15,6 +15,7 @@ from src.common.schemas.fantasy_schemas import (
 from src.common.schemas.riot_data_schemas import (
     PlayerRole,
     ProfessionalPlayer,
+    ProfessionalTeam,
     ProPlayerID,
     ProTeamID,
 )
@@ -47,6 +48,17 @@ pro_player_2_fixture = ProfessionalPlayer(
 class FantasyTeamServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
+        for player in [pro_player_fixture, pro_player_2_fixture]:
+            self.db.put_team(
+                ProfessionalTeam(
+                    id=player.team_id,
+                    slug="t",
+                    name="T",
+                    code="T",
+                    image="img",
+                    status="active",
+                )
+            )
         self.fantasy_team_service = FantasyTeamService(self.db)
 
     # -------------------------------------

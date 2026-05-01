@@ -10,6 +10,8 @@ from src.riot.service import RiotProfessionalPlayerService
 class ProfessionalPlayerServiceTest(TestBase):
     def setUp(self):
         super().setUp()
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
         self.professional_player_service = RiotProfessionalPlayerService(self.db)
 
     def test_get_existing_professional_players_by_summoner_name(self):
