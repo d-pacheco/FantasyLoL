@@ -10,6 +10,9 @@ from src.riot.service import RiotGameService
 class GameServiceTest(TestBase):
     def setUp(self):
         super().setUp()
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
         self.game_service = RiotGameService(self.db)
 
     def test_get_completed_games(self):

@@ -6,6 +6,10 @@ from src.db.models import ProfessionalPlayerModel
 
 
 class TestCrudRiotPlayer(TestBase):
+    def setUp(self):
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
+
     def test_put_player_no_existing_player(self):
         # Arrange
         player = riot_fixtures.player_1_fixture

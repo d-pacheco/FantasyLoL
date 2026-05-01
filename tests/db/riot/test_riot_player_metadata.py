@@ -12,8 +12,14 @@ from src.common.schemas.riot_data_schemas import (
 
 
 class TestCrudRiotPlayerMetadata(TestBase):
+    def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+
     def test_put_player_metadata_no_existing_player_metadata(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_metadata = riot_fixtures.player_1_game_metadata_fixture
 
         # Act and Assert
@@ -29,6 +35,7 @@ class TestCrudRiotPlayerMetadata(TestBase):
 
     def test_put_player_metadata_existing_player_metadata(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_metadata = riot_fixtures.player_1_game_metadata_fixture
         self.db.put_player_metadata(player_metadata)
         updated_player_metadata = player_metadata.model_copy(deep=True)
@@ -49,6 +56,7 @@ class TestCrudRiotPlayerMetadata(TestBase):
 
     def test_get_player_metadata(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_metadata = riot_fixtures.player_1_game_metadata_fixture
         self.db.put_player_metadata(player_metadata)
 

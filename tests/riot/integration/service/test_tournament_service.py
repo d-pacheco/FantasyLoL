@@ -10,6 +10,7 @@ from src.riot.service.riot_tournament_service import RiotTournamentService
 class TournamentServiceTest(TestBase):
     def setUp(self):
         super().setUp()
+        self.db.put_league(riot_fixtures.league_1_fixture)
         self.tournament_service = RiotTournamentService(self.db)
 
     def test_get_active_tournaments(self):

@@ -5,6 +5,12 @@ from tests.test_util import riot_fixtures
 
 
 class TestCrudRiotGame(TestBase):
+    def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+        self.db.put_match(riot_fixtures.future_match_fixture)
+
     def test_put_game_no_existing_game(self):
         # Arrange
         game = riot_fixtures.game_1_fixture_completed
@@ -203,7 +209,8 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         future_match = riot_fixtures.future_match_fixture
         self.db.put_match(future_match)
-        inprogress_game = riot_fixtures.game_2_fixture_inprogress
+        inprogress_game = riot_fixtures.game_2_fixture_inprogress.model_copy(deep=True)
+        inprogress_game.match_id = future_match.id
         self.db.put_game(inprogress_game)
 
         # Act
@@ -217,7 +224,8 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         future_match = riot_fixtures.future_match_fixture
         self.db.put_match(future_match)
-        unstarted_game = riot_fixtures.game_3_fixture_unstarted
+        unstarted_game = riot_fixtures.game_3_fixture_unstarted.model_copy(deep=True)
+        unstarted_game.match_id = future_match.id
         self.db.put_game(unstarted_game)
 
         # Act
@@ -232,7 +240,8 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         future_match = riot_fixtures.future_match_fixture
         self.db.put_match(future_match)
-        completed_game = riot_fixtures.game_1_fixture_completed
+        completed_game = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
+        completed_game.match_id = future_match.id
         self.db.put_game(completed_game)
 
         # Act
@@ -247,7 +256,8 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         future_match = riot_fixtures.future_match_fixture
         self.db.put_match(future_match)
-        unneeded_game = riot_fixtures.game_4_fixture_unneeded
+        unneeded_game = riot_fixtures.game_4_fixture_unneeded.model_copy(deep=True)
+        unneeded_game.match_id = future_match.id
         self.db.put_game(unneeded_game)
 
         # Act

@@ -6,6 +6,10 @@ from src.db.models import MatchModel
 
 
 class TestCrudRiotMatch(TestBase):
+    def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+
     def test_put_match_no_existing_match(self):
         # Arrange
         match = riot_fixtures.match_fixture
@@ -159,6 +163,7 @@ class TestCrudRiotMatch(TestBase):
         match_without_has_games.has_games = False
         self.db.put_match(match_without_has_games)
 
+        self.db.put_match(riot_fixtures.future_match_fixture)
         game_for_future_match = riot_fixtures.game_1_fixture_unstarted_future_match
         self.db.put_game(game_for_future_match)
 

@@ -10,6 +10,8 @@ from src.riot.service import RiotMatchService
 class MatchServiceTest(TestBase):
     def setUp(self):
         super().setUp()
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
         self.match_service = RiotMatchService(self.db)
 
     def test_get_matches_by_league_slug_existing_match(self):
