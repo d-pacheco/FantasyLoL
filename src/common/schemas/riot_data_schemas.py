@@ -205,8 +205,11 @@ class ProfessionalTeam(BaseModel):
         examples=["http://static.lolesports.com/teams/1596305556675_T1T1.png"],
     )
     status: str = Field(default=None, description="The status of the team", examples=["active"])
-    home_league: str | None = Field(
+    home_league_name: str | None = Field(
         default=None, description="The home league name of the team", examples=["LCK"]
+    )
+    home_league_region: str | None = Field(
+        default=None, description="The home league region of the team", examples=["KOREA"]
     )
 
 
@@ -230,6 +233,10 @@ class ProfessionalPlayer(BaseModel):
     summoner_name: str = Field(
         default=None, description="The summoner name of the player", examples=["Faker"]
     )
+    first_name: str = Field(
+        default="", description="The first name of the player", examples=["Sang-hyeok"]
+    )
+    last_name: str = Field(default="", description="The last name of the player", examples=["Lee"])
     image: str = Field(
         default=None,
         description="The url for the players image",

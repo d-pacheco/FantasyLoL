@@ -124,7 +124,7 @@ class ProfessionalTeamServiceTest(TestBase):
         # Arrange
         expected_team = riot_fixtures.team_1_fixture
         self.db.put_team(expected_team)
-        search_parameters = TeamSearchParameters(league=expected_team.home_league)
+        search_parameters = TeamSearchParameters(league=expected_team.home_league_name)
 
         # Act
         professional_team_from_db = self.professional_team_service.get_teams(search_parameters)
