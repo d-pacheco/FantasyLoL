@@ -59,6 +59,11 @@ class JobScheduler:
     def print_jobs(self):
         self.scheduler.print_jobs()
 
+    def _run_match_jobs(self):
+        self.riot_match_service.sync_schedule()
+        self.riot_match_service.backfill_event_details()
+        self.riot_match_service.refresh_stale_events()
+
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
 
@@ -78,7 +83,7 @@ class JobScheduler:
             job_id="team_service_job",
         )
         self.schedule_job(
-            job_function=self.riot_match_service.fetch_new_schedule_retry_job,
+            job_function=self._run_match_jobs,
             job_config=app_config.MATCH_SERVICE_SCHEDULE,
             job_id="match_service_job",
         )

@@ -232,3 +232,39 @@ class TestRiotMatchScraper(TestBase):
         self.assertIsNotNone(result)
         # Match should have been updated with details
         self.mock_api.get_event_details.assert_called_once()
+
+    def test_sync_schedule_then_backfill_then_refresh_runs_end_to_end(self):
+        """Integration test: the three jobs run sequentially without error."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+
+        # Set up league and tournament
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="test-tourn",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        # sync_schedule saves a match
+        event = _make_schedule_event("e2e-001")
+        self.mock_api.get_schedule.return_value = _make_schedule_response([event])
+        self.scraper.sync_schedule()
+
+        # backfill_event_details fills in details
+        self.mock_api.get_event_details.return_value = _make_event_details_response("e2e-001")
+        self.scraper.backfill_event_details()
+
+        # refresh_stale_events is a no-op (match is in the future)
+        self.scraper.refresh_stale_events()
+
+        result = self.db.get_match_by_id(RiotMatchID("e2e-001"))
+        self.assertIsNotNone(result)
+        ids_without_games = self.db.get_ids_without_games()
+        self.assertNotIn(RiotMatchID("e2e-001"), ids_without_games)

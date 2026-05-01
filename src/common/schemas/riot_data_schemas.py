@@ -385,12 +385,6 @@ class GameDragons(BaseModel):
     dragon_type: str
 
 
-class StoredSchedule(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    schedule_name: str | None = Field(default=None)
-    older_token_key: str | None = Field(default=None)
-    newer_token_key: str | None = Field(default=None)
 
 
 class ScheduleTeam(BaseModel):
