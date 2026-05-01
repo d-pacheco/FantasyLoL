@@ -159,6 +159,15 @@ def get_ids_without_games(session) -> list[RiotMatchID]:
     return [RiotMatchID(row[0]) for row in result.fetchall()]
 
 
+def get_stale_match_ids(session) -> list[RiotMatchID]:
+    result = session.execute(text("""
+        SELECT id FROM matches
+        WHERE start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+        AND state::text IN ('UNSTARTED', 'INPROGRESS');
+    """))
+    return [RiotMatchID(row[0]) for row in result.fetchall()]
+
+
 def get_matches(session, filters: list | None = None) -> list[Match]:
     if filters:
         query = session.query(MatchView).filter(*filters)
