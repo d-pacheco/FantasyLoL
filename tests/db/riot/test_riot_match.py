@@ -511,3 +511,69 @@ class TestCrudRiotMatch(TestBase):
 
         ids = self.db.get_ids_without_games()
         self.assertNotIn(RiotMatchID("no-games-002"), ids)
+
+    # --- get_stale_match_ids tests ---
+
+    def test_get_stale_match_ids_returns_past_unstarted(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("stale-001"),
+            start_time="2020-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        ids = self.db.get_stale_match_ids()
+        self.assertIn(RiotMatchID("stale-001"), ids)
+
+    def test_get_stale_match_ids_returns_past_inprogress(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("stale-002"),
+            start_time="2020-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.INPROGRESS,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        ids = self.db.get_stale_match_ids()
+        self.assertIn(RiotMatchID("stale-002"), ids)
+
+    def test_get_stale_match_ids_excludes_completed(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("stale-003"),
+            start_time="2020-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.COMPLETED,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        ids = self.db.get_stale_match_ids()
+        self.assertNotIn(RiotMatchID("stale-003"), ids)
+
+    def test_get_stale_match_ids_excludes_future_unstarted(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("stale-004"),
+            start_time="2099-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        ids = self.db.get_stale_match_ids()
+        self.assertNotIn(RiotMatchID("stale-004"), ids)

@@ -125,6 +125,10 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return match_dao.get_ids_without_games(db)
 
+    def get_stale_match_ids(self) -> list[RiotMatchID]:
+        with self.connection_provider.get_db() as db:
+            return match_dao.get_stale_match_ids(db)
+
     def get_matches(self, filters: list | None = None) -> list[Match]:
         with self.connection_provider.get_db() as db:
             return match_dao.get_matches(db, filters)
