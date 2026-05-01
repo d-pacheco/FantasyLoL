@@ -1,6 +1,11 @@
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
-from src.common.schemas.riot_data_schemas import TeamGameStats
+from src.common.schemas.riot_data_schemas import (
+    GameDragons,
+    GameMetadata,
+    GameParticipantPerks,
+    TeamGameStats,
+)
 from src.db.models import LeagueModel, ProfessionalTeamModel, GameModel, MatchModel, EventTeamsModel
 
 
@@ -181,3 +186,54 @@ class TestCascadeDeletes(TestBase):
         with self.db_provider.get_db() as session:
             rows = session.query(EventTeamsModel).filter(EventTeamsModel.match_id == match_id).all()
             self.assertEqual(0, len(rows))
+
+    def test_deleting_game_cascades_to_game_metadata(self):
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+        game = riot_fixtures.game_1_fixture_completed
+        self.db.put_game(game)
+        self.db.put_game_metadata(GameMetadata(game_id=game.id, patch_version="14.1"))
+        self.assertIsNotNone(self.db.get_game_metadata(game.id))
+
+        self._delete_game(game.id)
+
+        self.assertIsNone(self.db.get_game_metadata(game.id))
+
+    def test_deleting_game_cascades_to_game_participant_perks(self):
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+        game = riot_fixtures.game_1_fixture_completed
+        self.db.put_game(game)
+        self.db.put_game_participant_perks(
+            GameParticipantPerks(
+                game_id=game.id,
+                participant_id=1,
+                style_id=8100,
+                sub_style_id=8300,
+                perks=[8112],
+            )
+        )
+        self.assertIsNotNone(self.db.get_game_participant_perks(game.id, 1))
+
+        self._delete_game(game.id)
+
+        self.assertIsNone(self.db.get_game_participant_perks(game.id, 1))
+
+    def test_deleting_game_cascades_to_game_dragons(self):
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+        game = riot_fixtures.game_1_fixture_completed
+        self.db.put_game(game)
+        self.db.put_game_dragon(
+            GameDragons(
+                game_id=game.id,
+                dragon_number=1,
+                team_id=riot_fixtures.team_1_fixture.id,
+                dragon_type="infernal",
+            )
+        )
+        self.assertEqual(1, len(self.db.get_game_dragons(game.id)))
+
+        self._delete_game(game.id)
+
+        self.assertEqual(0, len(self.db.get_game_dragons(game.id)))

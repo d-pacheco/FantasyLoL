@@ -105,6 +105,38 @@ class GameTeamsModel(Base):  # type: ignore
     __table_args__ = (PrimaryKeyConstraint("game_id", "team_id"),)
 
 
+class GameMetadataModel(Base):  # type: ignore
+    __tablename__ = "game_metadata"
+
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    patch_version = Column(String)
+
+
+class GameParticipantPerksModel(Base):  # type: ignore
+    __tablename__ = "game_participant_perks"
+
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    participant_id = Column(Integer, primary_key=True)
+    style_id = Column(Integer)
+    sub_style_id = Column(Integer)
+    perks = Column(JSON)
+
+    __table_args__ = (PrimaryKeyConstraint("game_id", "participant_id"),)
+
+
+class GameDragonsModel(Base):  # type: ignore
+    __tablename__ = "game_dragons"
+
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    dragon_number = Column(Integer, primary_key=True)
+    team_id = Column(
+        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), nullable=False
+    )
+    dragon_type = Column(String, nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("game_id", "dragon_number"),)
+
+
 class ProfessionalTeamModel(Base):  # type: ignore
     __tablename__ = "professional_teams"
 
