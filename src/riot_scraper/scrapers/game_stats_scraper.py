@@ -3,7 +3,6 @@ import logging
 from src.common.schemas.riot_data_schemas import (
     RiotGameID,
     PlayerGameMetadata,
-    ProPlayerID,
     TeamGameStats,
     ProTeamID,
     PlayerGameStats,

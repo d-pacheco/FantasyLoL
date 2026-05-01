@@ -385,8 +385,6 @@ class GameDragons(BaseModel):
     dragon_type: str
 
 
-
-
 class ScheduleTeam(BaseModel):
     side: int
     team_code: str
