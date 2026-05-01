@@ -39,7 +39,8 @@ class RiotTeamScraper:
                 alternative_image=team.alternativeImage,
                 background_image=team.backgroundImage,
                 status=team.status,
-                home_league=team.homeLeague.name if team.homeLeague else None,
+                home_league_name=team.homeLeague.name if team.homeLeague else None,
+                home_league_region=team.homeLeague.region if team.homeLeague else None,
             )
             self.db.put_team(new_team)
 
@@ -47,6 +48,8 @@ class RiotTeamScraper:
                 new_player = ProfessionalPlayer(
                     id=player.id,
                     summoner_name=player.summonerName,
+                    first_name=player.firstName,
+                    last_name=player.lastName,
                     image=player.image,
                     role=player.role,
                     team_id=team.id,

@@ -92,7 +92,8 @@ class ProfessionalTeamModel(Base):  # type: ignore
     alternative_image = Column(String, nullable=True)
     background_image = Column(String, nullable=True)
     status = Column(String)
-    home_league = Column(String, nullable=True)
+    home_league_name = Column(String, nullable=True)
+    home_league_region = Column(String, nullable=True)
 
 
 class ProfessionalPlayerModel(Base):  # type: ignore
@@ -103,6 +104,8 @@ class ProfessionalPlayerModel(Base):  # type: ignore
         String, ForeignKey("professional_teams.id", ondelete="CASCADE"), primary_key=True
     )
     summoner_name = Column(String)
+    first_name = Column(String, default="")
+    last_name = Column(String, default="")
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
 

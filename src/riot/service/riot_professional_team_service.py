@@ -26,7 +26,7 @@ class RiotProfessionalTeamService:
         if search_parameters.status is not None:
             filters.append(ProfessionalTeamModel.status == search_parameters.status)
         if search_parameters.league is not None:
-            filters.append(ProfessionalTeamModel.home_league == search_parameters.league)
+            filters.append(ProfessionalTeamModel.home_league_name == search_parameters.league)
 
         professional_teams = self.db.get_teams(filters)
         return professional_teams

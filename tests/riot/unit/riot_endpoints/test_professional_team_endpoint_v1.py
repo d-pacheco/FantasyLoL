@@ -18,7 +18,7 @@ class TestProfessionalTeamEndpointV1:
             ("name", lambda t: t.name),
             ("code", lambda t: t.code),
             ("status", lambda t: t.status),
-            ("league", lambda t: t.home_league),
+            ("league", lambda t: t.home_league_name),
         ],
         ids=["slug", "name", "code", "status", "league"],
     )

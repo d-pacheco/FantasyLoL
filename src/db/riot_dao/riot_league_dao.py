@@ -55,7 +55,7 @@ def get_league_ids_for_player(session, player_id: ProPlayerID) -> list[RiotLeagu
         SELECT DISTINCT l.id
         FROM professional_players p
         JOIN professional_teams t ON p.team_id = t.id
-        JOIN leagues l ON t.home_league = l.name
+        JOIN leagues l ON t.home_league_name = l.name
         WHERE p.id = '{player_id}'
         """
     result = session.execute(text(sql_query))
