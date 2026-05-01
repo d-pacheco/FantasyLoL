@@ -59,9 +59,7 @@ class MatchModel(Base):  # type: ignore
     league_id = Column(String, ForeignKey("leagues.id", ondelete="CASCADE"), nullable=True)
     strategy_type = Column(String)
     strategy_count = Column(Integer)
-    tournament_id = Column(
-        String, ForeignKey("tournaments.id", ondelete="CASCADE"), nullable=True
-    )
+    tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="CASCADE"), nullable=True)
     has_games = Column(Boolean, default=True)
     state = Column(Enum(MatchState), nullable=False)
 
@@ -70,9 +68,7 @@ class EventTeamsModel(Base):  # type: ignore
     __tablename__ = "event_teams"
 
     match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"), primary_key=True)
-    team_id = Column(
-        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), nullable=True
-    )
+    team_id = Column(String, ForeignKey("professional_teams.id", ondelete="CASCADE"), nullable=True)
     side = Column(Integer, nullable=False)
     team_code = Column(String, nullable=False, primary_key=True)
     team_name = Column(String, nullable=True)
@@ -215,8 +211,6 @@ class TeamGameStatsModel(Base):
     total_kills = Column(Integer)
 
     __table_args__ = (PrimaryKeyConstraint("game_id", "team_id"),)
-
-
 
 
 # --------------------------------------------------

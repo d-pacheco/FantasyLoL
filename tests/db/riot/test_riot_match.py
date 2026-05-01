@@ -2,9 +2,16 @@ from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
 from src.common.schemas.riot_data_schemas import (
-    Match, RiotMatchID, MatchState, ScheduleMatch, ScheduleTeam,
-    MatchDetails, DetailTeam, DetailGame, RiotLeagueID, RiotTournamentID,
-    RiotGameID, GameState,
+    Match,
+    RiotMatchID,
+    MatchState,
+    ScheduleMatch,
+    ScheduleTeam,
+    MatchDetails,
+    DetailTeam,
+    DetailGame,
+    RiotGameID,
+    GameState,
 )
 from src.db.models import EventTeamsModel, MatchModel
 from src.db.views import MatchView
@@ -306,7 +313,6 @@ class TestCrudRiotMatch(TestBase):
         with self.assertRaises(AssertionError):
             self.db.update_match_has_games(RiotMatchID("123"), new_has_games)
 
-
     # --- save_from_schedule tests ---
 
     def test_save_from_schedule_creates_retrievable_match(self):
@@ -319,8 +325,12 @@ class TestCrudRiotMatch(TestBase):
             strategy_count=3,
             state=MatchState.UNSTARTED,
             teams=[
-                ScheduleTeam(side=1, team_code="T1", team_name="Team One", team_image="http://t1.png"),
-                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", team_image="http://t2.png"),
+                ScheduleTeam(
+                    side=1, team_code="T1", team_name="Team One", team_image="http://t1.png"
+                ),
+                ScheduleTeam(
+                    side=2, team_code="T2", team_name="Team Two", team_image="http://t2.png"
+                ),
             ],
         )
 
@@ -409,8 +419,12 @@ class TestCrudRiotMatch(TestBase):
             strategy_count=3,
             state=MatchState.COMPLETED,
             teams=[
-                ScheduleTeam(side=1, team_code="T1", team_name="Team One", game_wins=2, outcome="win"),
-                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", game_wins=1, outcome="loss"),
+                ScheduleTeam(
+                    side=1, team_code="T1", team_name="Team One", game_wins=2, outcome="win"
+                ),
+                ScheduleTeam(
+                    side=2, team_code="T2", team_name="Team Two", game_wins=1, outcome="loss"
+                ),
             ],
         )
         self.db.save_from_schedule(schedule_match)
@@ -454,8 +468,12 @@ class TestCrudRiotMatch(TestBase):
             strategy_count=1,
             state=MatchState.COMPLETED,
             teams=[
-                ScheduleTeam(side=1, team_code="T1", team_name="Team One", game_wins=1, outcome="win"),
-                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", game_wins=0, outcome="loss"),
+                ScheduleTeam(
+                    side=1, team_code="T1", team_name="Team One", game_wins=1, outcome="win"
+                ),
+                ScheduleTeam(
+                    side=2, team_code="T2", team_name="Team Two", game_wins=0, outcome="loss"
+                ),
             ],
         )
         self.db.save_from_schedule(schedule_match)

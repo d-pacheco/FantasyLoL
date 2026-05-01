@@ -1,18 +1,38 @@
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 from tests.test_base import TestBase
 from src.common.schemas.riot_data_schemas import (
-    RiotMatchID, MatchState, GameState, RiotGameID, RiotLeagueID, RiotTournamentID, ProTeamID,
+    RiotMatchID,
+    MatchState,
+    GameState,
+    RiotGameID,
+    RiotLeagueID,
+    RiotTournamentID,
+    ProTeamID,
 )
 from src.riot_scraper.riot_api.schemas.get_schedule import (
-    GetScheduleResponse, ScheduleData, Schedule, Pages, ScheduleEvent,
-    ScheduleLeague, ScheduleMatch as ApiScheduleMatch, MatchStrategy,
-    MatchTeam, MatchResult, TeamRecord,
+    GetScheduleResponse,
+    ScheduleData,
+    Schedule,
+    Pages,
+    ScheduleEvent,
+    ScheduleLeague,
+    ScheduleMatch as ApiScheduleMatch,
+    MatchStrategy,
+    MatchTeam,
+    TeamRecord,
 )
 from src.riot_scraper.riot_api.schemas.get_event_details import (
-    EventDetailsResponse, EventData, Event, EventTournament, EventLeague,
-    EventMatch, MatchStrategy as DetailMatchStrategy, MatchTeam as DetailMatchTeam,
-    TeamResult, MatchGame, GameTeam,
+    EventDetailsResponse,
+    EventData,
+    Event,
+    EventTournament,
+    EventLeague,
+    EventMatch,
+    MatchStrategy as DetailMatchStrategy,
+    MatchTeam as DetailMatchTeam,
+    MatchGame,
+    GameTeam,
 )
 from src.riot_scraper.scrapers.match_scraper import RiotMatchScraper
 
@@ -38,8 +58,20 @@ def _make_schedule_event(match_id, state=MatchState.UNSTARTED):
         match=ApiScheduleMatch(
             id=RiotMatchID(match_id),
             teams=[
-                MatchTeam(name="Team A", code="TA", image="http://ta.png", result=None, record=TeamRecord(wins=1, losses=0)),
-                MatchTeam(name="Team B", code="TB", image="http://tb.png", result=None, record=TeamRecord(wins=0, losses=1)),
+                MatchTeam(
+                    name="Team A",
+                    code="TA",
+                    image="http://ta.png",
+                    result=None,
+                    record=TeamRecord(wins=1, losses=0),
+                ),
+                MatchTeam(
+                    name="Team B",
+                    code="TB",
+                    image="http://tb.png",
+                    result=None,
+                    record=TeamRecord(wins=0, losses=1),
+                ),
             ],
             strategy=MatchStrategy(type="bestOf", count=3),
         ),
@@ -53,18 +85,40 @@ def _make_event_details_response(match_id):
                 id=RiotMatchID(match_id),
                 type="match",
                 tournament=EventTournament(id=RiotTournamentID("tourn-1")),
-                league=EventLeague(id=RiotLeagueID("league-1"), slug="test-league", image="http://l.png", name="Test League"),
+                league=EventLeague(
+                    id=RiotLeagueID("league-1"),
+                    slug="test-league",
+                    image="http://l.png",
+                    name="Test League",
+                ),
                 match=EventMatch(
                     strategy=DetailMatchStrategy(count=3),
                     teams=[
-                        DetailMatchTeam(id=ProTeamID("team-a-id"), name="Team A", code="TA", image="http://ta.png", result=None),
-                        DetailMatchTeam(id=ProTeamID("team-b-id"), name="Team B", code="TB", image="http://tb.png", result=None),
+                        DetailMatchTeam(
+                            id=ProTeamID("team-a-id"),
+                            name="Team A",
+                            code="TA",
+                            image="http://ta.png",
+                            result=None,
+                        ),
+                        DetailMatchTeam(
+                            id=ProTeamID("team-b-id"),
+                            name="Team B",
+                            code="TB",
+                            image="http://tb.png",
+                            result=None,
+                        ),
                     ],
                     games=[
-                        MatchGame(number=1, id=RiotGameID("game-1"), state=GameState.COMPLETED, teams=[
-                            GameTeam(id=ProTeamID("team-a-id"), side="blue"),
-                            GameTeam(id=ProTeamID("team-b-id"), side="red"),
-                        ]),
+                        MatchGame(
+                            number=1,
+                            id=RiotGameID("game-1"),
+                            state=GameState.COMPLETED,
+                            teams=[
+                                GameTeam(id=ProTeamID("team-a-id"), side="blue"),
+                                GameTeam(id=ProTeamID("team-b-id"), side="red"),
+                            ],
+                        ),
                     ],
                 ),
             )
@@ -96,17 +150,20 @@ class TestRiotMatchScraper(TestBase):
         event1 = _make_schedule_event("match-sync-002")
 
         # Pre-save the match so it already exists
-        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam
-        self.db.save_from_schedule(ScheduleMatch(
-            id=RiotMatchID("match-sync-002"),
-            start_time="2024-01-01T12:00:00Z",
-            block_name="Week 1",
-            league_slug="test-league",
-            strategy_type="bestOf",
-            strategy_count=3,
-            state=MatchState.UNSTARTED,
-            teams=[],
-        ))
+        from src.common.schemas.riot_data_schemas import ScheduleMatch
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("match-sync-002"),
+                start_time="2024-01-01T12:00:00Z",
+                block_name="Week 1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.UNSTARTED,
+                teams=[],
+            )
+        )
 
         # First page: all matches already exist → stop immediately
         self.mock_api.get_schedule.return_value = _make_schedule_response([event1], older="page-2")
@@ -130,12 +187,14 @@ class TestRiotMatchScraper(TestBase):
         # Set up league and tournament for FK resolution
         from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam
         from tests.test_util import riot_fixtures
+
         league = riot_fixtures.league_1_fixture.model_copy(deep=True)
         league.id = RiotLeagueID("league-1")
         league.slug = "test-league"
         self.db.put_league(league)
 
         from src.common.schemas.riot_data_schemas import Tournament
+
         tournament = Tournament(
             id=RiotTournamentID("tourn-1"),
             slug="test-tourn",
@@ -146,19 +205,21 @@ class TestRiotMatchScraper(TestBase):
         self.db.put_tournament(tournament)
 
         # Save a match via schedule (no games)
-        self.db.save_from_schedule(ScheduleMatch(
-            id=RiotMatchID("backfill-001"),
-            start_time="2024-01-01T12:00:00Z",
-            block_name="Week 1",
-            league_slug="test-league",
-            strategy_type="bestOf",
-            strategy_count=3,
-            state=MatchState.UNSTARTED,
-            teams=[
-                ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
-                ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
-            ],
-        ))
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("backfill-001"),
+                start_time="2024-01-01T12:00:00Z",
+                block_name="Week 1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.UNSTARTED,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
 
         self.mock_api.get_event_details.return_value = _make_event_details_response("backfill-001")
 
@@ -169,17 +230,20 @@ class TestRiotMatchScraper(TestBase):
         self.assertNotIn(RiotMatchID("backfill-001"), ids_without_games)
 
     def test_backfill_event_details_skips_has_games_false(self):
-        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam
-        self.db.save_from_schedule(ScheduleMatch(
-            id=RiotMatchID("backfill-002"),
-            start_time="2024-01-01T12:00:00Z",
-            block_name="Week 1",
-            league_slug="test-league",
-            strategy_type="bestOf",
-            strategy_count=1,
-            state=MatchState.UNSTARTED,
-            teams=[],
-        ))
+        from src.common.schemas.riot_data_schemas import ScheduleMatch
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("backfill-002"),
+                start_time="2024-01-01T12:00:00Z",
+                block_name="Week 1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=1,
+                state=MatchState.UNSTARTED,
+                teams=[],
+            )
+        )
         self.db.update_match_has_games(RiotMatchID("backfill-002"), False)
 
         self.scraper.backfill_event_details()
@@ -205,22 +269,26 @@ class TestRiotMatchScraper(TestBase):
         )
         self.db.put_tournament(tournament)
 
-        self.db.save_from_schedule(ScheduleMatch(
-            id=RiotMatchID("stale-refresh-001"),
-            start_time="2020-01-01T12:00:00Z",
-            block_name="Week 1",
-            league_slug="test-league",
-            strategy_type="bestOf",
-            strategy_count=1,
-            state=MatchState.UNSTARTED,
-            teams=[
-                ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
-                ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
-            ],
-        ))
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("stale-refresh-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="Week 1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=1,
+                state=MatchState.UNSTARTED,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
 
         # Event details shows all games completed
-        self.mock_api.get_event_details.return_value = _make_event_details_response("stale-refresh-001")
+        self.mock_api.get_event_details.return_value = _make_event_details_response(
+            "stale-refresh-001"
+        )
 
         self.scraper.refresh_stale_events()
 
@@ -231,7 +299,7 @@ class TestRiotMatchScraper(TestBase):
 
     def test_sync_schedule_then_backfill_then_refresh_runs_end_to_end(self):
         """Integration test: the three jobs run sequentially without error."""
-        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from src.common.schemas.riot_data_schemas import Tournament
         from tests.test_util import riot_fixtures
 
         # Set up league and tournament

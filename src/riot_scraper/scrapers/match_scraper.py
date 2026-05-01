@@ -1,11 +1,16 @@
 import logging
 
 from src.common.schemas.riot_data_schemas import (
-    ScheduleMatch, ScheduleTeam, MatchDetails, DetailTeam, DetailGame, MatchState, GameState,
+    ScheduleMatch,
+    ScheduleTeam,
+    MatchDetails,
+    DetailTeam,
+    DetailGame,
+    MatchState,
+    GameState,
 )
 from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
-from src.riot_scraper.riot_api.schemas.get_schedule import Schedule
 from src.riot_scraper.job_runner import JobRunner
 
 logger = logging.getLogger("scraper")
@@ -50,16 +55,18 @@ class RiotMatchScraper:
                     game_wins = team.result.gameWins if team.result else None
                     wins = team.record.wins if team.record else None
                     losses = team.record.losses if team.record else None
-                    teams.append(ScheduleTeam(
-                        side=i + 1,
-                        team_code=team.code,
-                        team_name=team.name,
-                        team_image=team.image,
-                        game_wins=game_wins,
-                        outcome=outcome,
-                        wins=wins,
-                        losses=losses,
-                    ))
+                    teams.append(
+                        ScheduleTeam(
+                            side=i + 1,
+                            team_code=team.code,
+                            team_name=team.name,
+                            team_image=team.image,
+                            game_wins=game_wins,
+                            outcome=outcome,
+                            wins=wins,
+                            losses=losses,
+                        )
+                    )
                 schedule_match = ScheduleMatch(
                     id=match.id,
                     start_time=event.startTime,
@@ -87,14 +94,8 @@ class RiotMatchScraper:
                 self.db.update_match_has_games(match_id, False)
                 continue
             event = response.data.event
-            teams = [
-                DetailTeam(team_id=t.id, team_code=t.code)
-                for t in event.match.teams
-            ]
-            games = [
-                DetailGame(id=g.id, state=g.state, number=g.number)
-                for g in event.match.games
-            ]
+            teams = [DetailTeam(team_id=t.id, team_code=t.code) for t in event.match.teams]
+            games = [DetailGame(id=g.id, state=g.state, number=g.number) for g in event.match.games]
             details = MatchDetails(
                 match_id=match_id,
                 league_id=event.league.id,
@@ -111,14 +112,8 @@ class RiotMatchScraper:
             if response is None:
                 continue
             event = response.data.event
-            teams = [
-                DetailTeam(team_id=t.id, team_code=t.code)
-                for t in event.match.teams
-            ]
-            games = [
-                DetailGame(id=g.id, state=g.state, number=g.number)
-                for g in event.match.games
-            ]
+            teams = [DetailTeam(team_id=t.id, team_code=t.code) for t in event.match.teams]
+            games = [DetailGame(id=g.id, state=g.state, number=g.number) for g in event.match.games]
             details = MatchDetails(
                 match_id=match_id,
                 league_id=event.league.id,

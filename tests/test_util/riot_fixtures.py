@@ -673,4 +673,3 @@ player_10_game_data_fixture = schemas.PlayerGameData(
     wards_placed=player_10_game_stats_fixture.wards_placed,
     wards_destroyed=player_10_game_stats_fixture.wards_destroyed,
 )
-

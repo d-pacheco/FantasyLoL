@@ -2,7 +2,13 @@ import logging
 
 from sqlalchemy import text, select, func, cast, Date
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID, ScheduleMatch, MatchDetails
+from src.common.schemas.riot_data_schemas import (
+    Match,
+    RiotMatchID,
+    RiotLeagueID,
+    ScheduleMatch,
+    MatchDetails,
+)
 from src.db.models import (
     MatchModel,
     EventTeamsModel,
@@ -156,21 +162,25 @@ def save_from_details(session, details: MatchDetails) -> None:
 
 
 def get_ids_without_games(session) -> list[RiotMatchID]:
-    result = session.execute(text("""
+    result = session.execute(
+        text("""
         SELECT matches.id
         FROM matches
         LEFT JOIN games ON matches.id = games.match_id
         WHERE games.match_id IS NULL AND matches.has_games != False;
-    """))
+    """)
+    )
     return [RiotMatchID(row[0]) for row in result.fetchall()]
 
 
 def get_stale_match_ids(session) -> list[RiotMatchID]:
-    result = session.execute(text("""
+    result = session.execute(
+        text("""
         SELECT id FROM matches
         WHERE start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
         AND state::text IN ('UNSTARTED', 'INPROGRESS');
-    """))
+    """)
+    )
     return [RiotMatchID(row[0]) for row in result.fetchall()]
 
 

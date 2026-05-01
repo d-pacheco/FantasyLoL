@@ -1,7 +1,5 @@
 from classy_fastapi import Routable, post
-from fastapi import Depends
 
-from src.auth import JWTBearer, Permissions
 from src.riot_scraper.job_scheduler import JobScheduler
 
 
