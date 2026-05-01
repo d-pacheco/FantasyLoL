@@ -38,13 +38,13 @@ class MatchTeam(BaseModel):
     name: str
     code: str
     image: str
-    result: TeamResult
+    result: TeamResult | None = None
 
 
 class GameTeam(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: ProTeamID
-    side: str
+    side: str | None = None
 
 
 class MatchGame(BaseModel):

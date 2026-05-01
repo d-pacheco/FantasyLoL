@@ -155,7 +155,12 @@ def get_miss_data_matches(session) -> list[Match]:
         session.execute(
             select(MatchView).where(
                 or_(
-                    or_(MatchView.team_1_name == "TBD", MatchView.team_2_name == "TBD"),
+                    or_(
+                        MatchView.team_1_name == "TBD",
+                        MatchView.team_2_name == "TBD",
+                        MatchView.team_1_name.is_(None),
+                        MatchView.team_2_name.is_(None),
+                    ),
                     or_(MatchView.state == "UNSTARTED", MatchView.state == "INPROGRESS"),
                 )
             )

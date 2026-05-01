@@ -44,16 +44,22 @@ class RiotGameScraper:
 
             for game in get_event_details_response.data.event.match.games:
                 teams = game.teams
-                red_team_id = teams[0].id if teams[0].side == "red" else teams[1].id
-                blue_team_id = teams[0].id if teams[0].side == "blue" else teams[1].id
-
-                new_game = Game(
-                    id=game.id,
-                    state=GameState(game.state),
-                    red_team=ProTeamID(red_team_id),
-                    blue_team=ProTeamID(blue_team_id),
-                    match_id=match_id,
-                )
+                if not teams or len(teams) < 2 or not teams[0].side:
+                    new_game = Game(
+                        id=game.id,
+                        state=GameState(game.state),
+                        match_id=match_id,
+                    )
+                else:
+                    red_team_id = teams[0].id if teams[0].side == "red" else teams[1].id
+                    blue_team_id = teams[0].id if teams[0].side == "blue" else teams[1].id
+                    new_game = Game(
+                        id=game.id,
+                        state=GameState(game.state),
+                        red_team=ProTeamID(red_team_id),
+                        blue_team=ProTeamID(blue_team_id),
+                        match_id=match_id,
+                    )
                 all_fetched_games.append(new_game)
         self.db.bulk_save_games(all_fetched_games)
 
