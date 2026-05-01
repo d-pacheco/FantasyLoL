@@ -28,6 +28,9 @@ class AppConfig(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/fantasy_lol"
     DEBUG_LOGGING: bool = False
 
+    # CORS
+    CORS_ORIGINS: list[str] = ["*"]
+
     # Auth
     AUTH_SECRET: str
     AUTH_ALGORITHM: str = "HS256"

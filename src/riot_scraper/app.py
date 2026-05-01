@@ -2,6 +2,7 @@ import uvicorn
 import sys
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination.utils import disable_installed_extensions_check
 
 from src.common.logger import configure_logger
@@ -59,6 +60,13 @@ def configure_api_endpoints(job_runner_endpoint: JobRunnerEndpoint) -> FastAPI:
             Fetch data related to Professional League of Legends.
             Requires admin permissions to trigger jobs
             """,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=app_config.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     disable_installed_extensions_check()
     app.include_router(job_runner_endpoint.router, prefix="/api/v1")
