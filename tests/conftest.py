@@ -38,12 +38,14 @@ def db_provider():
 
     with provider.engine.begin() as conn:
         conn.execute(text("DROP VIEW IF EXISTS player_game_view CASCADE"))
+        conn.execute(text("DROP VIEW IF EXISTS match_view CASCADE"))
     models.Base.metadata.drop_all(bind=provider.engine)
     models.Base.metadata.create_all(bind=provider.engine)
-    from src.db.views import create_player_game_view_query
+    from src.db.views import create_player_game_view_query, create_match_view_query
 
     with provider.engine.connect() as conn:
         conn.execute(create_player_game_view_query)
+        conn.execute(create_match_view_query)
         conn.commit()
     return provider
 
