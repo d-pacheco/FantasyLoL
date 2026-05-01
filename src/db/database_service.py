@@ -30,6 +30,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameData,
     PlayerGameStats,
     StoredSchedule,
+    ScheduleMatch,
     TeamGameStats,
     GameMetadata,
     GameParticipantPerks,
@@ -106,6 +107,14 @@ class DatabaseService:
     def put_match(self, match: Match) -> None:
         with self.connection_provider.get_db() as db:
             match_dao.put_match(db, match)
+
+    def save_from_schedule(self, schedule_match: ScheduleMatch) -> None:
+        with self.connection_provider.get_db() as db:
+            match_dao.save_from_schedule(db, schedule_match)
+
+    def all_exist(self, match_ids: list[RiotMatchID]) -> bool:
+        with self.connection_provider.get_db() as db:
+            return match_dao.all_exist(db, match_ids)
 
     def get_matches(self, filters: list | None = None) -> list[Match]:
         with self.connection_provider.get_db() as db:

@@ -391,3 +391,25 @@ class StoredSchedule(BaseModel):
     schedule_name: str | None = Field(default=None)
     older_token_key: str | None = Field(default=None)
     newer_token_key: str | None = Field(default=None)
+
+
+class ScheduleTeam(BaseModel):
+    side: int
+    team_code: str
+    team_name: str
+    team_image: str | None = None
+    game_wins: int | None = None
+    outcome: str | None = None
+    wins: int | None = None
+    losses: int | None = None
+
+
+class ScheduleMatch(BaseModel):
+    id: RiotMatchID
+    start_time: str
+    block_name: str
+    league_slug: str
+    strategy_type: str
+    strategy_count: int
+    state: MatchState
+    teams: list[ScheduleTeam] = []

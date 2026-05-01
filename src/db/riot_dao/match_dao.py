@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy import text, select, func, or_, cast, Date
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID
+from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID, ScheduleMatch
 from src.db.models import (
     MatchModel,
     EventTeamsModel,
@@ -75,6 +75,43 @@ def put_match(session, match: Match) -> None:
         session.merge(et)
 
     session.commit()
+
+
+def save_from_schedule(session, schedule_match: ScheduleMatch) -> None:
+    db_match = MatchModel(
+        id=schedule_match.id,
+        start_time=schedule_match.start_time,
+        block_name=schedule_match.block_name,
+        league_slug=schedule_match.league_slug,
+        strategy_type=schedule_match.strategy_type,
+        strategy_count=schedule_match.strategy_count,
+        state=schedule_match.state,
+    )
+    session.merge(db_match)
+    session.flush()
+
+    for team in schedule_match.teams:
+        et = EventTeamsModel(
+            match_id=schedule_match.id,
+            team_code=team.team_code,
+            side=team.side,
+            team_name=team.team_name,
+            team_image=team.team_image,
+            game_wins=team.game_wins,
+            outcome=team.outcome,
+            wins=team.wins,
+            losses=team.losses,
+        )
+        session.merge(et)
+
+    session.commit()
+
+
+def all_exist(session, match_ids: list[RiotMatchID]) -> bool:
+    if not match_ids:
+        return True
+    count = session.query(MatchModel).filter(MatchModel.id.in_(match_ids)).count()
+    return count == len(match_ids)
 
 
 def get_matches(session, filters: list | None = None) -> list[Match]:
