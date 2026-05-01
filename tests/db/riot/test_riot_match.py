@@ -1,7 +1,9 @@
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID
+from src.common.schemas.riot_data_schemas import (
+    Match, RiotMatchID, MatchState, ScheduleMatch, ScheduleTeam,
+)
 from src.db.models import EventTeamsModel, MatchModel
 from src.db.views import MatchView
 
@@ -301,3 +303,93 @@ class TestCrudRiotMatch(TestBase):
 
         with self.assertRaises(AssertionError):
             self.db.update_match_has_games(RiotMatchID("123"), new_has_games)
+
+
+    # --- save_from_schedule tests ---
+
+    def test_save_from_schedule_creates_retrievable_match(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-001"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=3,
+            state=MatchState.UNSTARTED,
+            teams=[
+                ScheduleTeam(side=1, team_code="T1", team_name="Team One", team_image="http://t1.png"),
+                ScheduleTeam(side=2, team_code="T2", team_name="Team Two", team_image="http://t2.png"),
+            ],
+        )
+
+        self.db.save_from_schedule(schedule_match)
+        result = self.db.get_match_by_id(RiotMatchID("sched-001"))
+
+        self.assertIsNotNone(result)
+        self.assertEqual("sched-001", result.id)
+        self.assertEqual("test-league", result.league_slug)
+        self.assertEqual("Team One", result.team_1_name)
+        self.assertEqual("Team Two", result.team_2_name)
+        self.assertIsNone(result.tournament_id)
+
+    def test_save_from_schedule_upserts_on_second_call(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-002"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=3,
+            state=MatchState.UNSTARTED,
+            teams=[
+                ScheduleTeam(side=1, team_code="T1", team_name="Team One"),
+                ScheduleTeam(side=2, team_code="T2", team_name="Team Two"),
+            ],
+        )
+        self.db.save_from_schedule(schedule_match)
+
+        updated = schedule_match.model_copy(deep=True)
+        updated.state = MatchState.INPROGRESS
+        updated.teams[0].game_wins = 1
+        self.db.save_from_schedule(updated)
+
+        result = self.db.get_match_by_id(RiotMatchID("sched-002"))
+        self.assertEqual(MatchState.INPROGRESS, result.state)
+        self.assertEqual(1, result.team_1_wins)
+
+    def test_save_from_schedule_works_without_teams_in_professional_teams(self):
+        # No teams in professional_teams table — should still save
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-003"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[
+                ScheduleTeam(side=1, team_code="NEW1", team_name="New Team 1"),
+                ScheduleTeam(side=2, team_code="NEW2", team_name="New Team 2"),
+            ],
+        )
+        self.db.save_from_schedule(schedule_match)
+        result = self.db.get_match_by_id(RiotMatchID("sched-003"))
+        self.assertIsNotNone(result)
+        self.assertEqual("New Team 1", result.team_1_name)
+        self.assertEqual("New Team 2", result.team_2_name)
+
+    # --- all_exist tests ---
+
+    def test_all_exist_returns_true_when_all_present(self):
+        self.db.put_match(riot_fixtures.match_fixture)
+        result = self.db.all_exist([riot_fixtures.match_fixture.id])
+        self.assertTrue(result)
+
+    def test_all_exist_returns_false_when_any_missing(self):
+        self.db.put_match(riot_fixtures.match_fixture)
+        result = self.db.all_exist([riot_fixtures.match_fixture.id, RiotMatchID("missing-id")])
+        self.assertFalse(result)
+
+    def test_all_exist_returns_true_for_empty_list(self):
+        result = self.db.all_exist([])
+        self.assertTrue(result)
