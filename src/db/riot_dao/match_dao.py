@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import text, select, func, or_, cast, Date
+from sqlalchemy import text, select, func, cast, Date
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID, RiotLeagueID, ScheduleMatch, MatchDetails
 from src.db.models import (
@@ -253,25 +253,4 @@ def get_matches_for_league_with_active_tournament(session, league_id: RiotLeague
         ),
     )
     match_models = session.execute(query).scalars().all()
-    return [Match.model_validate(match_model) for match_model in match_models]
-
-
-def get_miss_data_matches(session) -> list[Match]:
-    match_models = (
-        session.execute(
-            select(MatchView).where(
-                or_(
-                    or_(
-                        MatchView.team_1_name == "TBD",
-                        MatchView.team_2_name == "TBD",
-                        MatchView.team_1_name.is_(None),
-                        MatchView.team_2_name.is_(None),
-                    ),
-                    or_(MatchView.state == "UNSTARTED", MatchView.state == "INPROGRESS"),
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
     return [Match.model_validate(match_model) for match_model in match_models]

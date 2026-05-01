@@ -29,7 +29,6 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
-    StoredSchedule,
     ScheduleMatch,
     MatchDetails,
     TeamGameStats,
@@ -55,7 +54,6 @@ from src.db.riot_dao import (
     player_metadata_dao,
     player_stats_dao,
     riot_league_dao,
-    schedule_dao,
     team_dao,
     team_stats_dao,
     tournament_dao,
@@ -153,10 +151,6 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return match_dao.get_matches_for_league_with_active_tournament(db, league_id)
 
-    def get_missing_data_matches(self) -> list[Match]:
-        with self.connection_provider.get_db() as db:
-            return match_dao.get_miss_data_matches(db)
-
     def put_player(self, player: ProfessionalPlayer) -> None:
         with self.connection_provider.get_db() as db:
             player_dao.put_player(db, player)
@@ -252,14 +246,6 @@ class DatabaseService:
     def get_league_ids_for_player(self, player_id: ProPlayerID) -> list[RiotLeagueID]:
         with self.connection_provider.get_db() as db:
             return riot_league_dao.get_league_ids_for_player(db, player_id)
-
-    def get_schedule(self, schedule_name: str) -> StoredSchedule | None:
-        with self.connection_provider.get_db() as db:
-            return schedule_dao.get_schedule(db, schedule_name)
-
-    def update_schedule(self, schedule: StoredSchedule) -> None:
-        with self.connection_provider.get_db() as db:
-            schedule_dao.update_schedule(db, schedule)
 
     def put_team(self, team: ProfessionalTeam) -> None:
         with self.connection_provider.get_db() as db:

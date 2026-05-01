@@ -217,12 +217,6 @@ class TeamGameStatsModel(Base):
     __table_args__ = (PrimaryKeyConstraint("game_id", "team_id"),)
 
 
-class ScheduleModel(Base):  # type: ignore
-    __tablename__ = "schedule"
-
-    schedule_name = Column(String, primary_key=True)
-    older_token_key = Column(String)
-    newer_token_key = Column(String)
 
 
 # --------------------------------------------------
