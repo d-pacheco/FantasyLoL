@@ -134,8 +134,14 @@ def save_from_details(session, details: MatchDetails) -> None:
             .first()
         )
         if et is not None:
-            et.team_id = team.team_id
-            session.merge(et)
+            existing_team = (
+                session.query(ProfessionalTeamModel)
+                .filter(ProfessionalTeamModel.id == team.team_id)
+                .first()
+            )
+            if existing_team is not None:
+                et.team_id = team.team_id
+                session.merge(et)
 
     for game in details.games:
         db_game = GameModel(
@@ -166,6 +172,14 @@ def get_stale_match_ids(session) -> list[RiotMatchID]:
         AND state::text IN ('UNSTARTED', 'INPROGRESS');
     """))
     return [RiotMatchID(row[0]) for row in result.fetchall()]
+
+
+def update_match_state(session, match_id: RiotMatchID, state) -> None:
+    db_match = session.query(MatchModel).filter(MatchModel.id == match_id).first()
+    if db_match is not None:
+        db_match.state = state
+        session.merge(db_match)
+        session.commit()
 
 
 def get_matches(session, filters: list | None = None) -> list[Match]:

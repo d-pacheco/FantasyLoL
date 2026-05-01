@@ -129,6 +129,10 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return match_dao.get_stale_match_ids(db)
 
+    def update_match_state(self, match_id: RiotMatchID, state) -> None:
+        with self.connection_provider.get_db() as db:
+            match_dao.update_match_state(db, match_id, state)
+
     def get_matches(self, filters: list | None = None) -> list[Match]:
         with self.connection_provider.get_db() as db:
             return match_dao.get_matches(db, filters)
