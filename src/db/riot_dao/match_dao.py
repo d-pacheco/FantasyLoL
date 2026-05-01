@@ -64,9 +64,9 @@ def put_match(session, match: Match) -> None:
             continue
         et = EventTeamsModel(
             match_id=match.id,
+            team_code=team.code,
             team_id=team.id,
             side=side,
-            team_code=team.code,
             team_name=name,
             team_image=team.image,
             game_wins=game_wins,

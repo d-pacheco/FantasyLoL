@@ -2,6 +2,7 @@ from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
 from src.common.schemas.riot_data_schemas import Match, RiotMatchID
+from src.db.models import EventTeamsModel, MatchModel
 from src.db.views import MatchView
 
 
@@ -226,6 +227,58 @@ class TestCrudRiotMatch(TestBase):
         self.assertEqual(match.id, match_after.id)
         self.assertEqual("unknown-league", match_after.league_slug)
         self.assertIsNone(match_after.tournament_id)
+
+    def test_match_view_with_event_teams_without_team_id(self):
+        # event_teams rows keyed by (match_id, team_code) with team_id=None
+        # should still appear in the match view
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.tournament_id = None
+        match.league_slug = "unknown-league"
+
+        with self.db_provider.get_db() as session:
+            db_match = MatchModel(
+                id=match.id,
+                start_time=match.start_time,
+                block_name=match.block_name,
+                league_slug=match.league_slug,
+                strategy_type=match.strategy_type,
+                strategy_count=match.strategy_count,
+                state=match.state,
+            )
+            session.merge(db_match)
+            session.flush()
+
+            et1 = EventTeamsModel(
+                match_id=match.id,
+                team_code="T1",
+                team_id=None,
+                side=1,
+                team_name="Team One",
+                team_image="http://t1.png",
+                game_wins=2,
+                outcome="win",
+            )
+            et2 = EventTeamsModel(
+                match_id=match.id,
+                team_code="T2",
+                team_id=None,
+                side=2,
+                team_name="Team Two",
+                team_image="http://t2.png",
+                game_wins=1,
+                outcome="loss",
+            )
+            session.merge(et1)
+            session.merge(et2)
+            session.commit()
+
+        result = self.db.get_match_by_id(match.id)
+        self.assertIsNotNone(result)
+        self.assertEqual("Team One", result.team_1_name)
+        self.assertEqual("Team Two", result.team_2_name)
+        self.assertEqual(2, result.team_1_wins)
+        self.assertEqual(1, result.team_2_wins)
+        self.assertEqual("Team One", result.winning_team)
 
     def test_update_match_has_games(self):
         # Arrange
