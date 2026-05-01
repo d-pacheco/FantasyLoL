@@ -88,11 +88,21 @@ class GameModel(Base):  # type: ignore
     id = Column(String, primary_key=True, index=True)
     state = Column(Enum(GameState), nullable=False)
     number = Column(Integer)
-    red_team = Column(String)
-    blue_team = Column(String)
     match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"))
-    has_game_data = Column(Boolean, default=True)
-    last_stats_fetch = Column(Boolean, default=False)
+    frames_status = Column(String, nullable=True)
+    details_status = Column(String, nullable=True)
+
+
+class GameTeamsModel(Base):  # type: ignore
+    __tablename__ = "game_teams"
+
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    team_id = Column(
+        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), primary_key=True
+    )
+    side = Column(String, nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("game_id", "team_id"),)
 
 
 class ProfessionalTeamModel(Base):  # type: ignore

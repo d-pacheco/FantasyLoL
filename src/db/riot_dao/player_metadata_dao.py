@@ -33,7 +33,7 @@ def get_game_ids_without_player_metadata(session) -> list[RiotGameID]:
         FROM games
         LEFT JOIN player_game_metadata ON games.id = player_game_metadata.game_id
         WHERE games.state in ('COMPLETED', 'INPROGRESS')
-            AND (games.has_game_data = True)
+            AND (games.details_status IS NULL OR games.details_status != 'unavailable')
         GROUP BY games.id
         HAVING COUNT(player_game_metadata.game_id) <> 10
         OR COUNT(player_game_metadata.game_id) IS NULL;

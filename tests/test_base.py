@@ -43,16 +43,22 @@ class TestBase(unittest.TestCase):
 
         # Drop and recreate all tables so FK constraints are always current.
         from sqlalchemy import text
-        from src.db.views import create_player_game_view_query, create_match_view_query
+        from src.db.views import (
+            create_player_game_view_query,
+            create_match_view_query,
+            create_game_view_query,
+        )
 
         with cls.db_provider.engine.begin() as conn:
             conn.execute(text("DROP VIEW IF EXISTS player_game_view CASCADE"))
             conn.execute(text("DROP VIEW IF EXISTS match_view CASCADE"))
+            conn.execute(text("DROP VIEW IF EXISTS game_view CASCADE"))
         models.Base.metadata.drop_all(bind=cls.db_provider.engine)
         models.Base.metadata.create_all(bind=cls.db_provider.engine)
         with cls.db_provider.engine.connect() as conn:
             conn.execute(create_player_game_view_query)
             conn.execute(create_match_view_query)
+            conn.execute(create_game_view_query)
             conn.commit()
 
         if cls is not TestBase and cls.setUp is not TestBase.setUp:

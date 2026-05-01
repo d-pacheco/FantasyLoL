@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, Enum, Integer, String, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 
-from src.common.schemas.riot_data_schemas import MatchState, PlayerRole
+from src.common.schemas.riot_data_schemas import GameState, MatchState, PlayerRole
 
 Base = declarative_base()
 
@@ -95,4 +95,34 @@ create_match_view_query = text("""
     JOIN leagues l ON m.league_id = l.id
     LEFT JOIN event_teams t1 ON m.id = t1.match_id AND t1.side = 1
     LEFT JOIN event_teams t2 ON m.id = t2.match_id AND t2.side = 2
+""")
+
+
+class GameView(Base):  # type: ignore
+    __tablename__ = "game_view"
+
+    id = Column(String, primary_key=True)
+    state = Column(Enum(GameState), nullable=False)
+    number = Column(Integer)
+    red_team = Column(String)
+    blue_team = Column(String)
+    match_id = Column(String)
+    has_game_data = Column(Boolean)
+    last_stats_fetch = Column(Boolean)
+
+
+create_game_view_query = text("""
+    CREATE OR REPLACE VIEW game_view AS
+    SELECT
+        g.id,
+        g.state,
+        g.number,
+        red.team_id AS red_team,
+        blue.team_id AS blue_team,
+        g.match_id,
+        COALESCE(g.details_status != 'unavailable', TRUE) AS has_game_data,
+        COALESCE(g.details_status = 'needs_final_fetch', FALSE) AS last_stats_fetch
+    FROM games g
+    LEFT JOIN game_teams red ON g.id = red.game_id AND red.side = 'red'
+    LEFT JOIN game_teams blue ON g.id = blue.game_id AND blue.side = 'blue'
 """)

@@ -1,31 +1,48 @@
+import logging
+
 from sqlalchemy import text
 
 from src.common.schemas.riot_data_schemas import Game, RiotGameID, GameState
-from src.db.models import GameModel
+from src.db.models import GameModel, GameTeamsModel
+from src.db.views import GameView
+
+logger = logging.getLogger("riot")
 
 
 def put_game(session, game: Game) -> None:
-    db_game = GameModel(**game.model_dump())
+    db_game = GameModel(
+        id=game.id,
+        state=game.state,
+        number=game.number,
+        match_id=game.match_id,
+        details_status="unavailable" if not game.has_game_data else None,
+    )
     session.merge(db_game)
+    session.flush()
+
+    for team_id, side in [(game.red_team, "red"), (game.blue_team, "blue")]:
+        if team_id:
+            gt = GameTeamsModel(game_id=game.id, team_id=team_id, side=side)
+            session.merge(gt)
+
     session.commit()
 
 
 def bulk_save_games(session, games: list[Game]) -> None:
-    db_games = [GameModel(**game.model_dump()) for game in games]
-    session.bulk_save_objects(db_games)
-    session.commit()
+    for game in games:
+        put_game(session, game)
 
 
 def update_has_game_data(session, game_id: RiotGameID, has_game_data: bool) -> None:
-    db_game: GameModel | None = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
-        db_game.has_game_data = has_game_data
+        db_game.details_status = None if has_game_data else "unavailable"
         session.merge(db_game)
         session.commit()
 
 
 def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
-    db_game: GameModel | None = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
         db_game.state = state
         session.merge(db_game)
@@ -33,29 +50,36 @@ def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
 
 
 def update_game_last_stats_fetch(session, game_id: RiotGameID, last_fetch: bool) -> None:
-    db_game: GameModel | None = session.query(GameModel).filter(GameModel.id == game_id).first()
+    db_game = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
-        db_game.last_stats_fetch = last_fetch
+        db_game.details_status = "needs_final_fetch" if last_fetch else None
         session.merge(db_game)
         session.commit()
 
 
 def get_games_with_last_stats_fetch(session, last_stats_fetch: bool) -> list[Game]:
-    game_models = (
-        session.query(GameModel).filter(GameModel.last_stats_fetch == last_stats_fetch).all()
-    )
-    return [Game.model_validate(game_model) for game_model in game_models]
+    if last_stats_fetch:
+        game_models = (
+            session.query(GameView)
+            .filter(GameView.last_stats_fetch == True)  # noqa: E712
+            .all()
+        )
+    else:
+        game_models = (
+            session.query(GameView)
+            .filter(GameView.last_stats_fetch == False)  # noqa: E712
+            .all()
+        )
+    return [Game.model_validate(gm) for gm in game_models]
 
 
 def get_games(session, filters: list | None = None) -> list[Game]:
     if filters:
-        query = session.query(GameModel).filter(*filters)
+        query = session.query(GameView).filter(*filters)
     else:
-        query = session.query(GameModel)
-    game_models: list[GameModel] = query.all()
-    games = [Game.model_validate(game_model) for game_model in game_models]
-
-    return games
+        query = session.query(GameView)
+    game_models = query.all()
+    return [Game.model_validate(gm) for gm in game_models]
 
 
 def get_games_to_check_state(session) -> list[RiotGameID]:
@@ -68,13 +92,11 @@ def get_games_to_check_state(session) -> list[RiotGameID]:
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()
-    game_ids = [RiotGameID(row[0]) for row in rows]
-    return game_ids
+    return [RiotGameID(row[0]) for row in rows]
 
 
 def get_game_by_id(session, game_id: RiotGameID) -> Game | None:
-    game_model: GameModel | None = session.query(GameModel).filter(GameModel.id == game_id).first()
-    if game_model is None:
+    gm = session.query(GameView).filter(GameView.id == game_id).first()
+    if gm is None:
         return None
-    else:
-        return Game.model_validate(game_model)
+    return Game.model_validate(gm)
