@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 # Set env vars before any app imports
 os.environ.setdefault("AUTH_SECRET", "1234567890")
 os.environ.setdefault("AUTH_ALGORITHM", "HS256")
+os.environ.setdefault("REQUIRE_EMAIL_VERIFICATION", "True")
 os.environ.setdefault("VERIFICATION_DOMAIN_URL", "http://localhost")
 os.environ.setdefault("VERIFICATION_SENDER_EMAIL", "testEmail@gmail.com")
 os.environ.setdefault("VERIFICATION_SENDER_PASSWORD", "testpassword")

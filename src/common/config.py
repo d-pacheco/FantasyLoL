@@ -35,6 +35,9 @@ class AppConfig(BaseSettings):
     AUTH_SECRET: str
     AUTH_ALGORITHM: str = "HS256"
 
+    # Email verification
+    REQUIRE_EMAIL_VERIFICATION: bool = True
+
     # Riot API
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"
     ESPORTS_API_URL: str = "https://esports-api.lolesports.com/persisted/gw"

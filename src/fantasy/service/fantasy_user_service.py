@@ -3,6 +3,7 @@ import bcrypt
 import secrets
 
 from src.auth import sign_jwt, Permissions
+from src.common.config import app_config
 from src.common.schemas.fantasy_schemas import (
     UserCreate,
     User,
@@ -32,15 +33,22 @@ class UserService:
 
     def user_signup(self, user_create: UserCreate) -> str:
         self.validate_username_and_email(user_create.username, user_create.email)
-        verification_token = self.send_verification_email_to_user(user_create.email)
-        user = self.create_new_user(user_create, DEFAULT_PERMISSIONS, verification_token)
-        self.db.create_user(user)
 
-        successful_signup_msg = f"""
-        Email verification sent to {user.email}. Please verify email before logging in.
-        Check your spam or junk inbox for verification email.
-        """
-        return successful_signup_msg
+        if app_config.REQUIRE_EMAIL_VERIFICATION:
+            verification_token = self.send_verification_email_to_user(user_create.email)
+            user = self.create_new_user(user_create, DEFAULT_PERMISSIONS, verification_token)
+            self.db.create_user(user)
+            return (
+                f"Email verification sent to {user.email}. "
+                "Please verify email before logging in. "
+                "Check your spam or junk inbox for verification email."
+            )
+        else:
+            user = self.create_new_user(user_create, DEFAULT_PERMISSIONS)
+            user.verified = True
+            user.account_status = UserAccountStatus.ACTIVE
+            self.db.create_user(user)
+            return "Account created successfully."
 
     def validate_username_and_email(self, username: str, email: str) -> None:
         valid_account_status = [UserAccountStatus.ACTIVE, UserAccountStatus.PENDING_VERIFICATION]
