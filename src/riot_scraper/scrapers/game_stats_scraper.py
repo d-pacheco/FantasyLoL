@@ -7,6 +7,9 @@ from src.common.schemas.riot_data_schemas import (
     TeamGameStats,
     ProTeamID,
     PlayerGameStats,
+    GameMetadata,
+    GameParticipantPerks,
+    GameDragons,
 )
 from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.schemas.get_live_window import TeamMetaData, TeamWindowFrame
@@ -57,6 +60,13 @@ class RiotGameStatsScraper:
             )
             for player_metadata in blue_team_player_metadata + red_team_player_metadata:
                 self.db.put_player_metadata(player_metadata)
+
+            self.db.put_game_metadata(
+                GameMetadata(
+                    game_id=game_id,
+                    patch_version=window_response.gameMetadata.patchVersion,
+                )
+            )
         except Exception as e:
             logger.error(f"Error getting player metadata for game with id {game_id}: {str(e)}")
             raise e
@@ -85,12 +95,17 @@ class RiotGameStatsScraper:
             if len(fetched_player_stats) == 0:
                 logger.info(f"Game id {game_id} has no player stats available")
                 self.db.update_has_game_data(game_id, False)
-            for player_stats in fetched_player_stats:
+            for player_stats, perks in fetched_player_stats:
                 self.db.put_player_stats(player_stats)
+                self.db.put_game_participant_perks(perks)
 
             fetched_team_stats = self.__fetch_team_stats(game_id, time_stamp)
             for team_stats in fetched_team_stats:
                 self.db.put_team_stats(team_stats)
+
+            fetched_dragons = self.__fetch_dragons(game_id, time_stamp)
+            for dragon in fetched_dragons:
+                self.db.put_game_dragon(dragon)
 
             if last_fetch:
                 logger.info(f"Setting last fetch to false for game with id: {game_id}")
@@ -99,7 +114,9 @@ class RiotGameStatsScraper:
             logger.error(f"Error getting player stats for game with id {game_id}: {str(e)}")
             raise e
 
-    def __fetch_player_stats(self, game_id: RiotGameID, time_stamp: str) -> list[PlayerGameStats]:
+    def __fetch_player_stats(
+        self, game_id: RiotGameID, time_stamp: str
+    ) -> list[tuple[PlayerGameStats, GameParticipantPerks]]:
         details_response = self.riot_api_requester.get_game_details(game_id, time_stamp)
         if not details_response:
             return []
@@ -109,7 +126,7 @@ class RiotGameStatsScraper:
             )
             return []
 
-        player_stats = []
+        results = []
         last_frame = details_response.frames[len(details_response.frames) - 1]
         for participant in last_frame.participants:
             new_player_stats = PlayerGameStats(
@@ -125,9 +142,16 @@ class RiotGameStatsScraper:
                 wards_placed=participant.wardsPlaced,
                 wards_destroyed=participant.wardsDestroyed,
             )
-            player_stats.append(new_player_stats)
+            perks = GameParticipantPerks(
+                game_id=game_id,
+                participant_id=participant.participantId,
+                style_id=participant.perkMetadata.styleId,
+                sub_style_id=participant.perkMetadata.subStyleId,
+                perks=participant.perkMetadata.perks,
+            )
+            results.append((new_player_stats, perks))
 
-        return player_stats
+        return results
 
     def __fetch_team_stats(self, game_id: RiotGameID, time_stamp: str) -> list[TeamGameStats]:
         window_response = self.riot_api_requester.get_game_window(game_id, time_stamp)
@@ -152,6 +176,41 @@ class RiotGameStatsScraper:
         )
 
         return [blue_team_stats, red_team_stats]
+
+    def __fetch_dragons(self, game_id: RiotGameID, time_stamp: str) -> list[GameDragons]:
+        window_response = self.riot_api_requester.get_game_window(game_id, time_stamp)
+        if not window_response or len(window_response.frames) == 0:
+            return []
+
+        last_frame = window_response.frames[-1]
+        dragons: list[GameDragons] = []
+        dragon_number = 1
+
+        blue_team_id = window_response.gameMetadata.blueTeamMetadata.esportsTeamId
+        for dragon_type in last_frame.blueTeam.dragons:
+            dragons.append(
+                GameDragons(
+                    game_id=game_id,
+                    dragon_number=dragon_number,
+                    team_id=blue_team_id,
+                    dragon_type=dragon_type,
+                )
+            )
+            dragon_number += 1
+
+        red_team_id = window_response.gameMetadata.redTeamMetadata.esportsTeamId
+        for dragon_type in last_frame.redTeam.dragons:
+            dragons.append(
+                GameDragons(
+                    game_id=game_id,
+                    dragon_number=dragon_number,
+                    team_id=red_team_id,
+                    dragon_type=dragon_type,
+                )
+            )
+            dragon_number += 1
+
+        return dragons
 
 
 def parse_team_metadata(
