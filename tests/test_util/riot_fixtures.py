@@ -84,7 +84,8 @@ team_1_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-1-alternative-image.png",
     background_image="http://mock-team-1-background.png",
     status="active",
-    home_league=league_1_fixture.name,
+    home_league_name=league_1_fixture.name,
+    home_league_region="MOCKED REGION",
 )
 
 team_2_fixture = schemas.ProfessionalTeam(
@@ -96,7 +97,8 @@ team_2_fixture = schemas.ProfessionalTeam(
     alternative_image="http://mock-team-2-alternative-image.png",
     background_image="http://mock-team-2-background.png",
     status="active",
-    home_league=league_1_fixture.name,
+    home_league_name=league_1_fixture.name,
+    home_league_region="MOCKED REGION",
 )
 
 match_fixture = schemas.Match(
@@ -203,6 +205,8 @@ game_1_fixture_unstarted_future_match = schemas.Game(
 player_1_fixture = schemas.ProfessionalPlayer(
     id=ProPlayerID(generate_random_id()),
     summoner_name="MockerPlayer1",
+    first_name="FirstName1",
+    last_name="LastName1",
     image="http://mocked-player-1.png",
     role=PlayerRole.TOP,
     team_id=team_1_fixture.id,

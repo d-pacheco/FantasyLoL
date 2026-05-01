@@ -194,7 +194,7 @@ class TestCrudRiotTeam(TestBase):
         # Arrange
         filters = []
         expected_team = riot_fixtures.team_1_fixture
-        filters.append(ProfessionalTeamModel.home_league == expected_team.home_league)
+        filters.append(ProfessionalTeamModel.home_league_name == expected_team.home_league_name)
         self.db.put_team(expected_team)
 
         # Act
@@ -211,7 +211,7 @@ class TestCrudRiotTeam(TestBase):
         # Arrange
         filters = []
         team_1 = riot_fixtures.team_1_fixture
-        filters.append(ProfessionalTeamModel.home_league == team_1.home_league)
+        filters.append(ProfessionalTeamModel.home_league_name == team_1.home_league_name)
 
         # Act
         teams_from_db = self.db.get_teams(filters)
