@@ -3,6 +3,7 @@ from sqlalchemy import (
     Column,
     Enum,
     Float,
+    ForeignKey,
     Integer,
     JSON,
     LargeBinary,
@@ -45,7 +46,7 @@ class TournamentModel(Base):  # type: ignore
     slug = Column(String)
     start_date = Column(String)
     end_date = Column(String)
-    league_id = Column(String)
+    league_id = Column(String, ForeignKey("leagues.id", ondelete="CASCADE"))
 
 
 class MatchModel(Base):  # type: ignore
@@ -57,7 +58,7 @@ class MatchModel(Base):  # type: ignore
     league_slug = Column(String)
     strategy_type = Column(String)
     strategy_count = Column(Integer)
-    tournament_id = Column(String)
+    tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="CASCADE"))
     team_1_name = Column(String)
     team_2_name = Column(String)
     has_games = Column(Boolean, default=True)
@@ -75,7 +76,7 @@ class GameModel(Base):  # type: ignore
     number = Column(Integer)
     red_team = Column(String)
     blue_team = Column(String)
-    match_id = Column(String)
+    match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"))
     has_game_data = Column(Boolean, default=True)
     last_stats_fetch = Column(Boolean, default=False)
 
@@ -98,7 +99,9 @@ class ProfessionalPlayerModel(Base):  # type: ignore
     __tablename__ = "professional_players"
 
     id = Column(String, primary_key=True)
-    team_id = Column(String, primary_key=True)
+    team_id = Column(
+        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), primary_key=True
+    )
     summoner_name = Column(String)
     image = Column(String)
     role = Column(Enum(PlayerRole), nullable=False)
@@ -109,7 +112,7 @@ class ProfessionalPlayerModel(Base):  # type: ignore
 class PlayerGameMetadataModel(Base):  # type: ignore
     __tablename__ = "player_game_metadata"
 
-    game_id = Column(String, primary_key=True)
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
     player_id = Column(String, primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
@@ -121,7 +124,7 @@ class PlayerGameMetadataModel(Base):  # type: ignore
 class PlayerGameStatsModel(Base):  # type: ignore
     __tablename__ = "player_game_stats"
 
-    game_id = Column(String, primary_key=True)
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
     participant_id = Column(Integer, primary_key=True)
     kills = Column(Integer)
     deaths = Column(Integer)
@@ -139,8 +142,10 @@ class PlayerGameStatsModel(Base):  # type: ignore
 class TeamGameStatsModel(Base):
     __tablename__ = "team_game_stats"
 
-    game_id = Column(String, primary_key=True)
-    team_id = Column(String, primary_key=True)
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    team_id = Column(
+        String, ForeignKey("professional_teams.id", ondelete="CASCADE"), primary_key=True
+    )
     total_gold = Column(Integer)
     inhibitors = Column(Integer)
     towers = Column(Integer)

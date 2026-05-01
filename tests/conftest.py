@@ -31,7 +31,21 @@ TEST_DATABASE_URL = os.environ.get(
 
 @pytest.fixture(scope="session")
 def db_provider():
-    return DatabaseConnectionProvider(database_url=TEST_DATABASE_URL)
+    provider = DatabaseConnectionProvider(database_url=TEST_DATABASE_URL)
+    # Drop and recreate all tables so FK constraints are always current.
+    # The view must be dropped first since it depends on underlying tables.
+    from sqlalchemy import text
+
+    with provider.engine.begin() as conn:
+        conn.execute(text("DROP VIEW IF EXISTS player_game_view CASCADE"))
+    models.Base.metadata.drop_all(bind=provider.engine)
+    models.Base.metadata.create_all(bind=provider.engine)
+    from src.db.views import create_player_game_view_query
+
+    with provider.engine.connect() as conn:
+        conn.execute(create_player_game_view_query)
+        conn.commit()
+    return provider
 
 
 @pytest.fixture(scope="session")

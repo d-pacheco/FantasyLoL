@@ -41,6 +41,18 @@ class TestBase(unittest.TestCase):
         cls.db = DatabaseService(cls.db_provider)
         cls.test_db = TestDatabaseService(cls.db_provider)
 
+        # Drop and recreate all tables so FK constraints are always current.
+        from sqlalchemy import text
+        from src.db.views import create_player_game_view_query
+
+        with cls.db_provider.engine.begin() as conn:
+            conn.execute(text("DROP VIEW IF EXISTS player_game_view CASCADE"))
+        models.Base.metadata.drop_all(bind=cls.db_provider.engine)
+        models.Base.metadata.create_all(bind=cls.db_provider.engine)
+        with cls.db_provider.engine.connect() as conn:
+            conn.execute(create_player_game_view_query)
+            conn.commit()
+
         if cls is not TestBase and cls.setUp is not TestBase.setUp:
             orig_setUp = cls.setUp
 

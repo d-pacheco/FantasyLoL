@@ -6,8 +6,14 @@ from src.db.views import PlayerGameView
 
 
 class TestCrudRiotPlayerStats(TestBase):
+    def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        self.db.put_match(riot_fixtures.match_fixture)
+
     def test_put_player_stats_no_existing_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_stats = riot_fixtures.player_1_game_stats_fixture
 
         # Act and Assert
@@ -23,6 +29,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_put_player_stats_existing_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_stats = riot_fixtures.player_1_game_stats_fixture
         self.db.put_player_stats(player_stats)
         updated_player_stats = player_stats.model_copy(deep=True)
@@ -43,6 +50,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         player_stats = riot_fixtures.player_1_game_stats_fixture
         self.db.put_player_stats(player_stats)
 
@@ -98,6 +106,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_no_filters(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         expected_player_game_data = riot_fixtures.player_1_game_data_fixture
         self.db.put_player_metadata(riot_fixtures.player_1_game_metadata_fixture)
         self.db.put_player_stats(riot_fixtures.player_1_game_stats_fixture)
@@ -113,6 +122,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_empty_filter(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         expected_player_game_data = riot_fixtures.player_1_game_data_fixture
         self.db.put_player_metadata(riot_fixtures.player_1_game_metadata_fixture)
@@ -129,6 +139,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_has_metadata_but_no_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         self.db.put_player_metadata(riot_fixtures.player_1_game_metadata_fixture)
 
@@ -141,6 +152,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_has_stats_but_no_metadata(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         self.db.put_player_stats(riot_fixtures.player_1_game_stats_fixture)
 
@@ -153,6 +165,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_game_id_filter_existing_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         expected_player_game_data = riot_fixtures.player_1_game_data_fixture
         filters.append(PlayerGameView.game_id == expected_player_game_data.game_id)
@@ -183,6 +196,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_player_id_filter_existing_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         expected_player_game_data = riot_fixtures.player_1_game_data_fixture
         filters.append(PlayerGameView.player_id == expected_player_game_data.player_id)
@@ -200,6 +214,7 @@ class TestCrudRiotPlayerStats(TestBase):
 
     def test_get_player_game_stats_player_id_filter_no_existing_stats(self):
         # Arrange
+        self.db.put_game(riot_fixtures.game_1_fixture_completed)
         filters = []
         expected_player_game_data = riot_fixtures.player_1_game_data_fixture
         filters.append(PlayerGameView.player_id == expected_player_game_data.player_id)

@@ -8,6 +8,9 @@ from src.common.schemas.riot_data_schemas import Tournament
 
 
 class TestCrudRiotTournament(TestBase):
+    def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
+
     def test_put_tournament_no_existing_tournament(self):
         # Arrange
         tournament = riot_fixtures.tournament_fixture
