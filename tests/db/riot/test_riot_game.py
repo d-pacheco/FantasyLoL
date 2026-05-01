@@ -1,5 +1,5 @@
 from src.common.schemas.riot_data_schemas import Game, GameState
-from src.db.models import GameModel
+from src.db.views import GameView
 from tests.test_base import TestBase
 from tests.test_util import riot_fixtures
 
@@ -7,6 +7,8 @@ from tests.test_util import riot_fixtures
 class TestCrudRiotGame(TestBase):
     def setUp(self):
         self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
         self.db.put_tournament(riot_fixtures.tournament_fixture)
         self.db.put_match(riot_fixtures.match_fixture)
         self.db.put_match(riot_fixtures.future_match_fixture)
@@ -91,7 +93,7 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         filters = []
         expected_game = riot_fixtures.game_1_fixture_completed
-        filters.append(GameModel.state == expected_game.state)
+        filters.append(GameView.state == expected_game.state)
         self.db.put_game(expected_game)
         self.db.put_game(riot_fixtures.game_2_fixture_inprogress)
         self.db.put_game(riot_fixtures.game_3_fixture_unstarted)
@@ -110,7 +112,7 @@ class TestCrudRiotGame(TestBase):
         # Arrange
         filters = []
         expected_game = riot_fixtures.game_1_fixture_unstarted_future_match
-        filters.append(GameModel.match_id == expected_game.match_id)
+        filters.append(GameView.match_id == expected_game.match_id)
         self.db.put_game(expected_game)
         self.db.put_game(riot_fixtures.game_3_fixture_unstarted)
 

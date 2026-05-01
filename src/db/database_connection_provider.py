@@ -5,7 +5,11 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
 from src.db.models import Base
-from src.db.views import create_player_game_view_query, create_match_view_query
+from src.db.views import (
+    create_player_game_view_query,
+    create_match_view_query,
+    create_game_view_query,
+)
 
 
 class DatabaseConnectionProvider:
@@ -26,6 +30,7 @@ class DatabaseConnectionProvider:
         with self.engine.connect() as connection:
             connection.execute(create_player_game_view_query)
             connection.execute(create_match_view_query)
+            connection.execute(create_game_view_query)
             connection.commit()
 
     @contextmanager
