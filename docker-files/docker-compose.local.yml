@@ -15,6 +15,16 @@ services:
       timeout: 5s
       retries: 5
 
+  db-migrate:
+    build:
+      context: ..
+      dockerfile: docker-files/Dockerfile-migrate
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
+    depends_on:
+      db:
+        condition: service_healthy
+
   riot-app:
     build:
       context: ..
@@ -28,8 +38,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
     depends_on:
-      db:
-        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
 
   fantasy-app:
     build:
@@ -44,8 +54,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
     depends_on:
-      db:
-        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
 
   master-scraper:
     build:
@@ -63,8 +73,8 @@ services:
       - MASTER_SCRAPER=true
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
     depends_on:
-      db:
-        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
 
 volumes:
   fantasy_pgdata:

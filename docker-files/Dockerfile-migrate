@@ -1,0 +1,14 @@
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+COPY ../pyproject.toml /app/pyproject.toml
+COPY ../src /app/src
+COPY ../alembic.ini /app/alembic.ini
+COPY ../alembic /app/alembic
+
+RUN pip install --no-cache-dir .
+
+ENV PYTHONPATH="/app"
+
+CMD ["alembic", "upgrade", "head"]
