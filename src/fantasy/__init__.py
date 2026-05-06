@@ -6,13 +6,10 @@ from fastapi_pagination.utils import disable_installed_extensions_check
 from src.common.config import app_config
 
 
+# Kept for backward compatibility with tests that import `from src.fantasy import app`
 app = FastAPI(
-    title="MythicForge Fantasy API",
+    title="MythicForge Fantasy API (deprecated - use src.app)",
     version="0.1.0",
-    description="""
-        Create and manage Fantasy League of Legends leagues and teams.
-        Query Professional League of Legends data here: riot.nightlenlab.com/docs
-        """,
 )
 app.add_middleware(
     CORSMiddleware,

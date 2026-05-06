@@ -11,4 +11,4 @@ EXPOSE 8002
 
 ENV PYTHONPATH="/app/src"
 
-CMD ["python", "-m", "riot.app"]
+CMD ["python", "-m", "src.app"]
