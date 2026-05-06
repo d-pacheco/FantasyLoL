@@ -6,16 +6,10 @@ from fastapi_pagination.utils import disable_installed_extensions_check
 from src.common.config import app_config
 
 
+# Kept for backward compatibility with tests that import `from src.riot import app`
 app = FastAPI(
-    title="MythicForge Riot Data API",
+    title="MythicForge Riot Data API (deprecated - use src.app)",
     version="0.1.0",
-    description="""
-        Fetch data related to Professional League of Legends.
-        To authorize with these endpoints you  will need to signup and login with an account for
-        MythicForge Fantasy API. Once you have logged in, use the authorization token to
-        authorize with the riot data API endpoints.
-        The signup and login can be found here: fantasy.nightlenlab.com/docs
-        """,
 )
 app.add_middleware(
     CORSMiddleware,

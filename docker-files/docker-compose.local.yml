@@ -25,28 +25,12 @@ services:
       db:
         condition: service_healthy
 
-  riot-app:
+  api:
     build:
       context: ..
-      dockerfile: docker-files/Dockerfile-riot
+      dockerfile: docker-files/Dockerfile-api
     ports:
       - "8002:8002"
-    volumes:
-      - fantasy_logs:/app/logs
-    env_file:
-      - ../.env
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fantasy_lol
-    depends_on:
-      db-migrate:
-        condition: service_completed_successfully
-
-  fantasy-app:
-    build:
-      context: ..
-      dockerfile: docker-files/Dockerfile-fantasy
-    ports:
-      - "8000:8000"
     volumes:
       - fantasy_logs:/app/logs
     env_file:
