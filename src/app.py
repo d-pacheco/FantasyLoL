@@ -13,6 +13,7 @@ from src.db.database_service import DatabaseService
 from src.fantasy.endpoints import FantasyLeagueEndpoint, FantasyTeamEndpoint, UserEndpointV1
 from src.fantasy.service import FantasyLeagueService, FantasyTeamService, UserService
 from src.riot.endpoints import (
+    AdminEndpoint,
     GameEndpoint,
     GameStatsEndpoint,
     LeagueEndpoint,
@@ -64,6 +65,7 @@ def create_app(database_service: DatabaseService) -> FastAPI:
     app.include_router(GameStatsEndpoint(game_stats_service).router, prefix="/api/v1/riot")
     app.include_router(ProfessionalTeamEndpoint(team_service).router, prefix="/api/v1/riot")
     app.include_router(ProfessionalPlayerEndpoint(player_service).router, prefix="/api/v1/riot")
+    app.include_router(AdminEndpoint().router, prefix="/api/v1/admin")
 
     # Fantasy services and endpoints
     user_service = UserService(database_service)
