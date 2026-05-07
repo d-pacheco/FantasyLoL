@@ -166,7 +166,23 @@ class TestCrudRiotMatch(TestBase):
         # Assert
         self.assertIsNone(match_from_db)
 
-    def test_get_match_ids_without_games_matches_with_no_games(self):
+    def test_get_match_ids_without_games_matches_with_no_game_rows(self):
+        # Arrange - match exists but has no game rows at all (fresh after schedule sync)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.has_games = True
+        self.db.put_match(match)
+
+        # Act
+        match_ids = self.db.get_match_ids_without_games()
+
+        # Assert - match should appear because it has no games at all
+        self.assertIsInstance(match_ids, list)
+        self.assertEqual(1, len(match_ids))
+        self.assertEqual(match.id, match_ids[0])
+
+    def test_get_match_ids_without_games_matches_with_no_game_teams(self):
         # Arrange - create a league and match with a game that has no team assignments
         self.db.put_league(riot_fixtures.league_1_fixture)
 
