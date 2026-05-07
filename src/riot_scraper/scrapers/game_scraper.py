@@ -48,6 +48,7 @@ class RiotGameScraper:
                     new_game = Game(
                         id=game.id,
                         state=GameState(game.state),
+                        number=game.number,
                         match_id=match_id,
                     )
                 else:
@@ -56,6 +57,7 @@ class RiotGameScraper:
                     new_game = Game(
                         id=game.id,
                         state=GameState(game.state),
+                        number=game.number,
                         red_team=ProTeamID(red_team_id),
                         blue_team=ProTeamID(blue_team_id),
                         match_id=match_id,
