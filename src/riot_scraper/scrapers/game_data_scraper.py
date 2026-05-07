@@ -8,7 +8,7 @@ from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 from src.riot_scraper.timestamp_util import TimestampUtil
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("scraper.game_data")
 
 
 class RiotGameDataScraper:

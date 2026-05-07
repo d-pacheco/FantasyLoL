@@ -5,7 +5,7 @@ from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.riot_api_client import RiotApiClient
 from src.riot_scraper.job_runner import JobRunner
 
-logger = logging.getLogger("riot")
+logger = logging.getLogger("scraper.game")
 
 
 class RiotGameScraper:

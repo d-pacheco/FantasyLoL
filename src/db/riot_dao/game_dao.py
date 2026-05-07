@@ -6,7 +6,7 @@ from src.common.schemas.riot_data_schemas import Game, RiotGameID, GameState
 from src.db.models import GameModel, GameTeamsModel
 from src.db.views import GameView
 
-logger = logging.getLogger("riot")
+logger = logging.getLogger("api.db")
 
 
 def put_game(session, game: Game) -> None:

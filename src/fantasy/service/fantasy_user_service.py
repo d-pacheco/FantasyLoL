@@ -1,3 +1,4 @@
+import logging
 import uuid
 import bcrypt
 import secrets
@@ -21,6 +22,8 @@ from .email_verification_service import EmailVerificationService
 
 DEFAULT_PERMISSIONS = [Permissions.FANTASY_READ, Permissions.FANTASY_WRITE, Permissions.RIOT_READ]
 
+logger = logging.getLogger("api.fantasy")
+
 
 class UserService:
     def __init__(
@@ -32,6 +35,7 @@ class UserService:
         self.email_verification_service = email_verification_service
 
     def user_signup(self, user_create: UserCreate) -> str:
+        logger.info("User signup attempt: username=%s", user_create.username)
         self.validate_username_and_email(user_create.username, user_create.email)
 
         if app_config.REQUIRE_EMAIL_VERIFICATION:
@@ -96,6 +100,7 @@ class UserService:
         return bcrypt.hashpw(pw_bytes, salt)
 
     def login_user(self, user_credentials: UserLogin) -> dict:
+        logger.info("Login attempt: username=%s", user_credentials.username)
         user = self.db.get_user_by_username(user_credentials.username)
         if user is None:
             raise InvalidUsernameOrPasswordException()

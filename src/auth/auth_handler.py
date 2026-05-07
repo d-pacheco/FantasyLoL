@@ -4,7 +4,7 @@ import logging
 
 from src.common import app_config
 
-logger = logging.getLogger("fantasy-lol")
+logger = logging.getLogger("api.auth")
 
 JWT_SECRET = app_config.AUTH_SECRET
 JWT_ALGORITHM = app_config.AUTH_ALGORITHM

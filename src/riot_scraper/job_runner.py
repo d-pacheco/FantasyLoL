@@ -4,7 +4,7 @@ from typing import Callable
 
 from src.common.exceptions import FantasyLolException
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("scraper.runner")
 
 
 class JobRunner:

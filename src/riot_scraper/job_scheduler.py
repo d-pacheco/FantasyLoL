@@ -10,7 +10,7 @@ from src.common import app_config
 from src.common.config import ScheduleConfig
 from src.riot.exceptions import JobConfigException
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("scraper.scheduler")
 
 
 class JobScheduler:

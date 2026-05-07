@@ -19,7 +19,7 @@ from src.db.models import (
 )
 from src.db.views import MatchView
 
-logger = logging.getLogger("riot")
+logger = logging.getLogger("api.db")
 
 
 def _resolve_team_by_name(session, team_name: str):
