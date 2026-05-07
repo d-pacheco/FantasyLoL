@@ -85,11 +85,17 @@ def put_match(session, match: Match) -> None:
 
 
 def save_from_schedule(session, schedule_match: ScheduleMatch) -> None:
+    league = (
+        session.query(LeagueModel).filter(LeagueModel.slug == schedule_match.league_slug).first()
+    )
+    league_id = league.id if league else None
+
     db_match = MatchModel(
         id=schedule_match.id,
         start_time=schedule_match.start_time,
         block_name=schedule_match.block_name,
         league_slug=schedule_match.league_slug,
+        league_id=league_id,
         strategy_type=schedule_match.strategy_type,
         strategy_count=schedule_match.strategy_count,
         state=schedule_match.state,

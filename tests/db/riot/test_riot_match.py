@@ -380,6 +380,55 @@ class TestCrudRiotMatch(TestBase):
         self.assertEqual("New Team 1", result.team_1_name)
         self.assertEqual("New Team 2", result.team_2_name)
 
+    def test_save_from_schedule_sets_league_id_when_league_exists(self):
+        # Arrange - create a league first
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.slug = "known-league"
+        self.db.put_league(league)
+
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-league-001"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="known-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+
+        # Act
+        self.db.save_from_schedule(schedule_match)
+
+        # Assert - league_id should be set
+        with self.db_provider.get_db() as db:
+            from src.db.models import MatchModel
+
+            m = db.query(MatchModel).filter(MatchModel.id == "sched-league-001").first()
+            self.assertEqual(league.id, m.league_id)
+
+    def test_save_from_schedule_league_id_null_when_league_not_found(self):
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-league-002"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Week 1",
+            league_slug="unknown-league",
+            strategy_type="bestOf",
+            strategy_count=1,
+            state=MatchState.UNSTARTED,
+            teams=[],
+        )
+
+        # Act
+        self.db.save_from_schedule(schedule_match)
+
+        # Assert - league_id should be null
+        with self.db_provider.get_db() as db:
+            from src.db.models import MatchModel
+
+            m = db.query(MatchModel).filter(MatchModel.id == "sched-league-002").first()
+            self.assertIsNone(m.league_id)
+
     # --- all_exist tests ---
 
     def test_all_exist_returns_true_when_all_present(self):
@@ -539,14 +588,6 @@ class TestCrudRiotMatch(TestBase):
         )
         self.db.save_from_schedule(schedule_match)
 
-        # save_from_schedule doesn't set league_id, so set it manually
-        with self.db_provider.get_db() as db:
-            from src.db.models import MatchModel
-
-            m = db.query(MatchModel).filter(MatchModel.id == "stale-001").first()
-            m.league_id = league.id
-            db.commit()
-
         ids = self.db.get_stale_match_ids()
         self.assertIn(RiotMatchID("stale-001"), ids)
 
@@ -566,13 +607,6 @@ class TestCrudRiotMatch(TestBase):
             teams=[],
         )
         self.db.save_from_schedule(schedule_match)
-
-        with self.db_provider.get_db() as db:
-            from src.db.models import MatchModel
-
-            m = db.query(MatchModel).filter(MatchModel.id == "stale-002").first()
-            m.league_id = league.id
-            db.commit()
 
         ids = self.db.get_stale_match_ids()
         self.assertIn(RiotMatchID("stale-002"), ids)
