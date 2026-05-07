@@ -212,13 +212,13 @@ def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
 
 def get_match_ids_without_games(session) -> list[RiotMatchID]:
     sql_query = """
-        SELECT DISTINCT games.match_id
-        FROM games
-        JOIN matches ON games.match_id = matches.id
+        SELECT DISTINCT matches.id
+        FROM matches
         JOIN leagues ON matches.league_id = leagues.id
+        LEFT JOIN games ON matches.id = games.match_id
         LEFT JOIN game_teams ON games.id = game_teams.game_id
-        WHERE game_teams.game_id IS NULL
-        AND leagues.scrape_enabled = true;
+        WHERE leagues.scrape_enabled = true
+        AND (games.match_id IS NULL OR game_teams.game_id IS NULL);
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()
