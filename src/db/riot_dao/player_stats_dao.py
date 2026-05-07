@@ -31,9 +31,9 @@ def get_game_ids_to_fetch_player_stats_for(session) -> list[RiotGameID]:
         SELECT games.id as game_id
         FROM games
         LEFT JOIN player_game_stats ON games.id = player_game_stats.game_id
-        WHERE ((games.state = 'COMPLETED'
+        WHERE ((games.state = 'completed'
                 AND (SELECT COUNT(*) FROM player_game_stats WHERE game_id = games.id) < 10)
-                OR games.state = 'INPROGRESS')
+                OR games.state = 'inProgress')
             AND (games.details_status IS NULL OR games.details_status != 'unavailable')
         GROUP BY games.id
     """

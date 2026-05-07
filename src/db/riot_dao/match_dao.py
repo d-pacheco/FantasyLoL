@@ -178,7 +178,7 @@ def get_stale_match_ids(session) -> list[RiotMatchID]:
         text("""
         SELECT id FROM matches
         WHERE start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
-        AND state::text IN ('UNSTARTED', 'INPROGRESS');
+        AND state::text IN ('unstarted', 'inProgress');
     """)
     )
     return [RiotMatchID(row[0]) for row in result.fetchall()]
