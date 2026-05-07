@@ -5,9 +5,9 @@ class TimestampUtil:
     @staticmethod
     def round_current_time_to_10_seconds() -> str:
         current_time = datetime.now(timezone.utc)
-        time_60_seconds_ago = current_time - timedelta(minutes=1)
-        rounded_seconds = round(time_60_seconds_ago.second // 10) * 10
-        rounded_time = time_60_seconds_ago.replace(second=rounded_seconds, microsecond=0)
+        time_ago = current_time - timedelta(minutes=11)
+        rounded_seconds = round(time_ago.second // 10) * 10
+        rounded_time = time_ago.replace(second=rounded_seconds, microsecond=0)
         formatted_time = rounded_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return formatted_time
 
