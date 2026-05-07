@@ -133,6 +133,12 @@ class TestRiotMatchScraper(TestBase):
             database_service=self.db,
             riot_api_requester=self.mock_api,
         )
+        # Create a scrape-enabled league for sync_schedule to iterate over
+        from tests.test_util import riot_fixtures
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.slug = "test-league"
+        self.db.put_league(league)
 
     # --- sync_schedule tests ---
 

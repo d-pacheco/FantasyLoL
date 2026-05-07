@@ -28,9 +28,17 @@ class RiotMatchScraper:
         self.job_runner = job_runner
 
     def sync_schedule(self) -> None:
+        leagues = self.db.get_leagues()
+        for league in leagues:
+            if not league.scrape_enabled:
+                continue
+            logger.info(f"Syncing schedule for league: {league.name} ({league.id})")
+            self._sync_league_schedule(league.id)
+
+    def _sync_league_schedule(self, league_id) -> None:
         page_token = None
         while True:
-            response = self.riot_api_requester.get_schedule(page_token)
+            response = self.riot_api_requester.get_schedule(page_token, league_id=league_id)
             schedule = response.data.schedule
             match_ids = []
 
