@@ -99,11 +99,14 @@ class RiotApiClient:
 
         return GetLiveDetailsResponse.model_validate(response.json())
 
-    def get_schedule(self, page_token: str | None = None) -> GetScheduleResponse:
-        if page_token is None:
-            url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
-        else:
-            url = f"{self.esports_api_url}/getSchedule?hl=en-GB&pageToken={page_token}"
+    def get_schedule(
+        self, page_token: str | None = None, league_id: RiotLeagueID | None = None
+    ) -> GetScheduleResponse:
+        url = f"{self.esports_api_url}/getSchedule?hl=en-GB"
+        if league_id is not None:
+            url += f"&leagueId={league_id}"
+        if page_token is not None:
+            url += f"&pageToken={page_token}"
 
         response = self.make_request(url)
         validate_response([HTTPStatus.OK], response.status_code, url)
