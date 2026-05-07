@@ -210,10 +210,10 @@ def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
 
 def get_match_ids_without_games(session) -> list[RiotMatchID]:
     sql_query = """
-        SELECT matches.id
-        FROM matches
-        LEFT JOIN games ON matches.id = games.match_id
-        WHERE games.match_id IS NULL AND matches.has_games = True;
+        SELECT DISTINCT games.match_id
+        FROM games
+        LEFT JOIN game_teams ON games.id = game_teams.game_id
+        WHERE game_teams.game_id IS NULL;
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()
