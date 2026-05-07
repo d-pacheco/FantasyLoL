@@ -41,6 +41,15 @@ services:
       db-migrate:
         condition: service_completed_successfully
 
+  ui:
+    build:
+      context: ..
+      dockerfile: docker-files/Dockerfile-ui
+    ports:
+      - "8000:8000"
+    depends_on:
+      - api
+
   master-scraper:
     build:
       context: ..

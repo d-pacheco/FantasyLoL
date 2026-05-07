@@ -1,4 +1,4 @@
-import { fantasyApi } from './client'
+import { api } from './client'
 
 interface LoginRequest {
   username: string
@@ -16,10 +16,10 @@ interface LoginResponse {
 }
 
 export async function login(data: LoginRequest): Promise<string> {
-  const res = await fantasyApi.post<LoginResponse>('/user/login', data)
+  const res = await api.post<LoginResponse>('/user/login', data)
   return res.data.access_token
 }
 
 export async function signup(data: SignupRequest): Promise<void> {
-  await fantasyApi.post('/user/signup', data)
+  await api.post('/user/signup', data)
 }

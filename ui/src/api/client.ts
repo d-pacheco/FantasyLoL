@@ -1,11 +1,7 @@
 import axios from 'axios'
 
-export const fantasyApi = axios.create({
-  baseURL: import.meta.env.VITE_FANTASY_API_URL,
-})
-
-export const riotApi = axios.create({
-  baseURL: import.meta.env.VITE_RIOT_API_URL,
+export const api = axios.create({
+  baseURL: '/api/v1',
 })
 
 function attachToken(config: import('axios').InternalAxiosRequestConfig) {
@@ -24,8 +20,5 @@ function handleUnauthorized(error: unknown) {
   return Promise.reject(error)
 }
 
-fantasyApi.interceptors.request.use(attachToken)
-fantasyApi.interceptors.response.use((r) => r, handleUnauthorized)
-
-riotApi.interceptors.request.use(attachToken)
-riotApi.interceptors.response.use((r) => r, handleUnauthorized)
+api.interceptors.request.use(attachToken)
+api.interceptors.response.use((r) => r, handleUnauthorized)
