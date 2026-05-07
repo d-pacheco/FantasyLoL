@@ -41,6 +41,7 @@ class AppConfig(BaseSettings):
     # Logging
     LOKI_ENABLED: bool = False
     LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
+    FILE_LOGGING_ENABLED: bool = True
 
     # Riot API
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"
