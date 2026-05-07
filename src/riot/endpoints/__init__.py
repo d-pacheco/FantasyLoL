@@ -1,3 +1,4 @@
+from .admin_endpoint import AdminEndpoint  # noqa: F401
 from .game_endpoint_v1 import GameEndpoint  # noqa: F401
 from .game_stats_endpoint import GameStatsEndpoint  # noqa: F401
 from .league_endpoint_v1 import LeagueEndpoint  # noqa: F401

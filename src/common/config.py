@@ -47,6 +47,7 @@ class AppConfig(BaseSettings):
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"
     ESPORTS_API_URL: str = "https://esports-api.lolesports.com/persisted/gw"
     ESPORTS_FEED_URL: str = "https://feed.lolesports.com/livestats/v1"
+    SCRAPER_INTERNAL_URL: str = "http://master-scraper:8004"
 
     # Job schedules
     LEAGUE_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", hour="10", minute="00")
