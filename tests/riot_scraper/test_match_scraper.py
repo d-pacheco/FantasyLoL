@@ -285,14 +285,6 @@ class TestRiotMatchScraper(TestBase):
             )
         )
 
-        # Set league_id on the match (save_from_schedule doesn't do this)
-        with self.db_provider.get_db() as db:
-            from src.db.models import MatchModel
-
-            m = db.query(MatchModel).filter(MatchModel.id == "stale-refresh-001").first()
-            m.league_id = league.id
-            db.commit()
-
         # Event details shows all games completed
         self.mock_api.get_event_details.return_value = _make_event_details_response(
             "stale-refresh-001"
