@@ -167,57 +167,45 @@ class TestCrudRiotMatch(TestBase):
         self.assertIsNone(match_from_db)
 
     def test_get_match_ids_without_games_matches_with_no_games(self):
-        # Arrange
-        match_with_has_games = riot_fixtures.match_fixture.model_copy(deep=True)
-        match_with_has_games.has_games = True
-        self.db.put_match(match_with_has_games)
+        # Arrange - create a match with a game that has no team assignments
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.has_games = True
+        self.db.put_match(match)
 
-        match_without_has_games = match_with_has_games.model_copy(deep=True)
-        match_without_has_games.id = RiotMatchID("123")
-        match_without_has_games.has_games = False
-        self.db.put_match(match_without_has_games)
-
-        self.db.put_match(riot_fixtures.future_match_fixture)
-        game_for_future_match = riot_fixtures.game_1_fixture_unstarted_future_match
-        self.db.put_game(game_for_future_match)
+        # Create a game without team data (simulates what match_scraper.save_from_details does)
+        game_without_teams = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
+        game_without_teams.match_id = match.id
+        game_without_teams.red_team = None
+        game_without_teams.blue_team = None
+        self.db.put_game(game_without_teams)
 
         # Act
-        match_ids_without_games = self.db.get_match_ids_without_games()
+        match_ids = self.db.get_match_ids_without_games()
 
-        # Assert
-        self.assertNotEqual(game_for_future_match.match_id, match_with_has_games.id)
-        self.assertNotEqual(game_for_future_match.match_id, match_without_has_games.id)
-        self.assertIsInstance(match_ids_without_games, list)
-        self.assertEqual(1, len(match_ids_without_games))
-        self.assertEqual(match_with_has_games.id, match_ids_without_games[0])
+        # Assert - match should appear because its game has no game_teams entries
+        self.assertIsInstance(match_ids, list)
+        self.assertEqual(1, len(match_ids))
+        self.assertEqual(match.id, match_ids[0])
 
     def test_get_match_ids_without_games_matches_with_games(self):
-        # Arrange
-        match_with_has_games = riot_fixtures.match_fixture.model_copy(deep=True)
-        match_with_has_games.has_games = True
-        self.db.put_match(match_with_has_games)
+        # Arrange - create a match with a game that HAS team assignments
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.has_games = True
+        self.db.put_match(match)
 
-        match_without_has_games = match_with_has_games.model_copy(deep=True)
-        match_without_has_games.id = RiotMatchID("123")
-        match_without_has_games.has_games = False
-        self.db.put_match(match_without_has_games)
+        self.db.put_team(riot_fixtures.team_1_fixture)
+        self.db.put_team(riot_fixtures.team_2_fixture)
 
-        match_1_game = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
-        match_1_game.match_id = match_with_has_games.id
-        self.db.put_game(match_1_game)
-
-        match_2_game = riot_fixtures.game_2_fixture_inprogress.model_copy(deep=True)
-        match_2_game.match_id = match_without_has_games.id
-        self.db.put_game(match_2_game)
+        game_with_teams = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
+        game_with_teams.match_id = match.id
+        self.db.put_game(game_with_teams)
 
         # Act
-        match_ids_without_games = self.db.get_match_ids_without_games()
+        match_ids = self.db.get_match_ids_without_games()
 
-        # Assert
-        self.assertEqual(match_1_game.match_id, match_with_has_games.id)
-        self.assertEqual(match_2_game.match_id, match_without_has_games.id)
-        self.assertIsInstance(match_ids_without_games, list)
-        self.assertEqual(0, len(match_ids_without_games))
+        # Assert - match should NOT appear because its game has game_teams entries
+        self.assertIsInstance(match_ids, list)
+        self.assertEqual(0, len(match_ids))
 
     def test_put_match_without_league_or_tournament(self):
         # A match saved without league_id or tournament_id should still be retrievable
