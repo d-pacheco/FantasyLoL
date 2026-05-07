@@ -87,8 +87,10 @@ def get_games_to_check_state(session) -> list[RiotGameID]:
         SELECT games.id
         FROM games
         JOIN matches ON games.match_id = matches.id
+        JOIN leagues ON matches.league_id = leagues.id
         WHERE matches.start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
         AND games.state != 'completed' AND games.state != 'unneeded'
+        AND leagues.scrape_enabled = true
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()
