@@ -1,7 +1,8 @@
-from sqlalchemy import Boolean, Column, Enum, Integer, String, PrimaryKeyConstraint, text
+from sqlalchemy import Boolean, Column, Integer, String, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 
 from src.common.schemas.riot_data_schemas import GameState, MatchState, PlayerRole
+from src.db.models import ValueEnum
 
 Base = declarative_base()
 
@@ -13,7 +14,7 @@ class PlayerGameView(Base):  # type: ignore
     player_id = Column(String, primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
-    role = Column(Enum(PlayerRole), nullable=False)
+    role = Column(ValueEnum(PlayerRole), nullable=False)
     kills = Column(Integer)
     deaths = Column(Integer)
     assists = Column(Integer)
@@ -64,7 +65,7 @@ class MatchView(Base):  # type: ignore
     team_1_name = Column(String)
     team_2_name = Column(String)
     has_games = Column(Boolean)
-    state = Column(Enum(MatchState), nullable=False)
+    state = Column(ValueEnum(MatchState), nullable=False)
     team_1_wins = Column(Integer, nullable=True)
     team_2_wins = Column(Integer, nullable=True)
     winning_team = Column(String, nullable=True)
@@ -101,7 +102,7 @@ class GameView(Base):  # type: ignore
     __tablename__ = "game_view"
 
     id = Column(String, primary_key=True)
-    state = Column(Enum(GameState), nullable=False)
+    state = Column(ValueEnum(GameState), nullable=False)
     number = Column(Integer)
     red_team = Column(String)
     blue_team = Column(String)

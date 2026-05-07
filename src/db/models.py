@@ -1,7 +1,6 @@
 from sqlalchemy import (
     Boolean,
     Column,
-    Enum,
     Float,
     ForeignKey,
     Integer,
@@ -9,9 +8,11 @@ from sqlalchemy import (
     LargeBinary,
     PrimaryKeyConstraint,
     String,
+    TypeDecorator,
 )
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
+from enum import Enum as PyEnum
 
 from src.common.schemas.riot_data_schemas import GameState, PlayerRole, MatchState
 from src.common.schemas.fantasy_schemas import (
@@ -19,6 +20,29 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueMembershipStatus,
     UserAccountStatus,
 )
+
+
+class ValueEnum(TypeDecorator):
+    """Stores a str/Enum by its .value and reads it back via EnumClass(value)."""
+
+    impl = String
+    cache_ok = True
+
+    def __init__(self, enum_class: type[PyEnum]):
+        self.enum_class = enum_class
+        super().__init__()
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if isinstance(value, self.enum_class):
+            return value.value
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return self.enum_class(value)
 
 
 Base = declarative_base()
@@ -61,7 +85,7 @@ class MatchModel(Base):  # type: ignore
     strategy_count = Column(Integer)
     tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="CASCADE"), nullable=True)
     has_games = Column(Boolean, default=True)
-    state = Column(Enum(MatchState), nullable=False)
+    state = Column(ValueEnum(MatchState), nullable=False)
 
 
 class EventTeamsModel(Base):  # type: ignore
@@ -85,7 +109,7 @@ class GameModel(Base):  # type: ignore
     __tablename__ = "games"
 
     id = Column(String, primary_key=True, index=True)
-    state = Column(Enum(GameState), nullable=False)
+    state = Column(ValueEnum(GameState), nullable=False)
     number = Column(Integer)
     match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"))
     frames_status = Column(String, nullable=True)
@@ -162,7 +186,7 @@ class ProfessionalPlayerModel(Base):  # type: ignore
     first_name = Column(String, default="")
     last_name = Column(String, default="")
     image = Column(String)
-    role = Column(Enum(PlayerRole), nullable=False)
+    role = Column(ValueEnum(PlayerRole), nullable=False)
 
     __table_args__ = (PrimaryKeyConstraint("id", "team_id"),)
 
@@ -174,7 +198,7 @@ class PlayerGameMetadataModel(Base):  # type: ignore
     player_id = Column(String, primary_key=True)
     participant_id = Column(Integer)
     champion_id = Column(String)
-    role = Column(Enum(PlayerRole), nullable=False)
+    role = Column(ValueEnum(PlayerRole), nullable=False)
 
     __table_args__ = (PrimaryKeyConstraint("game_id", "player_id"),)
 
@@ -226,7 +250,7 @@ class UserModel(Base):  # type: ignore
     email = Column(String, unique=True, nullable=False)
     password = Column(LargeBinary, nullable=False)
     permissions = Column(String)
-    account_status = Column(Enum(UserAccountStatus), nullable=False)
+    account_status = Column(ValueEnum(UserAccountStatus), nullable=False)
     verified = Column(Boolean, default=False)
     verification_token = Column(String)
 
@@ -242,7 +266,7 @@ class FantasyLeagueModel(Base):  # type: ignore
 
     id = Column(String, primary_key=True, unique=True, nullable=False)
     owner_id = Column(String, nullable=False)
-    status = Column(Enum(FantasyLeagueStatus), nullable=False)
+    status = Column(ValueEnum(FantasyLeagueStatus), nullable=False)
     name = Column(String)
     number_of_teams = Column(Integer)
     current_week = Column(Integer, nullable=True)
@@ -255,7 +279,7 @@ class FantasyLeagueMembershipModel(Base):  # type: ignore
 
     league_id = Column(String, primary_key=True, nullable=False)
     user_id = Column(String, primary_key=True, nullable=False)
-    status = Column(Enum(FantasyLeagueMembershipStatus), nullable=False)
+    status = Column(ValueEnum(FantasyLeagueMembershipStatus), nullable=False)
 
     __table_args__ = (PrimaryKeyConstraint("league_id", "user_id"),)
 

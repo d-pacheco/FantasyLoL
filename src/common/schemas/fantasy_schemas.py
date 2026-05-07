@@ -8,7 +8,7 @@ UserID = NewType("UserID", str)
 FantasyLeagueID = NewType("FantasyLeagueID", str)
 
 
-class UserAccountStatus(Enum):
+class UserAccountStatus(str, Enum):
     ACTIVE = "active"
     PENDING_VERIFICATION = "pendingVerification"
     DELETED = "deleted"
