@@ -38,6 +38,10 @@ class AppConfig(BaseSettings):
     # Email verification
     REQUIRE_EMAIL_VERIFICATION: bool = True
 
+    # Logging
+    LOKI_ENABLED: bool = False
+    LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
+
     # Riot API
     RIOT_API_KEY: str = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"
     ESPORTS_API_URL: str = "https://esports-api.lolesports.com/persisted/gw"

@@ -15,7 +15,7 @@ from src.riot_scraper.riot_api.schemas.get_schedule import GetScheduleResponse
 from src.riot_scraper.riot_api.schemas.get_teams import GetTeamsResponse
 from src.riot_scraper.riot_api.schemas.get_tournament import GetTournamentsResponse
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("scraper.api")
 
 
 class RiotApiClient:

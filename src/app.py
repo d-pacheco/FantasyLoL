@@ -7,6 +7,7 @@ from fastapi_pagination.utils import disable_installed_extensions_check
 
 from src.common.config import app_config
 from src.common.logger import configure_logger
+from src.common.middleware import RequestLoggingMiddleware
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.database_service import DatabaseService
 from src.fantasy.endpoints import FantasyLeagueEndpoint, FantasyTeamEndpoint, UserEndpointV1
@@ -44,6 +45,7 @@ def create_app(database_service: DatabaseService) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(RequestLoggingMiddleware)
     disable_installed_extensions_check()
 
     # Riot services and endpoints

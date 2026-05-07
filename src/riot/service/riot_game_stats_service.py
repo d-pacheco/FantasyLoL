@@ -6,7 +6,7 @@ from src.common.schemas.riot_data_schemas import PlayerGameData
 from src.db.database_service import DatabaseService
 from src.db.views import PlayerGameView
 
-logger = logging.getLogger("riot")
+logger = logging.getLogger("api.riot")
 
 
 class RiotGameStatsService:

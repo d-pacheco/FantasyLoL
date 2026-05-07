@@ -1,3 +1,5 @@
+import logging
+
 from src.db.database_service import DatabaseService
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from src.common.schemas.fantasy_schemas import (
@@ -13,6 +15,8 @@ from src.common.exceptions.professional_player_not_found_exception import (
 )
 from src.fantasy.exceptions import FantasyMembershipException, FantasyDraftException
 from src.fantasy.util import FantasyTeamUtil, FantasyLeagueUtil
+
+logger = logging.getLogger("api.fantasy")
 
 
 class FantasyTeamService:
@@ -38,6 +42,9 @@ class FantasyTeamService:
     def pickup_player(
         self, fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: ProPlayerID
     ) -> FantasyTeam:
+        logger.info(
+            "Player pickup: user=%s league=%s player=%s", user_id, fantasy_league_id, player_id
+        )
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
         )
@@ -79,6 +86,9 @@ class FantasyTeamService:
     def drop_player(
         self, fantasy_league_id: FantasyLeagueID, user_id: UserID, player_id: ProPlayerID
     ) -> FantasyTeam:
+        logger.info(
+            "Player drop: user=%s league=%s player=%s", user_id, fantasy_league_id, player_id
+        )
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )

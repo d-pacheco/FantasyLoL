@@ -3,7 +3,7 @@ import logging
 import certifi
 from requests import Response
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("scraper.api")
 
 
 class ApiRequester:

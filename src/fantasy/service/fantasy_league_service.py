@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from src.db.database_service import DatabaseService
@@ -25,6 +26,8 @@ from src.fantasy.exceptions import (
 
 from src.fantasy.util import FantasyLeagueUtil
 
+logger = logging.getLogger("api.fantasy")
+
 
 class FantasyLeagueService:
     def __init__(self, database_service: DatabaseService):
@@ -34,6 +37,7 @@ class FantasyLeagueService:
     def create_fantasy_league(
         self, owner_id: UserID, league_settings: FantasyLeagueSettings
     ) -> FantasyLeague:
+        logger.info("Creating fantasy league for owner=%s name=%s", owner_id, league_settings.name)
         if len(league_settings.available_leagues) > 0:
             self.fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 
@@ -163,6 +167,7 @@ class FantasyLeagueService:
     def send_fantasy_league_invite(
         self, owner_id: UserID, league_id: FantasyLeagueID, username: str
     ) -> None:
+        logger.info("Sending invite to user=%s for league=%s", username, league_id)
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -182,6 +187,7 @@ class FantasyLeagueService:
         )
 
     def join_fantasy_league(self, user_id: UserID, league_id: FantasyLeagueID) -> None:
+        logger.info("User=%s joining league=%s", user_id, league_id)
         fantasy_league_model = self.fantasy_league_util.validate_league(
             league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
@@ -315,6 +321,7 @@ class FantasyLeagueService:
             )
 
     def start_fantasy_draft(self, user_id: UserID, fantasy_league_id: FantasyLeagueID) -> None:
+        logger.info("Starting draft for league=%s by user=%s", fantasy_league_id, user_id)
         fantasy_league = self.fantasy_league_util.validate_league(
             fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
         )
