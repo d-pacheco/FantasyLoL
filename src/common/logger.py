@@ -18,7 +18,6 @@ class RequestIdFilter(logging.Filter):
 def configure_logger(service: str) -> None:
     max_file_size = 1024 * 1024 * 100  # 100 MB
     backup_count = 5
-    Path("./logs/").mkdir(parents=True, exist_ok=True)
 
     logging_level = logging.DEBUG if app_config.DEBUG_LOGGING else logging.INFO
 
@@ -42,18 +41,22 @@ def configure_logger(service: str) -> None:
     root_logger.addHandler(console_handler)
 
     # File handler
-    file_fmt = logging.Formatter("[%(levelname)s] %(asctime)s [%(name)s] %(request_id)s%(message)s")
-    file_handler = RotatingFileHandler(
-        filename=f"./logs/{service}.log",
-        mode="a+",
-        maxBytes=max_file_size,
-        backupCount=backup_count,
-        encoding="utf-8",
-    )
-    file_handler.setLevel(logging_level)
-    file_handler.setFormatter(file_fmt)
-    file_handler.addFilter(rid_filter)
-    root_logger.addHandler(file_handler)
+    if app_config.FILE_LOGGING_ENABLED:
+        Path("./logs/").mkdir(parents=True, exist_ok=True)
+        file_fmt = logging.Formatter(
+            "[%(levelname)s] %(asctime)s [%(name)s] %(request_id)s%(message)s"
+        )
+        file_handler = RotatingFileHandler(
+            filename=f"./logs/{service}.log",
+            mode="a+",
+            maxBytes=max_file_size,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+        file_handler.setLevel(logging_level)
+        file_handler.setFormatter(file_fmt)
+        file_handler.addFilter(rid_filter)
+        root_logger.addHandler(file_handler)
 
     # Loki handler
     if app_config.LOKI_ENABLED:
