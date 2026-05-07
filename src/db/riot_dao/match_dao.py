@@ -176,9 +176,11 @@ def get_ids_without_games(session) -> list[RiotMatchID]:
 def get_stale_match_ids(session) -> list[RiotMatchID]:
     result = session.execute(
         text("""
-        SELECT id FROM matches
-        WHERE start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
-        AND state::text IN ('unstarted', 'inProgress');
+        SELECT matches.id FROM matches
+        JOIN leagues ON matches.league_id = leagues.id
+        WHERE matches.start_time < to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+        AND matches.state::text IN ('unstarted', 'inProgress')
+        AND leagues.scrape_enabled = true;
     """)
     )
     return [RiotMatchID(row[0]) for row in result.fetchall()]
@@ -212,8 +214,11 @@ def get_match_ids_without_games(session) -> list[RiotMatchID]:
     sql_query = """
         SELECT DISTINCT games.match_id
         FROM games
+        JOIN matches ON games.match_id = matches.id
+        JOIN leagues ON matches.league_id = leagues.id
         LEFT JOIN game_teams ON games.id = game_teams.game_id
-        WHERE game_teams.game_id IS NULL;
+        WHERE game_teams.game_id IS NULL
+        AND leagues.scrape_enabled = true;
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()

@@ -34,6 +34,11 @@ class League(BaseModel):
         description="Riot league is available for use in Fantasy Leagues",
         examples=[False],
     )
+    scrape_enabled: bool = Field(
+        default=False,
+        description="Whether to scrape matches, games, and stats for this league",
+        examples=[False],
+    )
 
 
 class TournamentStatus(str, Enum):

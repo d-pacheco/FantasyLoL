@@ -61,6 +61,7 @@ class LeagueModel(Base):  # type: ignore
     image = Column(String)
     priority = Column(Integer)
     fantasy_available = Column(Boolean)
+    scrape_enabled = Column(Boolean, default=False, nullable=False)
 
 
 class TournamentModel(Base):  # type: ignore

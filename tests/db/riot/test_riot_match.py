@@ -167,7 +167,9 @@ class TestCrudRiotMatch(TestBase):
         self.assertIsNone(match_from_db)
 
     def test_get_match_ids_without_games_matches_with_no_games(self):
-        # Arrange - create a match with a game that has no team assignments
+        # Arrange - create a league and match with a game that has no team assignments
+        self.db.put_league(riot_fixtures.league_1_fixture)
+
         match = riot_fixtures.match_fixture.model_copy(deep=True)
         match.has_games = True
         self.db.put_match(match)
@@ -521,6 +523,10 @@ class TestCrudRiotMatch(TestBase):
     # --- get_stale_match_ids tests ---
 
     def test_get_stale_match_ids_returns_past_unstarted(self):
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.slug = "test-league"
+        self.db.put_league(league)
+
         schedule_match = ScheduleMatch(
             id=RiotMatchID("stale-001"),
             start_time="2020-01-01T12:00:00Z",
@@ -533,10 +539,22 @@ class TestCrudRiotMatch(TestBase):
         )
         self.db.save_from_schedule(schedule_match)
 
+        # save_from_schedule doesn't set league_id, so set it manually
+        with self.db_provider.get_db() as db:
+            from src.db.models import MatchModel
+
+            m = db.query(MatchModel).filter(MatchModel.id == "stale-001").first()
+            m.league_id = league.id
+            db.commit()
+
         ids = self.db.get_stale_match_ids()
         self.assertIn(RiotMatchID("stale-001"), ids)
 
     def test_get_stale_match_ids_returns_past_inprogress(self):
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.slug = "test-league"
+        self.db.put_league(league)
+
         schedule_match = ScheduleMatch(
             id=RiotMatchID("stale-002"),
             start_time="2020-01-01T12:00:00Z",
@@ -548,6 +566,13 @@ class TestCrudRiotMatch(TestBase):
             teams=[],
         )
         self.db.save_from_schedule(schedule_match)
+
+        with self.db_provider.get_db() as db:
+            from src.db.models import MatchModel
+
+            m = db.query(MatchModel).filter(MatchModel.id == "stale-002").first()
+            m.league_id = league.id
+            db.commit()
 
         ids = self.db.get_stale_match_ids()
         self.assertIn(RiotMatchID("stale-002"), ids)

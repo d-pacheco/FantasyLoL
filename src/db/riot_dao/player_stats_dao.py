@@ -30,11 +30,14 @@ def get_game_ids_to_fetch_player_stats_for(session) -> list[RiotGameID]:
     sql_query = """
         SELECT games.id as game_id
         FROM games
+        JOIN matches ON games.match_id = matches.id
+        JOIN leagues ON matches.league_id = leagues.id
         LEFT JOIN player_game_stats ON games.id = player_game_stats.game_id
         WHERE ((games.state = 'completed'
                 AND (SELECT COUNT(*) FROM player_game_stats WHERE game_id = games.id) < 10)
                 OR games.state = 'inProgress')
             AND (games.details_status IS NULL OR games.details_status != 'unavailable')
+            AND leagues.scrape_enabled = true
         GROUP BY games.id
     """
     result = session.execute(text(sql_query))

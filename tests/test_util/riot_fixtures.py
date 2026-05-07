@@ -39,6 +39,7 @@ league_1_fixture = schemas.League(
     image="http//:mocked-league-image.png",
     priority=1,
     fantasy_available=False,
+    scrape_enabled=True,
 )
 
 league_2_fixture = schemas.League(

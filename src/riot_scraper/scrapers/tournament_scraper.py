@@ -27,6 +27,8 @@ class RiotTournamentScraper:
     def fetch_tournaments_job(self) -> None:
         stored_leagues = self.db.get_leagues()
         for league in stored_leagues:
+            if not league.scrape_enabled:
+                continue
             get_tournaments_response = self.riot_api_requester.get_tournament_for_league(league.id)
             for tournament_league in get_tournaments_response.data.leagues:
                 for tournament in tournament_league.tournaments:
