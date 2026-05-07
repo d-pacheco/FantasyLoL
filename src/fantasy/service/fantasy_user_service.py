@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 import bcrypt
 import secrets
@@ -103,6 +104,7 @@ class UserService:
         logger.info("Login attempt: username=%s", user_credentials.username)
         user = self.db.get_user_by_username(user_credentials.username)
         if user is None:
+            time.sleep(2)
             raise InvalidUsernameOrPasswordException()
 
         if not user.verified:
@@ -110,6 +112,7 @@ class UserService:
 
         passwords_match = bcrypt.checkpw(user_credentials.password.encode(), user.password)
         if not passwords_match:
+            time.sleep(2)
             raise InvalidUsernameOrPasswordException()
 
         return sign_jwt(user.id, user.get_permissions())
