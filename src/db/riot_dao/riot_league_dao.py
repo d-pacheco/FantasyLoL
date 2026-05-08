@@ -5,8 +5,16 @@ from src.db.models import LeagueModel
 
 
 def put_league(session, league: League) -> None:
-    db_league = LeagueModel(**league.model_dump())
-    session.merge(db_league)
+    existing = session.query(LeagueModel).filter(LeagueModel.id == league.id).first()
+    if existing:
+        existing.slug = league.slug
+        existing.name = league.name
+        existing.region = league.region
+        existing.image = league.image
+        existing.priority = league.priority
+    else:
+        db_league = LeagueModel(**league.model_dump())
+        session.add(db_league)
     session.commit()
 
 

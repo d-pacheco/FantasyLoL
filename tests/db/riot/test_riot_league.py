@@ -32,6 +32,29 @@ class TestCrudRiotLeague(TestBase):
         league_after_put = self.db.get_league_by_id(league.id)
         self.assertEqual(updated_league, league_after_put)
 
+    def test_put_league_preserves_fantasy_available_and_scrape_enabled(self):
+        # Arrange - create league and enable both flags
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        self.db.put_league(league)
+        with self.db_provider.get_db() as db:
+            db_league = db.query(LeagueModel).filter(LeagueModel.id == league.id).first()
+            db_league.fantasy_available = True
+            db_league.scrape_enabled = True
+            db.commit()
+
+        # Act - re-put the league (simulates scraper re-fetching with defaults)
+        league_from_scraper = league.model_copy(deep=True)
+        league_from_scraper.name = "Updated Name"
+        league_from_scraper.fantasy_available = False
+        league_from_scraper.scrape_enabled = False
+        self.db.put_league(league_from_scraper)
+
+        # Assert - flags should be preserved, name should be updated
+        result = self.db.get_league_by_id(league.id)
+        self.assertTrue(result.fantasy_available)
+        self.assertTrue(result.scrape_enabled)
+        self.assertEqual("Updated Name", result.name)
+
     def test_get_leagues_no_filters(self):
         # Arrange
         expected_league = riot_fixtures.league_1_fixture

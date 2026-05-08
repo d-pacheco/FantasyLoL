@@ -270,15 +270,19 @@ class TestCrudRiotGame(TestBase):
         self.assertEqual(0, len(game_ids))
 
     def test_get_games_to_check_status_excluded_when_scrape_disabled(self):
-        # Arrange - league with scrape_enabled=False
-        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
-        league.scrape_enabled = False
-        self.db.put_league(league)
+        # Arrange - disable scraping on the league
+        with self.db_provider.get_db() as db:
+            from src.db.models import LeagueModel
 
-        match_in_past = riot_fixtures.match_fixture.model_copy(deep=True)
-        self.db.put_match(match_in_past)
+            league = (
+                db.query(LeagueModel)
+                .filter(LeagueModel.id == riot_fixtures.league_1_fixture.id)
+                .first()
+            )
+            league.scrape_enabled = False
+            db.commit()
+
         inprogress_game = riot_fixtures.game_2_fixture_inprogress.model_copy(deep=True)
-        inprogress_game.match_id = match_in_past.id
         self.db.put_game(inprogress_game)
 
         # Act
