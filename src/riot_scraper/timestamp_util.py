@@ -14,7 +14,7 @@ class TimestampUtil:
     @staticmethod
     def round_to_10_seconds(timestamp):
         dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
-        rounded_seconds = round(dt.second / 10) * 10
+        rounded_seconds = (dt.second // 10) * 10
         rounded_dt = dt.replace(second=rounded_seconds, microsecond=0)
         return rounded_dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
