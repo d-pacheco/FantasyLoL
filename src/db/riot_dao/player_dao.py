@@ -1,24 +1,29 @@
-from sqlalchemy import label
+from sqlalchemy import func, label
 
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from src.db.models import ProfessionalPlayerModel, ProfessionalTeamModel, LeagueModel
 
 
-def _player_query(session, join_league=False):
-    query = session.query(
-        ProfessionalPlayerModel.id,
-        ProfessionalPlayerModel.team_id,
-        ProfessionalPlayerModel.summoner_name,
-        ProfessionalPlayerModel.first_name,
-        ProfessionalPlayerModel.last_name,
-        ProfessionalPlayerModel.image,
-        ProfessionalPlayerModel.role,
-        label("team_name", ProfessionalTeamModel.name),
-        label("team_code", ProfessionalTeamModel.code),
-    ).join(ProfessionalTeamModel, ProfessionalPlayerModel.team_id == ProfessionalTeamModel.id)
-    if join_league:
-        query = query.join(LeagueModel, ProfessionalTeamModel.home_league_name == LeagueModel.name)
-    return query
+def _player_query(session):
+    return (
+        session.query(
+            ProfessionalPlayerModel.id,
+            ProfessionalPlayerModel.team_id,
+            ProfessionalPlayerModel.summoner_name,
+            ProfessionalPlayerModel.first_name,
+            ProfessionalPlayerModel.last_name,
+            ProfessionalPlayerModel.image,
+            ProfessionalPlayerModel.role,
+            label("team_name", ProfessionalTeamModel.name),
+            label("team_code", ProfessionalTeamModel.code),
+            label("league_name", LeagueModel.name),
+        )
+        .join(ProfessionalTeamModel, ProfessionalPlayerModel.team_id == ProfessionalTeamModel.id)
+        .outerjoin(
+            LeagueModel,
+            func.lower(ProfessionalTeamModel.home_league_name) == func.lower(LeagueModel.name),
+        )
+    )
 
 
 def put_player(session, player: ProfessionalPlayer) -> None:
@@ -35,10 +40,8 @@ def put_player(session, player: ProfessionalPlayer) -> None:
     session.commit()
 
 
-def get_players(
-    session, filters: list | None = None, join_league: bool = False
-) -> list[ProfessionalPlayer]:
-    query = _player_query(session, join_league=join_league)
+def get_players(session, filters: list | None = None) -> list[ProfessionalPlayer]:
+    query = _player_query(session)
     if filters:
         query = query.filter(*filters)
     rows = query.all()

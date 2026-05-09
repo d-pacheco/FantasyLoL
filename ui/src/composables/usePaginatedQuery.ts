@@ -4,7 +4,7 @@ import type { PaginatedResponse } from '../api/client'
 
 type ApiFn<T> = (params: Record<string, unknown>) => Promise<PaginatedResponse<T>>
 
-export function usePaginatedQuery<T>(apiFn: ApiFn<T>, filters: Ref<Record<string, string | undefined>>) {
+export function usePaginatedQuery<T>(apiFn: ApiFn<T>, filters: Ref<Record<string, string | boolean | undefined>>) {
   const route = useRoute()
   const router = useRouter()
 
@@ -26,7 +26,7 @@ export function usePaginatedQuery<T>(apiFn: ApiFn<T>, filters: Ref<Record<string
         size: pageSize.value,
       }
       for (const [key, val] of Object.entries(filters.value)) {
-        if (val) params[key] = val
+        if (val !== undefined && val !== '') params[key] = val
       }
       const result = await apiFn(params)
       data.value = result.items
@@ -41,7 +41,7 @@ export function usePaginatedQuery<T>(apiFn: ApiFn<T>, filters: Ref<Record<string
   function syncToUrl() {
     const query: Record<string, string> = { page: String(currentPage.value), size: String(pageSize.value) }
     for (const [key, val] of Object.entries(filters.value)) {
-      if (val) query[key] = val
+      if (val !== undefined && val !== '') query[key] = String(val)
     }
     router.replace({ query })
   }

@@ -60,6 +60,7 @@ export interface ProfessionalPlayer {
   team_id: string
   team_name: string | null
   team_code: string | null
+  league_name: string | null
 }
 
 export interface PlayerGameData {
