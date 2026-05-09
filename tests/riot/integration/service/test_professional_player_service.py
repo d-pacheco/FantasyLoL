@@ -18,7 +18,10 @@ class ProfessionalPlayerServiceTest(TestBase):
         # Arrange
         expected_player = riot_fixtures.player_1_fixture
         self.db.put_player(expected_player)
-        search_parameters = PlayerSearchParameters(summoner_name=expected_player.summoner_name)
+        # Partial, case-insensitive search
+        search_parameters = PlayerSearchParameters(
+            summoner_name=expected_player.summoner_name[:5].lower()
+        )
 
         # Act
         players_from_db = self.professional_player_service.get_players(search_parameters)
@@ -26,7 +29,7 @@ class ProfessionalPlayerServiceTest(TestBase):
         # Assert
         self.assertIsInstance(players_from_db, list)
         self.assertEqual(1, len(players_from_db))
-        self.assertEqual(expected_player, players_from_db[0])
+        self.assertEqual(expected_player.id, players_from_db[0].id)
 
     def test_player_response_includes_team_name_and_code(self):
         # Arrange

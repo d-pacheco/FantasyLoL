@@ -17,7 +17,9 @@ class RiotProfessionalPlayerService:
         filters = []
         join_league = False
         if search_parameters.summoner_name is not None:
-            filters.append(ProfessionalPlayerModel.summoner_name == search_parameters.summoner_name)
+            filters.append(
+                ProfessionalPlayerModel.summoner_name.ilike(f"%{search_parameters.summoner_name}%")
+            )
         if search_parameters.team_name is not None:
             from src.db.models import ProfessionalTeamModel
 
