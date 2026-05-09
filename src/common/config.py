@@ -58,6 +58,9 @@ class AppConfig(BaseSettings):
     MATCH_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="30")
     GAME_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="45")
     GAME_STATS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/5")
+    GAME_ANALYSIS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(
+        trigger="cron", minute="*/10"
+    )
 
 
 app_config = AppConfig()  # type: ignore[call-arg]

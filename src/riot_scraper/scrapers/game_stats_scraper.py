@@ -8,7 +8,6 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameStats,
     GameMetadata,
     GameParticipantPerks,
-    GameDragons,
 )
 from src.db.database_service import DatabaseService
 from src.riot_scraper.riot_api.schemas.get_live_window import TeamMetaData, TeamWindowFrame
@@ -102,10 +101,6 @@ class RiotGameStatsScraper:
             for team_stats in fetched_team_stats:
                 self.db.put_team_stats(team_stats)
 
-            fetched_dragons = self.__fetch_dragons(game_id, time_stamp)
-            for dragon in fetched_dragons:
-                self.db.put_game_dragon(dragon)
-
             if last_fetch:
                 logger.info(f"Setting last fetch to false for game with id: {game_id}")
                 self.db.update_game_last_stats_fetch(game_id, False)
@@ -175,41 +170,6 @@ class RiotGameStatsScraper:
         )
 
         return [blue_team_stats, red_team_stats]
-
-    def __fetch_dragons(self, game_id: RiotGameID, time_stamp: str) -> list[GameDragons]:
-        window_response = self.riot_api_requester.get_game_window(game_id, time_stamp)
-        if not window_response or len(window_response.frames) == 0:
-            return []
-
-        last_frame = window_response.frames[-1]
-        dragons: list[GameDragons] = []
-        dragon_number = 1
-
-        blue_team_id = window_response.gameMetadata.blueTeamMetadata.esportsTeamId
-        for dragon_type in last_frame.blueTeam.dragons:
-            dragons.append(
-                GameDragons(
-                    game_id=game_id,
-                    dragon_number=dragon_number,
-                    team_id=blue_team_id,
-                    dragon_type=dragon_type,
-                )
-            )
-            dragon_number += 1
-
-        red_team_id = window_response.gameMetadata.redTeamMetadata.esportsTeamId
-        for dragon_type in last_frame.redTeam.dragons:
-            dragons.append(
-                GameDragons(
-                    game_id=game_id,
-                    dragon_number=dragon_number,
-                    team_id=red_team_id,
-                    dragon_type=dragon_type,
-                )
-            )
-            dragon_number += 1
-
-        return dragons
 
 
 def parse_team_metadata(
