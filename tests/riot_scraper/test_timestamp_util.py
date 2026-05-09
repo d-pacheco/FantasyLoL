@@ -27,3 +27,13 @@ class TestTimestampUtil:
         result = TimestampUtil.round_current_time_to_10_seconds()
         parsed = datetime.strptime(result, "%Y-%m-%dT%H:%M:%S.%fZ")
         assert parsed.microsecond == 0
+
+    def test_round_to_10_seconds_with_seconds_above_55(self):
+        """Seconds >= 55 should floor to 50, not round up to 60."""
+        result = TimestampUtil.round_to_10_seconds("2024-01-01T00:00:57.123456Z")
+        assert result == "2024-01-01T00:00:50.000000Z"
+
+    def test_round_to_10_seconds_result_is_valid(self):
+        result = TimestampUtil.round_to_10_seconds("2024-01-01T12:34:59.999999Z")
+        parsed = datetime.strptime(result, "%Y-%m-%dT%H:%M:%S.%fZ")
+        assert 0 <= parsed.second <= 59
