@@ -31,6 +31,7 @@ const filters = computed(() => ({
   summoner_name: search.value || undefined,
   role: roleFilter.value || undefined,
   team_name: teamFilter.value || undefined,
+  fantasy_available: true,
 }))
 
 const { data: players, loading, error, totalPages, currentPage } = usePaginatedQuery(getPlayers, filters)
