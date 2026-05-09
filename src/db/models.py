@@ -115,6 +115,7 @@ class GameModel(Base):  # type: ignore
     match_id = Column(String, ForeignKey("matches.id", ondelete="CASCADE"))
     frames_status = Column(String, nullable=True)
     details_status = Column(String, nullable=True)
+    duration_seconds = Column(Integer, nullable=True)
 
 
 class GameTeamsModel(Base):  # type: ignore
@@ -159,6 +160,17 @@ class GameDragonsModel(Base):  # type: ignore
     dragon_type = Column(String, nullable=False)
 
     __table_args__ = (PrimaryKeyConstraint("game_id", "dragon_number"),)
+
+
+class GameMultiKillsModel(Base):  # type: ignore
+    __tablename__ = "game_multi_kills"
+
+    game_id = Column(String, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    participant_id = Column(Integer, primary_key=True)
+    kill_number = Column(Integer, primary_key=True)
+    kill_type = Column(String, nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("game_id", "participant_id", "kill_number"),)
 
 
 class ProfessionalTeamModel(Base):  # type: ignore

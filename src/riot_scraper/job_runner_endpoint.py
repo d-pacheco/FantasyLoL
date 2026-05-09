@@ -85,3 +85,16 @@ class JobRunnerEndpoint(Routable):
     async def trigger_fetch_teams_from_riot_job(self) -> str:
         self.__job_scheduler.trigger_team_service_job()
         return "Job triggered successfully"
+
+    @post(
+        path="/run-game-analysis",
+        description="Manually trigger game analysis job",
+        tags=["Manual Job Triggers"],
+        status_code=202,
+        responses={
+            202: {"content": {"application/json": {"example": "Job triggered successfully"}}}
+        },
+    )
+    async def trigger_game_analysis_job(self) -> str:
+        self.__job_scheduler.trigger_game_analysis_job()
+        return "Job triggered successfully"

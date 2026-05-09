@@ -21,6 +21,7 @@ class JobScheduler:
         self.riot_match_service = kwargs.get("match_service")
         self.riot_team_service = kwargs.get("team_service")
         self.riot_tournament_service = kwargs.get("tournament_service")
+        self.game_analysis_service = kwargs.get("game_analysis_service")
 
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()
@@ -53,6 +54,11 @@ class JobScheduler:
 
     def trigger_match_service_job(self):
         job = self.scheduler.get_job("match_service_job")
+        if job:
+            job.modify(next_run_time=datetime.now())
+
+    def trigger_game_analysis_job(self):
+        job = self.scheduler.get_job("game_analysis_job")
         if job:
             job.modify(next_run_time=datetime.now())
 
@@ -107,6 +113,12 @@ class JobScheduler:
             job_config=app_config.GAME_STATS_SERVICE_SCHEDULE,
             job_id="player_stats_job",
         )
+        if self.game_analysis_service:
+            self.schedule_job(
+                job_function=self.game_analysis_service.analyze_games_retry_job,
+                job_config=app_config.GAME_ANALYSIS_SERVICE_SCHEDULE,
+                job_id="game_analysis_job",
+            )
 
     def schedule_job(
         self, job_function, job_config: ScheduleConfig, job_id: str, replace: bool = True

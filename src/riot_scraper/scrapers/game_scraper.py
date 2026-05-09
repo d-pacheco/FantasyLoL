@@ -86,3 +86,11 @@ class RiotGameScraper:
                 self.db.update_game_state(game.id, game.state)
                 if game.state == GameState.COMPLETED:
                     self.db.update_game_last_stats_fetch(game.id, True)
+                    self._set_frames_status_on_completion(game.id)
+
+    def _set_frames_status_on_completion(self, game_id):
+        game = self.db.get_game_by_id(game_id)
+        if game and not game.has_game_data:
+            self.db.update_frames_status(game_id, "unavailable")
+        else:
+            self.db.update_frames_status(game_id, "pending")

@@ -19,6 +19,7 @@ from src.riot_scraper.scrapers import (
     RiotTeamScraper,
     RiotTournamentScraper,
 )
+from src.riot_scraper.scrapers.game_analysis_scraper import GameAnalysisScraper
 from src.riot_scraper.job_scheduler import JobScheduler
 from src.riot_scraper.job_runner_endpoint import JobRunnerEndpoint
 
@@ -40,6 +41,7 @@ def configure_job_schedule(db_service: DatabaseService) -> JobScheduler:
     match_scraper = RiotMatchScraper(db_service, riot_api_client, job_runner)
     team_scraper = RiotTeamScraper(db_service, riot_api_client, job_runner)
     tournament_scraper = RiotTournamentScraper(db_service, riot_api_client, job_runner)
+    game_analysis_scraper = GameAnalysisScraper(db_service, riot_api_client)
 
     job_scheduler = JobScheduler(
         game_service=game_scraper,
@@ -48,6 +50,7 @@ def configure_job_schedule(db_service: DatabaseService) -> JobScheduler:
         match_service=match_scraper,
         team_service=team_scraper,
         tournament_service=tournament_scraper,
+        game_analysis_service=game_analysis_scraper,
     )
     return job_scheduler
 
