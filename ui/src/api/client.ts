@@ -1,5 +1,13 @@
 import axios from 'axios'
 
+export interface PaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  size: number
+  pages: number
+}
+
 export const api = axios.create({
   baseURL: '/api/v1',
 })

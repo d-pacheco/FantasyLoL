@@ -255,6 +255,8 @@ class ProfessionalPlayer(BaseModel):
         description="The id of the team that the player is on",
         examples=["98767991853197861"],
     )
+    team_name: str | None = Field(default=None, description="The name of the team", examples=["T1"])
+    team_code: str | None = Field(default=None, description="The code of the team", examples=["T1"])
 
 
 class PlayerGameMetadata(BaseModel):

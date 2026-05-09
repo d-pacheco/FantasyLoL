@@ -15,14 +15,22 @@ class RiotProfessionalPlayerService:
 
     def get_players(self, search_parameters: PlayerSearchParameters) -> list[ProfessionalPlayer]:
         filters = []
+        join_league = False
         if search_parameters.summoner_name is not None:
             filters.append(ProfessionalPlayerModel.summoner_name == search_parameters.summoner_name)
-        if search_parameters.team_id is not None:
-            filters.append(ProfessionalPlayerModel.team_id == search_parameters.team_id)
+        if search_parameters.team_name is not None:
+            from src.db.models import ProfessionalTeamModel
+
+            filters.append(ProfessionalTeamModel.name.ilike(f"%{search_parameters.team_name}%"))
         if search_parameters.role is not None:
             filters.append(ProfessionalPlayerModel.role == search_parameters.role)
+        if search_parameters.fantasy_available is not None:
+            from src.db.models import LeagueModel
 
-        professional_players = self.db.get_players(filters)
+            join_league = True
+            filters.append(LeagueModel.fantasy_available == search_parameters.fantasy_available)
+
+        professional_players = self.db.get_players(filters, join_league=join_league)
         return professional_players
 
     def get_player_by_id(self, professional_player_id: ProPlayerID) -> ProfessionalPlayer:

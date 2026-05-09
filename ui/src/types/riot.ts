@@ -58,6 +58,8 @@ export interface ProfessionalPlayer {
   image: string
   role: PlayerRole
   team_id: string
+  team_name: string | null
+  team_code: string | null
 }
 
 export interface PlayerGameData {

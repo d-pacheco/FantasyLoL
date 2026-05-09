@@ -16,9 +16,9 @@ class TestProfessionalPlayerEndpointV1:
         [
             ("summoner_name", lambda p: p.summoner_name),
             ("role", lambda p: p.role.value),
-            ("team_id", lambda p: p.team_id),
+            ("team_name", lambda p: p.team_name),
         ],
-        ids=["summoner_name", "role", "team_id"],
+        ids=["summoner_name", "role", "team_name"],
     )
     def test_get_players_by_filter(self, create_endpoint_client, param, value_fn):
         client, mock = create_endpoint_client(ProfessionalPlayerEndpoint)
