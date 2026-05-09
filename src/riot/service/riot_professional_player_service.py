@@ -16,7 +16,7 @@ class RiotProfessionalPlayerService:
         self.db = database_service
 
     def get_players(self, search_parameters: PlayerSearchParameters) -> list[ProfessionalPlayer]:
-        filters = []
+        filters: list = []
         if search_parameters.summoner_name is not None:
             filters.append(
                 ProfessionalPlayerModel.summoner_name.ilike(f"%{search_parameters.summoner_name}%")
