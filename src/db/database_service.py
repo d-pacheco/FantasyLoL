@@ -225,6 +225,58 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return game_dragons_dao.get_game_dragons(db, game_id)
 
+    def delete_game_dragons(self, game_id: RiotGameID) -> None:
+        with self.connection_provider.get_db() as db:
+            game_dragons_dao.delete_game_dragons(db, game_id)
+
+    def get_pending_analysis_game_ids(self, limit: int = 5) -> list[RiotGameID]:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import GameModel
+            rows = (
+                db.query(GameModel.id)
+                .filter(GameModel.frames_status == "pending")
+                .limit(limit)
+                .all()
+            )
+            return [RiotGameID(row[0]) for row in rows]
+
+    def update_frames_status(self, game_id: RiotGameID, status: str) -> None:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import GameModel
+            game = db.query(GameModel).filter(GameModel.id == game_id).first()
+            if game:
+                game.frames_status = status
+                db.commit()
+
+    def update_game_duration(self, game_id: RiotGameID, duration_seconds: int) -> None:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import GameModel
+            game = db.query(GameModel).filter(GameModel.id == game_id).first()
+            if game:
+                game.duration_seconds = duration_seconds
+                db.commit()
+
+    def put_game_multi_kill(
+        self, game_id: RiotGameID, participant_id: int, kill_number: int, kill_type: str
+    ) -> None:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import GameMultiKillsModel
+            row = GameMultiKillsModel(
+                game_id=game_id,
+                participant_id=participant_id,
+                kill_number=kill_number,
+                kill_type=kill_type,
+            )
+            db.merge(row)
+            db.commit()
+
+    def get_game_multi_kills(self, game_id: RiotGameID) -> list:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import GameMultiKillsModel
+            return db.query(GameMultiKillsModel).filter(
+                GameMultiKillsModel.game_id == game_id
+            ).all()
+
     def put_league(self, league: League) -> None:
         with self.connection_provider.get_db() as db:
             riot_league_dao.put_league(db, league)
