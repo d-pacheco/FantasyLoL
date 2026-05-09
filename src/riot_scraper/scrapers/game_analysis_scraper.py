@@ -69,6 +69,16 @@ class GameAnalysisScraper:
         logger.info(f"Game {game_id} analysis complete")
 
     def _fetch_all_frames(self, game_id: RiotGameID) -> list[WindowFrame] | None:
+        # Check the latest available frames first — if no FINISHED frame exists, bail early
+        latest_time = TimestampUtil.round_current_time_to_10_seconds()
+        latest_window = self.api.get_game_window(game_id, latest_time)
+        if latest_window is None:
+            return None
+        has_finished = any(f.gameState == LiveGameState.FINISHED for f in latest_window.frames)
+        if not has_finished:
+            logger.warning(f"Game {game_id}: no FINISHED frame in latest window, skipping")
+            return None
+
         initial_window = self.api.get_game_window(game_id)
         if initial_window is None:
             return None
@@ -88,8 +98,6 @@ class GameAnalysisScraper:
                 all_frames.append(frame)
                 if frame.gameState == LiveGameState.FINISHED:
                     finished = True
-
-            current_time = TimestampUtil.add_10_seconds(current_time)
 
             current_time = TimestampUtil.add_10_seconds(current_time)
 
