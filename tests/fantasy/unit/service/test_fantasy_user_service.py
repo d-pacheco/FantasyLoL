@@ -175,7 +175,7 @@ class UserServiceTest(TestBase):
 
         # Assert
         self.mock_db_service.get_user_by_username.assert_called_once_with(user.username)
-        mock_sign_jwt.assert_called_once_with(user.id, user.get_permissions())
+        mock_sign_jwt.assert_called_once_with(user.id, user.get_permissions(), user.username)
         self.assertEqual(mock_token_response, token)
 
     def test_user_login_invalid_username(self):

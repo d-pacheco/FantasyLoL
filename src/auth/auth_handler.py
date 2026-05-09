@@ -14,9 +14,10 @@ def token_response(token: str):
     return {"access_token": token}
 
 
-def sign_jwt(user_id: str, permissions: list[str]) -> dict[str, str]:
+def sign_jwt(user_id: str, permissions: list[str], username: str = "") -> dict[str, str]:
     payload = {
         "user_id": user_id,
+        "username": username,
         "permissions": permissions,
         "exp": time.time() + 86400,  # Token is valid for 24 hours
         "iat": time.time(),
