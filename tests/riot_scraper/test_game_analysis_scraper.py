@@ -152,6 +152,7 @@ class TestGameAnalysisScraper(TestBase):
 
         # API returns all frames in one window call, then None for subsequent
         self.mock_api.get_game_window.side_effect = [
+            _make_window_response(game_id, frames),  # latest window check (has FINISHED)
             _make_window_response(game_id, frames),  # initial call (no timestamp)
             _make_window_response(game_id, frames),  # call with rounded timestamp
             None,  # subsequent call returns None
@@ -186,6 +187,26 @@ class TestGameAnalysisScraper(TestBase):
         game_id = self._create_pending_game("game-no-data-001")
 
         self.mock_api.get_game_window.return_value = None
+
+        self.scraper.analyze_games()
+
+        from src.db.models import GameModel
+
+        with self.db_provider.get_db() as session:
+            gm = session.query(GameModel).filter(GameModel.id == game_id).first()
+            self.assertEqual("unavailable", gm.frames_status)
+
+    def test_marks_unavailable_when_latest_window_has_no_finished_frame(self):
+        """If the latest window has no FINISHED frame, the game data is incomplete."""
+        game_id = self._create_pending_game("game-no-finished-001")
+
+        # Latest window returns frames but none are FINISHED
+        incomplete_frames = [
+            _make_frame("2024-01-01T00:30:00.000Z", blue_kills=[5, 3, 2, 1, 0]),
+        ]
+        self.mock_api.get_game_window.return_value = _make_window_response(
+            game_id, incomplete_frames
+        )
 
         self.scraper.analyze_games()
 
