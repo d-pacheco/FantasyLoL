@@ -1,6 +1,6 @@
 import logging
 
-from src.common.schemas.riot_data_schemas import RiotGameID, GameDragons
+from src.common.schemas.riot_data_schemas import RiotGameID, GameDragons, ProTeamID
 from src.db.database_service import DatabaseService
 from src.riot_scraper.game_analysis import (
     detect_multi_kills,
@@ -56,12 +56,14 @@ class GameAnalysisScraper:
         if game and game.blue_team and game.red_team:
             dragons = detect_dragon_order(frames, game.blue_team, game.red_team)
             for d in dragons:
-                self.db.put_game_dragon(GameDragons(
-                    game_id=game_id,
-                    dragon_number=d.dragon_number,
-                    team_id=d.team_id,
-                    dragon_type=d.dragon_type,
-                ))
+                self.db.put_game_dragon(
+                    GameDragons(
+                        game_id=game_id,
+                        dragon_number=d.dragon_number,
+                        team_id=ProTeamID(d.team_id),
+                        dragon_type=d.dragon_type,
+                    )
+                )
 
         self.db.update_frames_status(game_id, "completed")
         logger.info(f"Game {game_id} analysis complete")
@@ -74,9 +76,7 @@ class GameAnalysisScraper:
         all_frames: list[WindowFrame] = []
         seen_timestamps: set[str] = set()
 
-        start_time = TimestampUtil.round_to_10_seconds(
-            initial_window.frames[0].rfc460Timestamp
-        )
+        start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
         finished = False
 
@@ -90,6 +90,7 @@ class GameAnalysisScraper:
                     seen_timestamps.add(frame.rfc460Timestamp)
                     all_frames.append(frame)
                 from src.common.schemas.riot_data_schemas import LiveGameState
+
                 if frame.gameState == LiveGameState.FINISHED:
                     finished = True
 

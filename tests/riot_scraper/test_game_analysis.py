@@ -23,19 +23,33 @@ def _make_participant(participant_id, kills=0, current_health=100):
 
 def _make_frame(timestamp, blue_participants, red_participants=None):
     if red_participants is None:
-        red_participants = [_make_participant(6), _make_participant(7),
-                           _make_participant(8), _make_participant(9),
-                           _make_participant(10)]
+        red_participants = [
+            _make_participant(6),
+            _make_participant(7),
+            _make_participant(8),
+            _make_participant(9),
+            _make_participant(10),
+        ]
     return WindowFrame(
         rfc460Timestamp=timestamp,
         gameState=LiveGameState.IN_GAME,
         blueTeam=TeamWindowFrame(
-            totalGold=0, inhibitors=0, towers=0, barons=0, totalKills=0,
-            dragons=[], participants=blue_participants,
+            totalGold=0,
+            inhibitors=0,
+            towers=0,
+            barons=0,
+            totalKills=0,
+            dragons=[],
+            participants=blue_participants,
         ),
         redTeam=TeamWindowFrame(
-            totalGold=0, inhibitors=0, towers=0, barons=0, totalKills=0,
-            dragons=[], participants=red_participants,
+            totalGold=0,
+            inhibitors=0,
+            towers=0,
+            barons=0,
+            totalKills=0,
+            dragons=[],
+            participants=red_participants,
         ),
     )
 
@@ -113,46 +127,81 @@ class TestDetectMultiKills:
             _make_frame(
                 "2024-01-01T00:00:00.000Z",
                 [_make_participant(1, kills=0)],
-                [_make_participant(6, current_health=100), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=100),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             _make_frame(
                 "2024-01-01T00:00:03.000Z",
                 [_make_participant(1, kills=1)],
-                [_make_participant(6, current_health=0), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=0),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             _make_frame(
                 "2024-01-01T00:00:06.000Z",
                 [_make_participant(1, kills=2)],
-                [_make_participant(6, current_health=0), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=0),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             _make_frame(
                 "2024-01-01T00:00:09.000Z",
                 [_make_participant(1, kills=3)],
-                [_make_participant(6, current_health=0), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=0),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             _make_frame(
                 "2024-01-01T00:00:12.000Z",
                 [_make_participant(1, kills=4)],
-                [_make_participant(6, current_health=0), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=0),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             # Enemy respawns
             _make_frame(
                 "2024-01-01T00:00:15.000Z",
                 [_make_participant(1, kills=4)],
-                [_make_participant(6, current_health=100), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=100),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
             # 5th kill within 30s but after respawn — should NOT count as penta
             _make_frame(
                 "2024-01-01T00:00:20.000Z",
                 [_make_participant(1, kills=5)],
-                [_make_participant(6, current_health=100), _make_participant(7),
-                 _make_participant(8), _make_participant(9), _make_participant(10)],
+                [
+                    _make_participant(6, current_health=100),
+                    _make_participant(7),
+                    _make_participant(8),
+                    _make_participant(9),
+                    _make_participant(10),
+                ],
             ),
         ]
 
@@ -181,12 +230,18 @@ class TestDetectMultiKills:
     def test_interleaved_kills_by_different_players(self):
         """Two players get kills interleaved — each gets their own multi-kill."""
         frames = [
-            _make_frame("2024-01-01T00:00:00.000Z",
-                        [_make_participant(1, kills=0), _make_participant(2, kills=0)]),
-            _make_frame("2024-01-01T00:00:03.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=1)]),
-            _make_frame("2024-01-01T00:00:06.000Z",
-                        [_make_participant(1, kills=2), _make_participant(2, kills=2)]),
+            _make_frame(
+                "2024-01-01T00:00:00.000Z",
+                [_make_participant(1, kills=0), _make_participant(2, kills=0)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:03.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=1)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:06.000Z",
+                [_make_participant(1, kills=2), _make_participant(2, kills=2)],
+            ),
         ]
 
         result = detect_multi_kills(frames)
@@ -210,16 +265,24 @@ class TestDetectMultiKills:
     def test_other_players_kills_do_not_contribute_to_streak(self):
         """Player 2 getting kills between player 1's kills doesn't extend player 1's window."""
         frames = [
-            _make_frame("2024-01-01T00:00:00.000Z",
-                        [_make_participant(1, kills=0), _make_participant(2, kills=0)]),
-            _make_frame("2024-01-01T00:00:03.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=0)]),
+            _make_frame(
+                "2024-01-01T00:00:00.000Z",
+                [_make_participant(1, kills=0), _make_participant(2, kills=0)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:03.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=0)],
+            ),
             # Player 2 gets a kill — should NOT help player 1's streak
-            _make_frame("2024-01-01T00:00:08.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=1)]),
+            _make_frame(
+                "2024-01-01T00:00:08.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=1)],
+            ),
             # Player 1's second kill is >10s after their first — no multi-kill
-            _make_frame("2024-01-01T00:00:14.000Z",
-                        [_make_participant(1, kills=2), _make_participant(2, kills=1)]),
+            _make_frame(
+                "2024-01-01T00:00:14.000Z",
+                [_make_participant(1, kills=2), _make_participant(2, kills=1)],
+            ),
         ]
 
         result = detect_multi_kills(frames)
@@ -231,14 +294,22 @@ class TestDetectMultiKills:
     def test_only_own_kills_count_toward_streak(self):
         """A player's streak is based solely on their own kill timestamps."""
         frames = [
-            _make_frame("2024-01-01T00:00:00.000Z",
-                        [_make_participant(1, kills=0), _make_participant(2, kills=0)]),
-            _make_frame("2024-01-01T00:00:03.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=1)]),
-            _make_frame("2024-01-01T00:00:06.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=2)]),
-            _make_frame("2024-01-01T00:00:09.000Z",
-                        [_make_participant(1, kills=1), _make_participant(2, kills=3)]),
+            _make_frame(
+                "2024-01-01T00:00:00.000Z",
+                [_make_participant(1, kills=0), _make_participant(2, kills=0)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:03.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=1)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:06.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=2)],
+            ),
+            _make_frame(
+                "2024-01-01T00:00:09.000Z",
+                [_make_participant(1, kills=1), _make_participant(2, kills=3)],
+            ),
         ]
 
         result = detect_multi_kills(frames)

@@ -19,8 +19,9 @@ def upgrade() -> None:
 
     op.create_table(
         "game_multi_kills",
-        sa.Column("game_id", sa.String(), sa.ForeignKey("games.id", ondelete="CASCADE"),
-                  nullable=False),
+        sa.Column(
+            "game_id", sa.String(), sa.ForeignKey("games.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("participant_id", sa.Integer(), nullable=False),
         sa.Column("kill_number", sa.Integer(), nullable=False),
         sa.Column("kill_type", sa.String(), nullable=False),

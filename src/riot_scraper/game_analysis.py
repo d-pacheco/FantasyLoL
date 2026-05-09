@@ -68,8 +68,10 @@ def detect_multi_kills(frames: list[WindowFrame]) -> list[MultiKill]:
             respawn_cutoff = False
             if streak_len >= 4:
                 respawn_cutoff = _enemy_respawned_between(
-                    frame_data, enemy_pids,
-                    kill_events[i - 1][0], kill_events[i][0],
+                    frame_data,
+                    enemy_pids,
+                    kill_events[i - 1][0],
+                    kill_events[i][0],
                 )
 
             if elapsed > window or respawn_cutoff:
@@ -77,11 +79,13 @@ def detect_multi_kills(frames: list[WindowFrame]) -> list[MultiKill]:
                 if streak_len >= 2:
                     kill_counters[pid] += 1
                     kill_type = MULTI_KILL_NAMES[min(streak_len, 5)]
-                    multi_kills.append(MultiKill(
-                        participant_id=pid,
-                        kill_number=kill_counters[pid],
-                        kill_type=kill_type,
-                    ))
+                    multi_kills.append(
+                        MultiKill(
+                            participant_id=pid,
+                            kill_number=kill_counters[pid],
+                            kill_type=kill_type,
+                        )
+                    )
                 streak_start = i
 
         # Final streak
@@ -89,11 +93,13 @@ def detect_multi_kills(frames: list[WindowFrame]) -> list[MultiKill]:
         if streak_len >= 2:
             kill_counters[pid] += 1
             kill_type = MULTI_KILL_NAMES[min(streak_len, 5)]
-            multi_kills.append(MultiKill(
-                participant_id=pid,
-                kill_number=kill_counters[pid],
-                kill_type=kill_type,
-            ))
+            multi_kills.append(
+                MultiKill(
+                    participant_id=pid,
+                    kill_number=kill_counters[pid],
+                    kill_type=kill_type,
+                )
+            )
 
     return multi_kills
 
@@ -134,19 +140,23 @@ def detect_dragon_order(
         curr_blue = frame.blueTeam.dragons
         curr_red = frame.redTeam.dragons
 
-        for dragon_type in curr_blue[len(prev_blue):]:
-            results.append(DragonKill(
-                dragon_number=len(results) + 1,
-                team_id=blue_team_id,
-                dragon_type=dragon_type,
-            ))
+        for dragon_type in curr_blue[len(prev_blue) :]:
+            results.append(
+                DragonKill(
+                    dragon_number=len(results) + 1,
+                    team_id=blue_team_id,
+                    dragon_type=dragon_type,
+                )
+            )
 
-        for dragon_type in curr_red[len(prev_red):]:
-            results.append(DragonKill(
-                dragon_number=len(results) + 1,
-                team_id=red_team_id,
-                dragon_type=dragon_type,
-            ))
+        for dragon_type in curr_red[len(prev_red) :]:
+            results.append(
+                DragonKill(
+                    dragon_number=len(results) + 1,
+                    team_id=red_team_id,
+                    dragon_type=dragon_type,
+                )
+            )
 
         prev_blue = curr_blue
         prev_red = curr_red
@@ -190,8 +200,8 @@ def compute_duration(frames: list[WindowFrame]) -> int:
 
     total_pause = timedelta()
     for pause_start, pause_end in pauses:
-        total_pause += (
-            TimestampUtil.parse_rfc3339(pause_end) - TimestampUtil.parse_rfc3339(pause_start)
+        total_pause += TimestampUtil.parse_rfc3339(pause_end) - TimestampUtil.parse_rfc3339(
+            pause_start
         )
 
     effective = end_dt - start_dt - total_pause

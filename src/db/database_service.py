@@ -228,6 +228,7 @@ class DatabaseService:
     def get_pending_analysis_game_ids(self, limit: int = 5) -> list[RiotGameID]:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameModel
+
             rows = (
                 db.query(GameModel.id)
                 .filter(GameModel.frames_status == "pending")
@@ -239,6 +240,7 @@ class DatabaseService:
     def update_frames_status(self, game_id: RiotGameID, status: str) -> None:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameModel
+
             game = db.query(GameModel).filter(GameModel.id == game_id).first()
             if game:
                 game.frames_status = status
@@ -247,6 +249,7 @@ class DatabaseService:
     def update_game_duration(self, game_id: RiotGameID, duration_seconds: int) -> None:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameModel
+
             game = db.query(GameModel).filter(GameModel.id == game_id).first()
             if game:
                 game.duration_seconds = duration_seconds
@@ -257,6 +260,7 @@ class DatabaseService:
     ) -> None:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameMultiKillsModel
+
             row = GameMultiKillsModel(
                 game_id=game_id,
                 participant_id=participant_id,
@@ -269,9 +273,10 @@ class DatabaseService:
     def get_game_multi_kills(self, game_id: RiotGameID) -> list:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameMultiKillsModel
-            return db.query(GameMultiKillsModel).filter(
-                GameMultiKillsModel.game_id == game_id
-            ).all()
+
+            return (
+                db.query(GameMultiKillsModel).filter(GameMultiKillsModel.game_id == game_id).all()
+            )
 
     def put_league(self, league: League) -> None:
         with self.connection_provider.get_db() as db:

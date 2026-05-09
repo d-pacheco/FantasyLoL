@@ -91,7 +91,9 @@ def fetch_all_frames(game_id: str) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Dump all frames of a game to JSON")
     parser.add_argument("game_id", help="Riot esports game ID")
-    parser.add_argument("-o", "--output", default=None, help="Output file (default: {game_id}_frames.json)")
+    parser.add_argument(
+        "-o", "--output", default=None, help="Output file (default: {game_id}_frames.json)"
+    )
     args = parser.parse_args()
 
     output_file = args.output or f"{args.game_id}_frames.json"

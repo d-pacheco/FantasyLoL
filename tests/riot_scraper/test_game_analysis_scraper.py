@@ -22,8 +22,15 @@ from src.riot_scraper.scrapers.game_analysis_scraper import GameAnalysisScraper
 
 def _make_participant_frame(pid, kills=0, health=100):
     return ParticipantWindowFrame(
-        participantId=pid, totalGold=1000, level=6, kills=kills,
-        deaths=0, assists=0, creepScore=100, currentHealth=health, maxHealth=100,
+        participantId=pid,
+        totalGold=1000,
+        level=6,
+        kills=kills,
+        deaths=0,
+        assists=0,
+        creepScore=100,
+        currentHealth=health,
+        maxHealth=100,
     )
 
 
@@ -37,18 +44,24 @@ def _make_window_response(game_id, frames):
                 esportsTeamId=riot_fixtures.team_2_fixture.id,
                 participantMetadata=[
                     ParticipantMetadata(
-                        participantId=i, summonerName=f"Blue{i}",
-                        championId="Ahri", role=PlayerRole.MID,
-                    ) for i in range(1, 6)
+                        participantId=i,
+                        summonerName=f"Blue{i}",
+                        championId="Ahri",
+                        role=PlayerRole.MID,
+                    )
+                    for i in range(1, 6)
                 ],
             ),
             redTeamMetadata=TeamMetaData(
                 esportsTeamId=riot_fixtures.team_1_fixture.id,
                 participantMetadata=[
                     ParticipantMetadata(
-                        participantId=i, summonerName=f"Red{i}",
-                        championId="Zed", role=PlayerRole.MID,
-                    ) for i in range(6, 11)
+                        participantId=i,
+                        summonerName=f"Red{i}",
+                        championId="Zed",
+                        role=PlayerRole.MID,
+                    )
+                    for i in range(6, 11)
                 ],
             ),
         ),
@@ -56,8 +69,14 @@ def _make_window_response(game_id, frames):
     )
 
 
-def _make_frame(timestamp, state=LiveGameState.IN_GAME, blue_kills=None, red_kills=None,
-                blue_dragons=None, red_dragons=None):
+def _make_frame(
+    timestamp,
+    state=LiveGameState.IN_GAME,
+    blue_kills=None,
+    red_kills=None,
+    blue_dragons=None,
+    red_dragons=None,
+):
     if blue_kills is None:
         blue_kills = [0] * 5
     if red_kills is None:
@@ -66,12 +85,20 @@ def _make_frame(timestamp, state=LiveGameState.IN_GAME, blue_kills=None, red_kil
         rfc460Timestamp=timestamp,
         gameState=state,
         blueTeam=TeamWindowFrame(
-            totalGold=5000, inhibitors=0, towers=0, barons=0, totalKills=sum(blue_kills),
+            totalGold=5000,
+            inhibitors=0,
+            towers=0,
+            barons=0,
+            totalKills=sum(blue_kills),
             dragons=blue_dragons or [],
             participants=[_make_participant_frame(i + 1, kills=blue_kills[i]) for i in range(5)],
         ),
         redTeam=TeamWindowFrame(
-            totalGold=5000, inhibitors=0, towers=0, barons=0, totalKills=sum(red_kills),
+            totalGold=5000,
+            inhibitors=0,
+            towers=0,
+            barons=0,
+            totalKills=sum(red_kills),
             dragons=red_dragons or [],
             participants=[_make_participant_frame(i + 6, kills=red_kills[i]) for i in range(5)],
         ),
@@ -94,6 +121,7 @@ class TestGameAnalysisScraper(TestBase):
 
     def _create_pending_game(self, game_id="game-analysis-001"):
         from src.common.schemas.riot_data_schemas import Game
+
         game = Game(
             id=RiotGameID(game_id),
             state=GameState.COMPLETED,
@@ -114,9 +142,12 @@ class TestGameAnalysisScraper(TestBase):
         frames = [
             _make_frame("2024-01-01T00:00:00.000Z"),
             _make_frame("2024-01-01T00:00:05.000Z", blue_kills=[1, 0, 0, 0, 0]),
-            _make_frame("2024-01-01T00:00:10.000Z", blue_kills=[2, 0, 0, 0, 0],
-                        blue_dragons=["infernal"],
-                        state=LiveGameState.FINISHED),
+            _make_frame(
+                "2024-01-01T00:00:10.000Z",
+                blue_kills=[2, 0, 0, 0, 0],
+                blue_dragons=["infernal"],
+                state=LiveGameState.FINISHED,
+            ),
         ]
 
         # API returns all frames in one window call, then None for subsequent
@@ -134,6 +165,7 @@ class TestGameAnalysisScraper(TestBase):
 
         # Verify duration was persisted
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual("completed", gm.frames_status)
@@ -158,6 +190,7 @@ class TestGameAnalysisScraper(TestBase):
         self.scraper.analyze_games()
 
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual("unavailable", gm.frames_status)
@@ -177,6 +210,7 @@ class TestGameAnalysisScraper(TestBase):
     def test_frames_status_set_to_pending_when_game_completes(self):
         """When a game transitions to COMPLETED, frames_status should be set to pending."""
         from src.common.schemas.riot_data_schemas import Game
+
         game_id = RiotGameID("game-lifecycle-001")
         game = Game(
             id=game_id,
@@ -194,6 +228,7 @@ class TestGameAnalysisScraper(TestBase):
         self.db.update_frames_status(game_id, "pending")
 
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual("pending", gm.frames_status)
@@ -201,6 +236,7 @@ class TestGameAnalysisScraper(TestBase):
     def test_frames_status_set_to_unavailable_when_details_unavailable(self):
         """When game has details_status=unavailable, frames_status should be unavailable."""
         from src.common.schemas.riot_data_schemas import Game
+
         game_id = RiotGameID("game-lifecycle-002")
         game = Game(
             id=game_id,
@@ -215,6 +251,7 @@ class TestGameAnalysisScraper(TestBase):
 
         # When details_status is "unavailable", frames_status should also be unavailable
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual("unavailable", gm.details_status)
@@ -243,9 +280,7 @@ class TestGameAnalysisScraper(TestBase):
         mock_api = MagicMock()
         # Simulate API returning game as completed
         mock_response = MagicMock()
-        mock_response.data.games = [
-            GetGamesResponseSchema(id=game_id, state=GameState.COMPLETED)
-        ]
+        mock_response.data.games = [GetGamesResponseSchema(id=game_id, state=GameState.COMPLETED)]
         mock_api.get_games.return_value = mock_response
 
         scraper = RiotGameScraper(
@@ -255,10 +290,11 @@ class TestGameAnalysisScraper(TestBase):
         )
 
         # Patch get_games_to_check_state to return our game
-        with patch.object(self.db, 'get_games_to_check_state', return_value=[game_id]):
+        with patch.object(self.db, "get_games_to_check_state", return_value=[game_id]):
             scraper.update_game_states_job()
 
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual(GameState.COMPLETED, gm.state)

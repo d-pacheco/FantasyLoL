@@ -67,9 +67,17 @@ def detect_multi_kills(frames: list[dict], start_idx: int, metadata: dict) -> li
     # Build participant info lookup
     participants = {}
     for p in metadata["blueTeamMetadata"]["participantMetadata"]:
-        participants[p["participantId"]] = {"name": p["summonerName"], "champion": p["championId"], "team": "blue"}
+        participants[p["participantId"]] = {
+            "name": p["summonerName"],
+            "champion": p["championId"],
+            "team": "blue",
+        }
     for p in metadata["redTeamMetadata"]["participantMetadata"]:
-        participants[p["participantId"]] = {"name": p["summonerName"], "champion": p["championId"], "team": "red"}
+        participants[p["participantId"]] = {
+            "name": p["summonerName"],
+            "champion": p["championId"],
+            "team": "red",
+        }
 
     # Collect kill events (timestamp when a player's kill count increments)
     kill_events = []  # (timestamp_dt, killer_id)
@@ -147,16 +155,18 @@ def detect_multi_kills(frames: list[dict], start_idx: int, metadata: dict) -> li
 
         if len(streak) >= 2:
             names = {2: "Double Kill", 3: "Triple Kill", 4: "Quadra Kill", 5: "Penta Kill"}
-            multi_kills.append({
-                "type": names.get(len(streak), f"{len(streak)}-kill"),
-                "player": participants[killer_id]["name"],
-                "champion": participants[killer_id]["champion"],
-                "team": participants[killer_id]["team"],
-                "kill_count": len(streak),
-                "start_time": streak[0][0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                "end_time": streak[-1][0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                "window_seconds": round((streak[-1][0] - streak[0][0]).total_seconds(), 1),
-            })
+            multi_kills.append(
+                {
+                    "type": names.get(len(streak), f"{len(streak)}-kill"),
+                    "player": participants[killer_id]["name"],
+                    "champion": participants[killer_id]["champion"],
+                    "team": participants[killer_id]["team"],
+                    "kill_count": len(streak),
+                    "start_time": streak[0][0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "end_time": streak[-1][0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "window_seconds": round((streak[-1][0] - streak[0][0]).total_seconds(), 1),
+                }
+            )
             # Skip past the kills we already counted for this player
             i = j
         else:
@@ -175,22 +185,26 @@ def track_dragons(frames: list[dict], start_idx: int) -> dict:
         bd = f["blueTeam"]["dragons"]
         rd = f["redTeam"]["dragons"]
         if bd != last_blue:
-            dragon_events.append({
-                "order": len(dragon_events) + 1,
-                "team": "blue",
-                "dragon_type": bd[-1],
-                "timestamp": f["rfc460Timestamp"],
-                "team_dragon_count": len(bd),
-            })
+            dragon_events.append(
+                {
+                    "order": len(dragon_events) + 1,
+                    "team": "blue",
+                    "dragon_type": bd[-1],
+                    "timestamp": f["rfc460Timestamp"],
+                    "team_dragon_count": len(bd),
+                }
+            )
             last_blue = bd
         if rd != last_red:
-            dragon_events.append({
-                "order": len(dragon_events) + 1,
-                "team": "red",
-                "dragon_type": rd[-1],
-                "timestamp": f["rfc460Timestamp"],
-                "team_dragon_count": len(rd),
-            })
+            dragon_events.append(
+                {
+                    "order": len(dragon_events) + 1,
+                    "team": "red",
+                    "dragon_type": rd[-1],
+                    "timestamp": f["rfc460Timestamp"],
+                    "team_dragon_count": len(rd),
+                }
+            )
             last_red = rd
 
     # Determine dragon soul (4th dragon for a team)
@@ -235,8 +249,10 @@ def main():
     multi_kills = detect_multi_kills(frames, start_idx, metadata)
     print(f"MULTI-KILLS: {len(multi_kills)} detected")
     for mk in multi_kills:
-        print(f"  {mk['type']} - {mk['player']} ({mk['champion']}, {mk['team']}) "
-              f"over {mk['window_seconds']}s")
+        print(
+            f"  {mk['type']} - {mk['player']} ({mk['champion']}, {mk['team']}) "
+            f"over {mk['window_seconds']}s"
+        )
     print()
 
     # 3. Dragons
@@ -250,7 +266,9 @@ def main():
         print(f"  Dragon Soul: {ds['dragon_type']} ({ds['team']} team)")
     print("  Order:")
     for e in dragons["events"]:
-        print(f"    {e['order']}. {e['dragon_type']} - {e['team']} (team total: {e['team_dragon_count']})")
+        print(
+            f"    {e['order']}. {e['dragon_type']} - {e['team']} (team total: {e['team_dragon_count']})"
+        )
 
 
 if __name__ == "__main__":
