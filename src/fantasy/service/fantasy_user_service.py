@@ -115,7 +115,7 @@ class UserService:
             time.sleep(2)
             raise InvalidUsernameOrPasswordException()
 
-        return sign_jwt(user.id, user.get_permissions())
+        return sign_jwt(user.id, user.get_permissions(), user.username)
 
     def delete_user(self, user_id: UserID) -> None:
         self.db.update_user_account_status(user_id, UserAccountStatus.DELETED)

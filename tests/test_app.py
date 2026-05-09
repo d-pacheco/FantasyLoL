@@ -21,7 +21,7 @@ def make_client():
             if isinstance(dep.dependency, JWTBearer):
                 app.dependency_overrides[dep.dependency] = lambda: test_principal
     # Also override for parameter-level Depends
-    token_data = sign_jwt(TEST_USER_ID, ALL_PERMISSIONS)
+    token_data = sign_jwt(TEST_USER_ID, ALL_PERMISSIONS, "test-user")
     auth_header = {"Authorization": f"Bearer {token_data['access_token']}"}
     return TestClient(app), mock_db, auth_header
 

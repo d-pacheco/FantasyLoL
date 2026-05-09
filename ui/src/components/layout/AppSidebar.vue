@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutDashboard,
   Trophy,
@@ -10,8 +10,13 @@ import {
   Flame,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-vue-next'
 import { useLayoutState } from '../../composables/useLayoutState'
+import { useAuthStore } from '../../stores/auth'
+
+const auth = useAuthStore()
+const router = useRouter()
 
 const { isCollapsed, toggle } = useLayoutState()
 const route = useRoute()
@@ -77,9 +82,16 @@ function isActive(to: string) {
     <div class="p-3 shrink-0 border-t border-border-subtle">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white bg-primary">
-          S
+          {{ auth.username?.charAt(0).toUpperCase() ?? '?' }}
         </div>
-        <p v-if="!isCollapsed" class="text-sm font-medium truncate text-foreground">Summoner42</p>
+        <p v-if="!isCollapsed" class="text-sm font-medium truncate text-foreground flex-1 min-w-0">{{ auth.username }}</p>
+        <button
+          :title="isCollapsed ? 'Logout' : undefined"
+          class="p-1.5 rounded-md text-foreground-muted hover:bg-surface-elevated hover:text-foreground shrink-0"
+          @click="auth.logout(); router.push('/login')"
+        >
+          <LogOut class="w-4 h-4" />
+        </button>
       </div>
     </div>
   </aside>
