@@ -7,7 +7,6 @@ from src.common.schemas.riot_data_schemas import (
     ProfessionalPlayer,
     PlayerRole,
     ProPlayerID,
-    ProTeamID,
 )
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.riot.service import RiotProfessionalPlayerService
@@ -36,10 +35,14 @@ class ProfessionalPlayerEndpoint(Routable):
         self,
         summoner_name: str = Query(None, description="Filter by players summoner name"),
         role: PlayerRole = Depends(validate_role_parameter),
-        team_id: ProTeamID = Query(None, description="Filter by players team id"),
+        team_name: str = Query(None, description="Filter by team name (partial, case-insensitive)"),
+        fantasy_available: bool = Query(None, description="Filter by fantasy league availability"),
     ) -> Page[ProfessionalPlayer]:
         search_params = PlayerSearchParameters(
-            summoner_name=summoner_name, role=role, team_id=team_id
+            summoner_name=summoner_name,
+            role=role,
+            team_name=team_name,
+            fantasy_available=fantasy_available,
         )
         players = self.__player_service.get_players(search_params)
         return paginate(players)

@@ -6,7 +6,6 @@ from .riot_data_schemas import (
     RiotMatchID,
     RiotTournamentID,
     ProPlayerID,
-    ProTeamID,
     PlayerRole,
     TournamentStatus,
 )
@@ -15,7 +14,8 @@ from .riot_data_schemas import (
 class PlayerSearchParameters(BaseModel):
     summoner_name: str | None = None
     role: PlayerRole | None = None
-    team_id: ProTeamID | None = None
+    team_name: str | None = None
+    fantasy_available: bool | None = None
 
 
 class GameSearchParameters(BaseModel):
