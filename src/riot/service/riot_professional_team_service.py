@@ -44,6 +44,8 @@ class RiotProfessionalTeamService:
             filters.append(LeagueModel.fantasy_available == search_parameters.fantasy_available)
         if search_parameters.active_only:
             filters.append(ProfessionalTeamModel.status == "active")
+        if search_parameters.has_players:
+            filters.append(ProfessionalTeamModel.id.in_(self.db.get_team_ids_with_players()))
 
         return self.db.get_teams(filters, join_league=join_league)
 

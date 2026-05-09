@@ -19,6 +19,7 @@ export interface TeamParams {
   search?: string
   fantasy_available?: boolean
   active_only?: boolean
+  has_players?: boolean
 }
 
 export interface MatchParams {

@@ -31,6 +31,7 @@ class ProfessionalTeamEndpoint(Routable):
         search: str = Query(None, description="Search by name or code (case-insensitive)"),
         fantasy_available: bool = Query(None, description="Filter by fantasy league availability"),
         active_only: bool = Query(True, description="Only return active teams"),
+        has_players: bool = Query(None, description="Only return teams that have players"),
     ) -> Page[ProfessionalTeam]:
         search_parameters = TeamSearchParameters(
             slug=slug,
@@ -41,6 +42,7 @@ class ProfessionalTeamEndpoint(Routable):
             search=search,
             fantasy_available=fantasy_available,
             active_only=active_only,
+            has_players=has_players,
         )
         teams = self.__team_service.get_teams(search_parameters)
         return paginate(teams)

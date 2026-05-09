@@ -314,6 +314,13 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return team_dao.get_team_by_id(db, team_id)
 
+    def get_team_ids_with_players(self) -> list[str]:
+        with self.connection_provider.get_db() as db:
+            from src.db.models import ProfessionalPlayerModel
+
+            rows = db.query(ProfessionalPlayerModel.team_id).distinct().all()
+            return [row[0] for row in rows]
+
     def put_tournament(self, tournament: Tournament) -> None:
         with self.connection_provider.get_db() as db:
             tournament_dao.put_tournament(db, tournament)

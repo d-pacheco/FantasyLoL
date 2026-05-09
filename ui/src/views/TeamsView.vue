@@ -12,6 +12,7 @@ const filters = computed(() => ({
   search: search.value || undefined,
   fantasy_available: true,
   active_only: true,
+  has_players: true,
 }))
 
 const { data: teams, loading, error, totalPages, currentPage } = usePaginatedQuery(getTeams, filters)
