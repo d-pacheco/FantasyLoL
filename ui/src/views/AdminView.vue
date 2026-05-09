@@ -42,43 +42,37 @@ async function triggerAll() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-900">
-    <nav class="flex items-center justify-between border-b border-gray-700 px-6 py-4">
-      <h1 class="text-xl font-bold text-white">MythicForge Admin</h1>
-      <RouterLink to="/" class="text-sm text-gray-400 hover:text-white">← Back</RouterLink>
-    </nav>
-    <main class="mx-auto max-w-2xl p-6">
-      <h2 class="mb-6 text-lg font-semibold text-white">Scraper Job Triggers</h2>
+  <div class="mx-auto max-w-2xl">
+    <h2 class="mb-6 text-lg font-semibold text-foreground">Scraper Job Triggers</h2>
 
-      <button
-        class="mb-6 w-full rounded bg-indigo-600 px-4 py-3 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
-        :disabled="triggeringAll"
-        @click="triggerAll"
+    <button
+      class="mb-6 w-full rounded-lg bg-primary px-4 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+      :disabled="triggeringAll"
+      @click="triggerAll"
+    >
+      {{ triggeringAll ? 'Triggering all...' : 'Trigger All Jobs' }}
+    </button>
+
+    <div class="space-y-3">
+      <div
+        v-for="job in jobs"
+        :key="job.name"
+        class="flex items-center justify-between rounded-lg bg-surface px-4 py-3"
       >
-        {{ triggeringAll ? 'Triggering all...' : 'Trigger All Jobs' }}
-      </button>
-
-      <div class="space-y-3">
-        <div
-          v-for="job in jobs"
-          :key="job.name"
-          class="flex items-center justify-between rounded bg-gray-800 px-4 py-3"
-        >
-          <span class="text-white">{{ job.label }}</span>
-          <div class="flex items-center gap-3">
-            <span v-if="results[job.name]" class="text-sm text-gray-400">
-              {{ results[job.name] }}
-            </span>
-            <button
-              class="rounded bg-gray-700 px-3 py-1 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-50"
-              :disabled="loading[job.name]"
-              @click="triggerJob(job.name)"
-            >
-              {{ loading[job.name] ? '...' : 'Trigger' }}
-            </button>
-          </div>
+        <span class="text-foreground">{{ job.label }}</span>
+        <div class="flex items-center gap-3">
+          <span v-if="results[job.name]" class="text-sm text-foreground-muted">
+            {{ results[job.name] }}
+          </span>
+          <button
+            class="rounded-lg bg-surface-elevated px-3 py-1 text-sm text-foreground-muted hover:text-foreground disabled:opacity-50"
+            :disabled="loading[job.name]"
+            @click="triggerJob(job.name)"
+          >
+            {{ loading[job.name] ? '...' : 'Trigger' }}
+          </button>
         </div>
       </div>
-    </main>
+    </div>
   </div>
 </template>
