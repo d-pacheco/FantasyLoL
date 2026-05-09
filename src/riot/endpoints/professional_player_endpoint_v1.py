@@ -37,12 +37,14 @@ class ProfessionalPlayerEndpoint(Routable):
         role: PlayerRole = Depends(validate_role_parameter),
         team_name: str = Query(None, description="Filter by team name (partial, case-insensitive)"),
         fantasy_available: bool = Query(None, description="Filter by fantasy league availability"),
+        active_only: bool = Query(True, description="Only return players on active teams"),
     ) -> Page[ProfessionalPlayer]:
         search_params = PlayerSearchParameters(
             summoner_name=summoner_name,
             role=role,
             team_name=team_name,
             fantasy_available=fantasy_available,
+            active_only=active_only,
         )
         players = self.__player_service.get_players(search_params)
         return paginate(players)

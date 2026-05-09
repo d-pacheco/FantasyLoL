@@ -16,6 +16,7 @@ class PlayerSearchParameters(BaseModel):
     role: PlayerRole | None = None
     team_name: str | None = None
     fantasy_available: bool | None = None
+    active_only: bool = True
 
 
 class GameSearchParameters(BaseModel):

@@ -29,6 +29,10 @@ class RiotProfessionalPlayerService:
 
             join_league = True
             filters.append(LeagueModel.fantasy_available == search_parameters.fantasy_available)
+        if search_parameters.active_only:
+            from src.db.models import ProfessionalTeamModel as TeamModel
+
+            filters.append(TeamModel.status == "active")
 
         professional_players = self.db.get_players(filters, join_league=join_league)
         return professional_players
