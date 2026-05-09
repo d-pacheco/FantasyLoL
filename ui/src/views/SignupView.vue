@@ -54,18 +54,18 @@ async function handleSignup() {
 </script>
 
 <template>
-  <main class="flex min-h-screen items-center justify-center bg-gray-900">
+  <main class="flex min-h-screen items-center justify-center bg-background">
     <form
-      class="w-full max-w-sm rounded-lg bg-gray-800 p-8 shadow-lg"
+      class="w-full max-w-sm rounded-xl bg-surface p-8 shadow-lg border border-border-subtle"
       @submit.prevent="handleSignup"
     >
-      <h1 class="mb-6 text-center text-2xl font-bold text-white">Create Account</h1>
+      <h1 class="mb-6 text-center text-2xl font-bold text-foreground">Create Account</h1>
 
-      <p v-if="auth.error" class="mb-4 rounded bg-red-900/50 p-2 text-sm text-red-300">
+      <p v-if="auth.error" class="mb-4 rounded-lg bg-danger/10 border border-danger/25 p-2 text-sm text-danger">
         {{ auth.error }}
       </p>
 
-      <label for="username" class="mb-1 block text-sm text-gray-300">Username</label>
+      <label for="username" class="mb-1 block text-sm text-foreground-muted">Username</label>
       <input
         id="username"
         v-model="username"
@@ -74,29 +74,29 @@ async function handleSignup() {
         minlength="3"
         maxlength="32"
         autocomplete="username"
-        class="mb-1 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none"
+        class="mb-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none"
       />
-      <p v-if="usernameError" class="mb-4 text-sm text-red-400">{{ usernameError }}</p>
+      <p v-if="usernameError" class="mb-4 text-sm text-danger">{{ usernameError }}</p>
       <div v-else class="mb-4" />
 
-      <label for="email" class="mb-1 block text-sm text-gray-300">Email</label>
+      <label for="email" class="mb-1 block text-sm text-foreground-muted">Email</label>
       <input
         id="email"
         v-model="email"
         type="email"
         required
         autocomplete="email"
-        class="mb-4 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none"
+        class="mb-4 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none"
       />
 
-      <label for="password" class="mb-1 block text-sm text-gray-300">Password</label>
+      <label for="password" class="mb-1 block text-sm text-foreground-muted">Password</label>
       <div class="mb-1">
         <PasswordInput id="password" v-model="password" autocomplete="new-password" :minlength="8" />
       </div>
-      <p v-if="passwordError" class="mb-4 text-sm text-red-400">{{ passwordError }}</p>
+      <p v-if="passwordError" class="mb-4 text-sm text-danger">{{ passwordError }}</p>
       <div v-else class="mb-4" />
 
-      <label for="confirmPassword" class="mb-1 block text-sm text-gray-300">Confirm Password</label>
+      <label for="confirmPassword" class="mb-1 block text-sm text-foreground-muted">Confirm Password</label>
       <div class="mb-1">
         <PasswordInput
           id="confirmPassword"
@@ -106,20 +106,20 @@ async function handleSignup() {
           :has-error="passwordMismatch"
         />
       </div>
-      <p v-if="passwordMismatch" class="mb-4 text-sm text-red-400">Passwords do not match</p>
+      <p v-if="passwordMismatch" class="mb-4 text-sm text-danger">Passwords do not match</p>
       <div v-else class="mb-4" />
 
       <button
         type="submit"
         :disabled="loading || !formValid"
-        class="w-full rounded bg-indigo-600 py-2 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+        class="w-full rounded-lg bg-primary py-2 font-semibold text-white hover:bg-primary-hover disabled:opacity-50 transition-colors"
       >
         {{ loading ? 'Creating account...' : 'Sign Up' }}
       </button>
 
-      <p class="mt-4 text-center text-sm text-gray-400">
+      <p class="mt-4 text-center text-sm text-foreground-muted">
         Already have an account?
-        <RouterLink to="/login" class="text-indigo-400 hover:underline">Sign in</RouterLink>
+        <RouterLink to="/login" class="text-primary hover:underline">Sign in</RouterLink>
       </p>
     </form>
   </main>

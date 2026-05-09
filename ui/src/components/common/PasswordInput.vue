@@ -25,13 +25,13 @@ const visible = ref(false)
       required
       :minlength="minlength"
       :autocomplete="autocomplete"
-      class="w-full rounded border bg-gray-700 px-3 py-2 pr-10 text-white placeholder-gray-400 focus:outline-none"
-      :class="hasError ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-indigo-500'"
+      class="w-full rounded-lg border bg-surface-elevated px-3 py-2 pr-10 text-foreground placeholder-foreground-muted focus:outline-none"
+      :class="hasError ? 'border-danger focus:border-danger' : 'border-border focus:border-primary'"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
     <button
       type="button"
-      class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200"
+      class="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground-muted hover:text-foreground"
       :aria-label="visible ? 'Hide password' : 'Show password'"
       @click="visible = !visible"
     >
