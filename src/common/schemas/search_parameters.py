@@ -46,6 +46,10 @@ class TeamSearchParameters(BaseModel):
     code: str | None = None
     status: str | None = None
     league: str | None = None
+    search: str | None = None
+    fantasy_available: bool | None = None
+    active_only: bool = True
+    has_players: bool | None = None
 
 
 class TournamentSearchParameters(BaseModel):
