@@ -10,8 +10,3 @@ def put_game_dragon(session, dragon: GameDragons) -> None:
 def get_game_dragons(session, game_id: RiotGameID) -> list[GameDragons]:
     rows = session.query(GameDragonsModel).filter(GameDragonsModel.game_id == game_id).all()
     return [GameDragons.model_validate(row) for row in rows]
-
-
-def delete_game_dragons(session, game_id: RiotGameID) -> None:
-    session.query(GameDragonsModel).filter(GameDragonsModel.game_id == game_id).delete()
-    session.commit()

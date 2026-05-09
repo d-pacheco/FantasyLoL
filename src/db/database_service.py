@@ -225,10 +225,6 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return game_dragons_dao.get_game_dragons(db, game_id)
 
-    def delete_game_dragons(self, game_id: RiotGameID) -> None:
-        with self.connection_provider.get_db() as db:
-            game_dragons_dao.delete_game_dragons(db, game_id)
-
     def get_pending_analysis_game_ids(self, limit: int = 5) -> list[RiotGameID]:
         with self.connection_provider.get_db() as db:
             from src.db.models import GameModel
