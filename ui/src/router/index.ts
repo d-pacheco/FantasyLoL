@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import AppLayout from '../components/layout/AppLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,13 +19,44 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'dashboard',
-      component: () => import('../views/DashboardView.vue'),
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      component: () => import('../views/AdminView.vue'),
+      component: AppLayout,
+      children: [
+        {
+          path: '',
+          name: 'dashboard',
+          component: () => import('../views/DashboardView.vue'),
+        },
+        {
+          path: 'leagues',
+          name: 'leagues',
+          component: () => import('../views/LeaguesView.vue'),
+        },
+        {
+          path: 'players',
+          name: 'players',
+          component: () => import('../views/PlayersView.vue'),
+        },
+        {
+          path: 'teams',
+          name: 'teams',
+          component: () => import('../views/TeamsView.vue'),
+        },
+        {
+          path: 'matches',
+          name: 'matches',
+          component: () => import('../views/MatchesView.vue'),
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('../views/SettingsView.vue'),
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          component: () => import('../views/AdminView.vue'),
+        },
+      ],
     },
   ],
 })
