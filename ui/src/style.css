@@ -1,1 +1,37 @@
 @import 'tailwindcss';
+@import '@fontsource/inter/latin.css';
+
+@theme {
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-elevated: #334155;
+  --color-border-subtle: #334155;
+  --color-border: #475569;
+
+  --color-foreground: #f1f5f9;
+  --color-foreground-muted: #94a3b8;
+
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-accent: #f59e0b;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-live: #ef4444;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+html {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
