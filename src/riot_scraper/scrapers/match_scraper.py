@@ -102,7 +102,14 @@ class RiotMatchScraper:
                 self.db.update_match_has_games(match_id, False)
                 continue
             event = response.data.event
-            teams = [DetailTeam(team_id=t.id, team_code=t.code) for t in event.match.teams]
+            teams = [
+                DetailTeam(
+                    team_id=t.id,
+                    team_code=t.code,
+                    game_wins=t.result.gameWins if t.result else None,
+                )
+                for t in event.match.teams
+            ]
             games = [DetailGame(id=g.id, state=g.state, number=g.number) for g in event.match.games]
             details = MatchDetails(
                 match_id=match_id,
@@ -120,7 +127,14 @@ class RiotMatchScraper:
             if response is None:
                 continue
             event = response.data.event
-            teams = [DetailTeam(team_id=t.id, team_code=t.code) for t in event.match.teams]
+            teams = [
+                DetailTeam(
+                    team_id=t.id,
+                    team_code=t.code,
+                    game_wins=t.result.gameWins if t.result else None,
+                )
+                for t in event.match.teams
+            ]
             games = [DetailGame(id=g.id, state=g.state, number=g.number) for g in event.match.games]
             details = MatchDetails(
                 match_id=match_id,
@@ -132,5 +146,6 @@ class RiotMatchScraper:
             self.db.save_from_details(details)
 
             # Infer match state from game states
-            if games and all(g.state == GameState.COMPLETED for g in games):
+            terminal_states = {GameState.COMPLETED, GameState.UNNEEDED}
+            if games and all(g.state in terminal_states for g in games):
                 self.db.update_match_state(match_id, MatchState.COMPLETED)

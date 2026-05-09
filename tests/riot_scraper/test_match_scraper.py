@@ -338,3 +338,342 @@ class TestRiotMatchScraper(TestBase):
         self.assertIsNotNone(result)
         ids_without_games = self.db.get_ids_without_games()
         self.assertNotIn(RiotMatchID("e2e-001"), ids_without_games)
+
+    def test_refresh_stale_events_marks_match_completed_with_unneeded_games(self):
+        """A Bo3 won 2-0 has game 3 as 'unneeded' — match should still be COMPLETED."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+            TeamResult,
+        )
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("bo3-match-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.INPROGRESS,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        # API returns 2 completed + 1 unneeded
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("bo3-match-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=3),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=TeamResult(gameWins=2),
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=TeamResult(gameWins=0),
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("g1"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=2,
+                                id=RiotGameID("g2"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=3,
+                                id=RiotGameID("g3"),
+                                state=GameState.UNNEEDED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        result = self.db.get_match_by_id(RiotMatchID("bo3-match-001"))
+        self.assertEqual(MatchState.COMPLETED, result.state)
+
+    def test_save_from_details_sets_frames_status_pending_for_completed_games(self):
+        """When save_from_details writes a game as completed, frames_status should be pending."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+            TeamResult,
+        )
+        from src.db.models import GameModel
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("frames-test-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=1,
+                state=MatchState.INPROGRESS,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("frames-test-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=1),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=TeamResult(gameWins=1),
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=TeamResult(gameWins=0),
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("frames-g1"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        with self.db_provider.get_db() as session:
+            gm = session.query(GameModel).filter(GameModel.id == "frames-g1").first()
+            self.assertIsNotNone(gm)
+            self.assertEqual("pending", gm.frames_status)
+
+    def test_refresh_stale_events_updates_game_wins_and_outcome(self):
+        """After a match completes, event_teams should have game_wins and outcome updated."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+            TeamResult,
+        )
+        from src.db.models import EventTeamsModel
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("wins-test-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.INPROGRESS,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("wins-test-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=3),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=TeamResult(gameWins=2),
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=TeamResult(gameWins=1),
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("wg1"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=2,
+                                id=RiotGameID("wg2"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=3,
+                                id=RiotGameID("wg3"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        with self.db_provider.get_db() as session:
+            ta = (
+                session.query(EventTeamsModel)
+                .filter(
+                    EventTeamsModel.match_id == "wins-test-001",
+                    EventTeamsModel.team_code == "TA",
+                )
+                .first()
+            )
+            tb = (
+                session.query(EventTeamsModel)
+                .filter(
+                    EventTeamsModel.match_id == "wins-test-001",
+                    EventTeamsModel.team_code == "TB",
+                )
+                .first()
+            )
+            self.assertEqual(2, ta.game_wins)
+            self.assertEqual("win", ta.outcome)
+            self.assertEqual(1, tb.game_wins)
+            self.assertEqual("loss", tb.outcome)

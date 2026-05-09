@@ -153,16 +153,32 @@ def save_from_details(session, details: MatchDetails) -> None:
             )
             if existing_team is not None:
                 et.team_id = team.team_id
-                session.merge(et)
+            if team.game_wins is not None:
+                et.game_wins = team.game_wins
+                # Derive outcome: team with more wins in a completed match wins
+                max_wins = max((t.game_wins or 0) for t in details.teams)
+                if max_wins > 0:
+                    et.outcome = "win" if team.game_wins == max_wins else "loss"
+            session.merge(et)
 
     for game in details.games:
-        db_game = GameModel(
-            id=game.id,
-            state=game.state,
-            number=game.number,
-            match_id=details.match_id,
-        )
-        session.merge(db_game)
+        existing_game = session.query(GameModel).filter(GameModel.id == game.id).first()
+        if existing_game is not None:
+            existing_game.state = game.state
+            existing_game.number = game.number
+            if game.state == "completed" and existing_game.frames_status is None:
+                if existing_game.details_status != "unavailable":
+                    existing_game.frames_status = "pending"
+            session.merge(existing_game)
+        else:
+            new_game = GameModel(
+                id=game.id,
+                state=game.state,
+                number=game.number,
+                match_id=details.match_id,
+                frames_status="pending" if game.state == "completed" else None,
+            )
+            session.merge(new_game)
 
     session.commit()
 
