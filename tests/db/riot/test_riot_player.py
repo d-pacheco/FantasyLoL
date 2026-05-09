@@ -7,6 +7,7 @@ from src.db.models import ProfessionalPlayerModel
 
 class TestCrudRiotPlayer(TestBase):
     def setUp(self):
+        self.db.put_league(riot_fixtures.league_1_fixture)
         self.db.put_team(riot_fixtures.team_1_fixture)
         self.db.put_team(riot_fixtures.team_2_fixture)
 

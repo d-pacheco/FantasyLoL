@@ -19,7 +19,7 @@ def _player_query(session):
             label("league_name", LeagueModel.name),
         )
         .join(ProfessionalTeamModel, ProfessionalPlayerModel.team_id == ProfessionalTeamModel.id)
-        .join(
+        .outerjoin(
             LeagueModel,
             func.lower(ProfessionalTeamModel.home_league_name) == func.lower(LeagueModel.name),
         )

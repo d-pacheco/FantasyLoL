@@ -135,9 +135,7 @@ class ProfessionalPlayerServiceTest(TestBase):
         expected_player = riot_fixtures.player_1_fixture
         self.db.put_player(expected_player)
         # Search by team code
-        search_parameters = PlayerSearchParameters(
-            team_name=riot_fixtures.team_1_fixture.code
-        )
+        search_parameters = PlayerSearchParameters(team_name=riot_fixtures.team_1_fixture.code)
 
         # Act
         players_from_db = self.professional_player_service.get_players(search_parameters)
