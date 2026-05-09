@@ -26,16 +26,16 @@ export interface MatchParams {
 }
 
 export async function getPlayers(params: PlayerParams = {}): Promise<PaginatedResponse<ProfessionalPlayer>> {
-  const res = await api.get<PaginatedResponse<ProfessionalPlayer>>('/professional-player', { params })
+  const res = await api.get<PaginatedResponse<ProfessionalPlayer>>('/riot/professional-player', { params })
   return res.data
 }
 
 export async function getTeams(params: TeamParams = {}): Promise<PaginatedResponse<ProfessionalTeam>> {
-  const res = await api.get<PaginatedResponse<ProfessionalTeam>>('/professional-team', { params })
+  const res = await api.get<PaginatedResponse<ProfessionalTeam>>('/riot/professional-team', { params })
   return res.data
 }
 
 export async function getMatches(params: MatchParams = {}): Promise<PaginatedResponse<Match>> {
-  const res = await api.get<PaginatedResponse<Match>>('/match', { params })
+  const res = await api.get<PaginatedResponse<Match>>('/riot/match', { params })
   return res.data
 }
