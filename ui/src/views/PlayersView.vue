@@ -118,6 +118,7 @@ const visiblePages = computed(() => {
             <th class="px-4 py-3 text-left">Player</th>
             <th class="px-4 py-3 text-left">Role</th>
             <th class="px-4 py-3 text-left">Team</th>
+            <th class="px-4 py-3 text-left">League</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border-subtle">
@@ -152,6 +153,9 @@ const visiblePages = computed(() => {
                 <span class="text-sm text-foreground">{{ player.team_name || '—' }}</span>
                 <span v-if="player.team_code" class="text-xs text-foreground-muted">({{ player.team_code }})</span>
               </div>
+            </td>
+            <td class="px-4 py-3">
+              <span class="text-sm text-foreground-muted uppercase">{{ player.league_name || '—' }}</span>
             </td>
           </tr>
         </tbody>

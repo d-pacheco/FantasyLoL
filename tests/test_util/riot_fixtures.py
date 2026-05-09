@@ -213,6 +213,7 @@ player_1_fixture = schemas.ProfessionalPlayer(
     team_id=team_1_fixture.id,
     team_name=team_1_fixture.name,
     team_code=team_1_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_2_fixture = schemas.ProfessionalPlayer(
@@ -223,6 +224,7 @@ player_2_fixture = schemas.ProfessionalPlayer(
     team_id=team_1_fixture.id,
     team_name=team_1_fixture.name,
     team_code=team_1_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_3_fixture = schemas.ProfessionalPlayer(
@@ -233,6 +235,7 @@ player_3_fixture = schemas.ProfessionalPlayer(
     team_id=team_1_fixture.id,
     team_name=team_1_fixture.name,
     team_code=team_1_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_4_fixture = schemas.ProfessionalPlayer(
@@ -243,6 +246,7 @@ player_4_fixture = schemas.ProfessionalPlayer(
     team_id=team_1_fixture.id,
     team_name=team_1_fixture.name,
     team_code=team_1_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_5_fixture = schemas.ProfessionalPlayer(
@@ -253,6 +257,7 @@ player_5_fixture = schemas.ProfessionalPlayer(
     team_id=team_1_fixture.id,
     team_name=team_1_fixture.name,
     team_code=team_1_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_6_fixture = schemas.ProfessionalPlayer(
@@ -263,6 +268,7 @@ player_6_fixture = schemas.ProfessionalPlayer(
     team_id=team_2_fixture.id,
     team_name=team_2_fixture.name,
     team_code=team_2_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_7_fixture = schemas.ProfessionalPlayer(
@@ -273,6 +279,7 @@ player_7_fixture = schemas.ProfessionalPlayer(
     team_id=team_2_fixture.id,
     team_name=team_2_fixture.name,
     team_code=team_2_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_8_fixture = schemas.ProfessionalPlayer(
@@ -283,6 +290,7 @@ player_8_fixture = schemas.ProfessionalPlayer(
     team_id=team_2_fixture.id,
     team_name=team_2_fixture.name,
     team_code=team_2_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_9_fixture = schemas.ProfessionalPlayer(
@@ -293,6 +301,7 @@ player_9_fixture = schemas.ProfessionalPlayer(
     team_id=team_2_fixture.id,
     team_name=team_2_fixture.name,
     team_code=team_2_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_10_fixture = schemas.ProfessionalPlayer(
@@ -303,6 +312,7 @@ player_10_fixture = schemas.ProfessionalPlayer(
     team_id=team_2_fixture.id,
     team_name=team_2_fixture.name,
     team_code=team_2_fixture.code,
+    league_name=league_1_fixture.name,
 )
 
 player_1_game_metadata_fixture = schemas.PlayerGameMetadata(
