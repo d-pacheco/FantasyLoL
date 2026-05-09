@@ -46,6 +46,7 @@ class ProfessionalPlayerServiceTest(TestBase):
         player = players_from_db[0]
         self.assertEqual(riot_fixtures.team_1_fixture.name, player.team_name)
         self.assertEqual(riot_fixtures.team_1_fixture.code, player.team_code)
+        self.assertEqual(riot_fixtures.league_1_fixture.name, player.league_name)
 
     def test_get_no_existing_professional_players_by_summoner_name(self):
         # Arrange
@@ -121,6 +122,22 @@ class ProfessionalPlayerServiceTest(TestBase):
         # Use lowercase partial match of team name
         partial = riot_fixtures.team_1_fixture.name[:4].lower()
         search_parameters = PlayerSearchParameters(team_name=partial)
+
+        # Act
+        players_from_db = self.professional_player_service.get_players(search_parameters)
+
+        # Assert
+        self.assertEqual(1, len(players_from_db))
+        self.assertEqual(expected_player.id, players_from_db[0].id)
+
+    def test_team_filter_matches_by_team_code(self):
+        # Arrange
+        expected_player = riot_fixtures.player_1_fixture
+        self.db.put_player(expected_player)
+        # Search by team code
+        search_parameters = PlayerSearchParameters(
+            team_name=riot_fixtures.team_1_fixture.code
+        )
 
         # Act
         players_from_db = self.professional_player_service.get_players(search_parameters)
