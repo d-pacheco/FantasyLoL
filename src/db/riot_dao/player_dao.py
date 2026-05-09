@@ -1,4 +1,4 @@
-from sqlalchemy import label
+from sqlalchemy import func, label
 
 from src.common.schemas.riot_data_schemas import ProfessionalPlayer, ProPlayerID
 from src.db.models import ProfessionalPlayerModel, ProfessionalTeamModel, LeagueModel
@@ -17,7 +17,10 @@ def _player_query(session, join_league=False):
         label("team_code", ProfessionalTeamModel.code),
     ).join(ProfessionalTeamModel, ProfessionalPlayerModel.team_id == ProfessionalTeamModel.id)
     if join_league:
-        query = query.join(LeagueModel, ProfessionalTeamModel.home_league_name == LeagueModel.name)
+        query = query.join(
+            LeagueModel,
+            func.lower(ProfessionalTeamModel.home_league_name) == func.lower(LeagueModel.name),
+        )
     return query
 
 
