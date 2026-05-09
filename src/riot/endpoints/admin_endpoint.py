@@ -16,6 +16,7 @@ SCRAPER_JOBS = {
     "fetch-matches": "/api/v1/fetch-matches-from-schedule",
     "fetch-games": "/api/v1/fetch-games-from-matches",
     "update-game-states": "/api/v1/update-game-states",
+    "run-game-analysis": "/api/v1/run-game-analysis",
 }
 
 

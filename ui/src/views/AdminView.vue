@@ -9,6 +9,7 @@ const jobs = [
   { name: 'fetch-matches', label: 'Fetch Matches' },
   { name: 'fetch-games', label: 'Fetch Games' },
   { name: 'update-game-states', label: 'Update Game States' },
+  { name: 'run-game-analysis', label: 'Run Game Analysis' },
 ]
 
 const results = ref<Record<string, string>>({})
