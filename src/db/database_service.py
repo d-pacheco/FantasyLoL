@@ -304,9 +304,11 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             team_dao.put_team(db, team)
 
-    def get_teams(self, filters: list | None = None) -> list[ProfessionalTeam]:
+    def get_teams(
+        self, filters: list | None = None, join_league: bool = False
+    ) -> list[ProfessionalTeam]:
         with self.connection_provider.get_db() as db:
-            return team_dao.get_teams(db, filters)
+            return team_dao.get_teams(db, filters, join_league=join_league)
 
     def get_team_by_id(self, team_id: ProTeamID) -> ProfessionalTeam | None:
         with self.connection_provider.get_db() as db:
