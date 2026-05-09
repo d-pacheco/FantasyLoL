@@ -78,18 +78,24 @@ class GameAnalysisScraper:
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
         finished = False
+        last_timestamp = None
 
         while not finished:
             window = self.api.get_game_window(game_id, current_time)
             if window is None:
                 break
 
+            # Detect stale data: if the API keeps returning the same frames, stop
+            newest_timestamp = window.frames[-1].rfc460Timestamp
+            if newest_timestamp == last_timestamp:
+                logger.warning(f"Game {game_id}: API stopped advancing at {newest_timestamp}")
+                return None
+            last_timestamp = newest_timestamp
+
             for frame in window.frames:
                 all_frames.append(frame)
                 if frame.gameState == LiveGameState.FINISHED:
                     finished = True
-
-            current_time = TimestampUtil.add_10_seconds(current_time)
 
             current_time = TimestampUtil.add_10_seconds(current_time)
 
