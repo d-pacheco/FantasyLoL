@@ -1,6 +1,6 @@
 import logging
 
-from src.common.schemas.riot_data_schemas import RiotGameID, GameDragons, ProTeamID
+from src.common.schemas.riot_data_schemas import RiotGameID, GameDragons, ProTeamID, LiveGameState
 from src.db.database_service import DatabaseService
 from src.riot_scraper.game_analysis import (
     detect_multi_kills,
@@ -74,7 +74,6 @@ class GameAnalysisScraper:
             return None
 
         all_frames: list[WindowFrame] = []
-        seen_timestamps: set[str] = set()
 
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
@@ -86,13 +85,11 @@ class GameAnalysisScraper:
                 break
 
             for frame in window.frames:
-                if frame.rfc460Timestamp not in seen_timestamps:
-                    seen_timestamps.add(frame.rfc460Timestamp)
-                    all_frames.append(frame)
-                from src.common.schemas.riot_data_schemas import LiveGameState
-
+                all_frames.append(frame)
                 if frame.gameState == LiveGameState.FINISHED:
                     finished = True
+
+            current_time = TimestampUtil.add_10_seconds(current_time)
 
             current_time = TimestampUtil.add_10_seconds(current_time)
 
