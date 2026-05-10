@@ -55,8 +55,8 @@ class AppConfig(BaseSettings):
         trigger="cron", hour="10", minute="05"
     )
     TEAM_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", hour="10", minute="10")
-    MATCH_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="30")
-    GAME_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="45")
+    MATCH_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/15")
+    GAME_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/15")
     GAME_STATS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/5")
     GAME_ANALYSIS_SERVICE_SCHEDULE: ScheduleConfig = ScheduleConfig(trigger="cron", minute="*/10")
 
