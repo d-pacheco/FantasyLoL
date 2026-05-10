@@ -60,12 +60,12 @@ function formatScore(match: Match): string {
         </h3>
         <div class="flex flex-col gap-3">
           <div v-for="m in schedule.live" :key="m.id" class="rounded-xl p-4 bg-surface border border-border-subtle">
-            <div class="flex items-center justify-between mb-2">
+            <div class="grid grid-cols-3 items-center mb-2">
               <span class="text-xs text-foreground-muted uppercase">{{ m.league_slug }}</span>
-              <span class="text-xs text-foreground-muted">{{ m.block_name }}</span>
-              <span class="text-xs text-foreground-muted">{{ formatLocalTime(m.start_time) }}</span>
+              <span class="text-xs text-foreground-muted text-center">{{ m.block_name }}</span>
+              <span class="text-xs text-foreground-muted text-right">{{ formatLocalTime(m.start_time) }}</span>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center">
               <div class="flex items-center gap-3 flex-1 min-w-0">
                 <img v-if="m.team_1_image" :src="m.team_1_image" class="w-8 h-8 rounded-full object-cover bg-surface-elevated" />
                 <span class="font-semibold text-sm text-foreground truncate">{{ m.team_1_name }}</span>
@@ -88,12 +88,12 @@ function formatScore(match: Match): string {
         <h3 class="text-sm font-semibold text-foreground mb-3">Upcoming</h3>
         <div class="flex flex-col gap-2">
           <div v-for="m in schedule.upcoming" :key="m.id" class="rounded-xl p-4 bg-surface border border-border-subtle">
-            <div class="flex items-center justify-between mb-2">
+            <div class="grid grid-cols-3 items-center mb-2">
               <span class="text-xs text-foreground-muted uppercase">{{ m.league_slug }}</span>
-              <span class="text-xs text-foreground-muted">{{ m.block_name }}</span>
-              <span class="text-xs text-foreground-muted">{{ formatLocalTime(m.start_time) }}</span>
+              <span class="text-xs text-foreground-muted text-center">{{ m.block_name }}</span>
+              <span class="text-xs text-foreground-muted text-right">{{ formatLocalTime(m.start_time) }}</span>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center">
               <div class="flex items-center gap-3 flex-1 min-w-0">
                 <img v-if="m.team_1_image" :src="m.team_1_image" class="w-8 h-8 rounded-full object-cover bg-surface-elevated" />
                 <span class="font-medium text-sm text-foreground truncate">{{ m.team_1_name }}</span>
@@ -113,12 +113,12 @@ function formatScore(match: Match): string {
         <h3 class="text-sm font-semibold text-foreground mb-3">Recent Results</h3>
         <div class="flex flex-col gap-2">
           <div v-for="m in schedule.recent" :key="m.id" class="rounded-xl p-4 bg-surface border border-border-subtle">
-            <div class="flex items-center justify-between mb-2">
+            <div class="grid grid-cols-3 items-center mb-2">
               <span class="text-xs text-foreground-muted uppercase">{{ m.league_slug }}</span>
-              <span class="text-xs text-foreground-muted">{{ m.block_name }}</span>
-              <span class="text-xs text-foreground-muted">{{ formatLocalTime(m.start_time) }}</span>
+              <span class="text-xs text-foreground-muted text-center">{{ m.block_name }}</span>
+              <span class="text-xs text-foreground-muted text-right">{{ formatLocalTime(m.start_time) }}</span>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center">
               <div class="flex items-center gap-3 flex-1 min-w-0">
                 <img v-if="m.team_1_image" :src="m.team_1_image" class="w-8 h-8 rounded-full object-cover bg-surface-elevated" />
                 <span class="font-medium text-sm text-foreground truncate" :class="{ 'text-primary': m.winning_team === m.team_1_name }">{{ m.team_1_name }}</span>
