@@ -79,9 +79,9 @@ class GameAnalysisScraper:
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
 
-        # Safety limit: no LoL game exceeds 90 minutes from first frame
+        # Safety limit: no LoL game exceeds 2.5 hours including pauses
         start_dt = TimestampUtil.parse_rfc3339(start_time)
-        max_time = start_dt + timedelta(minutes=90)
+        max_time = start_dt + timedelta(minutes=150)
         max_timestamp = max_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
         finished = False
@@ -102,7 +102,7 @@ class GameAnalysisScraper:
                 newest_ts = window.frames[-1].rfc460Timestamp
                 # Stop if we've exceeded max game time
                 if newest_ts >= max_timestamp:
-                    logger.warning(f"Game {game_id}: exceeded 90min without FINISHED")
+                    logger.warning(f"Game {game_id}: exceeded 2.5h without FINISHED")
                     break
                 # Stop if API is returning stale data
                 if newest_ts == last_timestamp:
