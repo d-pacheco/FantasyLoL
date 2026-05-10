@@ -420,6 +420,7 @@ class ScheduleMatch(BaseModel):
 class DetailTeam(BaseModel):
     team_id: ProTeamID
     team_code: str
+    game_wins: int | None = None
 
 
 class DetailGame(BaseModel):
