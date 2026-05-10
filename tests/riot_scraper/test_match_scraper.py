@@ -677,3 +677,338 @@ class TestRiotMatchScraper(TestBase):
             self.assertEqual("win", ta.outcome)
             self.assertEqual(1, tb.game_wins)
             self.assertEqual("loss", tb.outcome)
+
+    def test_refresh_stale_events_marks_match_inprogress_when_game_started(self):
+        """When a game is inProgress, match should transition to inProgress."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+            TeamResult,
+        )
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("inprog-match-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.UNSTARTED,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        # Game 1 in progress, games 2 and 3 unstarted
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("inprog-match-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=3),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=TeamResult(gameWins=0),
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=TeamResult(gameWins=0),
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("ip-g1"),
+                                state=GameState.INPROGRESS,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=2,
+                                id=RiotGameID("ip-g2"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=3,
+                                id=RiotGameID("ip-g3"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        result = self.db.get_match_by_id(RiotMatchID("inprog-match-001"))
+        self.assertEqual(MatchState.INPROGRESS, result.state)
+
+    def test_refresh_stale_events_marks_match_inprogress_between_games(self):
+        """When game 1 is completed but game 2 hasn't started, match is still inProgress."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+            TeamResult,
+        )
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("between-match-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.UNSTARTED,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        # Game 1 completed, games 2 and 3 unstarted (between games)
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("between-match-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=3),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=TeamResult(gameWins=1),
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=TeamResult(gameWins=0),
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("bw-g1"),
+                                state=GameState.COMPLETED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=2,
+                                id=RiotGameID("bw-g2"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=3,
+                                id=RiotGameID("bw-g3"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        result = self.db.get_match_by_id(RiotMatchID("between-match-001"))
+        self.assertEqual(MatchState.INPROGRESS, result.state)
+
+    def test_refresh_stale_events_stays_unstarted_when_all_games_unstarted(self):
+        """When all games are unstarted, match should remain unstarted."""
+        from src.common.schemas.riot_data_schemas import ScheduleMatch, ScheduleTeam, Tournament
+        from tests.test_util import riot_fixtures
+        from src.riot_scraper.riot_api.schemas.get_event_details import (
+            EventDetailsResponse,
+            EventData,
+            Event,
+            EventTournament,
+            EventLeague,
+            EventMatch,
+            MatchStrategy,
+            MatchTeam,
+            MatchGame,
+            GameTeam,
+        )
+
+        league = riot_fixtures.league_1_fixture.model_copy(deep=True)
+        league.id = RiotLeagueID("league-1")
+        league.slug = "test-league"
+        self.db.put_league(league)
+        tournament = Tournament(
+            id=RiotTournamentID("tourn-1"),
+            slug="t",
+            start_date="2024-01-01",
+            end_date="2024-12-31",
+            league_id=league.id,
+        )
+        self.db.put_tournament(tournament)
+
+        self.db.save_from_schedule(
+            ScheduleMatch(
+                id=RiotMatchID("unstarted-match-001"),
+                start_time="2020-01-01T12:00:00Z",
+                block_name="W1",
+                league_slug="test-league",
+                strategy_type="bestOf",
+                strategy_count=3,
+                state=MatchState.UNSTARTED,
+                teams=[
+                    ScheduleTeam(side=1, team_code="TA", team_name="Team A"),
+                    ScheduleTeam(side=2, team_code="TB", team_name="Team B"),
+                ],
+            )
+        )
+
+        # All games unstarted
+        self.mock_api.get_event_details.return_value = EventDetailsResponse(
+            data=EventData(
+                event=Event(
+                    id=RiotMatchID("unstarted-match-001"),
+                    type="match",
+                    tournament=EventTournament(id=RiotTournamentID("tourn-1")),
+                    league=EventLeague(id=league.id, slug="test-league", image="", name="Test"),
+                    match=EventMatch(
+                        strategy=MatchStrategy(count=3),
+                        teams=[
+                            MatchTeam(
+                                id=ProTeamID("ta-id"),
+                                name="Team A",
+                                code="TA",
+                                image="",
+                                result=None,
+                            ),
+                            MatchTeam(
+                                id=ProTeamID("tb-id"),
+                                name="Team B",
+                                code="TB",
+                                image="",
+                                result=None,
+                            ),
+                        ],
+                        games=[
+                            MatchGame(
+                                number=1,
+                                id=RiotGameID("us-g1"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=2,
+                                id=RiotGameID("us-g2"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                            MatchGame(
+                                number=3,
+                                id=RiotGameID("us-g3"),
+                                state=GameState.UNSTARTED,
+                                teams=[
+                                    GameTeam(id=ProTeamID("ta-id"), side="blue"),
+                                    GameTeam(id=ProTeamID("tb-id"), side="red"),
+                                ],
+                            ),
+                        ],
+                    ),
+                )
+            )
+        )
+
+        self.scraper.refresh_stale_events()
+
+        result = self.db.get_match_by_id(RiotMatchID("unstarted-match-001"))
+        self.assertEqual(MatchState.UNSTARTED, result.state)

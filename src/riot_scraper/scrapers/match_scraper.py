@@ -149,3 +149,7 @@ class RiotMatchScraper:
             terminal_states = {GameState.COMPLETED, GameState.UNNEEDED}
             if games and all(g.state in terminal_states for g in games):
                 self.db.update_match_state(match_id, MatchState.COMPLETED)
+            elif games and any(
+                g.state in {GameState.INPROGRESS, GameState.COMPLETED} for g in games
+            ):
+                self.db.update_match_state(match_id, MatchState.INPROGRESS)
