@@ -44,6 +44,10 @@ def update_has_game_data(session, game_id: RiotGameID, has_game_data: bool) -> N
 def update_game_state(session, game_id: RiotGameID, state: GameState) -> None:
     db_game = session.query(GameModel).filter(GameModel.id == game_id).first()
     if db_game is not None:
+        # Never downgrade from a terminal state
+        terminal = {GameState.COMPLETED, GameState.UNNEEDED}
+        if db_game.state in terminal:
+            return
         db_game.state = state
         session.merge(db_game)
         session.commit()
