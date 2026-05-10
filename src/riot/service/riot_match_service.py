@@ -1,6 +1,7 @@
 import logging
+from datetime import datetime, timezone, timedelta
 
-from src.common.schemas.riot_data_schemas import Match, RiotMatchID
+from src.common.schemas.riot_data_schemas import Match, RiotMatchID, MatchState
 from src.common.schemas.search_parameters import MatchSearchParameters
 from src.db.database_service import DatabaseService
 from src.db.views import MatchView
@@ -27,3 +28,26 @@ class RiotMatchService:
         if match is None:
             raise MatchNotFoundException()
         return match
+
+    def get_schedule(self) -> dict[str, list[Match]]:
+        all_matches = self.db.get_fantasy_schedule_matches()
+        now = datetime.now(timezone.utc)
+        cutoff = now - timedelta(hours=48)
+        cutoff_str = cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        live = []
+        upcoming = []
+        recent = []
+
+        for match in all_matches:
+            if match.state == MatchState.INPROGRESS:
+                live.append(match)
+            elif match.state == MatchState.UNSTARTED:
+                upcoming.append(match)
+            elif match.state == MatchState.COMPLETED and match.start_time >= cutoff_str:
+                recent.append(match)
+
+        upcoming.sort(key=lambda m: m.start_time)
+        recent.sort(key=lambda m: m.start_time, reverse=True)
+
+        return {"live": live, "upcoming": upcoming, "recent": recent}

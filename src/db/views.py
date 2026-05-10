@@ -69,6 +69,8 @@ class MatchView(Base):  # type: ignore
     team_1_wins = Column(Integer, nullable=True)
     team_2_wins = Column(Integer, nullable=True)
     winning_team = Column(String, nullable=True)
+    team_1_image = Column(String, nullable=True)
+    team_2_image = Column(String, nullable=True)
 
 
 create_match_view_query = text("""
@@ -91,7 +93,9 @@ create_match_view_query = text("""
             WHEN t1.outcome = 'win' THEN t1.team_name
             WHEN t2.outcome = 'win' THEN t2.team_name
             ELSE NULL
-        END AS winning_team
+        END AS winning_team,
+        t1.team_image AS team_1_image,
+        t2.team_image AS team_2_image
     FROM matches m
     LEFT JOIN event_teams t1 ON m.id = t1.match_id AND t1.side = 1
     LEFT JOIN event_teams t2 ON m.id = t2.match_id AND t2.side = 2

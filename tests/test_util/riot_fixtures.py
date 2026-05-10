@@ -117,6 +117,8 @@ match_fixture = schemas.Match(
     team_1_wins=1,
     team_2_wins=0,
     winning_team=None,
+    team_1_image=team_1_fixture.image,
+    team_2_image=team_2_fixture.image,
 )
 
 completed_match_fixture = schemas.Match(
@@ -134,6 +136,8 @@ completed_match_fixture = schemas.Match(
     team_1_wins=1,
     team_2_wins=0,
     winning_team=team_1_fixture.name,
+    team_1_image=team_1_fixture.image,
+    team_2_image=team_2_fixture.image,
 )
 
 future_match_fixture = schemas.Match(
@@ -151,6 +155,8 @@ future_match_fixture = schemas.Match(
     team_1_wins=None,
     team_2_wins=None,
     winning_team=None,
+    team_1_image=team_1_fixture.image,
+    team_2_image=team_2_fixture.image,
 )
 
 game_1_fixture_completed = schemas.Game(

@@ -135,6 +135,10 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return match_dao.get_matches(db, filters)
 
+    def get_fantasy_schedule_matches(self) -> list[Match]:
+        with self.connection_provider.get_db() as db:
+            return match_dao.get_fantasy_schedule_matches(db)
+
     def get_match_by_id(self, match_id: RiotMatchID) -> Match | None:
         with self.connection_provider.get_db() as db:
             return match_dao.get_match_by_id(db, match_id)

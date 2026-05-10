@@ -14,6 +14,15 @@ class MatchEndpoint(Routable):
         self.__match_service = match_service
 
     @get(
+        path="/matches/schedule",
+        description="Get live, upcoming, and recent matches from fantasy-available leagues",
+        tags=["Matches"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+    )
+    def get_match_schedule(self) -> dict[str, list[Match]]:
+        return self.__match_service.get_schedule()
+
+    @get(
         path="/matches",
         description="Get a list of matches based on a set of search criteria",
         tags=["Matches"],
