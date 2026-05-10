@@ -225,6 +225,16 @@ def get_matches(session, filters: list | None = None) -> list[Match]:
     return [Match.model_validate(match_model) for match_model in match_models]
 
 
+def get_fantasy_schedule_matches(session) -> list[Match]:
+    """Get all matches from fantasy-available leagues (any state)."""
+    query = (
+        session.query(MatchView)
+        .join(LeagueModel, MatchView.league_slug == LeagueModel.slug)
+        .filter(LeagueModel.fantasy_available == True)  # noqa: E712
+    )
+    return [Match.model_validate(m) for m in query.all()]
+
+
 def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
     db_match = session.query(MatchView).filter(MatchView.id == match_id).first()
     if db_match is None:

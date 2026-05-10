@@ -43,3 +43,14 @@ export async function getMatches(params: MatchParams = {}): Promise<PaginatedRes
   const res = await api.get<PaginatedResponse<Match>>('/riot/match', { params })
   return res.data
 }
+
+export interface MatchScheduleResponse {
+  live: Match[]
+  upcoming: Match[]
+  recent: Match[]
+}
+
+export async function getMatchSchedule(): Promise<MatchScheduleResponse> {
+  const res = await api.get<MatchScheduleResponse>('/riot/matches/schedule')
+  return res.data
+}

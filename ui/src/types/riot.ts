@@ -33,6 +33,8 @@ export interface Match {
   team_1_wins: number | null
   team_2_wins: number | null
   winning_team: string | null
+  team_1_image: string | null
+  team_2_image: string | null
 }
 
 export interface ProfessionalTeam {

@@ -126,6 +126,8 @@ class Match(BaseModel):
     winning_team: str | None = Field(
         default=None, description="The name of the winning team for the match", examples=["T1"]
     )
+    team_1_image: str | None = Field(default=None, description="The image url of team 1")
+    team_2_image: str | None = Field(default=None, description="The image url of team 2")
 
 
 class GameState(str, Enum):
