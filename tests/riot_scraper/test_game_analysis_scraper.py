@@ -152,7 +152,6 @@ class TestGameAnalysisScraper(TestBase):
 
         # API returns all frames in one window call, then None for subsequent
         self.mock_api.get_game_window.side_effect = [
-            _make_window_response(game_id, frames),  # latest window check (has FINISHED)
             _make_window_response(game_id, frames),  # initial call (no timestamp)
             _make_window_response(game_id, frames),  # call with rounded timestamp
             None,  # subsequent call returns None
@@ -196,17 +195,18 @@ class TestGameAnalysisScraper(TestBase):
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual("unavailable", gm.frames_status)
 
-    def test_marks_unavailable_when_latest_window_has_no_finished_frame(self):
-        """If the latest window has no FINISHED frame, the game data is incomplete."""
+    def test_completes_analysis_when_no_finished_frame(self):
+        """If no FINISHED frame exists, use the last frame as end time."""
         game_id = self._create_pending_game("game-no-finished-001")
 
-        # Latest window returns frames but none are FINISHED
-        incomplete_frames = [
+        # Frames without a FINISHED state — simulates truncated API data
+        frames = [
+            _make_frame("2024-01-01T00:00:00.000Z"),
+            _make_frame("2024-01-01T00:00:05.000Z", blue_kills=[1, 0, 0, 0, 0]),
             _make_frame("2024-01-01T00:30:00.000Z", blue_kills=[5, 3, 2, 1, 0]),
         ]
-        self.mock_api.get_game_window.return_value = _make_window_response(
-            game_id, incomplete_frames
-        )
+        # All calls return the same window (latest + initial + walk)
+        self.mock_api.get_game_window.return_value = _make_window_response(game_id, frames)
 
         self.scraper.analyze_games()
 
@@ -214,7 +214,9 @@ class TestGameAnalysisScraper(TestBase):
 
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
-            self.assertEqual("unavailable", gm.frames_status)
+            self.assertEqual("completed", gm.frames_status)
+            self.assertIsNotNone(gm.duration_seconds)
+            self.assertGreater(gm.duration_seconds, 0)
 
     def test_processes_at_most_5_games(self):
         # Create 7 pending games
@@ -320,3 +322,77 @@ class TestGameAnalysisScraper(TestBase):
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
             self.assertEqual(GameState.COMPLETED, gm.state)
             self.assertEqual("pending", gm.frames_status)
+
+    def test_frame_walker_stops_at_finished_and_does_not_loop(self):
+        """The frame walker must stop when it finds a FINISHED frame.
+        If it doesn't stop, it would loop forever consuming memory."""
+        game_id = self._create_pending_game("game-stop-test-001")
+
+        # Frames with FINISHED at the end
+        frames_with_finish = [
+            _make_frame("2024-01-01T00:00:00.000Z"),
+            _make_frame("2024-01-01T00:15:00.000Z", blue_kills=[2, 0, 0, 0, 0]),
+            _make_frame(
+                "2024-01-01T00:30:00.000Z",
+                blue_kills=[5, 0, 0, 0, 0],
+                state=LiveGameState.FINISHED,
+            ),
+        ]
+
+        call_count = [0]
+        max_calls = 10
+
+        def mock_get_game_window(gid, timestamp=None):
+            call_count[0] += 1
+            if call_count[0] > max_calls:
+                self.fail(f"Frame walker made {call_count[0]} API calls — it's looping!")
+            return _make_window_response(game_id, frames_with_finish)
+
+        self.mock_api.get_game_window.side_effect = mock_get_game_window
+
+        self.scraper.analyze_games()
+
+        self.assertLessEqual(call_count[0], max_calls)
+
+        from src.db.models import GameModel
+
+        with self.db_provider.get_db() as session:
+            gm = session.query(GameModel).filter(GameModel.id == game_id).first()
+            self.assertEqual("completed", gm.frames_status)
+            self.assertIsNotNone(gm.duration_seconds)
+
+    def test_frame_walker_stops_on_stale_data(self):
+        """When API returns the same timestamp 3 times, walker stops (no infinite loop)."""
+        game_id = self._create_pending_game("game-stale-001")
+
+        # Frames that never advance — simulates truncated API data
+        stale_frames = [
+            _make_frame("2024-01-01T00:20:00.000Z", blue_kills=[3, 0, 0, 0, 0]),
+        ]
+        initial_frames = [
+            _make_frame("2024-01-01T00:00:00.000Z"),
+        ]
+
+        call_count = [0]
+        max_calls = 20
+
+        def mock_get_game_window(gid, timestamp=None):
+            call_count[0] += 1
+            if call_count[0] > max_calls:
+                self.fail(f"Frame walker made {call_count[0]} API calls — it's looping!")
+            if call_count[0] == 1:
+                return _make_window_response(game_id, initial_frames)
+            return _make_window_response(game_id, stale_frames)
+
+        self.mock_api.get_game_window.side_effect = mock_get_game_window
+
+        self.scraper.analyze_games()
+
+        self.assertLessEqual(call_count[0], max_calls)
+
+        from src.db.models import GameModel
+
+        with self.db_provider.get_db() as session:
+            gm = session.query(GameModel).filter(GameModel.id == game_id).first()
+            # Should still complete with whatever data we got
+            self.assertEqual("completed", gm.frames_status)

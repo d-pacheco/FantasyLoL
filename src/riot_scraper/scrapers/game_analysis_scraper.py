@@ -69,25 +69,24 @@ class GameAnalysisScraper:
         logger.info(f"Game {game_id} analysis complete")
 
     def _fetch_all_frames(self, game_id: RiotGameID) -> list[WindowFrame] | None:
-        # Check the latest available frames first — if no FINISHED frame exists, bail early
-        latest_time = TimestampUtil.round_current_time_to_10_seconds()
-        latest_window = self.api.get_game_window(game_id, latest_time)
-        if latest_window is None:
-            return None
-        has_finished = any(f.gameState == LiveGameState.FINISHED for f in latest_window.frames)
-        if not has_finished:
-            logger.warning(f"Game {game_id}: no FINISHED frame in latest window, skipping")
-            return None
+        from datetime import timedelta
 
         initial_window = self.api.get_game_window(game_id)
         if initial_window is None:
             return None
 
         all_frames: list[WindowFrame] = []
-
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
+
+        # Safety limit: no LoL game exceeds 90 minutes from first frame
+        start_dt = TimestampUtil.parse_rfc3339(start_time)
+        max_time = start_dt + timedelta(minutes=90)
+        max_timestamp = max_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
         finished = False
+        last_timestamp = None
+        stale_count = 0
 
         while not finished:
             window = self.api.get_game_window(game_id, current_time)
@@ -98,6 +97,25 @@ class GameAnalysisScraper:
                 all_frames.append(frame)
                 if frame.gameState == LiveGameState.FINISHED:
                     finished = True
+
+            if not finished:
+                newest_ts = window.frames[-1].rfc460Timestamp
+                # Stop if we've exceeded max game time
+                if newest_ts >= max_timestamp:
+                    logger.warning(f"Game {game_id}: exceeded 90min without FINISHED")
+                    break
+                # Stop if API is returning stale data
+                if newest_ts == last_timestamp:
+                    stale_count += 1
+                    if stale_count >= 3:
+                        logger.info(
+                            f"Game {game_id}: API stopped advancing at {newest_ts}, "
+                            f"using last frame as end"
+                        )
+                        break
+                else:
+                    stale_count = 0
+                last_timestamp = newest_ts
 
             current_time = TimestampUtil.add_10_seconds(current_time)
 
