@@ -44,6 +44,8 @@ class GameAnalysisScraper:
         # Compute duration
         duration = compute_duration(frames)
         if duration > 0:
+            if duration < 900:
+                logger.error(f"Game {game_id}: duration is only {duration}s — suspiciously short")
             self.db.update_game_duration(game_id, duration)
 
         # Detect multi-kills
@@ -79,7 +81,7 @@ class GameAnalysisScraper:
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
 
-        # Hard limit: 2.5 hours from first frame. If no FINISHED by then, give up.
+        # Hard limit: 2.5 hours from first frame
         start_dt = TimestampUtil.parse_rfc3339(start_time)
         max_dt = start_dt + timedelta(hours=2, minutes=30)
         max_timestamp = max_dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -90,9 +92,10 @@ class GameAnalysisScraper:
             # Check if we've exceeded the time limit
             if current_time >= max_timestamp:
                 logger.error(
-                    f"Game {game_id}: no FINISHED frame found within 2.5h, marking unavailable"
+                    f"Game {game_id}: no FINISHED frame found within 2.5h, "
+                    f"using last available frame as end"
                 )
-                return None
+                break
 
             window = self.api.get_game_window(game_id, current_time)
             if window is None:

@@ -196,7 +196,7 @@ class TestGameAnalysisScraper(TestBase):
             self.assertEqual("unavailable", gm.frames_status)
 
     def test_marks_unavailable_when_no_finished_after_2_5_hours(self):
-        """If no FINISHED frame is found within 2.5h of start, mark unavailable."""
+        """If no FINISHED frame within 2.5h, fall back to last frame and still complete."""
         game_id = self._create_pending_game("game-timeout-001")
 
         # Frame that never has FINISHED — timestamp advances but no end
@@ -208,7 +208,6 @@ class TestGameAnalysisScraper(TestBase):
             if timestamp is None:
                 return _make_window_response(game_id, [_make_frame("2024-01-01T00:00:00.000Z")])
             # Return frames that keep advancing but never FINISHED
-            # Each call advances 10s, so 2.5h = 900 calls
             return _make_window_response(
                 game_id, [_make_frame(timestamp, blue_kills=[1, 0, 0, 0, 0])]
             )
@@ -221,10 +220,9 @@ class TestGameAnalysisScraper(TestBase):
 
         with self.db_provider.get_db() as session:
             gm = session.query(GameModel).filter(GameModel.id == game_id).first()
-            self.assertEqual("unavailable", gm.frames_status)
+            self.assertEqual("completed", gm.frames_status)
 
         # Should have stopped at 2.5h worth of 10s increments (900) + 1 initial call
-        # Allow some tolerance for the exact count
         self.assertLessEqual(call_count[0], 910)
 
     def test_does_not_terminate_early_during_pause(self):

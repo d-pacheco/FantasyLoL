@@ -192,6 +192,10 @@ def compute_duration(frames: list[WindowFrame]) -> int:
             end_time = frame.rfc460Timestamp
             break
 
+    # Fall back to last frame if no FINISHED frame exists
+    if end_time is None and frames:
+        end_time = frames[-1].rfc460Timestamp
+
     if start_time is None or end_time is None:
         return 0
 
