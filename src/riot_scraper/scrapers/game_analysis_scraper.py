@@ -69,27 +69,31 @@ class GameAnalysisScraper:
         logger.info(f"Game {game_id} analysis complete")
 
     def _fetch_all_frames(self, game_id: RiotGameID) -> list[WindowFrame] | None:
-        # Check the latest available frames first — if no FINISHED frame exists, bail early
-        latest_time = TimestampUtil.round_current_time_to_10_seconds()
-        latest_window = self.api.get_game_window(game_id, latest_time)
-        if latest_window is None:
-            return None
-        has_finished = any(f.gameState == LiveGameState.FINISHED for f in latest_window.frames)
-        if not has_finished:
-            logger.warning(f"Game {game_id}: no FINISHED frame in latest window, skipping")
-            return None
+        from datetime import timedelta
 
         initial_window = self.api.get_game_window(game_id)
         if initial_window is None:
             return None
 
         all_frames: list[WindowFrame] = []
-
         start_time = TimestampUtil.round_to_10_seconds(initial_window.frames[0].rfc460Timestamp)
         current_time = start_time
+
+        # Hard limit: 2.5 hours from first frame. If no FINISHED by then, give up.
+        start_dt = TimestampUtil.parse_rfc3339(start_time)
+        max_dt = start_dt + timedelta(hours=2, minutes=30)
+        max_timestamp = max_dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
         finished = False
 
         while not finished:
+            # Check if we've exceeded the time limit
+            if current_time >= max_timestamp:
+                logger.error(
+                    f"Game {game_id}: no FINISHED frame found within 2.5h, marking unavailable"
+                )
+                return None
+
             window = self.api.get_game_window(game_id, current_time)
             if window is None:
                 break
