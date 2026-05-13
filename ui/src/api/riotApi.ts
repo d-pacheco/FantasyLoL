@@ -1,5 +1,5 @@
 import { api, type PaginatedResponse } from './client'
-import type { ProfessionalPlayer, ProfessionalTeam, Match } from '../types/riot'
+import type { League, ProfessionalPlayer, ProfessionalTeam, Match } from '../types/riot'
 
 export interface PlayerParams {
   page?: number
@@ -52,5 +52,11 @@ export interface MatchScheduleResponse {
 
 export async function getMatchSchedule(): Promise<MatchScheduleResponse> {
   const res = await api.get<MatchScheduleResponse>('/riot/matches/schedule')
+  return res.data
+}
+
+export async function getRiotLeagues(fantasyAvailable?: boolean): Promise<PaginatedResponse<League>> {
+  const params = fantasyAvailable !== undefined ? { fantasy_available: fantasyAvailable } : {}
+  const res = await api.get<PaginatedResponse<League>>('/riot/league', { params })
   return res.data
 }

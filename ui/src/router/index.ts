@@ -32,6 +32,11 @@ const router = createRouter({
           component: () => import('../views/LeaguesView.vue'),
         },
         {
+          path: 'leagues/:id',
+          name: 'league-detail',
+          component: () => import('../views/LeagueDetailView.vue'),
+        },
+        {
           path: 'players',
           name: 'players',
           component: () => import('../views/PlayersView.vue'),
