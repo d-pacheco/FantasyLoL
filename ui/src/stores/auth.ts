@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { login as apiLogin, signup as apiSignup } from '../api/authApi'
 
-function parseJwtUsername(token: string | null): string | null {
+function parseJwtField(token: string | null, field: string): string | null {
   if (!token) return null
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.username || null
+    return payload[field] || null
   } catch {
     return null
   }
@@ -24,7 +24,8 @@ function isTokenExpired(token: string | null): boolean {
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
-  const username = computed(() => parseJwtUsername(token.value))
+  const username = computed(() => parseJwtField(token.value, 'username'))
+  const userId = computed(() => parseJwtField(token.value, 'user_id'))
   const error = ref<string | null>(null)
 
   const isAuthenticated = computed(() => !!token.value && !isTokenExpired(token.value))
@@ -56,5 +57,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
   }
 
-  return { token, username, error, isAuthenticated, login, signup, logout }
+  return { token, username, userId, error, isAuthenticated, login, signup, logout }
 })
