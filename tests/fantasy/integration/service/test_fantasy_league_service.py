@@ -695,7 +695,7 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
     def test_send_fantasy_league_invite_to_deleted_user(self):
         # Arrange
         user = fantasy_fixtures.user_fixture
-        deleted_user = fantasy_fixtures.user_2_fixture
+        deleted_user = deepcopy(fantasy_fixtures.user_2_fixture)
         deleted_user.account_status = UserAccountStatus.DELETED
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         self.db.create_user(user)
