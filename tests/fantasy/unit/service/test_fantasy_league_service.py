@@ -15,7 +15,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     UserID,
 )
-from src.fantasy.exceptions import FantasyLeagueNotFoundException, ForbiddenException
+from src.fantasy.exceptions import FantasyLeagueNotFoundException, ForbiddenException, FantasyLeagueInviteException
 from src.fantasy.service import FantasyLeagueService
 
 FANTASY_LEAGUE_SERV_PATH = "src.fantasy.service.fantasy_league_service.FantasyLeagueService"
@@ -336,4 +336,69 @@ class TestFantasyLeagueService(TestBase):
         with self.assertRaises(ForbiddenException):
             self.fantasy_league_service.get_fantasy_league_draft_order(
                 UserID(str(uuid.uuid4())), league.id
+            )
+
+    # --- send_fantasy_league_invite ---
+
+    def _setup_invite(self, membership_status=None):
+        """Helper: sets up league, owner, and target user for invite tests."""
+        league = fantasy_fixtures.fantasy_league_fixture
+        owner = fantasy_fixtures.user_fixture
+        target = fantasy_fixtures.user_2_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_pending_and_accepted_members_for_league.return_value = []
+        self.mock_db_service.get_user_by_username.return_value = target
+        if membership_status is None:
+            self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+        else:
+            self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+                FantasyLeagueMembership(
+                    league_id=league.id, user_id=target.id, status=membership_status
+                )
+            )
+        return league, owner, target
+
+    def test_send_invite_no_existing_membership_creates_pending(self):
+        league, owner, target = self._setup_invite(membership_status=None)
+
+        self.fantasy_league_service.send_fantasy_league_invite(
+            owner.id, league.id, target.username
+        )
+
+        self.mock_db_service.create_fantasy_league_membership.assert_called_once()
+
+    def test_send_invite_declined_member_updates_to_pending(self):
+        league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.DECLINED)
+
+        self.fantasy_league_service.send_fantasy_league_invite(
+            owner.id, league.id, target.username
+        )
+
+        self.mock_db_service.update_fantasy_league_membership_status.assert_called_once()
+        self.mock_db_service.create_fantasy_league_membership.assert_not_called()
+
+    def test_send_invite_revoked_member_updates_to_pending(self):
+        league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.REVOKED)
+
+        self.fantasy_league_service.send_fantasy_league_invite(
+            owner.id, league.id, target.username
+        )
+
+        self.mock_db_service.update_fantasy_league_membership_status.assert_called_once()
+        self.mock_db_service.create_fantasy_league_membership.assert_not_called()
+
+    def test_send_invite_pending_member_raises_invite_exception(self):
+        league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.PENDING)
+
+        with self.assertRaises(FantasyLeagueInviteException):
+            self.fantasy_league_service.send_fantasy_league_invite(
+                owner.id, league.id, target.username
+            )
+
+    def test_send_invite_accepted_member_raises_invite_exception(self):
+        league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.ACCEPTED)
+
+        with self.assertRaises(FantasyLeagueInviteException):
+            self.fantasy_league_service.send_fantasy_league_invite(
+                owner.id, league.id, target.username
             )

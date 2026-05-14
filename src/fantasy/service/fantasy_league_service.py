@@ -204,9 +204,22 @@ class FantasyLeagueService:
         if user is None or user.account_status != UserAccountStatus.ACTIVE:
             raise UserNotFoundException()
 
-        self.create_fantasy_league_membership(
-            league_id, user.id, FantasyLeagueMembershipStatus.PENDING
-        )
+        existing_membership = self.db.get_user_membership_for_fantasy_league(user.id, league_id)
+        if existing_membership is not None:
+            if existing_membership.status in (
+                FantasyLeagueMembershipStatus.PENDING,
+                FantasyLeagueMembershipStatus.ACCEPTED,
+            ):
+                raise FantasyLeagueInviteException(
+                    f"User {username} is already a pending or accepted member of the league"
+                )
+            self.db.update_fantasy_league_membership_status(
+                existing_membership, FantasyLeagueMembershipStatus.PENDING
+            )
+        else:
+            self.create_fantasy_league_membership(
+                league_id, user.id, FantasyLeagueMembershipStatus.PENDING
+            )
 
     def join_fantasy_league(self, user_id: UserID, league_id: FantasyLeagueID) -> None:
         logger.info("User=%s joining league=%s", user_id, league_id)
