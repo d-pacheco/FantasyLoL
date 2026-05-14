@@ -174,6 +174,12 @@ class FantasyLeagueMembership(BaseModel):
     status: FantasyLeagueMembershipStatus
 
 
+class FantasyLeagueMemberResponse(BaseModel):
+    user_id: UserID
+    username: str
+    status: FantasyLeagueMembershipStatus
+
+
 class UsersFantasyLeagues(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

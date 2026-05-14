@@ -8,6 +8,9 @@ from tests.test_util import fantasy_fixtures
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
+    FantasyLeagueMembership,
+    FantasyLeagueMembershipStatus,
+    FantasyLeagueMemberResponse,
     FantasyLeagueSettings,
     FantasyLeagueStatus,
     UserID,
@@ -72,20 +75,22 @@ class TestFantasyLeagueService(TestBase):
         # Arrange
         expected_fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
-
+        member = fantasy_fixtures.user_2_fixture  # non-owner accepted member
+        accepted_membership = FantasyLeagueMembership(
+            league_id=fantasy_league.id,
+            user_id=member.id,
+            status=FantasyLeagueMembershipStatus.ACCEPTED,
+        )
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league
-
-        owner_id = fantasy_league.owner_id
-        league_id = fantasy_league.id
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = accepted_membership
 
         # Act
         fantasy_league_settings = self.fantasy_league_service.get_fantasy_league_settings(
-            owner_id, league_id
+            member.id, fantasy_league.id
         )
 
         # Assert
         self.assertEqual(expected_fantasy_league_settings, fantasy_league_settings)
-        self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(fantasy_league.id)
 
     def test_get_fantasy_league_settings_no_league_found_exception(self):
         # Arrange
@@ -97,20 +102,19 @@ class TestFantasyLeagueService(TestBase):
             self.fantasy_league_service.get_fantasy_league_settings(
                 fantasy_league.owner_id, fantasy_league.id
             )
-        self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(fantasy_league.id)
 
-    def test_get_fantasy_league_settings_forbidden_exception(self):
+    def test_get_fantasy_league_settings_non_member_raises_forbidden(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
-        owner_id = UserID(str(uuid.uuid4()))
-        league_id = fantasy_league.id
-
+        non_member_id = UserID(str(uuid.uuid4()))
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
 
         # Act and Assert
         with self.assertRaises(ForbiddenException):
-            self.fantasy_league_service.get_fantasy_league_settings(owner_id, league_id)
-        self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(league_id)
+            self.fantasy_league_service.get_fantasy_league_settings(
+                non_member_id, fantasy_league.id
+            )
 
     def test_update_fantasy_league_settings_successful(self):
         # Arrange
@@ -178,3 +182,158 @@ class TestFantasyLeagueService(TestBase):
             )
         self.mock_db_service.get_fantasy_league_by_id.assert_called_once_with(league_id)
         self.mock_db_service.update_fantasy_league_settings.assert_not_called()
+
+    # --- get_scoring_settings ---
+
+    def test_get_scoring_settings_accepted_member_successful(self):
+        # Arrange
+        league = fantasy_fixtures.fantasy_league_fixture
+        member = fantasy_fixtures.user_2_fixture
+        expected_scoring = fantasy_fixtures.fantasy_league_scoring_settings_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id,
+                user_id=member.id,
+                status=FantasyLeagueMembershipStatus.ACCEPTED,
+            )
+        )
+        self.mock_db_service.get_fantasy_league_scoring_settings_by_id.return_value = (
+            expected_scoring
+        )
+
+        result = self.fantasy_league_service.get_scoring_settings(member.id, league.id)
+
+        self.assertEqual(expected_scoring, result)
+
+    def test_get_scoring_settings_non_member_raises_forbidden(self):
+        # Arrange
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_service.get_scoring_settings(
+                UserID(str(uuid.uuid4())), league.id
+            )
+
+    # --- get_fantasy_league_by_id ---
+
+    def test_get_fantasy_league_by_id_accepted_member_successful(self):
+        # Arrange
+        league = fantasy_fixtures.fantasy_league_fixture
+        member = fantasy_fixtures.user_2_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id,
+                user_id=member.id,
+                status=FantasyLeagueMembershipStatus.ACCEPTED,
+            )
+        )
+
+        result = self.fantasy_league_service.get_fantasy_league_by_id(member.id, league.id)
+
+        self.assertEqual(league, result)
+
+    def test_get_fantasy_league_by_id_league_not_found_raises_exception(self):
+        self.mock_db_service.get_fantasy_league_by_id.return_value = None
+
+        with self.assertRaises(FantasyLeagueNotFoundException):
+            self.fantasy_league_service.get_fantasy_league_by_id(
+                UserID(str(uuid.uuid4())), FantasyLeagueID(str(uuid.uuid4()))
+            )
+
+    def test_get_fantasy_league_by_id_non_member_raises_forbidden(self):
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_service.get_fantasy_league_by_id(
+                UserID(str(uuid.uuid4())), league.id
+            )
+
+    # --- get_league_members ---
+
+    def test_get_league_members_returns_members_with_usernames(self):
+        # Arrange
+        league = fantasy_fixtures.fantasy_league_fixture
+        user1 = fantasy_fixtures.user_fixture
+        user2 = fantasy_fixtures.user_2_fixture
+        memberships = [
+            FantasyLeagueMembership(
+                league_id=league.id,
+                user_id=user1.id,
+                status=FantasyLeagueMembershipStatus.ACCEPTED,
+            ),
+            FantasyLeagueMembership(
+                league_id=league.id,
+                user_id=user2.id,
+                status=FantasyLeagueMembershipStatus.PENDING,
+            ),
+        ]
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = memberships[0]
+        self.mock_db_service.get_pending_and_accepted_members_for_league.return_value = memberships
+        self.mock_db_service.get_user_by_id.side_effect = [user1, user2]
+
+        result = self.fantasy_league_service.get_league_members(user1.id, league.id)
+
+        self.assertEqual(2, len(result))
+        self.assertEqual(
+            FantasyLeagueMemberResponse(
+                user_id=user1.id,
+                username=user1.username,
+                status=FantasyLeagueMembershipStatus.ACCEPTED,
+            ),
+            result[0],
+        )
+        self.assertEqual(
+            FantasyLeagueMemberResponse(
+                user_id=user2.id,
+                username=user2.username,
+                status=FantasyLeagueMembershipStatus.PENDING,
+            ),
+            result[1],
+        )
+
+    def test_get_league_members_non_member_raises_forbidden(self):
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_service.get_league_members(
+                UserID(str(uuid.uuid4())), league.id
+            )
+
+    # --- get_fantasy_league_draft_order ---
+
+    def test_get_fantasy_league_draft_order_accepted_member_successful(self):
+        # Arrange
+        league = fantasy_fixtures.fantasy_league_fixture
+        member = fantasy_fixtures.user_2_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id,
+                user_id=member.id,
+                status=FantasyLeagueMembershipStatus.ACCEPTED,
+            )
+        )
+        self.mock_db_service.get_fantasy_league_draft_order.return_value = []
+
+        result = self.fantasy_league_service.get_fantasy_league_draft_order(member.id, league.id)
+
+        self.assertEqual([], result)
+
+    def test_get_fantasy_league_draft_order_non_member_raises_forbidden(self):
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_fantasy_league_by_id.return_value = league
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_service.get_fantasy_league_draft_order(
+                UserID(str(uuid.uuid4())), league.id
+            )

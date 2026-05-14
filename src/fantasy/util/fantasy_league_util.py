@@ -7,6 +7,7 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
     FantasyLeagueID,
+    FantasyLeagueMembershipStatus,
     FantasyLeagueStatus,
     UserID,
 )
@@ -19,6 +20,7 @@ from src.fantasy.exceptions import (
     FantasyLeagueInvalidRequiredStateException,
     FantasyUnavailableException,
     DraftOrderException,
+    ForbiddenException,
 )
 
 
@@ -40,6 +42,11 @@ class FantasyLeagueUtil:
             )
 
         return fantasy_league
+
+    def validate_membership(self, user_id: UserID, league_id: FantasyLeagueID) -> None:
+        membership = self.db.get_user_membership_for_fantasy_league(user_id, league_id)
+        if membership is None or membership.status != FantasyLeagueMembershipStatus.ACCEPTED:
+            raise ForbiddenException()
 
     def validate_available_leagues(self, selected_league_ids: list[RiotLeagueID]) -> None:
         riot_leagues = self.db.get_leagues()

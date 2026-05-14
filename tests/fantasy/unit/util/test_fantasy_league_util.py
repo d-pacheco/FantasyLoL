@@ -9,6 +9,8 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueDraftOrder,
     FantasyLeagueDraftOrderResponse,
+    FantasyLeagueMembership,
+    FantasyLeagueMembershipStatus,
     FantasyLeagueStatus,
     FantasyLeagueID,
     UserID,
@@ -21,6 +23,7 @@ from src.fantasy.exceptions import (
     FantasyLeagueNotFoundException,
     FantasyLeagueInvalidRequiredStateException,
     FantasyUnavailableException,
+    ForbiddenException,
 )
 from src.fantasy.util import FantasyLeagueUtil
 
@@ -32,6 +35,63 @@ class TestFantasyLeagueUtil(TestBase):
 
     def tearDown(self):
         self.mock_db_service.reset_mock()
+
+    def test_validate_membership_accepted_member_passes(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        league = fantasy_fixtures.fantasy_league_fixture
+        membership = FantasyLeagueMembership(
+            league_id=league.id,
+            user_id=user.id,
+            status=FantasyLeagueMembershipStatus.ACCEPTED,
+        )
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = membership
+
+        # Act / Assert — should not raise
+        try:
+            self.fantasy_league_util.validate_membership(user.id, league.id)
+        except ForbiddenException:
+            self.fail("validate_membership raised ForbiddenException for an accepted member")
+
+    def test_validate_membership_pending_raises_forbidden(self):
+        user = fantasy_fixtures.user_fixture
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id, user_id=user.id, status=FantasyLeagueMembershipStatus.PENDING
+            )
+        )
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_util.validate_membership(user.id, league.id)
+
+    def test_validate_membership_declined_raises_forbidden(self):
+        user = fantasy_fixtures.user_fixture
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id, user_id=user.id, status=FantasyLeagueMembershipStatus.DECLINED
+            )
+        )
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_util.validate_membership(user.id, league.id)
+
+    def test_validate_membership_revoked_raises_forbidden(self):
+        user = fantasy_fixtures.user_fixture
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            FantasyLeagueMembership(
+                league_id=league.id, user_id=user.id, status=FantasyLeagueMembershipStatus.REVOKED
+            )
+        )
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_util.validate_membership(user.id, league.id)
+
+    def test_validate_membership_no_membership_raises_forbidden(self):
+        user = fantasy_fixtures.user_fixture
+        league = fantasy_fixtures.fantasy_league_fixture
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
+        with self.assertRaises(ForbiddenException):
+            self.fantasy_league_util.validate_membership(user.id, league.id)
 
     def test_validate_league_successful(self):
         # Arrange
