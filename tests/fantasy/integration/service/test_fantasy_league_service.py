@@ -166,6 +166,11 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
         # Arrange
         self.db.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
         self.db.create_user(fantasy_fixtures.user_fixture)
+        self.create_fantasy_league_membership_for_league(
+            fantasy_fixtures.fantasy_league_fixture.id,
+            fantasy_fixtures.user_fixture.id,
+            FantasyLeagueMembershipStatus.ACCEPTED,
+        )
         expected_fantasy_league_settings = fantasy_fixtures.fantasy_league_settings_fixture
 
         # Act
@@ -354,6 +359,9 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
         self.db.create_user(user)
         self.db.create_fantasy_league(fantasy_league)
         self.db.put_fantasy_league_scoring_settings(expected_scoring_settings)
+        self.create_fantasy_league_membership_for_league(
+            fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
 
         # Act
         returned_scoring_settings = self.fantasy_league_service.get_scoring_settings(
@@ -1164,6 +1172,9 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
         fantasy_league = fantasy_fixtures.fantasy_league_fixture
         self.db.create_fantasy_league(fantasy_league)
         self.db.create_user(user_1)
+        self.create_fantasy_league_membership_for_league(
+            fantasy_league.id, user_1.id, FantasyLeagueMembershipStatus.ACCEPTED
+        )
         user_1_draft_order = self.create_draft_order_for_fantasy_league(
             fantasy_league.id, user_1.id, 1
         )
