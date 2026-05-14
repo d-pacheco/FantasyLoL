@@ -15,7 +15,11 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     UserID,
 )
-from src.fantasy.exceptions import FantasyLeagueNotFoundException, ForbiddenException, FantasyLeagueInviteException
+from src.fantasy.exceptions import (
+    FantasyLeagueNotFoundException,
+    ForbiddenException,
+    FantasyLeagueInviteException,
+)
 from src.fantasy.service import FantasyLeagueService
 
 FANTASY_LEAGUE_SERV_PATH = "src.fantasy.service.fantasy_league_service.FantasyLeagueService"
@@ -82,7 +86,9 @@ class TestFantasyLeagueService(TestBase):
             status=FantasyLeagueMembershipStatus.ACCEPTED,
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league
-        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = accepted_membership
+        self.mock_db_service.get_user_membership_for_fantasy_league.return_value = (
+            accepted_membership
+        )
 
         # Act
         fantasy_league_settings = self.fantasy_league_service.get_fantasy_league_settings(
@@ -213,9 +219,7 @@ class TestFantasyLeagueService(TestBase):
         self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
 
         with self.assertRaises(ForbiddenException):
-            self.fantasy_league_service.get_scoring_settings(
-                UserID(str(uuid.uuid4())), league.id
-            )
+            self.fantasy_league_service.get_scoring_settings(UserID(str(uuid.uuid4())), league.id)
 
     # --- get_fantasy_league_by_id ---
 
@@ -304,9 +308,7 @@ class TestFantasyLeagueService(TestBase):
         self.mock_db_service.get_user_membership_for_fantasy_league.return_value = None
 
         with self.assertRaises(ForbiddenException):
-            self.fantasy_league_service.get_league_members(
-                UserID(str(uuid.uuid4())), league.id
-            )
+            self.fantasy_league_service.get_league_members(UserID(str(uuid.uuid4())), league.id)
 
     # --- get_fantasy_league_draft_order ---
 
@@ -361,18 +363,14 @@ class TestFantasyLeagueService(TestBase):
     def test_send_invite_no_existing_membership_creates_pending(self):
         league, owner, target = self._setup_invite(membership_status=None)
 
-        self.fantasy_league_service.send_fantasy_league_invite(
-            owner.id, league.id, target.username
-        )
+        self.fantasy_league_service.send_fantasy_league_invite(owner.id, league.id, target.username)
 
         self.mock_db_service.create_fantasy_league_membership.assert_called_once()
 
     def test_send_invite_declined_member_updates_to_pending(self):
         league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.DECLINED)
 
-        self.fantasy_league_service.send_fantasy_league_invite(
-            owner.id, league.id, target.username
-        )
+        self.fantasy_league_service.send_fantasy_league_invite(owner.id, league.id, target.username)
 
         self.mock_db_service.update_fantasy_league_membership_status.assert_called_once()
         self.mock_db_service.create_fantasy_league_membership.assert_not_called()
@@ -380,9 +378,7 @@ class TestFantasyLeagueService(TestBase):
     def test_send_invite_revoked_member_updates_to_pending(self):
         league, owner, target = self._setup_invite(FantasyLeagueMembershipStatus.REVOKED)
 
-        self.fantasy_league_service.send_fantasy_league_invite(
-            owner.id, league.id, target.username
-        )
+        self.fantasy_league_service.send_fantasy_league_invite(owner.id, league.id, target.username)
 
         self.mock_db_service.update_fantasy_league_membership_status.assert_called_once()
         self.mock_db_service.create_fantasy_league_membership.assert_not_called()

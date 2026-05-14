@@ -90,11 +90,13 @@ class FantasyLeagueService:
             user = self.db.get_user_by_id(membership.user_id)
             if user is None:
                 raise UserNotFoundException()
-            result.append(FantasyLeagueMemberResponse(
-                user_id=user.id,
-                username=user.username,
-                status=membership.status,
-            ))
+            result.append(
+                FantasyLeagueMemberResponse(
+                    user_id=user.id,
+                    username=user.username,
+                    status=membership.status,
+                )
+            )
         return result
 
     def get_fantasy_league_settings(
