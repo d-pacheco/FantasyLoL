@@ -76,46 +76,26 @@ class FantasyLeagueScoringSettings(BaseModel):
         examples=["aaaaaaaa-1111-bbbb-2222-cccccccccccc"],
         default=None,
     )
-    kills: int = Field(
-        default=2,
-        description="The number of points kills are worth in a given fantasy league",
-        examples=[2],
-    )
-    deaths: int = Field(
-        default=-1,
-        description="The number of points deaths are worth in a given fantasy league",
-        examples=[-1],
-    )
-    assists: float = Field(
-        default=0.5,
-        description="The number of points assists are worth in a given fantasy league",
-        examples=[0.5],
-    )
-    creep_score: float = Field(
-        default=0.05,
-        description="The number of points creeps score are worth in a given fantasy league",
-        examples=[0.05],
-    )
-    wards_placed: float = Field(
-        default=0.1,
-        description="The number of points wards placed are worth in a given fantasy league",
-        examples=[0.1],
-    )
-    wards_destroyed: float = Field(
-        default=0.1,
-        description="The number of points wards destroyed are worth in a given fantasy league",
-        examples=[0.1],
-    )
-    kill_participation: int = Field(
-        default=10,
-        description="The number of points kill participation is worth in a given fantasy league",
-        examples=[10],
-    )
-    damage_percentage: int = Field(
-        default=5,
-        description="The number of points damage percentage is worth in a given fantasy league",
-        examples=[5],
-    )
+    kills: int = Field(default=2)
+    deaths: int = Field(default=-1)
+    assists: float = Field(default=0.5)
+    cspm: float = Field(default=1.0)
+    wards_placed: float = Field(default=0.1)
+    wards_destroyed: float = Field(default=0.1)
+    kill_participation: int = Field(default=10)
+    damage_percentage: int = Field(default=5)
+    double_kill: float = Field(default=1.0)
+    triple_kill: float = Field(default=2.0)
+    quadra_kill: float = Field(default=4.0)
+    penta_kill: float = Field(default=10.0)
+    match_win: float = Field(default=5.0)
+    match_sweep: float = Field(default=5.0)
+    dragon: float = Field(default=1.0)
+    elder_dragon: float = Field(default=3.0)
+    baron: float = Field(default=2.0)
+    tower: float = Field(default=1.0)
+    inhibitor: float = Field(default=1.0)
+    soul: float = Field(default=4.0)
 
 
 class FantasyLeagueSettings(BaseModel):

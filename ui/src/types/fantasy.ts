@@ -21,11 +21,23 @@ export interface FantasyLeagueScoringSettings {
   kills: number
   deaths: number
   assists: number
-  creep_score: number
+  cspm: number
   wards_placed: number
   wards_destroyed: number
   kill_participation: number
   damage_percentage: number
+  double_kill: number
+  triple_kill: number
+  quadra_kill: number
+  penta_kill: number
+  match_win: number
+  match_sweep: number
+  dragon: number
+  elder_dragon: number
+  baron: number
+  tower: number
+  inhibitor: number
+  soul: number
 }
 
 export interface FantasyTeam {

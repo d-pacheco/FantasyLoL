@@ -3,7 +3,11 @@ from sqlalchemy.exc import IntegrityError
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
 
-from src.common.schemas.fantasy_schemas import FantasyLeagueID, FantasyLeagueStatus
+from src.common.schemas.fantasy_schemas import (
+    FantasyLeagueID,
+    FantasyLeagueStatus,
+    FantasyLeagueScoringSettings,
+)
 from src.common.schemas.riot_data_schemas import RiotLeagueID
 
 
@@ -60,6 +64,68 @@ class TestCrudFantasyLeague(TestBase):
             scoring_settings.fantasy_league_id
         )
         self.assertEqual(updated_scoring_settings, scoring_settings_after_update)
+
+    def test_scoring_settings_all_new_fields_round_trip(self):
+        # Arrange — use non-default values to prove they're stored and retrieved
+        scoring_settings = FantasyLeagueScoringSettings(
+            fantasy_league_id=fantasy_fixtures.fantasy_league_fixture.id,
+            kills=2,
+            deaths=-1,
+            assists=0.5,
+            cspm=2.0,
+            wards_placed=0.1,
+            wards_destroyed=0.1,
+            kill_participation=10,
+            damage_percentage=5,
+            double_kill=3.0,
+            triple_kill=6.0,
+            quadra_kill=12.0,
+            penta_kill=25.0,
+            match_win=10.0,
+            match_sweep=10.0,
+            dragon=2.0,
+            elder_dragon=6.0,
+            baron=4.0,
+            tower=2.0,
+            inhibitor=2.0,
+            soul=8.0,
+        )
+
+        # Act
+        self.db.put_fantasy_league_scoring_settings(scoring_settings)
+        result = self.db.get_fantasy_league_scoring_settings_by_id(
+            scoring_settings.fantasy_league_id
+        )
+
+        # Assert
+        self.assertEqual(scoring_settings, result)
+
+    def test_scoring_settings_defaults(self):
+        # Arrange — create with only required field, all others should use defaults
+        scoring_settings = FantasyLeagueScoringSettings(
+            fantasy_league_id=fantasy_fixtures.fantasy_league_fixture.id,
+        )
+
+        # Act
+        self.db.put_fantasy_league_scoring_settings(scoring_settings)
+        result = self.db.get_fantasy_league_scoring_settings_by_id(
+            scoring_settings.fantasy_league_id
+        )
+
+        # Assert new field defaults
+        self.assertEqual(1.0, result.cspm)
+        self.assertEqual(1.0, result.double_kill)
+        self.assertEqual(2.0, result.triple_kill)
+        self.assertEqual(4.0, result.quadra_kill)
+        self.assertEqual(10.0, result.penta_kill)
+        self.assertEqual(5.0, result.match_win)
+        self.assertEqual(5.0, result.match_sweep)
+        self.assertEqual(1.0, result.dragon)
+        self.assertEqual(3.0, result.elder_dragon)
+        self.assertEqual(2.0, result.baron)
+        self.assertEqual(1.0, result.tower)
+        self.assertEqual(1.0, result.inhibitor)
+        self.assertEqual(4.0, result.soul)
 
     def test_get_fantasy_league_scoring_settings_by_id(self):
         # Arrange
