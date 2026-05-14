@@ -2,163 +2,135 @@
 
 A full-stack Fantasy League of Legends platform that scrapes professional esports data from Riot's API and lets users create and manage fantasy leagues around real competitive matches.
 
-## Overview
+Built with Python/FastAPI on the backend, Vue 3/TypeScript on the frontend, and PostgreSQL for persistence. A background scraper service keeps professional match data up-to-date on configurable cron schedules, while the main API powers both the esports data layer and the fantasy league system.
 
-MythicForge is composed of three microservices:
+## What It Does
 
-- **Fantasy API** (port 8000) — User registration, authentication, fantasy league creation, team drafting, and scoring
-- **Riot Data API** (port 8002) — RESTful API to query professional League of Legends data (leagues, tournaments, matches, games, teams, players, and in-game stats)
-- **Riot Scraper** (port 8004) — Background service that periodically fetches and stores esports data from Riot's public API on configurable cron schedules
+**Esports Data Pipeline** — Automatically ingests leagues, tournaments, matches, games, player stats, and team stats from Riot's public esports API. Includes frame-level game analysis that derives match duration, multi-kill events, and chronological dragon order from raw game frames.
+
+**Fantasy League System** — Users create fantasy leagues, invite friends, draft professional players onto weekly rosters, and score points based on real match performance. Supports configurable scoring weights, draft ordering, and league membership management.
+
+**Single-Page Application** — A responsive Vue 3 frontend with PrimeVue components, Tailwind CSS styling, and real-time data browsing for matches, players, and teams.
+
+## Architecture
+
+```
+Browser → Nginx (port 8000) → Vue SPA + API proxy
+                                    ↓
+                            Unified API (port 8002)
+                            ├── /api/v1/riot/*     (esports data)
+                            ├── /api/v1/fantasy/*  (fantasy leagues)
+                            └── /api/v1/user/*     (auth)
+                                    ↓
+                              PostgreSQL 16
+                                    ↑
+                            Riot Scraper (port 8004)
+                            └── APScheduler cron jobs
+```
+
+The API is a single FastAPI application serving both the Riot data endpoints and the Fantasy league endpoints. Authentication uses JWT bearer tokens. The scraper runs independently, fetching data from Riot's API on configurable schedules (every 5–15 minutes for active match data, daily for league/team metadata).
+
+Database schema is managed by Alembic migrations, run by a dedicated init container in Docker before app services start.
+
+→ [Full architecture details](docs/architecture.md)
 
 ## Tech Stack
 
-- Python 3.12
-- FastAPI + Uvicorn
-- SQLAlchemy + PostgreSQL
-- APScheduler (cron-based job scheduling)
-- Pydantic (data validation and schemas)
-- JWT authentication (PyJWT + bcrypt)
-- Docker + Docker Compose
-- GitHub Actions (CI/CD)
-- mypy, ruff (code quality)
+| Layer | Technology |
+|-------|-----------|
+| API | Python 3.12, FastAPI, Uvicorn, Pydantic |
+| Database | PostgreSQL 16, SQLAlchemy 2.0, Alembic |
+| Scraper | APScheduler, cloudscraper, httpx |
+| Auth | PyJWT, bcrypt |
+| Frontend | Vue 3, TypeScript, Vite, PrimeVue, Tailwind CSS |
+| Infrastructure | Docker, Docker Compose, Nginx |
+| CI/CD | GitHub Actions (lint, test, Docker build) |
+| Code Quality | ruff, mypy (with SQLAlchemy plugin) |
+
+## Getting Started
+
+### Quick Start (Docker)
+
+```bash
+cp example.env .env
+# Edit .env — set AUTH_SECRET to any random string
+
+./scripts/docker_local.sh
+```
+
+This starts the full stack: PostgreSQL → migrations → API → UI → Scraper.
+
+Access the app at http://localhost:8000. API docs at http://localhost:8002/docs.
+
+### Local Development
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install ".[dev]"
+cp example.env .env
+
+# Start PostgreSQL (via Docker or locally)
+cd docker-files && docker compose -f docker-compose.dev.yml up -d && cd ..
+
+# Run migrations
+./scripts/migrate.sh upgrade
+
+# Start the API
+python -m src.app
+```
+
+→ [Full development guide](docs/development.md)
+
+## API Highlights
+
+### Fantasy API (`/api/v1/fantasy/*`, `/api/v1/user/*`)
+
+- User signup/login with JWT authentication and email verification
+- Create and manage fantasy leagues with configurable scoring settings
+- Invite users, manage memberships, set draft order
+- Draft professional players onto weekly fantasy rosters (5 roles: top, jungle, mid, adc, support)
+
+### Riot Data API (`/api/v1/riot/*`)
+
+- Query professional leagues, tournaments, matches, and games
+- Browse professional teams and players with filtering and search
+- Retrieve per-game player and team statistics
+- Match schedule view with live/upcoming/recent grouping
+- Paginated responses via `fastapi-pagination`
+
+### Scraper (`/api/v1/*` on port 8004)
+
+- Automated data collection from Riot's esports API on cron schedules
+- Frame-level game analysis (multi-kills, dragon order, game duration)
+- Admin-triggered manual job runs via API
+- Retry logic with configurable backoff
 
 ## Project Structure
 
 ```
 src/
-├── auth/            # JWT bearer token auth and permission handling
-├── common/          # Shared config, schemas, logger, exceptions
-├── db/              # SQLAlchemy models, DAOs (riot_dao, fantasy_dao), database service
-├── fantasy/         # Fantasy API — endpoints and services for leagues, teams, users
-├── riot/            # Riot Data API — endpoints and services for esports data
-└── riot_scraper/    # Scraper — Riot API client, scrapers, job scheduler
-tests/               # Unit tests
-docker-files/        # Dockerfiles and docker-compose
-scripts/             # Helper scripts for linting, testing, local Docker
-.github/workflows/   # CI/CD pipelines (lint, test, Docker image build)
+├── app.py               # Unified FastAPI application
+├── auth/                # JWT auth, permissions
+├── common/              # Config, schemas, logging, exceptions
+├── db/                  # SQLAlchemy models, DAOs, migrations support
+├── fantasy/             # Fantasy API — endpoints, services, business logic
+├── riot/                # Riot Data API — endpoints, services
+└── riot_scraper/        # Scraper — schedulers, scrapers, Riot API client
+
+ui/                      # Vue 3 + TypeScript frontend
+alembic/                 # Database migration files
+docker-files/            # Dockerfiles and compose configurations
+scripts/                 # Helper scripts (lint, test, migrate, docker)
+tests/                   # Python test suite (pytest)
+docs/                    # Detailed documentation
 ```
 
-## Getting Started
+## Documentation
 
-### Prerequisites
+- [Architecture](docs/architecture.md) — Runtime topology, services, database design, scraper internals
+- [Development Guide](docs/development.md) — Local setup, running services, migrations, testing, linting
+- [ADR-0001: Alembic Migrations](docs/adr/0001-alembic-for-schema-migrations.md) — Why and how schema migrations work
 
-- Python 3.12+
-- pip
+## License
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-name>
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install .
-   ```
-
-4. Create a `.env` file in the project root:
-   ```env
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fantasy_lol"
-   DEBUG_LOGGING=True
-   AUTH_SECRET=<your-secret-key>
-   AUTH_ALGORITHM=HS256
-   VERIFICATION_DOMAIN_URL="http://localhost"
-   VERIFICATION_SENDER_EMAIL=<your-email>
-   VERIFICATION_SENDER_PASSWORD=<your-app-password>
-   VERIFICATION_SMTP_HOST="smtp.gmail.com"
-   VERIFICATION_SMTP_PORT=465
-   ```
-
-### Running the Services
-
-Each service runs independently:
-
-```bash
-# Fantasy API (port 8000)
-python -m src.fantasy.app
-
-# Riot Data API (port 8002)
-python -m src.riot.app
-
-# Riot Scraper (port 8004) — requires MASTER_SCRAPER=true env var
-MASTER_SCRAPER=true python -m src.riot_scraper.app
-```
-
-Once running, interactive API docs are available at:
-- Fantasy API: http://localhost:8000/docs
-- Riot Data API: http://localhost:8002/docs
-- Scraper API: http://localhost:8004/docs
-
-### Running with Docker
-
-```bash
-cd docker-files
-docker-compose -p fantasy_lol -f docker-compose.local.yml up -d --build
-```
-
-Or use the helper script:
-
-```bash
-./scripts/docker_local.sh
-```
-
-## Development
-
-Install dev dependencies:
-
-```bash
-pip install ".[dev]"
-```
-
-### Linting
-
-```bash
-# Run all checks (ruff lint + ruff format check + mypy)
-./scripts/linter.sh
-
-# Individual checks
-./scripts/linter.sh --lint
-./scripts/linter.sh --mypy
-
-# Auto-format code
-./scripts/linter.sh --format
-```
-
-### Testing
-
-```bash
-./scripts/run_tests.sh
-```
-
-Or directly:
-
-```bash
-pytest
-```
-
-## API Highlights
-
-### Fantasy API
-- User signup/login with JWT authentication
-- Create and manage fantasy leagues with configurable scoring settings
-- Draft professional players onto fantasy teams
-- League membership and invitation system
-
-### Riot Data API
-- Query leagues, tournaments, matches, and games
-- Look up professional teams and players
-- Retrieve per-game player and team statistics
-- Paginated responses
-
-### Scraper
-- Automated data collection from Riot's esports API
-- Configurable cron schedules for each data type
-- Admin-triggered manual job runs via API
+MIT
