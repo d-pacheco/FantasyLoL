@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
+  getLeagueById,
   getLeagueMembers,
   getLeagueSettings,
   getLeagueScoringSettings,
@@ -26,8 +27,7 @@ const auth = useAuthStore()
 
 const leagueId = route.params.id as string
 
-// We get the league object from the router state (passed from LeaguesView) or fetch it
-const league = ref<FantasyLeague | null>((history.state?.league as FantasyLeague) ?? null)
+const league = ref<FantasyLeague | null>(null)
 
 const isOwner = computed(() => !!auth.userId && league.value?.owner_id === auth.userId)
 const acceptedCount = computed(() => members.value.filter(m => m.status === 'accepted').length)
@@ -70,6 +70,7 @@ async function fetchAll() {
   draftOrderLoading.value = true
 
   await Promise.allSettled([
+    getLeagueById(leagueId).then(d => { league.value = d }).catch(() => {}),
     getLeagueMembers(leagueId).then(d => { members.value = d }).catch(() => { membersError.value = 'Unable to load members.' }).finally(() => { membersLoading.value = false }),
     getLeagueSettings(leagueId).then(d => { settings.value = d }).catch(() => { settingsError.value = 'Unable to load settings.' }).finally(() => { settingsLoading.value = false }),
     getLeagueScoringSettings(leagueId).then(d => { scoring.value = d }).catch(() => { scoringError.value = 'Unable to load scoring.' }).finally(() => { scoringLoading.value = false }),

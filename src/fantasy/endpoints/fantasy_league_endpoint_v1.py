@@ -6,6 +6,7 @@ from src.auth.auth_principal import AuthPrincipal
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
     FantasyLeagueID,
+    FantasyLeagueMemberResponse,
     FantasyLeagueSettings,
     FantasyLeagueScoringSettings,
     UsersFantasyLeagues,
@@ -50,9 +51,39 @@ class FantasyLeagueEndpoint(Routable):
         )
 
     @get(
+        path="/leagues/{fantasy_league_id}",
+        description="Get a Fantasy League by ID. The caller must be an accepted member.",
+        tags=["Fantasy Leagues"],
+        response_model=FantasyLeague,
+    )
+    def get_fantasy_league_by_id(
+        self,
+        fantasy_league_id: FantasyLeagueID,
+        principal: AuthPrincipal = Depends(JWTBearer([Permissions.FANTASY_READ])),
+    ) -> FantasyLeague:
+        return self.__fantasy_league_service.get_fantasy_league_by_id(
+            principal.user_id, fantasy_league_id
+        )
+
+    @get(
+        path="/leagues/{fantasy_league_id}/members",
+        description="Get members of a Fantasy League. The caller must be an accepted member.",
+        tags=["Fantasy Leagues"],
+        response_model=list[FantasyLeagueMemberResponse],
+    )
+    def get_fantasy_league_members(
+        self,
+        fantasy_league_id: FantasyLeagueID,
+        principal: AuthPrincipal = Depends(JWTBearer([Permissions.FANTASY_READ])),
+    ) -> list[FantasyLeagueMemberResponse]:
+        return self.__fantasy_league_service.get_league_members(
+            principal.user_id, fantasy_league_id
+        )
+
+    @get(
         path="/leagues/{fantasy_league_id}/settings",
         description="Get the settings for a given Fantasy League. "
-        "The caller must be the owner of the Fantasy League.",
+        "The caller must be an accepted member of the Fantasy League.",
         tags=["Fantasy Leagues"],
         response_model=FantasyLeagueSettings,
     )
@@ -85,7 +116,7 @@ class FantasyLeagueEndpoint(Routable):
     @get(
         path="/leagues/{fantasy_league_id}/scoring",
         description="Get the scoring settings for a given Fantasy League. "
-        "The caller must be the owner of the Fantasy League.",
+        "The caller must be an accepted member of the Fantasy League.",
         tags=["Fantasy Leagues"],
         response_model=FantasyLeagueScoringSettings,
     )
@@ -175,7 +206,7 @@ class FantasyLeagueEndpoint(Routable):
     @get(
         path="/leagues/{fantasy_league_id}/draft-order",
         description="Get draft order of the Fantasy League. "
-        "The caller must be the owner of the Fantasy League.",
+        "The caller must be an accepted member of the Fantasy League.",
         tags=["Fantasy Leagues"],
         response_model=list[FantasyLeagueDraftOrderResponse],
     )
