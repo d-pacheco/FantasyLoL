@@ -1,8 +1,9 @@
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures
+from tests.test_util import riot_fixtures
 
 from src.common.schemas.fantasy_schemas import FantasyLeagueID, UserID
-from src.common.schemas.riot_data_schemas import ProPlayerID
+from src.common.schemas.riot_data_schemas import ProPlayerID, ProTeamID
 
 
 class TestCrudFantasyTeam(TestBase):
@@ -112,3 +113,33 @@ class TestCrudFantasyTeam(TestBase):
 
         week_3_fantasy_teams = self.db.get_all_fantasy_teams_for_week(fantasy_league.id, 3)
         self.assertEqual(0, len(week_3_fantasy_teams))
+
+    def test_fantasy_team_team_id_defaults_to_none(self):
+        # Arrange
+        fantasy_team = fantasy_fixtures.fantasy_team_week_1
+
+        # Act
+        self.db.put_fantasy_team(fantasy_team)
+
+        # Assert
+        stored = self.db.get_all_fantasy_teams_for_user(
+            fantasy_team.fantasy_league_id, fantasy_team.user_id
+        )
+        self.assertIsNone(stored[0].team_id)
+
+    def test_fantasy_team_with_team_id_round_trips(self):
+        # Arrange
+        pro_team = riot_fixtures.team_1_fixture
+        self.db.put_team(pro_team)
+        fantasy_team = fantasy_fixtures.fantasy_team_week_1.model_copy(
+            update={"team_id": ProTeamID(pro_team.id)}
+        )
+
+        # Act
+        self.db.put_fantasy_team(fantasy_team)
+
+        # Assert
+        stored = self.db.get_all_fantasy_teams_for_user(
+            fantasy_team.fantasy_league_id, fantasy_team.user_id
+        )
+        self.assertEqual(ProTeamID(pro_team.id), stored[0].team_id)

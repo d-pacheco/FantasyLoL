@@ -49,6 +49,7 @@ export interface FantasyTeam {
   mid_player_id: string | null
   adc_player_id: string | null
   support_player_id: string | null
+  team_id: string | null
 }
 
 export interface RosterEntry {
