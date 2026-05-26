@@ -2,7 +2,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
 from typing import NewType
 
-from .riot_data_schemas import RiotLeagueID, ProPlayerID, PlayerRole  # type: ignore
+from .riot_data_schemas import RiotLeagueID, ProPlayerID, ProTeamID, PlayerRole  # type: ignore
 
 UserID = NewType("UserID", str)
 FantasyLeagueID = NewType("FantasyLeagueID", str)
@@ -192,6 +192,7 @@ class FantasyTeam(BaseModel):
     mid_player_id: ProPlayerID | None = None
     adc_player_id: ProPlayerID | None = None
     support_player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
 
     def get_player_id_for_role(self, role: PlayerRole) -> ProPlayerID | None:
         if role == PlayerRole.TOP:

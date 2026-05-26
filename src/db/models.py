@@ -344,5 +344,6 @@ class FantasyTeamModel(Base):  # type: ignore
     mid_player_id = Column(String, nullable=True)
     adc_player_id = Column(String, nullable=True)
     support_player_id = Column(String, nullable=True)
+    team_id = Column(String, ForeignKey("professional_teams.id", ondelete="CASCADE"), nullable=True)
 
     __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id", "week"),)
