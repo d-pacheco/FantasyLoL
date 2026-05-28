@@ -418,6 +418,14 @@ class DatabaseService:
                 db, fantasy_league_id, new_current_draft_position
             )
 
+    def update_fantasy_league_current_week(
+        self, fantasy_league_id: FantasyLeagueID, current_week: int
+    ) -> FantasyLeague:
+        with self.connection_provider.get_db() as db:
+            return fantasy_league_dao.update_fantasy_league_current_week(
+                db, fantasy_league_id, current_week
+            )
+
     def put_fantasy_team(self, fantasy_team: FantasyTeam) -> None:
         with self.connection_provider.get_db() as db:
             fantasy_team_dao.put_fantasy_team(db, fantasy_team)
