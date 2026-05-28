@@ -123,6 +123,7 @@ class DraftServiceIntegrationTest(TestBase):
     # ------------------- start_draft ------------------
     # --------------------------------------------------
     def test_start_draft_successful(self):
+        # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = ["someRiotLeagueId"]
@@ -137,22 +138,27 @@ class DraftServiceIntegrationTest(TestBase):
                 FantasyLeagueMembershipStatus.ACCEPTED,
             )
 
+        # Act
         self.draft_service.start_draft(fantasy_league.id, user.id)
 
+        # Assert
         db_league = self.db.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(FantasyLeagueStatus.DRAFT, db_league.status)
         self.assertEqual(1, db_league.current_draft_position)
         self.assertEqual(0, db_league.current_week)
 
     def test_start_draft_rejects_non_owner(self):
+        # Arrange
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = ["someRiotLeagueId"]
         self.db.create_fantasy_league(fantasy_league)
 
+        # Act & Assert
         with self.assertRaises(ForbiddenException):
             self.draft_service.start_draft(fantasy_league.id, UserID(str(uuid.uuid4())))
 
     def test_start_draft_rejects_wrong_member_count(self):
+        # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = ["someRiotLeagueId"]
@@ -166,10 +172,12 @@ class DraftServiceIntegrationTest(TestBase):
                 FantasyLeagueMembershipStatus.ACCEPTED,
             )
 
+        # Act & Assert
         with self.assertRaises(FantasyLeagueStartDraftException):
             self.draft_service.start_draft(fantasy_league.id, user.id)
 
     def test_start_draft_rejects_empty_available_leagues(self):
+        # Arrange
         user = fantasy_fixtures.user_fixture
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.available_leagues = []
@@ -183,18 +191,22 @@ class DraftServiceIntegrationTest(TestBase):
                 FantasyLeagueMembershipStatus.ACCEPTED,
             )
 
+        # Act & Assert
         with self.assertRaises(FantasyLeagueStartDraftException):
             self.draft_service.start_draft(fantasy_league.id, user.id)
 
     def test_start_draft_rejects_non_pre_draft_status(self):
+        # Arrange
         active_league = deepcopy(fantasy_fixtures.fantasy_league_active_fixture)
         active_league.available_leagues = ["someRiotLeagueId"]
         self.db.create_fantasy_league(active_league)
 
+        # Act & Assert
         with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
             self.draft_service.start_draft(active_league.id, fantasy_fixtures.user_fixture.id)
 
     def test_start_draft_rejects_nonexistent_league(self):
+        # Act & Assert
         with self.assertRaises(FantasyLeagueNotFoundException):
             self.draft_service.start_draft(FantasyLeagueID("nonexistent"), UserID("x"))
 
@@ -202,11 +214,14 @@ class DraftServiceIntegrationTest(TestBase):
     # ------------------- make_pick --------------------
     # --------------------------------------------------
     def test_make_pick_valid_player(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
         player = self.make_player(PlayerRole.TOP)
 
+        # Act
         result = self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
 
+        # Assert
         self.assertEqual(1, result.pick_number)
         self.assertEqual(1, result.round_number)
         self.assertEqual(user_ids[0], result.user_id)
@@ -222,72 +237,77 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertEqual(2, db_league.current_draft_position)
 
     def test_make_pick_snake_order_reverses_in_round_2(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
-        # Fill round 1 (4 picks), then verify round 2 starts with user 3
         self.advance_draft(league, user_ids, 4)
-
         player = self.make_player(PlayerRole.SUPPORT)
+
+        # Act — round 2 starts with user 3 (snake reversal)
         result = self.draft_service.make_pick(league.id, user_ids[3], player_id=player.id)
 
+        # Assert
         self.assertEqual(5, result.pick_number)
         self.assertEqual(2, result.round_number)
         self.assertEqual(user_ids[3], result.user_id)
 
     def test_make_pick_rejects_not_users_turn(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
         player = self.make_player(PlayerRole.TOP)
 
+        # Act & Assert — user 1 tries to pick but it's user 0's turn
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[1], player_id=player.id)
 
     def test_make_pick_rejects_player_already_drafted(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
         player = self.make_player(PlayerRole.TOP)
-
         self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
 
+        # Act & Assert — user 1 tries to draft the same player
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[1], player_id=player.id)
 
     def test_make_pick_rejects_role_slot_filled(self):
+        # Arrange — user 0 picks TOP, then we advance to user 0's next turn
         league, user_ids = self.setup_draft_league()
-        # User 0 picks TOP in pick 1
         top_player = self.make_player(PlayerRole.TOP)
         self.draft_service.make_pick(league.id, user_ids[0], player_id=top_player.id)
-        # Advance picks 2-7 so it's user 0's turn again (pick 8)
         self.advance_draft(league, user_ids, 6)
-
-        # User 0 tries another TOP
         another_top = self.make_player(PlayerRole.TOP)
+
+        # Act & Assert — user 0 tries another TOP (slot already filled)
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0], player_id=another_top.id)
 
     def test_make_pick_rejects_team_slot_filled(self):
+        # Arrange — user 0 picks a team, then we advance to user 0's next turn
         league, user_ids = self.setup_draft_league()
-        # User 0 picks a team in pick 1
         self.draft_service.make_pick(
             league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
         )
-        # Advance picks 2-7 so it's user 0's turn again
         self.advance_draft(league, user_ids, 6)
-
-        # User 0 tries another team
         self.db.put_team(riot_fixtures.team_2_fixture)
+
+        # Act & Assert — user 0 tries another team (slot already filled)
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(
                 league.id, user_ids[0], team_id=riot_fixtures.team_2_fixture.id
             )
 
     def test_make_pick_rejects_player_with_role_none(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
         none_player = self.make_player(PlayerRole.NONE)
 
+        # Act & Assert
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0], player_id=none_player.id)
 
     def test_make_pick_rejects_player_not_from_available_leagues(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
-        # Player on a team in a different league
         other_league = riot_fixtures.league_2_fixture
         self.db.put_league(other_league)
         other_team = ProfessionalTeam(
@@ -302,19 +322,24 @@ class DraftServiceIntegrationTest(TestBase):
         self.db.put_team(other_team)
         other_player = self.make_player(PlayerRole.TOP, team_id=other_team.id)
 
+        # Act & Assert
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0], player_id=other_player.id)
 
     def test_make_pick_rejects_neither_player_nor_team(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
 
+        # Act & Assert
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0])
 
     def test_make_pick_rejects_both_player_and_team(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
         player = self.make_player(PlayerRole.TOP)
 
+        # Act & Assert
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(
                 league.id,
@@ -324,12 +349,15 @@ class DraftServiceIntegrationTest(TestBase):
             )
 
     def test_make_pick_valid_team(self):
+        # Arrange
         league, user_ids = self.setup_draft_league()
 
+        # Act
         result = self.draft_service.make_pick(
             league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
         )
 
+        # Assert
         self.assertEqual(1, result.pick_number)
         self.assertEqual(riot_fixtures.team_1_fixture.id, result.team_id)
         self.assertIsNone(result.player_id)
