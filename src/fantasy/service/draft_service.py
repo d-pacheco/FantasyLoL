@@ -4,11 +4,13 @@ import math
 from src.db.database_service import DatabaseService
 from src.common.schemas.fantasy_schemas import (
     DraftPick,
+    DraftState,
     FantasyLeagueID,
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyTeam,
     UserID,
+    UserSlots,
 )
 from src.common.schemas.riot_data_schemas import ProPlayerID, ProTeamID, PlayerRole
 from src.fantasy.exceptions import (
@@ -167,14 +169,81 @@ class DraftService:
         self.db.put_draft_pick(draft_pick)
         self.db.put_fantasy_team(fantasy_team)
 
-        # Advance draft position
-        next_pick = pick_number + 1
-        next_round = math.ceil(next_pick / num_users)
-        next_pos_in_round = next_pick - (next_round - 1) * num_users
-        if next_round % 2 == 0:
-            next_draft_position = num_users - next_pos_in_round + 1
+        # Advance draft position or complete draft
+        total_picks = 6 * num_users
+        if pick_number >= total_picks:
+            # Draft complete
+            self.db.update_fantasy_league_status(league_id, FantasyLeagueStatus.ACTIVE)
+            self.db.update_fantasy_league_current_week(league_id, 1)
         else:
-            next_draft_position = next_pos_in_round
-        self.db.update_fantasy_league_current_draft_position(league_id, next_draft_position)
+            next_pick = pick_number + 1
+            next_round = math.ceil(next_pick / num_users)
+            next_pos_in_round = next_pick - (next_round - 1) * num_users
+            if next_round % 2 == 0:
+                next_draft_position = num_users - next_pos_in_round + 1
+            else:
+                next_draft_position = next_pos_in_round
+            self.db.update_fantasy_league_current_draft_position(league_id, next_draft_position)
 
         return draft_pick
+
+    def get_draft_state(self, league_id: FantasyLeagueID, user_id: UserID) -> DraftState:
+        fantasy_league = self.fantasy_league_util.validate_league(
+            league_id,
+            [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED],
+        )
+        self.fantasy_league_util.validate_membership(user_id, league_id)
+
+        num_users = fantasy_league.number_of_teams
+        total_picks = 6 * num_users
+        existing_picks = self.db.get_draft_picks_for_league(league_id)
+        current_pick_number = len(existing_picks) + 1
+        is_complete = len(existing_picks) >= total_picks
+
+        # Determine current round and whose turn
+        if is_complete:
+            current_round = 6
+            current_turn_user_id = None
+        else:
+            current_round = math.ceil(current_pick_number / num_users)
+            pos_in_round = current_pick_number - (current_round - 1) * num_users
+            if current_round % 2 == 0:
+                draft_position = num_users - pos_in_round + 1
+            else:
+                draft_position = pos_in_round
+
+            draft_order = self.db.get_fantasy_league_draft_order(league_id)
+            current_turn_user_id = None
+            for entry in draft_order:
+                if entry.position == draft_position:
+                    current_turn_user_id = entry.user_id
+                    break
+
+        # Build user slots from fantasy teams
+        user_slots: dict[str, UserSlots] = {}
+        draft_order = self.db.get_fantasy_league_draft_order(league_id)
+        for entry in draft_order:
+            teams = self.db.get_all_fantasy_teams_for_user(league_id, entry.user_id)
+            if teams:
+                t = teams[-1]
+                user_slots[entry.user_id] = UserSlots(
+                    top_player_id=t.top_player_id,
+                    jungle_player_id=t.jungle_player_id,
+                    mid_player_id=t.mid_player_id,
+                    adc_player_id=t.adc_player_id,
+                    support_player_id=t.support_player_id,
+                    team_id=t.team_id,
+                )
+            else:
+                user_slots[entry.user_id] = UserSlots()
+
+        return DraftState(
+            fantasy_league_id=league_id,
+            current_round=current_round,
+            current_pick_number=current_pick_number,
+            total_picks=total_picks,
+            current_turn_user_id=current_turn_user_id,
+            picks=existing_picks,
+            user_slots=user_slots,
+            is_complete=is_complete,
+        )

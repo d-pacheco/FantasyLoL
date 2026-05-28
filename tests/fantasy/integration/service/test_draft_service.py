@@ -5,6 +5,7 @@ from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
+    DraftState,  # noqa: F401
     FantasyLeagueID,
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
@@ -114,10 +115,27 @@ class DraftServiceIntegrationTest(TestBase):
         for i in range(num_picks):
             idx = (start + i) % len(snake)
             user_idx = snake[idx]
-            role = all_roles[user_pick_count[user_idx] % len(all_roles)]
+            pick_num_for_user = user_pick_count[user_idx]
             user_pick_count[user_idx] += 1
-            player = self.make_player(role)
-            self.draft_service.make_pick(league.id, user_ids[user_idx], player_id=player.id)
+
+            if pick_num_for_user < 5:
+                # Player pick
+                role = all_roles[pick_num_for_user]
+                player = self.make_player(role)
+                self.draft_service.make_pick(league.id, user_ids[user_idx], player_id=player.id)
+            else:
+                # Team pick (6th pick for this user)
+                team = ProfessionalTeam(
+                    id=ProTeamID(f"filler-team-{user_idx}-{self._player_counter}"),
+                    slug=f"filler-{user_idx}",
+                    name="Filler Team",
+                    code=f"F{user_idx}",
+                    image="http://img.png",
+                    status="active",
+                    home_league_name=riot_fixtures.league_1_fixture.name,
+                )
+                self.db.put_team(team)
+                self.draft_service.make_pick(league.id, user_ids[user_idx], team_id=team.id)
 
     # --------------------------------------------------
     # ------------------- start_draft ------------------
@@ -364,3 +382,68 @@ class DraftServiceIntegrationTest(TestBase):
 
         teams = self.db.get_all_fantasy_teams_for_user(league.id, user_ids[0])
         self.assertEqual(riot_fixtures.team_1_fixture.id, teams[0].team_id)
+
+    # --------------------------------------------------
+    # -------------- draft completion ------------------
+    # --------------------------------------------------
+    def test_draft_completes_after_final_pick(self):
+        # Arrange — 4 users × 6 picks = 24 total picks
+        league, user_ids = self.setup_draft_league()
+        self.advance_draft(league, user_ids, 23)
+
+        # Act — make the 24th (final) pick (user 0's 6th pick = team pick)
+        final_team = ProfessionalTeam(
+            id=ProTeamID("final-team"),
+            slug="final",
+            name="Final Team",
+            code="FT",
+            image="http://img.png",
+            status="active",
+            home_league_name=riot_fixtures.league_1_fixture.name,
+        )
+        self.db.put_team(final_team)
+        self.draft_service.make_pick(league.id, user_ids[0], team_id=final_team.id)
+
+        # Assert
+        db_league = self.db.get_fantasy_league_by_id(league.id)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_league.status)
+        self.assertEqual(1, db_league.current_week)
+
+    # --------------------------------------------------
+    # --------------- get_draft_state ------------------
+    # --------------------------------------------------
+    def test_get_draft_state_mid_draft(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        player = self.make_player(PlayerRole.TOP)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
+
+        # Act
+        state = self.draft_service.get_draft_state(league.id, user_ids[0])
+
+        # Assert
+        self.assertEqual(league.id, state.fantasy_league_id)
+        self.assertEqual(1, state.current_round)
+        self.assertEqual(2, state.current_pick_number)
+        self.assertEqual(24, state.total_picks)
+        self.assertEqual(user_ids[1], state.current_turn_user_id)
+        self.assertEqual(1, len(state.picks))
+        self.assertFalse(state.is_complete)
+        # User 0 should have TOP filled
+        self.assertEqual(player.id, state.user_slots[user_ids[0]].top_player_id)
+        # User 1 should have nothing
+        self.assertIsNone(state.user_slots[user_ids[1]].top_player_id)
+
+    def test_get_draft_state_after_completion(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        self.advance_draft(league, user_ids, 24)
+
+        # Act
+        state = self.draft_service.get_draft_state(league.id, user_ids[0])
+
+        # Assert
+        self.assertTrue(state.is_complete)
+        self.assertIsNone(state.current_turn_user_id)
+        self.assertEqual(24, len(state.picks))
+        self.assertEqual(24, state.total_picks)
