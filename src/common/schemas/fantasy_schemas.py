@@ -219,3 +219,14 @@ class FantasyTeam(BaseModel):
             self.adc_player_id = player_id
         if role == PlayerRole.SUPPORT:
             self.support_player_id = player_id
+
+
+class DraftPick(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: FantasyLeagueID
+    pick_number: int
+    round_number: int
+    user_id: UserID
+    player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
