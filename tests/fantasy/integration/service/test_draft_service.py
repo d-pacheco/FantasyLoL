@@ -33,6 +33,7 @@ class DraftServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
         self.draft_service = DraftService(self.db)
+        self._player_counter = 0
 
     def create_membership(self, league_id, user_id, status):
         self.db.create_fantasy_league_membership(
@@ -44,14 +45,23 @@ class DraftServiceIntegrationTest(TestBase):
             FantasyLeagueDraftOrder(fantasy_league_id=league_id, user_id=user_id, position=position)
         )
 
+    def make_player(self, role, team_id=None):
+        """Create and persist a player with the given role. Returns the player."""
+        self._player_counter += 1
+        player = ProfessionalPlayer(
+            id=ProPlayerID(f"test-player-{self._player_counter}"),
+            summoner_name=f"Player{self._player_counter}",
+            image="http://img.png",
+            role=role,
+            team_id=team_id or riot_fixtures.team_1_fixture.id,
+        )
+        self.db.put_player(player)
+        return player
+
     def setup_draft_league(self):
         """Set up a 4-user league in DRAFT status.
         Returns (league, [user_ids]) where user_ids[0] is the owner at position 1.
-        Snake order for 4 users:
-          Round 1 (picks 1-4): users 0,1,2,3
-          Round 2 (picks 5-8): users 3,2,1,0
-          Round 3 (picks 9-12): users 0,1,2,3
-          ...
+        Snake order: R1 picks 1-4 → users 0,1,2,3 | R2 picks 5-8 → users 3,2,1,0
         """
         league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         league.available_leagues = [riot_fixtures.league_1_fixture.id]
@@ -76,6 +86,38 @@ class DraftServiceIntegrationTest(TestBase):
 
         self.draft_service.start_draft(league.id, owner.id)
         return league, user_ids
+
+    def advance_draft(self, league, user_ids, num_picks):
+        """Make num_picks filler picks following snake order from current state.
+        Each user gets a different role each time to avoid slot conflicts.
+        """
+        snake = [0, 1, 2, 3, 3, 2, 1, 0]  # repeats every 8 picks for 4 users
+        all_roles = [
+            PlayerRole.TOP,
+            PlayerRole.JUNGLE,
+            PlayerRole.MID,
+            PlayerRole.BOTTOM,
+            PlayerRole.SUPPORT,
+        ]
+        user_pick_count: dict[int, int] = {0: 0, 1: 0, 2: 0, 3: 0}
+
+        existing = self.db.get_draft_picks_for_league(league.id)
+        start = len(existing)
+
+        # Count existing picks per user to know which role index to start at
+        for pick in existing:
+            for i, uid in enumerate(user_ids):
+                if pick.user_id == uid:
+                    user_pick_count[i] += 1
+                    break
+
+        for i in range(num_picks):
+            idx = (start + i) % len(snake)
+            user_idx = snake[idx]
+            role = all_roles[user_pick_count[user_idx] % len(all_roles)]
+            user_pick_count[user_idx] += 1
+            player = self.make_player(role)
+            self.draft_service.make_pick(league.id, user_ids[user_idx], player_id=player.id)
 
     # --------------------------------------------------
     # ------------------- start_draft ------------------
@@ -161,8 +203,7 @@ class DraftServiceIntegrationTest(TestBase):
     # --------------------------------------------------
     def test_make_pick_valid_player(self):
         league, user_ids = self.setup_draft_league()
-        player = riot_fixtures.player_1_fixture  # role=TOP
-        self.db.put_player(player)
+        player = self.make_player(PlayerRole.TOP)
 
         result = self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
 
@@ -182,34 +223,11 @@ class DraftServiceIntegrationTest(TestBase):
 
     def test_make_pick_snake_order_reverses_in_round_2(self):
         league, user_ids = self.setup_draft_league()
-        # Create 5 unique players for picks
-        players = []
-        roles = [
-            PlayerRole.TOP,
-            PlayerRole.JUNGLE,
-            PlayerRole.MID,
-            PlayerRole.BOTTOM,
-            PlayerRole.SUPPORT,
-        ]
-        for i, role in enumerate(roles):
-            p = ProfessionalPlayer(
-                id=ProPlayerID(f"snake-player-{i}"),
-                summoner_name=f"P{i}",
-                image="http://img.png",
-                role=role,
-                team_id=riot_fixtures.team_1_fixture.id,
-            )
-            self.db.put_player(p)
-            players.append(p)
+        # Fill round 1 (4 picks), then verify round 2 starts with user 3
+        self.advance_draft(league, user_ids, 4)
 
-        # Round 1: users 0,1,2,3 (picks 1-4)
-        self.draft_service.make_pick(league.id, user_ids[0], player_id=players[0].id)
-        self.draft_service.make_pick(league.id, user_ids[1], player_id=players[1].id)
-        self.draft_service.make_pick(league.id, user_ids[2], player_id=players[2].id)
-        self.draft_service.make_pick(league.id, user_ids[3], player_id=players[3].id)
-
-        # Round 2 (snake): user 3 picks first
-        result = self.draft_service.make_pick(league.id, user_ids[3], player_id=players[4].id)
+        player = self.make_player(PlayerRole.SUPPORT)
+        result = self.draft_service.make_pick(league.id, user_ids[3], player_id=player.id)
 
         self.assertEqual(5, result.pick_number)
         self.assertEqual(2, result.round_number)
@@ -217,100 +235,44 @@ class DraftServiceIntegrationTest(TestBase):
 
     def test_make_pick_rejects_not_users_turn(self):
         league, user_ids = self.setup_draft_league()
-        player = riot_fixtures.player_1_fixture
-        self.db.put_player(player)
+        player = self.make_player(PlayerRole.TOP)
 
-        # user_ids[1] tries to pick but it's user_ids[0]'s turn
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[1], player_id=player.id)
 
     def test_make_pick_rejects_player_already_drafted(self):
         league, user_ids = self.setup_draft_league()
-        player = riot_fixtures.player_1_fixture  # TOP
-        self.db.put_player(player)
+        player = self.make_player(PlayerRole.TOP)
 
         self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
 
-        # user 1 tries same player
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[1], player_id=player.id)
 
     def test_make_pick_rejects_role_slot_filled(self):
         league, user_ids = self.setup_draft_league()
-        # Create 8 players to fill round 1 + most of round 2
-        players = []
-        roles = [
-            PlayerRole.TOP,
-            PlayerRole.TOP,
-            PlayerRole.TOP,
-            PlayerRole.TOP,
-            PlayerRole.JUNGLE,
-            PlayerRole.JUNGLE,
-            PlayerRole.JUNGLE,
-            PlayerRole.TOP,
-        ]
-        for i, role in enumerate(roles):
-            p = ProfessionalPlayer(
-                id=ProPlayerID(f"role-test-{i}"),
-                summoner_name=f"P{i}",
-                image="http://img.png",
-                role=role,
-                team_id=riot_fixtures.team_1_fixture.id,
-            )
-            self.db.put_player(p)
-            players.append(p)
+        # User 0 picks TOP in pick 1
+        top_player = self.make_player(PlayerRole.TOP)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=top_player.id)
+        # Advance picks 2-7 so it's user 0's turn again (pick 8)
+        self.advance_draft(league, user_ids, 6)
 
-        # Round 1 (picks 1-4): users 0,1,2,3 all pick TOP
-        self.draft_service.make_pick(league.id, user_ids[0], player_id=players[0].id)
-        self.draft_service.make_pick(league.id, user_ids[1], player_id=players[1].id)
-        self.draft_service.make_pick(league.id, user_ids[2], player_id=players[2].id)
-        self.draft_service.make_pick(league.id, user_ids[3], player_id=players[3].id)
-        # Round 2 (snake, picks 5-8): users 3,2,1,0
-        self.draft_service.make_pick(league.id, user_ids[3], player_id=players[4].id)
-        self.draft_service.make_pick(league.id, user_ids[2], player_id=players[5].id)
-        self.draft_service.make_pick(league.id, user_ids[1], player_id=players[6].id)
-
-        # Pick 8: user 0's turn — already has TOP filled, tries another TOP
+        # User 0 tries another TOP
+        another_top = self.make_player(PlayerRole.TOP)
         with self.assertRaises(FantasyDraftException):
-            self.draft_service.make_pick(league.id, user_ids[0], player_id=players[7].id)
+            self.draft_service.make_pick(league.id, user_ids[0], player_id=another_top.id)
 
     def test_make_pick_rejects_team_slot_filled(self):
         league, user_ids = self.setup_draft_league()
-        self.db.put_team(riot_fixtures.team_2_fixture)
-        # Create players for intermediate picks
-        players = []
-        roles = [
-            PlayerRole.TOP,
-            PlayerRole.TOP,
-            PlayerRole.TOP,
-            PlayerRole.JUNGLE,
-            PlayerRole.JUNGLE,
-            PlayerRole.JUNGLE,
-        ]
-        for i, role in enumerate(roles):
-            p = ProfessionalPlayer(
-                id=ProPlayerID(f"team-test-{i}"),
-                summoner_name=f"P{i}",
-                image="http://img.png",
-                role=role,
-                team_id=riot_fixtures.team_1_fixture.id,
-            )
-            self.db.put_player(p)
-            players.append(p)
-
-        # User 0 picks team
+        # User 0 picks a team in pick 1
         self.draft_service.make_pick(
             league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
         )
-        # Fill picks 2-7 to get back to user 0
-        self.draft_service.make_pick(league.id, user_ids[1], player_id=players[0].id)
-        self.draft_service.make_pick(league.id, user_ids[2], player_id=players[1].id)
-        self.draft_service.make_pick(league.id, user_ids[3], player_id=players[2].id)
-        self.draft_service.make_pick(league.id, user_ids[3], player_id=players[3].id)
-        self.draft_service.make_pick(league.id, user_ids[2], player_id=players[4].id)
-        self.draft_service.make_pick(league.id, user_ids[1], player_id=players[5].id)
+        # Advance picks 2-7 so it's user 0's turn again
+        self.advance_draft(league, user_ids, 6)
 
-        # Pick 8: user 0 tries another team
+        # User 0 tries another team
+        self.db.put_team(riot_fixtures.team_2_fixture)
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(
                 league.id, user_ids[0], team_id=riot_fixtures.team_2_fixture.id
@@ -318,40 +280,27 @@ class DraftServiceIntegrationTest(TestBase):
 
     def test_make_pick_rejects_player_with_role_none(self):
         league, user_ids = self.setup_draft_league()
-        none_player = ProfessionalPlayer(
-            id=ProPlayerID("none-role-player"),
-            summoner_name="NoneRole",
-            image="http://img.png",
-            role=PlayerRole.NONE,
-            team_id=riot_fixtures.team_1_fixture.id,
-        )
-        self.db.put_player(none_player)
+        none_player = self.make_player(PlayerRole.NONE)
 
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0], player_id=none_player.id)
 
     def test_make_pick_rejects_player_not_from_available_leagues(self):
         league, user_ids = self.setup_draft_league()
+        # Player on a team in a different league
         other_league = riot_fixtures.league_2_fixture
         self.db.put_league(other_league)
         other_team = ProfessionalTeam(
             id=ProTeamID("other-team"),
             slug="other",
-            name="Other Team",
+            name="Other",
             code="OT",
             image="http://img.png",
             status="active",
             home_league_name=other_league.name,
         )
         self.db.put_team(other_team)
-        other_player = ProfessionalPlayer(
-            id=ProPlayerID("other-player"),
-            summoner_name="OtherPlayer",
-            image="http://img.png",
-            role=PlayerRole.TOP,
-            team_id=other_team.id,
-        )
-        self.db.put_player(other_player)
+        other_player = self.make_player(PlayerRole.TOP, team_id=other_team.id)
 
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(league.id, user_ids[0], player_id=other_player.id)
@@ -364,8 +313,7 @@ class DraftServiceIntegrationTest(TestBase):
 
     def test_make_pick_rejects_both_player_and_team(self):
         league, user_ids = self.setup_draft_league()
-        player = riot_fixtures.player_1_fixture
-        self.db.put_player(player)
+        player = self.make_player(PlayerRole.TOP)
 
         with self.assertRaises(FantasyDraftException):
             self.draft_service.make_pick(
