@@ -89,3 +89,17 @@ def update_fantasy_league_current_draft_position(
     session.commit()
     session.refresh(db_fantasy_league)
     return FantasyLeague.model_validate(db_fantasy_league)
+
+
+def update_fantasy_league_current_week(
+    session, fantasy_league_id: FantasyLeagueID, current_week: int
+) -> FantasyLeague:
+    db_fantasy_league: FantasyLeague | None = (
+        session.query(FantasyLeagueModel).filter_by(id=fantasy_league_id).first()
+    )
+    assert db_fantasy_league is not None
+
+    db_fantasy_league.current_week = current_week
+    session.commit()
+    session.refresh(db_fantasy_league)
+    return FantasyLeague.model_validate(db_fantasy_league)

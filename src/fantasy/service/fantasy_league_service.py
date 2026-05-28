@@ -20,7 +20,6 @@ from src.common.schemas.fantasy_schemas import (
 from src.fantasy.exceptions import (
     FantasyLeagueInviteException,
     FantasyLeagueSettingsException,
-    FantasyLeagueStartDraftException,
     ForbiddenException,
     UserNotFoundException,
 )
@@ -355,37 +354,6 @@ class FantasyLeagueService:
             self.db.update_fantasy_league_draft_order_position(
                 db_draft_position, updated_position.position
             )
-
-    def start_fantasy_draft(self, user_id: UserID, fantasy_league_id: FantasyLeagueID) -> None:
-        logger.info("Starting draft for league=%s by user=%s", fantasy_league_id, user_id)
-        fantasy_league = self.fantasy_league_util.validate_league(
-            fantasy_league_id, [FantasyLeagueStatus.PRE_DRAFT]
-        )
-        if fantasy_league.owner_id != user_id:
-            raise ForbiddenException()
-
-        pending_and_accepted_memberships = self.db.get_pending_and_accepted_members_for_league(
-            fantasy_league_id
-        )
-        accepted_count = 0
-        for membership in pending_and_accepted_memberships:
-            if membership.status == FantasyLeagueMembershipStatus.ACCEPTED:
-                accepted_count += 1
-        if accepted_count != fantasy_league.number_of_teams:
-            raise FantasyLeagueStartDraftException(
-                f"Invalid member count: The fantasy league with ID {fantasy_league_id} does not "
-                f"have correct number of members to start the draft. "
-                f"Expected {fantasy_league.number_of_teams} but has {accepted_count}."
-            )
-
-        if len(fantasy_league.available_leagues) == 0:
-            raise FantasyLeagueStartDraftException(
-                f"Available leagues not set: The fantasy league with ID {fantasy_league_id} must "
-                f"have one Riot league set for players to draft from before starting the draft."
-            )
-
-        self.db.update_fantasy_league_status(fantasy_league_id, FantasyLeagueStatus.DRAFT)
-        self.db.update_fantasy_league_current_draft_position(fantasy_league_id, 1)
 
     def create_fantasy_league_membership(
         self, league_id: FantasyLeagueID, user_id: UserID, status: FantasyLeagueMembershipStatus
