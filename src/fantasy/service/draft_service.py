@@ -1,13 +1,18 @@
 import logging
+import math
 
 from src.db.database_service import DatabaseService
 from src.common.schemas.fantasy_schemas import (
+    DraftPick,
     FantasyLeagueID,
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
+    FantasyTeam,
     UserID,
 )
+from src.common.schemas.riot_data_schemas import ProPlayerID, ProTeamID, PlayerRole
 from src.fantasy.exceptions import (
+    FantasyDraftException,
     FantasyLeagueStartDraftException,
     ForbiddenException,
 )
@@ -53,3 +58,123 @@ class DraftService:
         self.db.update_fantasy_league_status(league_id, FantasyLeagueStatus.DRAFT)
         self.db.update_fantasy_league_current_draft_position(league_id, 1)
         self.db.update_fantasy_league_current_week(league_id, 0)
+
+    def make_pick(
+        self,
+        league_id: FantasyLeagueID,
+        user_id: UserID,
+        player_id: ProPlayerID | None = None,
+        team_id: ProTeamID | None = None,
+    ) -> DraftPick:
+        # Validate league is in DRAFT status
+        fantasy_league = self.fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.DRAFT]
+        )
+
+        # Validate exactly one of player_id or team_id
+        if player_id is None and team_id is None:
+            raise FantasyDraftException("Must provide either player_id or team_id")
+        if player_id is not None and team_id is not None:
+            raise FantasyDraftException("Cannot provide both player_id and team_id")
+
+        # Determine whose turn it is via snake order
+        existing_picks = self.db.get_draft_picks_for_league(league_id)
+        pick_number = len(existing_picks) + 1
+        num_users = fantasy_league.number_of_teams
+        round_number = math.ceil(pick_number / num_users)
+        position_in_round = pick_number - (round_number - 1) * num_users
+
+        # Snake: odd rounds go 1→N, even rounds go N→1
+        if round_number % 2 == 0:
+            draft_position = num_users - position_in_round + 1
+        else:
+            draft_position = position_in_round
+
+        # Map draft_position to user via draft order
+        draft_order = self.db.get_fantasy_league_draft_order(league_id)
+        expected_user_id = None
+        for entry in draft_order:
+            if entry.position == draft_position:
+                expected_user_id = entry.user_id
+                break
+
+        if user_id != expected_user_id:
+            raise FantasyDraftException(
+                f"Not your turn: Expected user at position {draft_position}, got {user_id}"
+            )
+
+        # Get or create user's fantasy team for week 0 (draft week)
+        user_teams = self.db.get_all_fantasy_teams_for_user(league_id, user_id)
+        if user_teams:
+            fantasy_team = user_teams[-1]
+        else:
+            fantasy_team = FantasyTeam(fantasy_league_id=league_id, user_id=user_id, week=0)
+
+        if player_id is not None:
+            # Validate player
+            player = self.db.get_player_by_id(player_id)
+            if player is None:
+                raise FantasyDraftException(f"Player not found: {player_id}")
+            if player.role == PlayerRole.NONE:
+                raise FantasyDraftException(
+                    f"Player has role=none and cannot be drafted: {player_id}"
+                )
+
+            # Validate player from available leagues
+            player_league_ids = self.db.get_league_ids_for_player(player_id)
+            if not any(lid in fantasy_league.available_leagues for lid in player_league_ids):
+                raise FantasyDraftException(f"Player not from available leagues: {player_id}")
+
+            # Validate player not already drafted
+            for pick in existing_picks:
+                if pick.player_id == player_id:
+                    raise FantasyDraftException(f"Player already drafted: {player_id}")
+
+            # Validate role slot empty
+            if fantasy_team.get_player_id_for_role(player.role) is not None:
+                raise FantasyDraftException(f"Role slot already filled: {player.role.value}")
+
+            # Update fantasy team
+            fantasy_team.set_player_id_for_role(player_id, player.role)
+
+        else:
+            # team_id pick
+            team = self.db.get_team_by_id(team_id)
+            if team is None:
+                raise FantasyDraftException(f"Team not found: {team_id}")
+
+            # Validate team not already drafted
+            for pick in existing_picks:
+                if pick.team_id == team_id:
+                    raise FantasyDraftException(f"Team already drafted: {team_id}")
+
+            # Validate team slot empty
+            if fantasy_team.team_id is not None:
+                raise FantasyDraftException("Team slot already filled")
+
+            # Update fantasy team
+            fantasy_team.team_id = team_id
+
+        # Persist
+        draft_pick = DraftPick(
+            fantasy_league_id=league_id,
+            pick_number=pick_number,
+            round_number=round_number,
+            user_id=user_id,
+            player_id=player_id,
+            team_id=team_id,
+        )
+        self.db.put_draft_pick(draft_pick)
+        self.db.put_fantasy_team(fantasy_team)
+
+        # Advance draft position
+        next_pick = pick_number + 1
+        next_round = math.ceil(next_pick / num_users)
+        next_pos_in_round = next_pick - (next_round - 1) * num_users
+        if next_round % 2 == 0:
+            next_draft_position = num_users - next_pos_in_round + 1
+        else:
+            next_draft_position = next_pos_in_round
+        self.db.update_fantasy_league_current_draft_position(league_id, next_draft_position)
+
+        return draft_pick
