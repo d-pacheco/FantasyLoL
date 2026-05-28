@@ -347,3 +347,16 @@ class FantasyTeamModel(Base):  # type: ignore
     team_id = Column(String, ForeignKey("professional_teams.id", ondelete="CASCADE"), nullable=True)
 
     __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id", "week"),)
+
+
+class DraftPickModel(Base):  # type: ignore
+    __tablename__ = "draft_picks"
+
+    fantasy_league_id = Column(String, primary_key=True, nullable=False)
+    pick_number = Column(Integer, primary_key=True, nullable=False)
+    round_number = Column(Integer, nullable=False)
+    user_id = Column(String, nullable=False)
+    player_id = Column(String, nullable=True)
+    team_id = Column(String, nullable=True)
+
+    __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "pick_number"),)
