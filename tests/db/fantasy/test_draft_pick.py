@@ -58,3 +58,34 @@ class TestCrudDraftPick(TestBase):
 
         # Assert
         self.assertEqual([], picks)
+
+    def test_get_draft_picks_isolated_by_league(self):
+        # Arrange
+        league_a = fantasy_fixtures.fantasy_league_draft_fixture.id
+        league_b = fantasy_fixtures.fantasy_league_active_fixture.id
+        pick_a = DraftPick(
+            fantasy_league_id=league_a,
+            pick_number=1,
+            round_number=1,
+            user_id=fantasy_fixtures.user_fixture.id,
+            player_id=ProPlayerID("player-a"),
+        )
+        pick_b = DraftPick(
+            fantasy_league_id=league_b,
+            pick_number=1,
+            round_number=1,
+            user_id=fantasy_fixtures.user_fixture.id,
+            player_id=ProPlayerID("player-b"),
+        )
+        self.db.put_draft_pick(pick_a)
+        self.db.put_draft_pick(pick_b)
+
+        # Act
+        picks_a = self.db.get_draft_picks_for_league(league_a)
+        picks_b = self.db.get_draft_picks_for_league(league_b)
+
+        # Assert
+        self.assertEqual(1, len(picks_a))
+        self.assertEqual(pick_a, picks_a[0])
+        self.assertEqual(1, len(picks_b))
+        self.assertEqual(pick_b, picks_b[0])
