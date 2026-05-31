@@ -447,3 +447,198 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertIsNone(state.current_turn_user_id)
         self.assertEqual(24, len(state.picks))
         self.assertEqual(24, state.total_picks)
+
+    # --------------------------------------------------
+    # ------------- get_available_players --------------
+    # --------------------------------------------------
+    def test_get_available_players_excludes_drafted_and_role_none(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        valid_player = self.make_player(PlayerRole.TOP)
+        drafted_player = self.make_player(PlayerRole.JUNGLE)
+        none_player = self.make_player(PlayerRole.NONE)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=drafted_player.id)
+
+        # Act
+        available = self.draft_service.get_available_players(league.id, user_ids[0])
+
+        # Assert
+        available_ids = [p.id for p in available]
+        self.assertIn(valid_player.id, available_ids)
+        self.assertNotIn(drafted_player.id, available_ids)
+        self.assertNotIn(none_player.id, available_ids)
+
+    def test_get_available_players_only_from_available_leagues(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        valid_player = self.make_player(PlayerRole.TOP)
+
+        # Player from a different league
+        other_league = riot_fixtures.league_2_fixture
+        self.db.put_league(other_league)
+        other_team = ProfessionalTeam(
+            id=ProTeamID("other-league-team"),
+            slug="other",
+            name="Other",
+            code="OT",
+            image="http://img.png",
+            status="active",
+            home_league_name=other_league.name,
+        )
+        self.db.put_team(other_team)
+        other_player = self.make_player(PlayerRole.MID, team_id=other_team.id)
+
+        # Act
+        available = self.draft_service.get_available_players(league.id, user_ids[0])
+
+        # Assert
+        available_ids = [p.id for p in available]
+        self.assertIn(valid_player.id, available_ids)
+        self.assertNotIn(other_player.id, available_ids)
+
+    # --------------------------------------------------
+    # ------------- get_available_teams ----------------
+    # --------------------------------------------------
+    def test_get_available_teams_excludes_drafted(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        self.db.put_team(riot_fixtures.team_2_fixture)
+        self.draft_service.make_pick(
+            league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
+        )
+
+        # Act
+        available = self.draft_service.get_available_teams(league.id, user_ids[1])
+
+        # Assert
+        available_ids = [t.id for t in available]
+        self.assertNotIn(riot_fixtures.team_1_fixture.id, available_ids)
+        self.assertIn(riot_fixtures.team_2_fixture.id, available_ids)
+
+    def test_get_available_teams_only_from_available_leagues(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        other_league = riot_fixtures.league_2_fixture
+        self.db.put_league(other_league)
+        other_team = ProfessionalTeam(
+            id=ProTeamID("other-league-team-2"),
+            slug="other",
+            name="Other",
+            code="OT",
+            image="http://img.png",
+            status="active",
+            home_league_name=other_league.name,
+        )
+        self.db.put_team(other_team)
+
+        # Act
+        available = self.draft_service.get_available_teams(league.id, user_ids[0])
+
+        # Assert
+        available_ids = [t.id for t in available]
+        self.assertIn(riot_fixtures.team_1_fixture.id, available_ids)
+        self.assertNotIn(other_team.id, available_ids)
+
+    def test_get_available_players_returns_empty_when_all_drafted(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        player = self.make_player(PlayerRole.TOP)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
+
+        # Act — the only available player was just drafted
+        available = self.draft_service.get_available_players(league.id, user_ids[1])
+
+        # Assert
+        self.assertEqual([], available)
+
+    def test_get_available_teams_returns_empty_when_all_drafted(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        # team_1 is the only team in the available league
+        self.draft_service.make_pick(
+            league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
+        )
+
+        # Act
+        available = self.draft_service.get_available_teams(league.id, user_ids[1])
+
+        # Assert
+        self.assertEqual([], available)
+
+    # --------------------------------------------------
+    # ------------------ auto_pick ---------------------
+    # --------------------------------------------------
+    def test_auto_pick_fills_first_empty_slot(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        self.make_player(PlayerRole.TOP)  # available for auto_pick
+
+        # Act
+        result = self.draft_service.auto_pick(league.id, user_ids[0])
+
+        # Assert — should pick a TOP player (first empty slot)
+        self.assertEqual(user_ids[0], result.user_id)
+        self.assertIsNotNone(result.player_id)
+        teams = self.db.get_all_fantasy_teams_for_user(league.id, user_ids[0])
+        self.assertIsNotNone(teams[0].top_player_id)
+
+    def test_auto_pick_skips_filled_slots(self):
+        # Arrange — fill TOP for user 0, then advance back to user 0
+        league, user_ids = self.setup_draft_league()
+        self.make_player(PlayerRole.JUNGLE)  # available for auto_pick
+        top_player = self.make_player(PlayerRole.TOP)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=top_player.id)
+        self.advance_draft(league, user_ids, 6)
+
+        # Act — user 0's turn again, TOP is filled so should pick JUNGLE
+        self.draft_service.auto_pick(league.id, user_ids[0])
+
+        # Assert
+        teams = self.db.get_all_fantasy_teams_for_user(league.id, user_ids[0])
+        self.assertIsNotNone(teams[0].jungle_player_id)
+
+    def test_auto_pick_picks_team_when_all_player_slots_filled(self):
+        # Arrange — fill all 5 player slots for user 0
+        league, user_ids = self.setup_draft_league()
+        self.db.put_team(riot_fixtures.team_2_fixture)
+
+        # User 0's turns in a 4-user snake: picks 1, 8, 9, 16, 17, 24
+        # Fill 5 player slots across user 0's first 5 turns
+        roles_to_fill = [
+            PlayerRole.TOP,
+            PlayerRole.JUNGLE,
+            PlayerRole.MID,
+            PlayerRole.BOTTOM,
+            PlayerRole.SUPPORT,
+        ]
+
+        # Pick 1: user 0
+        p = self.make_player(roles_to_fill[0])
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=p.id)
+        # Advance picks 2-7 (6 picks)
+        self.advance_draft(league, user_ids, 6)
+        # Pick 8: user 0 (round 2 snake: pos 4,3,2,1 → pick 8 = pos 1 = user 0)
+        p = self.make_player(roles_to_fill[1])
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=p.id)
+        # Pick 9: user 0 (round 3: pos 1 = user 0)
+        p = self.make_player(roles_to_fill[2])
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=p.id)
+        # Advance picks 10-15 (6 picks)
+        self.advance_draft(league, user_ids, 6)
+        # Pick 16: user 0 (round 4 snake: pos 4,3,2,1 → pick 16 = pos 1 = user 0)
+        p = self.make_player(roles_to_fill[3])
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=p.id)
+        # Pick 17: user 0 (round 5: pos 1 = user 0)
+        p = self.make_player(roles_to_fill[4])
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=p.id)
+        # Advance picks 18-23 (6 picks)
+        self.advance_draft(league, user_ids, 6)
+
+        # Now pick 24: user 0's turn, all player slots filled
+        # Act
+        result = self.draft_service.auto_pick(league.id, user_ids[0])
+
+        # Assert
+        self.assertIsNotNone(result.team_id)
+        teams = self.db.get_all_fantasy_teams_for_user(league.id, user_ids[0])
+        self.assertIsNotNone(teams[0].team_id)
