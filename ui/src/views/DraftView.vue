@@ -71,16 +71,15 @@ onMounted(async () => {
     return
   }
 
-  // Load full lists for name resolution — includes already-drafted players/teams
-  const [players, teams, availPlayers, availTeams, state] = await Promise.all([
-    getPlayers({ fantasy_available: true, size: 500 }).then(r => r.items),
-    getTeams({ fantasy_available: true, size: 200 }).then(r => r.items),
+  const [allPlayersRes, allTeamsRes, availPlayers, availTeams, state] = await Promise.all([
+    getPlayers({ fantasy_available: true, size: 100 }).then(r => r.items),
+    getTeams({ fantasy_available: true, size: 100 }).then(r => r.items),
     getAvailablePlayers(leagueId),
     getAvailableTeams(leagueId),
     getDraftState(leagueId),
   ])
-  allPlayers.value = players
-  allTeams.value = teams
+  allPlayers.value = allPlayersRes
+  allTeams.value = allTeamsRes
 
   // Seed WS state with initial REST data (WS only pushes deltas after this)
   ws.picks.value = state.picks
