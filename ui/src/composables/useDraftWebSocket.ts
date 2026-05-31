@@ -18,20 +18,32 @@ export function handleMessage(event: DraftEvent, state: DraftWebSocketState): vo
     const { pick, next_turn_user_id } = event
     state.picks.value.push(pick)
     state.currentTurnUserId.value = next_turn_user_id ?? null
+
+    const existing = state.userSlots.value[pick.user_id] ?? {
+      top_player_id: null, jungle_player_id: null, mid_player_id: null,
+      adc_player_id: null, support_player_id: null, team_id: null,
+    }
+
     if (pick.player_id) {
+      const player = state.availablePlayers.value.find(p => p.id === pick.player_id)
       state.availablePlayers.value = state.availablePlayers.value.filter(p => p.id !== pick.player_id)
-      const slots = state.userSlots.value[pick.user_id] ?? {
-        top_player_id: null, jungle_player_id: null, mid_player_id: null,
-        adc_player_id: null, support_player_id: null, team_id: null,
+      const roleMap: Record<string, keyof typeof existing> = {
+        top: 'top_player_id', jungle: 'jungle_player_id', mid: 'mid_player_id',
+        bottom: 'adc_player_id', support: 'support_player_id',
       }
-      state.userSlots.value = { ...state.userSlots.value, [pick.user_id]: slots }
+      const slotKey = player ? roleMap[player.role] : null
+      state.userSlots.value = {
+        ...state.userSlots.value,
+        [pick.user_id]: slotKey
+          ? { ...existing, [slotKey]: pick.player_id }
+          : existing,
+      }
     } else if (pick.team_id) {
       state.availableTeams.value = state.availableTeams.value.filter(t => t.id !== pick.team_id)
-      const slots = state.userSlots.value[pick.user_id] ?? {
-        top_player_id: null, jungle_player_id: null, mid_player_id: null,
-        adc_player_id: null, support_player_id: null, team_id: null,
+      state.userSlots.value = {
+        ...state.userSlots.value,
+        [pick.user_id]: { ...existing, team_id: pick.team_id },
       }
-      state.userSlots.value = { ...state.userSlots.value, [pick.user_id]: { ...slots, team_id: pick.team_id } }
     }
   } else if (event.event === 'draft_completed') {
     state.isComplete.value = true

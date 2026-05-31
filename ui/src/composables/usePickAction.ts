@@ -1,4 +1,4 @@
-import { ref, computed, toValue } from 'vue'
+import { ref, computed, toValue, watch } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import axios from 'axios'
 import { makePick } from '../api/fantasyApi'
@@ -8,6 +8,11 @@ export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrG
   const pickError = ref<string | null>(null)
 
   const pickDisabled = computed(() => !toValue(options.isMyTurn) || pickInProgress.value)
+
+  // Reset pickInProgress when the turn rotates back to us via WebSocket
+  watch(() => toValue(options.isMyTurn), (isMyTurn) => {
+    if (isMyTurn) pickInProgress.value = false
+  })
 
   async function pick(playerId: string): Promise<void> {
     pickInProgress.value = true
