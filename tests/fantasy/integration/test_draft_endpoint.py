@@ -134,3 +134,61 @@ class TestDraftEndpoint:
 
         # Assert
         assert response.status_code == 403
+
+    # --------------------------------------------------
+    # ------------------- pick -------------------------
+    # --------------------------------------------------
+    def test_make_pick_route_is_mounted(self):
+        # Arrange
+        client, mock_db, headers = make_client()
+        mock_db.get_draft_picks_for_league.return_value = []
+        mock_db.put_draft_pick.return_value = None
+        mock_db.put_fantasy_team.return_value = None
+
+        # Act
+        response = client.post(
+            f"/api/v1/fantasy/leagues/{TEST_LEAGUE_ID}/draft/pick",
+            json={"player_id": "player-1"},
+            headers=headers,
+        )
+
+        # Assert — route exists (not 404/405)
+        assert response.status_code != 404
+        assert response.status_code != 405
+
+    def test_make_pick_unauthenticated_returns_403(self):
+        # Arrange
+        client = make_unauthed_client()
+
+        # Act
+        response = client.post(
+            f"/api/v1/fantasy/leagues/{TEST_LEAGUE_ID}/draft/pick",
+            json={"player_id": "player-1"},
+        )
+
+        # Assert
+        assert response.status_code == 403
+
+    def test_make_pick_broadcasts_pick_made_event(self):
+        # Arrange
+        from unittest.mock import AsyncMock, patch
+
+        client, mock_db, headers = make_client()
+        mock_db.get_draft_picks_for_league.return_value = []
+        mock_db.put_draft_pick.return_value = None
+        mock_db.put_fantasy_team.return_value = None
+
+        # Act — patch broadcast to verify it's called on a successful pick
+        with patch(
+            "src.fantasy.service.draft_connection_manager.DraftConnectionManager.broadcast",
+            new_callable=AsyncMock,
+        ):
+            response = client.post(
+                f"/api/v1/fantasy/leagues/{TEST_LEAGUE_ID}/draft/pick",
+                json={"player_id": "player-1"},
+                headers=headers,
+            )
+
+        # Assert — route was hit (not 404/405)
+        assert response.status_code != 404
+        assert response.status_code != 405

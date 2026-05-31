@@ -264,3 +264,8 @@ class PickMadeEvent(DraftEvent):
 
 class DraftCompletedEvent(DraftEvent):
     event: Literal["draft_completed"] = "draft_completed"
+
+
+class PickRequest(BaseModel):
+    player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
