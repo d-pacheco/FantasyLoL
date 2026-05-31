@@ -33,6 +33,11 @@ vi.mock('../../src/api/fantasyApi', () => ({
   makePick: vi.fn(),
 }))
 
+vi.mock('../../src/api/riotApi', () => ({
+  getPlayers: vi.fn().mockResolvedValue({ items: [] }),
+  getTeams: vi.fn().mockResolvedValue({ items: [] }),
+}))
+
 vi.mock('../../src/composables/useDraftWebSocket', () => ({
   useDraftWebSocket: () => wsState,
 }))

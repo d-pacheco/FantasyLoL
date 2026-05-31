@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { getLeagueById, getDraftState, getAvailablePlayers, getAvailableTeams, getDraftOrder } from '../api/fantasyApi'
+import { getPlayers, getTeams } from '../api/riotApi'
 import { useDraftWebSocket } from '../composables/useDraftWebSocket'
 import { usePickAction } from '../composables/usePickAction'
 import type { FantasyLeague } from '../types/fantasy'
@@ -70,8 +71,10 @@ onMounted(async () => {
     return
   }
 
-  // Load full lists once — used for name resolution in roster + history
-  const [players, teams, state] = await Promise.all([
+  // Load full lists for name resolution — includes already-drafted players/teams
+  const [players, teams, availPlayers, availTeams, state] = await Promise.all([
+    getPlayers({ fantasy_available: true, size: 500 }).then(r => r.items),
+    getTeams({ fantasy_available: true, size: 200 }).then(r => r.items),
     getAvailablePlayers(leagueId),
     getAvailableTeams(leagueId),
     getDraftState(leagueId),
@@ -84,13 +87,13 @@ onMounted(async () => {
   ws.userSlots.value = state.user_slots
   ws.currentTurnUserId.value = state.current_turn_user_id
   ws.isComplete.value = state.is_complete
-  ws.availablePlayers.value = players
-  ws.availableTeams.value = teams
+  ws.availablePlayers.value = availPlayers
+  ws.availableTeams.value = availTeams
 
   if (leagueData.status === 'active' || leagueData.status === 'completed') {
     isReadOnly.value = true
-    readOnlyPlayers.value = players
-    readOnlyTeams.value = teams
+    readOnlyPlayers.value = availPlayers
+    readOnlyTeams.value = availTeams
   }
 })
 
