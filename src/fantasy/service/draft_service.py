@@ -227,8 +227,18 @@ class DraftService:
             league_id, [FantasyLeagueStatus.DRAFT]
         )
         self.fantasy_league_util.validate_membership(user_id, league_id)
+
+        # Get players from available leagues, excluding role=none
+        filters = [
+            LeagueModel.id.in_(fantasy_league.available_leagues),
+            ProfessionalPlayerModel.role != PlayerRole.NONE.value,
+        ]
+        all_players = self.db.get_players(filters)
+
+        # Exclude already-drafted players
         existing_picks = self.db.get_draft_picks_for_league(league_id)
-        return self._available_players(fantasy_league, existing_picks)
+        drafted_player_ids = {pick.player_id for pick in existing_picks if pick.player_id}
+        return [p for p in all_players if p.id not in drafted_player_ids]
 
     def get_available_teams(
         self, league_id: FantasyLeagueID, user_id: UserID
@@ -237,16 +247,17 @@ class DraftService:
             league_id, [FantasyLeagueStatus.DRAFT]
         )
         self.fantasy_league_util.validate_membership(user_id, league_id)
+
+        # Get teams from available leagues
+        filters = [LeagueModel.id.in_(fantasy_league.available_leagues)]
+        all_teams = self.db.get_teams(filters, join_league=True)
+
+        # Exclude already-drafted teams
         existing_picks = self.db.get_draft_picks_for_league(league_id)
-        return self._available_teams(fantasy_league, existing_picks)
+        drafted_team_ids = {pick.team_id for pick in existing_picks if pick.team_id}
+        return [t for t in all_teams if t.id not in drafted_team_ids]
 
     def auto_pick(self, league_id: FantasyLeagueID, user_id: UserID) -> DraftPick:
-        fantasy_league = self.fantasy_league_util.validate_league(
-            league_id, [FantasyLeagueStatus.DRAFT]
-        )
-        self.fantasy_league_util.validate_membership(user_id, league_id)
-        existing_picks = self.db.get_draft_picks_for_league(league_id)
-
         # Determine user's current slots
         user_teams = self.db.get_all_fantasy_teams_for_user(league_id, user_id)
         if user_teams:
@@ -256,12 +267,15 @@ class DraftService:
 
         # Slot priority order
         slot_roles = [
-            PlayerRole.TOP, PlayerRole.JUNGLE, PlayerRole.MID,
-            PlayerRole.BOTTOM, PlayerRole.SUPPORT,
+            PlayerRole.TOP,
+            PlayerRole.JUNGLE,
+            PlayerRole.MID,
+            PlayerRole.BOTTOM,
+            PlayerRole.SUPPORT,
         ]
 
         # Try player slots first
-        available_players = self._available_players(fantasy_league, existing_picks)
+        available_players = self.get_available_players(league_id, user_id)
         for role in slot_roles:
             if fantasy_team.get_player_id_for_role(role) is None:
                 candidates = [p for p in available_players if p.role == role]
@@ -271,27 +285,12 @@ class DraftService:
 
         # All player slots filled — pick a team
         if fantasy_team.team_id is None:
-            available_teams = self._available_teams(fantasy_league, existing_picks)
+            available_teams = self.get_available_teams(league_id, user_id)
             if available_teams:
                 chosen_team = random.choice(available_teams)
                 return self.make_pick(league_id, user_id, team_id=chosen_team.id)
 
         raise FantasyDraftException("No valid picks available for auto_pick")
-
-    def _available_players(self, fantasy_league, existing_picks) -> list[ProfessionalPlayer]:
-        filters = [
-            LeagueModel.id.in_(fantasy_league.available_leagues),
-            ProfessionalPlayerModel.role != PlayerRole.NONE.value,
-        ]
-        all_players = self.db.get_players(filters)
-        drafted_player_ids = {pick.player_id for pick in existing_picks if pick.player_id}
-        return [p for p in all_players if p.id not in drafted_player_ids]
-
-    def _available_teams(self, fantasy_league, existing_picks) -> list[ProfessionalTeam]:
-        filters = [LeagueModel.id.in_(fantasy_league.available_leagues)]
-        all_teams = self.db.get_teams(filters, join_league=True)
-        drafted_team_ids = {pick.team_id for pick in existing_picks if pick.team_id}
-        return [t for t in all_teams if t.id not in drafted_team_ids]
 
     def _validate_and_apply_player_pick(
         self, player_id, fantasy_league, fantasy_team, existing_picks
