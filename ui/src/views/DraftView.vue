@@ -22,6 +22,8 @@ const leagueId = route.params.id as string
 
 const league = ref<FantasyLeague | null>(null)
 const draftOrder = ref<DraftOrderEntry[]>([])
+const allPlayers = ref<ProfessionalPlayer[]>([])
+const allTeams = ref<ProfessionalTeam[]>([])
 const readOnlyPlayers = ref<ProfessionalPlayer[]>([])
 const readOnlyTeams = ref<ProfessionalTeam[]>([])
 const isReadOnly = ref(false)
@@ -68,13 +70,17 @@ onMounted(async () => {
     return
   }
 
+  // Load full lists once — used for name resolution in roster + history
+  const [players, teams] = await Promise.all([
+    getAvailablePlayers(leagueId),
+    getAvailableTeams(leagueId),
+  ])
+  allPlayers.value = players
+  allTeams.value = teams
+
   if (leagueData.status === 'active' || leagueData.status === 'completed') {
     isReadOnly.value = true
-    const [state, players, teams] = await Promise.all([
-      getDraftState(leagueId),
-      getAvailablePlayers(leagueId),
-      getAvailableTeams(leagueId),
-    ])
+    const state = await getDraftState(leagueId)
     ws.picks.value = state.picks
     ws.userSlots.value = state.user_slots
     ws.currentTurnUserId.value = state.current_turn_user_id
@@ -117,7 +123,7 @@ function onGoToLeague() {
 
       <!-- Right: roster + draft order -->
       <div class="w-56 flex-shrink-0 flex flex-col gap-4">
-        <RosterPanel :slots="mySlots" :players="availablePlayers" />
+        <RosterPanel :slots="mySlots" :players="allPlayers" :teams="allTeams" />
         <DraftOrderPanel
           :draft-order="draftOrder"
           :user-slots="ws.userSlots.value"
@@ -129,8 +135,8 @@ function onGoToLeague() {
     <!-- Bottom: pick history -->
     <PickHistoryTicker
       :picks="ws.picks.value"
-      :players="availablePlayers"
-      :teams="availableTeams"
+      :players="allPlayers"
+      :teams="allTeams"
       :draft-order="draftOrder"
     />
 

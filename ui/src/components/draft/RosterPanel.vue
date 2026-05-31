@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { UserSlots } from '../../types/fantasy'
-import type { ProfessionalPlayer } from '../../types/riot'
+import type { ProfessionalPlayer, ProfessionalTeam } from '../../types/riot'
 
 const props = defineProps<{
   slots: UserSlots
   players: ProfessionalPlayer[]
+  teams: ProfessionalTeam[]
 }>()
 
 function playerName(id: string | null): string | null {
   if (!id) return null
-  return props.players.find(p => p.id === id)?.summoner_name ?? null
+  return props.players.find(p => p.id === id)?.summoner_name ?? id
+}
+
+function teamName(id: string | null): string | null {
+  if (!id) return null
+  return props.teams.find(t => t.id === id)?.name ?? id
 }
 
 const rosterSlots = computed(() => [
@@ -19,7 +25,7 @@ const rosterSlots = computed(() => [
   { label: 'MID',  name: playerName(props.slots.mid_player_id) },
   { label: 'ADC',  name: playerName(props.slots.adc_player_id) },
   { label: 'SUP',  name: playerName(props.slots.support_player_id) },
-  { label: 'TEAM', name: props.slots.team_id ?? null },
+  { label: 'TEAM', name: teamName(props.slots.team_id) },
 ])
 </script>
 
