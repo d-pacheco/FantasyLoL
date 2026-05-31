@@ -114,6 +114,13 @@ function onGoToLeague() {
       :is-your-turn="isMyTurn"
     />
 
+    <PickHistoryTicker
+      :picks="ws.picks.value"
+      :players="allPlayers"
+      :teams="allTeams"
+      :draft-order="draftOrder"
+    />
+
     <div class="flex gap-4 flex-1 min-h-0">
       <!-- Left: available players -->
       <div class="flex-1 min-w-0">
@@ -139,13 +146,6 @@ function onGoToLeague() {
     </div>
 
     <!-- Bottom: pick history -->
-    <PickHistoryTicker
-      :picks="ws.picks.value"
-      :players="allPlayers"
-      :teams="allTeams"
-      :draft-order="draftOrder"
-    />
-
     <DraftCompleteModal :show="ws.isComplete.value" @go-to-league="onGoToLeague" />
   </div>
 </template>
