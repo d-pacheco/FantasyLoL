@@ -1,5 +1,6 @@
 import { ref, computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
+import axios from 'axios'
 import { makePick } from '../api/fantasyApi'
 
 export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrGetter<boolean> }) {
@@ -13,8 +14,9 @@ export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrG
     pickError.value = null
     try {
       await makePick(leagueId, { player_id: playerId })
-    } catch {
-      pickError.value = 'Pick failed. Please try again.'
+    } catch (e) {
+      const detail = axios.isAxiosError(e) ? e.response?.data?.detail : null
+      pickError.value = detail ?? 'Pick failed. Please try again.'
       pickInProgress.value = false
     }
   }
@@ -24,8 +26,9 @@ export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrG
     pickError.value = null
     try {
       await makePick(leagueId, { team_id: teamId })
-    } catch {
-      pickError.value = 'Pick failed. Please try again.'
+    } catch (e) {
+      const detail = axios.isAxiosError(e) ? e.response?.data?.detail : null
+      pickError.value = detail ?? 'Pick failed. Please try again.'
       pickInProgress.value = false
     }
   }
