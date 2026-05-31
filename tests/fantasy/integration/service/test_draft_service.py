@@ -515,6 +515,56 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertNotIn(riot_fixtures.team_1_fixture.id, available_ids)
         self.assertIn(riot_fixtures.team_2_fixture.id, available_ids)
 
+    def test_get_available_teams_only_from_available_leagues(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        other_league = riot_fixtures.league_2_fixture
+        self.db.put_league(other_league)
+        other_team = ProfessionalTeam(
+            id=ProTeamID("other-league-team-2"),
+            slug="other",
+            name="Other",
+            code="OT",
+            image="http://img.png",
+            status="active",
+            home_league_name=other_league.name,
+        )
+        self.db.put_team(other_team)
+
+        # Act
+        available = self.draft_service.get_available_teams(league.id, user_ids[0])
+
+        # Assert
+        available_ids = [t.id for t in available]
+        self.assertIn(riot_fixtures.team_1_fixture.id, available_ids)
+        self.assertNotIn(other_team.id, available_ids)
+
+    def test_get_available_players_returns_empty_when_all_drafted(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        player = self.make_player(PlayerRole.TOP)
+        self.draft_service.make_pick(league.id, user_ids[0], player_id=player.id)
+
+        # Act — the only available player was just drafted
+        available = self.draft_service.get_available_players(league.id, user_ids[1])
+
+        # Assert
+        self.assertEqual([], available)
+
+    def test_get_available_teams_returns_empty_when_all_drafted(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        # team_1 is the only team in the available league
+        self.draft_service.make_pick(
+            league.id, user_ids[0], team_id=riot_fixtures.team_1_fixture.id
+        )
+
+        # Act
+        available = self.draft_service.get_available_teams(league.id, user_ids[1])
+
+        # Assert
+        self.assertEqual([], available)
+
     # --------------------------------------------------
     # ------------------ auto_pick ---------------------
     # --------------------------------------------------
