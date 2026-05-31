@@ -250,3 +250,13 @@ class DraftState(BaseModel):
     picks: list[DraftPick]
     user_slots: dict[str, UserSlots]
     is_complete: bool
+
+
+class PickMadeEvent(BaseModel):
+    event: str = "pick_made"
+    pick: DraftPick
+    next_turn_user_id: UserID | None = None
+
+
+class DraftCompletedEvent(BaseModel):
+    event: str = "draft_completed"
