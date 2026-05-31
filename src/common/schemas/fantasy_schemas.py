@@ -219,3 +219,34 @@ class FantasyTeam(BaseModel):
             self.adc_player_id = player_id
         if role == PlayerRole.SUPPORT:
             self.support_player_id = player_id
+
+
+class DraftPick(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: FantasyLeagueID
+    pick_number: int
+    round_number: int
+    user_id: UserID
+    player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
+
+
+class UserSlots(BaseModel):
+    top_player_id: ProPlayerID | None = None
+    jungle_player_id: ProPlayerID | None = None
+    mid_player_id: ProPlayerID | None = None
+    adc_player_id: ProPlayerID | None = None
+    support_player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
+
+
+class DraftState(BaseModel):
+    fantasy_league_id: FantasyLeagueID
+    current_round: int
+    current_pick_number: int
+    total_picks: int
+    current_turn_user_id: UserID | None
+    picks: list[DraftPick]
+    user_slots: dict[str, UserSlots]
+    is_complete: bool

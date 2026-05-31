@@ -1,4 +1,5 @@
 from src.common.schemas.fantasy_schemas import (
+    DraftPick,
     FantasyLeague,
     FantasyLeagueID,
     FantasyLeagueDraftOrder,
@@ -39,6 +40,7 @@ from src.common.schemas.riot_data_schemas import (
 from src.db.database_connection_provider import DatabaseConnectionProvider
 from src.db.fantasy_dao import (
     draft_order_dao,
+    draft_pick_dao,
     fantasy_league_dao,
     fantasy_team_dao,
     membership_dao,
@@ -362,6 +364,14 @@ class DatabaseService:
                 db, draft_order, new_position
             )
 
+    def put_draft_pick(self, draft_pick: DraftPick) -> None:
+        with self.connection_provider.get_db() as db:
+            draft_pick_dao.put_draft_pick(db, draft_pick)
+
+    def get_draft_picks_for_league(self, fantasy_league_id: FantasyLeagueID) -> list[DraftPick]:
+        with self.connection_provider.get_db() as db:
+            return draft_pick_dao.get_draft_picks_for_league(db, fantasy_league_id)
+
     def create_fantasy_league(self, fantasy_league: FantasyLeague) -> None:
         with self.connection_provider.get_db() as db:
             fantasy_league_dao.create_fantasy_league(db, fantasy_league)
@@ -406,6 +416,14 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             return fantasy_league_dao.update_fantasy_league_current_draft_position(
                 db, fantasy_league_id, new_current_draft_position
+            )
+
+    def update_fantasy_league_current_week(
+        self, fantasy_league_id: FantasyLeagueID, current_week: int
+    ) -> FantasyLeague:
+        with self.connection_provider.get_db() as db:
+            return fantasy_league_dao.update_fantasy_league_current_week(
+                db, fantasy_league_id, current_week
             )
 
     def put_fantasy_team(self, fantasy_team: FantasyTeam) -> None:
