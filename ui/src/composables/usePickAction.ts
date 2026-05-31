@@ -1,0 +1,34 @@
+import { ref, computed, toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
+import { makePick } from '../api/fantasyApi'
+
+export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrGetter<boolean> }) {
+  const pickInProgress = ref(false)
+  const pickError = ref<string | null>(null)
+
+  const pickDisabled = computed(() => !toValue(options.isMyTurn) || pickInProgress.value)
+
+  async function pick(playerId: string): Promise<void> {
+    pickInProgress.value = true
+    pickError.value = null
+    try {
+      await makePick(leagueId, { player_id: playerId })
+    } catch {
+      pickError.value = 'Pick failed. Please try again.'
+      pickInProgress.value = false
+    }
+  }
+
+  async function pickTeam(teamId: string): Promise<void> {
+    pickInProgress.value = true
+    pickError.value = null
+    try {
+      await makePick(leagueId, { team_id: teamId })
+    } catch {
+      pickError.value = 'Pick failed. Please try again.'
+      pickInProgress.value = false
+    }
+  }
+
+  return { pickDisabled, pickInProgress, pickError, pick, pickTeam }
+}

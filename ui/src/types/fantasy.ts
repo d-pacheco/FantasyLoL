@@ -85,3 +85,49 @@ export interface ActivityEvent {
   description: string
   timestamp: string
 }
+
+export interface DraftPick {
+  fantasy_league_id: string
+  pick_number: number
+  round_number: number
+  user_id: string
+  player_id: string | null
+  team_id: string | null
+}
+
+export interface UserSlots {
+  top_player_id: string | null
+  jungle_player_id: string | null
+  mid_player_id: string | null
+  adc_player_id: string | null
+  support_player_id: string | null
+  team_id: string | null
+}
+
+export interface DraftState {
+  fantasy_league_id: string
+  current_round: number
+  current_pick_number: number
+  total_picks: number
+  current_turn_user_id: string | null
+  picks: DraftPick[]
+  user_slots: Record<string, UserSlots>
+  is_complete: boolean
+}
+
+export interface PickRequest {
+  player_id?: string
+  team_id?: string
+}
+
+export interface PickMadeEvent {
+  event: 'pick_made'
+  pick: DraftPick
+  next_turn_user_id: string | null
+}
+
+export interface DraftCompletedEvent {
+  event: 'draft_completed'
+}
+
+export type DraftEvent = PickMadeEvent | DraftCompletedEvent

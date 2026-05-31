@@ -1,5 +1,6 @@
 import { api } from './client'
-import type { FantasyLeague, FantasyLeagueSettings, FantasyLeagueScoringSettings } from '../types/fantasy'
+import type { FantasyLeague, FantasyLeagueSettings, FantasyLeagueScoringSettings, DraftState, PickRequest } from '../types/fantasy'
+import type { ProfessionalPlayer, ProfessionalTeam } from '../types/riot'
 
 export interface MyLeaguesResponse {
   pending: FantasyLeague[]
@@ -70,5 +71,24 @@ export async function inviteToLeague(leagueId: string, username: string): Promis
 }
 
 export async function startDraft(leagueId: string): Promise<void> {
-  await api.post(`/fantasy/leagues/${leagueId}/start-draft`)
+  await api.post(`/fantasy/leagues/${leagueId}/draft/start`)
+}
+
+export async function getDraftState(leagueId: string): Promise<DraftState> {
+  const res = await api.get<DraftState>(`/fantasy/leagues/${leagueId}/draft/state`)
+  return res.data
+}
+
+export async function getAvailablePlayers(leagueId: string): Promise<ProfessionalPlayer[]> {
+  const res = await api.get<ProfessionalPlayer[]>(`/fantasy/leagues/${leagueId}/draft/available-players`)
+  return res.data
+}
+
+export async function getAvailableTeams(leagueId: string): Promise<ProfessionalTeam[]> {
+  const res = await api.get<ProfessionalTeam[]>(`/fantasy/leagues/${leagueId}/draft/available-teams`)
+  return res.data
+}
+
+export async function makePick(leagueId: string, request: PickRequest): Promise<void> {
+  await api.post(`/fantasy/leagues/${leagueId}/draft/pick`, request)
 }
