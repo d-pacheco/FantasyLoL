@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { DraftOrderEntry } from '../../api/fantasyApi'
 import type { UserSlots } from '../../types/fantasy'
 
