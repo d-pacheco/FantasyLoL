@@ -46,20 +46,11 @@ class FantasyTeamService:
             "Player pickup: user=%s league=%s player=%s", user_id, fantasy_league_id, player_id
         )
         fantasy_league = self.fantasy_league_util.validate_league(
-            fantasy_league_id, [FantasyLeagueStatus.DRAFT, FantasyLeagueStatus.ACTIVE]
+            fantasy_league_id, [FantasyLeagueStatus.ACTIVE]
         )
         professional_player = self.get_player_from_db(player_id)
         self.fantasy_team_util.validate_player_from_available_league(fantasy_league, player_id)
         self.validate_user_membership(user_id, fantasy_league_id)
-
-        if (
-            fantasy_league.status == FantasyLeagueStatus.DRAFT
-        ) and not self.fantasy_team_util.is_users_position_to_draft(fantasy_league, user_id):
-            raise FantasyDraftException(
-                f"Invalid user draft position: The draft position for the user "
-                f"with ID {user_id} is not the current draft position for fantasy league "
-                f"with ID {fantasy_league_id}"
-            )
 
         recent_fantasy_team = self.get_users_most_recent_fantasy_team(fantasy_league, user_id)
         if recent_fantasy_team.get_player_id_for_role(professional_player.role) is not None:
@@ -75,11 +66,6 @@ class FantasyTeamService:
             )
 
         self.db.put_fantasy_team(recent_fantasy_team)
-        if fantasy_league.status == FantasyLeagueStatus.DRAFT:
-            self.fantasy_league_util.update_fantasy_leagues_current_draft_position(fantasy_league)
-            if self.fantasy_team_util.all_teams_fully_drafted(fantasy_league):
-                self.db.update_fantasy_league_status(fantasy_league_id, FantasyLeagueStatus.ACTIVE)
-                # TODO: NEED TO SET THE CURRENT WEEK TO BE THE CURRENT WEEK FOR THE LEAGUE(S)
 
         return recent_fantasy_team
 

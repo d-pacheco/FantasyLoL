@@ -642,3 +642,19 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertIsNotNone(result.team_id)
         teams = self.db.get_all_fantasy_teams_for_user(league.id, user_ids[0])
         self.assertIsNotNone(teams[0].team_id)
+
+    # --------------------------------------------------
+    # -------- pickup_player rejects DRAFT -------------
+    # --------------------------------------------------
+    def test_pickup_player_rejects_draft_status(self):
+        # Arrange
+        league, user_ids = self.setup_draft_league()
+        player = self.make_player(PlayerRole.TOP)
+        from src.fantasy.service import FantasyTeamService
+        from src.fantasy.exceptions import FantasyLeagueInvalidRequiredStateException
+
+        team_service = FantasyTeamService(self.db)
+
+        # Act & Assert
+        with self.assertRaises(FantasyLeagueInvalidRequiredStateException):
+            team_service.pickup_player(league.id, user_ids[0], player.id)
