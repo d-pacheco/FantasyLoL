@@ -103,7 +103,8 @@ describe('DraftView', () => {
 
   it('renders pick buttons enabled when status is DRAFT and it is the user\'s turn', async () => {
     mockGetLeagueById.mockResolvedValue({ id: 'l1', name: 'Test', status: 'draft' })
-    wsState.availablePlayers.value = [faker]
+    mockGetDraftState.mockResolvedValue({ ...baseDraftState, current_turn_user_id: 'u1' })
+    mockGetAvailablePlayers.mockResolvedValue([faker])
     wsState.currentTurnUserId.value = 'u1'
     const router = makeRouter()
     await router.isReady()

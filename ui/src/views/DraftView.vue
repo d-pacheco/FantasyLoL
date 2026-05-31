@@ -71,20 +71,24 @@ onMounted(async () => {
   }
 
   // Load full lists once — used for name resolution in roster + history
-  const [players, teams] = await Promise.all([
+  const [players, teams, state] = await Promise.all([
     getAvailablePlayers(leagueId),
     getAvailableTeams(leagueId),
+    getDraftState(leagueId),
   ])
   allPlayers.value = players
   allTeams.value = teams
 
+  // Seed WS state with initial REST data (WS only pushes deltas after this)
+  ws.picks.value = state.picks
+  ws.userSlots.value = state.user_slots
+  ws.currentTurnUserId.value = state.current_turn_user_id
+  ws.isComplete.value = state.is_complete
+  ws.availablePlayers.value = players
+  ws.availableTeams.value = teams
+
   if (leagueData.status === 'active' || leagueData.status === 'completed') {
     isReadOnly.value = true
-    const state = await getDraftState(leagueId)
-    ws.picks.value = state.picks
-    ws.userSlots.value = state.user_slots
-    ws.currentTurnUserId.value = state.current_turn_user_id
-    ws.isComplete.value = state.is_complete
     readOnlyPlayers.value = players
     readOnlyTeams.value = teams
   }
