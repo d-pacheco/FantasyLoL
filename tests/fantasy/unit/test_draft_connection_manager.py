@@ -2,7 +2,10 @@ import asyncio
 from unittest.mock import AsyncMock
 
 from tests.test_base import TestBase
-from src.common.schemas.fantasy_schemas import FantasyLeagueID
+from src.common.schemas.fantasy_schemas import (
+    DraftCompletedEvent,
+    FantasyLeagueID,
+)
 
 
 class TestDraftConnectionManager(TestBase):
@@ -60,17 +63,19 @@ class TestDraftConnectionManager(TestBase):
         ws2 = self.make_ws()
         self.manager.connect(self.league_id, ws1)
         self.manager.connect(self.league_id, ws2)
+        event = DraftCompletedEvent()
 
         # Act
-        asyncio.run(self.manager.broadcast(self.league_id, '{"event": "test"}'))
+        asyncio.run(self.manager.broadcast(self.league_id, event))
 
         # Assert
-        ws1.send_text.assert_called_once_with('{"event": "test"}')
-        ws2.send_text.assert_called_once_with('{"event": "test"}')
+        expected = event.model_dump_json()
+        ws1.send_text.assert_called_once_with(expected)
+        ws2.send_text.assert_called_once_with(expected)
 
     def test_broadcast_to_empty_room_does_nothing(self):
         # Act & Assert — no error
-        asyncio.run(self.manager.broadcast(self.league_id, '{"event": "test"}'))
+        asyncio.run(self.manager.broadcast(self.league_id, DraftCompletedEvent()))
 
     # --------------------------------------------------
     # ------------------ close_room --------------------

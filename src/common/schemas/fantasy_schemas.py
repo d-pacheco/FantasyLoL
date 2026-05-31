@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
-from typing import NewType
+from typing import NewType, Literal
 
 from .riot_data_schemas import RiotLeagueID, ProPlayerID, ProTeamID, PlayerRole  # type: ignore
 
@@ -252,11 +252,15 @@ class DraftState(BaseModel):
     is_complete: bool
 
 
-class PickMadeEvent(BaseModel):
-    event: str = "pick_made"
+class DraftEvent(BaseModel):
+    event: str
+
+
+class PickMadeEvent(DraftEvent):
+    event: Literal["pick_made"] = "pick_made"
     pick: DraftPick
     next_turn_user_id: UserID | None = None
 
 
-class DraftCompletedEvent(BaseModel):
-    event: str = "draft_completed"
+class DraftCompletedEvent(DraftEvent):
+    event: Literal["draft_completed"] = "draft_completed"

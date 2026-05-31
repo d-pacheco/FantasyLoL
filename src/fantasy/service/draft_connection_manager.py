@@ -1,6 +1,6 @@
 from fastapi import WebSocket
 
-from src.common.schemas.fantasy_schemas import FantasyLeagueID
+from src.common.schemas.fantasy_schemas import DraftEvent, FantasyLeagueID
 
 
 class DraftConnectionManager:
@@ -19,7 +19,8 @@ class DraftConnectionManager:
     def get_connections(self, league_id: FantasyLeagueID) -> list[WebSocket]:
         return list(self._rooms.get(league_id, set()))
 
-    async def broadcast(self, league_id: FantasyLeagueID, message: str) -> None:
+    async def broadcast(self, league_id: FantasyLeagueID, event: DraftEvent) -> None:
+        message = event.model_dump_json()
         for ws in list(self._rooms.get(league_id, set())):
             await ws.send_text(message)
 
