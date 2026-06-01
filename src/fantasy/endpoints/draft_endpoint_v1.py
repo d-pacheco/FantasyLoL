@@ -41,7 +41,7 @@ class DraftEndpoint(Routable):
         tags=["Fantasy Draft"],
         response_model=DraftPick,
     )
-    def make_pick(
+    async def make_pick(
         self,
         league_id: FantasyLeagueID,
         pick_request: PickRequest = Body(...),

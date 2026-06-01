@@ -138,31 +138,40 @@ const statusColors: Record<string, string> = {
       </div>
 
       <div class="flex flex-col items-end gap-1">
-        <!-- Owner: Start Draft -->
+        <!-- Anyone: Join Draft (when league is in draft) -->
         <button
-          v-if="isOwner"
-          class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-          :class="isFull
-            ? 'bg-primary text-white hover:bg-primary-hover'
-            : 'bg-surface border border-border-subtle text-foreground-muted cursor-not-allowed'"
-          :disabled="!isFull || startingDraft"
-          @click="onStartDraft"
+          v-if="league?.status === 'draft'"
+          class="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary-hover transition-colors"
+          @click="router.push({ name: 'league-draft', params: { id: leagueId } })"
         >
-          {{ startingDraft ? 'Starting…' : 'Start Draft' }}
+          Join Draft
         </button>
-        <!-- Non-owner: Leave -->
+        <!-- Owner: Start Draft (only during pre-draft) -->
+        <template v-else-if="isOwner && league?.status === 'pre-draft'">
+          <button
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+            :class="isFull
+              ? 'bg-primary text-white hover:bg-primary-hover'
+              : 'bg-surface border border-border-subtle text-foreground-muted cursor-not-allowed'"
+            :disabled="!isFull || startingDraft"
+            @click="onStartDraft"
+          >
+            {{ startingDraft ? 'Starting…' : 'Start Draft' }}
+          </button>
+          <p v-if="startDraftError" class="text-xs text-danger">{{ startDraftError }}</p>
+          <p v-if="!isFull" class="text-xs text-foreground-muted">
+            Need {{ (league?.number_of_teams ?? 0) - acceptedCount }} more member(s) to start
+          </p>
+        </template>
+        <!-- Non-owner: Leave (only during pre-draft) -->
         <button
-          v-else
+          v-else-if="!isOwner && league?.status === 'pre-draft'"
           class="px-4 py-2 rounded-lg border border-border-subtle text-sm text-foreground-muted hover:text-foreground transition-colors"
           :disabled="leavingLeague"
           @click="onLeave"
         >
           {{ leavingLeague ? 'Leaving…' : 'Leave League' }}
         </button>
-        <p v-if="startDraftError" class="text-xs text-danger">{{ startDraftError }}</p>
-        <p v-if="!isFull && isOwner" class="text-xs text-foreground-muted">
-          Need {{ (league?.number_of_teams ?? 0) - acceptedCount }} more member(s) to start
-        </p>
       </div>
     </div>
 
