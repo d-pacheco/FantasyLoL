@@ -7,10 +7,11 @@ export function usePickAction(leagueId: string, options: { isMyTurn: MaybeRefOrG
   const pickInProgress = ref(false)
   const pickError = ref<string | null>(null)
 
-  const pickDisabled = computed(() => !toValue(options.isMyTurn) || pickInProgress.value)
+  const isMyTurnRef = computed(() => toValue(options.isMyTurn))
+  const pickDisabled = computed(() => !isMyTurnRef.value || pickInProgress.value)
 
   // Reset pickInProgress when the turn rotates back to us via WebSocket
-  watch(() => toValue(options.isMyTurn), (isMyTurn) => {
+  watch(isMyTurnRef, (isMyTurn) => {
     if (isMyTurn) pickInProgress.value = false
   })
 
