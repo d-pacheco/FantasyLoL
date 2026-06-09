@@ -13,7 +13,7 @@
     "@fontsource/inter": "^5.2.8",
     "@primevue/themes": "^4.5.4",
     "@tailwindcss/vite": "^4.2.4",
-    "axios": "^1.15.2",
+    "axios": "^1.16.0",
     "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
     "primevue": "^4.5.5",
