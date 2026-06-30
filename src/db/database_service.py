@@ -434,6 +434,152 @@ class DatabaseService:
                 db, fantasy_league_id, start_week
             )
 
+    # --------------------------------------------------
+    # -------------- Scoring queries -------------------
+    # --------------------------------------------------
+
+    def get_games_for_match(self, match_id: RiotMatchID) -> list:
+        """Get all games for a given match."""
+        from src.db.models import GameModel
+        with self.connection_provider.get_db() as db:
+            rows = db.query(GameModel).filter(GameModel.match_id == match_id).all()
+            return [
+                {
+                    "id": r.id,
+                    "state": r.state.value if hasattr(r.state, "value") else r.state,
+                    "number": r.number,
+                    "duration_seconds": r.duration_seconds,
+                }
+                for r in rows
+            ]
+
+    def get_player_stats_for_game(self, game_id: RiotGameID, player_id) -> dict | None:
+        """Get player stats for a specific player in a specific game."""
+        from src.db.models import PlayerGameMetadataModel, PlayerGameStatsModel
+        with self.connection_provider.get_db() as db:
+            metadata = (
+                db.query(PlayerGameMetadataModel)
+                .filter(
+                    PlayerGameMetadataModel.game_id == game_id,
+                    PlayerGameMetadataModel.player_id == player_id,
+                )
+                .first()
+            )
+            if metadata is None:
+                return None
+            stats = (
+                db.query(PlayerGameStatsModel)
+                .filter(
+                    PlayerGameStatsModel.game_id == game_id,
+                    PlayerGameStatsModel.participant_id == metadata.participant_id,
+                )
+                .first()
+            )
+            if stats is None:
+                return None
+            return {
+                "kills": stats.kills or 0,
+                "deaths": stats.deaths or 0,
+                "assists": stats.assists or 0,
+                "creep_score": stats.creep_score or 0,
+                "wards_placed": stats.wards_placed or 0,
+                "wards_destroyed": stats.wards_destroyed or 0,
+                "kill_participation": stats.kill_participation or 0,
+                "champion_damage_share": stats.champion_damage_share or 0,
+            }
+
+    def get_team_stats_for_game(self, game_id: RiotGameID, team_id) -> dict | None:
+        """Get team stats for a specific team in a specific game."""
+        from src.db.models import TeamGameStatsModel
+        with self.connection_provider.get_db() as db:
+            stats = (
+                db.query(TeamGameStatsModel)
+                .filter(
+                    TeamGameStatsModel.game_id == game_id,
+                    TeamGameStatsModel.team_id == team_id,
+                )
+                .first()
+            )
+            if stats is None:
+                return None
+            return {
+                "barons": stats.barons or 0,
+                "towers": stats.towers or 0,
+                "inhibitors": stats.inhibitors or 0,
+            }
+
+    def get_dragons_for_game_and_team(self, game_id: RiotGameID, team_id) -> list[dict]:
+        """Get dragons taken by a specific team in a specific game."""
+        from src.db.models import GameDragonsModel
+        with self.connection_provider.get_db() as db:
+            rows = (
+                db.query(GameDragonsModel)
+                .filter(
+                    GameDragonsModel.game_id == game_id,
+                    GameDragonsModel.team_id == team_id,
+                )
+                .all()
+            )
+            return [{"dragon_type": r.dragon_type} for r in rows]
+
+    def get_multi_kills_for_game_and_player(self, game_id: RiotGameID, player_id) -> list[dict]:
+        """Get multi-kills for a specific player in a specific game."""
+        from src.db.models import GameMultiKillsModel, PlayerGameMetadataModel
+        with self.connection_provider.get_db() as db:
+            # First get participant_id for this player in this game
+            metadata = (
+                db.query(PlayerGameMetadataModel)
+                .filter(
+                    PlayerGameMetadataModel.game_id == game_id,
+                    PlayerGameMetadataModel.player_id == player_id,
+                )
+                .first()
+            )
+            if metadata is None:
+                return []
+            rows = (
+                db.query(GameMultiKillsModel)
+                .filter(
+                    GameMultiKillsModel.game_id == game_id,
+                    GameMultiKillsModel.participant_id == metadata.participant_id,
+                )
+                .all()
+            )
+            return [{"kill_type": r.kill_type} for r in rows]
+
+    def get_fantasy_scores_for_week(
+        self, fantasy_league_id: FantasyLeagueID, week: int
+    ) -> list:
+        """Get stored fantasy scores for a specific week."""
+        from src.db.models import FantasyScoreModel
+        with self.connection_provider.get_db() as db:
+            rows = (
+                db.query(FantasyScoreModel)
+                .filter(
+                    FantasyScoreModel.fantasy_league_id == fantasy_league_id,
+                    FantasyScoreModel.week == week,
+                )
+                .all()
+            )
+            return rows
+
+    def put_fantasy_score(self, score) -> None:
+        """Store a computed fantasy score."""
+        from src.db.models import FantasyScoreModel
+        with self.connection_provider.get_db() as db:
+            row = FantasyScoreModel(
+                fantasy_league_id=score["fantasy_league_id"],
+                user_id=score["user_id"],
+                week=score["week"],
+                slot=score["slot"],
+                player_id=score.get("player_id"),
+                team_id=score.get("team_id"),
+                points=score["points"],
+                breakdown=score["breakdown"],
+            )
+            db.merge(row)
+            db.commit()
+
     def put_fantasy_team(self, fantasy_team: FantasyTeam) -> None:
         with self.connection_provider.get_db() as db:
             fantasy_team_dao.put_fantasy_team(db, fantasy_team)
