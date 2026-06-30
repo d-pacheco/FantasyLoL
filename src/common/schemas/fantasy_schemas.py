@@ -137,6 +137,7 @@ class FantasyLeague(FantasyLeagueSettings):
     status: FantasyLeagueStatus
     current_week: int | None = None
     current_draft_position: int | None = None
+    start_week: int | None = None
 
 
 class FantasyLeagueMembershipStatus(str, Enum):
@@ -269,3 +270,16 @@ class DraftCompletedEvent(DraftEvent):
 class PickRequest(BaseModel):
     player_id: ProPlayerID | None = None
     team_id: ProTeamID | None = None
+
+
+class FantasyScore(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: FantasyLeagueID
+    user_id: UserID
+    week: int
+    slot: str
+    player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
+    points: float
+    breakdown: dict

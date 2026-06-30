@@ -162,6 +162,12 @@ class DraftService:
         if pick_number >= total_picks:
             self.db.update_fantasy_league_status(league_id, FantasyLeagueStatus.ACTIVE)
             self.db.update_fantasy_league_current_week(league_id, 1)
+
+            # Determine start_week from the current tournament week
+            riot_league_id = fantasy_league.available_leagues[0]
+            current_week = self.fantasy_league_util.get_leagues_current_week(riot_league_id)
+            start_week = current_week if current_week is not None else 1
+            self.db.update_fantasy_league_start_week(league_id, start_week)
         else:
             next_position = _snake_position(pick_number + 1, num_users)
             self.db.update_fantasy_league_current_draft_position(league_id, next_position)
