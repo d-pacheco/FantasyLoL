@@ -1,11 +1,40 @@
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue'
 import type { FantasyLeagueSettings } from '../../types/fantasy'
+import type { League } from '../../types/riot'
+import { getRiotLeagues } from '../../api/riotApi'
 
-defineProps<{
+const props = defineProps<{
   settings: FantasyLeagueSettings | null
   loading: boolean
   error: string
 }>()
+
+const riotLeagues = ref<League[]>([])
+
+watch(
+  () => props.settings,
+  async (settings) => {
+    if (settings && settings.available_leagues.length > 0) {
+      try {
+        const res = await getRiotLeagues()
+        riotLeagues.value = res.items
+      } catch {
+        // fallback to raw IDs if fetch fails
+      }
+    }
+  },
+  { immediate: true },
+)
+
+const resolvedLeagues = computed(() =>
+  (props.settings?.available_leagues ?? []).map(id => {
+    const league = riotLeagues.value.find(l => l.id === id)
+    return league
+      ? { id, name: league.name, image: league.image }
+      : { id, name: id, image: null }
+  }),
+)
 </script>
 
 <template>
@@ -28,7 +57,22 @@ defineProps<{
             </tr>
             <tr class="bg-surface">
               <td class="px-4 py-3 text-xs font-medium text-foreground-muted">Available Leagues</td>
-              <td class="px-4 py-3 text-sm text-foreground">{{ settings.available_leagues.join(', ') || '—' }}</td>
+              <td class="px-4 py-3 text-sm text-foreground">
+                <template v-if="resolvedLeagues.length === 0">—</template>
+                <span
+                  v-for="league in resolvedLeagues"
+                  :key="league.id"
+                  class="inline-flex items-center gap-1.5 mr-2 px-2 py-0.5 rounded-md bg-surface-elevated border border-border-subtle"
+                >
+                  <img
+                    v-if="league.image"
+                    :src="league.image"
+                    :alt="league.name"
+                    class="w-4 h-4 object-contain"
+                  />
+                  <span>{{ league.name }}</span>
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
