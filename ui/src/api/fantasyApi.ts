@@ -97,3 +97,8 @@ export async function updateLeagueSettings(leagueId: string, settings: FantasyLe
   const res = await api.put<FantasyLeagueSettings>(`/fantasy/leagues/${leagueId}/settings`, settings)
   return res.data
 }
+
+export async function updateLeagueScoringSettings(leagueId: string, scoring: FantasyLeagueScoringSettings): Promise<FantasyLeagueScoringSettings> {
+  const res = await api.put<FantasyLeagueScoringSettings>(`/fantasy/leagues/${leagueId}/scoring`, scoring)
+  return res.data
+}

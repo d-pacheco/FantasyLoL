@@ -29,6 +29,7 @@ const leagueId = route.params.id as string
 
 const league = ref<FantasyLeague | null>(null)
 const settingsTabRef = ref<InstanceType<typeof SettingsTab> | null>(null)
+const scoringTabRef = ref<InstanceType<typeof ScoringTab> | null>(null)
 
 const isOwner = computed(() => !!auth.userId && league.value?.owner_id === auth.userId)
 const acceptedCount = computed(() => members.value.filter(m => m.status === 'accepted').length)
@@ -92,6 +93,10 @@ function onSettingsUpdated(updated: FantasyLeagueSettings) {
     league.value.number_of_teams = updated.number_of_teams
     league.value.available_leagues = updated.available_leagues
   }
+}
+
+function onScoringUpdated(updated: FantasyLeagueScoringSettings) {
+  scoring.value = updated
 }
 
 async function onLeave() {
@@ -201,9 +206,9 @@ const statusColors: Record<string, string> = {
         </button>
       </div>
       <button
-        v-if="isOwner && league?.status === 'pre-draft' && activeTab === 'settings'"
+        v-if="isOwner && league?.status === 'pre-draft' && (activeTab === 'settings' || activeTab === 'scoring')"
         class="px-4 py-1.5 rounded-lg text-sm font-medium bg-surface-elevated border border-border-subtle text-foreground hover:bg-primary hover:text-white transition-colors"
-        @click="settingsTabRef?.startEditing()"
+        @click="activeTab === 'settings' ? settingsTabRef?.startEditing() : scoringTabRef?.startEditing()"
       >
         Edit
       </button>
@@ -232,9 +237,13 @@ const statusColors: Record<string, string> = {
     />
     <ScoringTab
       v-else-if="activeTab === 'scoring'"
+      ref="scoringTabRef"
       :scoring="scoring"
       :loading="scoringLoading"
       :error="scoringError"
+      :editable="isOwner && league?.status === 'pre-draft'"
+      :league-id="leagueId"
+      @updated="onScoringUpdated"
     />
     <DraftOrderTab
       v-else-if="activeTab === 'draft-order'"
