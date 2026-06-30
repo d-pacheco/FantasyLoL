@@ -219,7 +219,7 @@ const statusColors: Record<string, string> = {
       v-if="activeTab === 'members'"
       :league-id="leagueId"
       :members="members"
-      :is-owner="isOwner"
+      :editable="isOwner && league?.status === 'pre-draft'"
       :owner-id="league?.owner_id ?? ''"
       :loading="membersLoading"
       :error="membersError"

@@ -6,7 +6,7 @@ import type { LeagueMember } from '../../api/fantasyApi'
 const props = defineProps<{
   leagueId: string
   members: LeagueMember[]
-  isOwner: boolean
+  editable: boolean
   ownerId: string
   loading: boolean
   error: string
@@ -87,8 +87,8 @@ async function sendInvite() {
         </div>
       </div>
 
-      <!-- Invite (owner only) -->
-      <div v-if="isOwner">
+      <!-- Invite (editable only) -->
+      <div v-if="editable">
         <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-2">Invite Player</h3>
         <div class="flex gap-2">
           <input
