@@ -102,3 +102,92 @@ def compute_player_score(
     total = sum(breakdown.values())
 
     return {"total": total, "breakdown": breakdown}
+
+
+def compute_team_score(
+    game_stats: list[dict],
+    dragons: list[dict],
+    match_won: bool,
+    match_swept: bool,
+    weights: FantasyLeagueScoringSettings,
+) -> dict:
+    """Compute fantasy points for a rostered team across games in a single match.
+
+    Args:
+        game_stats: List of stat dicts per game (barons, towers, inhibitors).
+        dragons: List of dragon dicts with 'dragon_type' and 'game_index'.
+        match_won: Whether the team won the match.
+        match_swept: Whether the team swept (won without dropping a game).
+        weights: The league's scoring settings.
+
+    Returns:
+        Dict with 'total' (float) and 'breakdown' (dict of category → points).
+        Team stats are averaged per game. Dragon Soul is summed (not averaged).
+        Match bonuses are applied once per match and stack.
+    """
+    num_games = len(game_stats)
+
+    if num_games == 0:
+        return {
+            "total": 0.0,
+            "breakdown": {
+                "dragon": 0.0,
+                "elder_dragon": 0.0,
+                "baron": 0.0,
+                "tower": 0.0,
+                "inhibitor": 0.0,
+                "soul": 0.0,
+                "match_win": 0.0,
+                "match_sweep": 0.0,
+            },
+        }
+
+    # Sum basic team stats across games
+    total_barons = sum(g.get("barons", 0) for g in game_stats)
+    total_towers = sum(g.get("towers", 0) for g in game_stats)
+    total_inhibitors = sum(g.get("inhibitors", 0) for g in game_stats)
+
+    # Average per game
+    avg_barons = total_barons / num_games
+    avg_towers = total_towers / num_games
+    avg_inhibitors = total_inhibitors / num_games
+
+    # Dragons: split by type, count per game for averaging
+    regular_dragon_count = 0
+    elder_dragon_count = 0
+    # Track non-elder dragons per game for soul detection
+    non_elder_per_game: dict[int, int] = {}
+
+    for d in dragons:
+        game_idx = d.get("game_index", 0)
+        if d.get("dragon_type") == "elder":
+            elder_dragon_count += 1
+        else:
+            regular_dragon_count += 1
+            non_elder_per_game[game_idx] = non_elder_per_game.get(game_idx, 0) + 1
+
+    avg_dragons = regular_dragon_count / num_games
+    avg_elders = elder_dragon_count / num_games
+
+    # Dragon Soul: ≥4 non-elder dragons in a single game, summed across games (not averaged)
+    soul_count = sum(1 for count in non_elder_per_game.values() if count >= 4)
+
+    # Match bonuses (applied once, not per game)
+    win_bonus = 1.0 if match_won else 0.0
+    sweep_bonus = 1.0 if match_swept else 0.0
+
+    # Apply weights
+    breakdown = {
+        "dragon": avg_dragons * weights.dragon,
+        "elder_dragon": avg_elders * weights.elder_dragon,
+        "baron": avg_barons * weights.baron,
+        "tower": avg_towers * weights.tower,
+        "inhibitor": avg_inhibitors * weights.inhibitor,
+        "soul": soul_count * weights.soul,
+        "match_win": win_bonus * weights.match_win,
+        "match_sweep": sweep_bonus * weights.match_sweep,
+    }
+
+    total = sum(breakdown.values())
+
+    return {"total": total, "breakdown": breakdown}

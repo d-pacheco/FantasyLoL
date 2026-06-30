@@ -164,3 +164,165 @@ class TestComputePlayerScore:
         assert result["total"] == 0.0
         assert result["breakdown"]["kills"] == 0.0
         assert result["breakdown"]["cspm"] == 0.0
+
+
+from src.fantasy.scoring.engine import compute_team_score
+
+
+class TestComputeTeamScore:
+    def test_basic_team_stat_scoring_single_game(self, default_weights):
+        """Single game: team stats × weights."""
+        game_stats = [
+            {"barons": 2, "towers": 8, "inhibitors": 2},
+        ]
+        dragons = [
+            # 3 regular dragons + 1 elder in game 0
+            {"dragon_type": "infernal", "game_index": 0},
+            {"dragon_type": "mountain", "game_index": 0},
+            {"dragon_type": "ocean", "game_index": 0},
+            {"dragon_type": "elder", "game_index": 0},
+        ]
+        match_won = True
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        assert result["breakdown"]["baron"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["tower"] == pytest.approx(8 * 1.0)
+        assert result["breakdown"]["inhibitor"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["dragon"] == pytest.approx(3 * 1.0)
+        assert result["breakdown"]["elder_dragon"] == pytest.approx(1 * 3.0)
+        assert result["breakdown"]["match_win"] == pytest.approx(5.0)
+        assert result["breakdown"]["match_sweep"] == pytest.approx(0.0)
+
+    def test_match_sweep_stacks_with_win(self, default_weights):
+        """Sweep awards both match_win and match_sweep."""
+        game_stats = [{"barons": 1, "towers": 5, "inhibitors": 1}]
+        dragons = []
+        match_won = True
+        match_swept = True
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        assert result["breakdown"]["match_win"] == pytest.approx(5.0)
+        assert result["breakdown"]["match_sweep"] == pytest.approx(5.0)
+
+    def test_no_win_no_sweep(self, default_weights):
+        """Lost match: no win or sweep bonus."""
+        game_stats = [{"barons": 0, "towers": 3, "inhibitors": 0}]
+        dragons = []
+        match_won = False
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        assert result["breakdown"]["match_win"] == pytest.approx(0.0)
+        assert result["breakdown"]["match_sweep"] == pytest.approx(0.0)
+
+    def test_dragon_soul_detected(self, default_weights):
+        """4+ non-elder dragons in a single game awards Dragon Soul."""
+        game_stats = [{"barons": 0, "towers": 0, "inhibitors": 0}]
+        dragons = [
+            {"dragon_type": "infernal", "game_index": 0},
+            {"dragon_type": "mountain", "game_index": 0},
+            {"dragon_type": "ocean", "game_index": 0},
+            {"dragon_type": "cloud", "game_index": 0},
+        ]
+        match_won = False
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        assert result["breakdown"]["soul"] == pytest.approx(1 * 4.0)
+        assert result["breakdown"]["dragon"] == pytest.approx(4 * 1.0)
+
+    def test_dragon_soul_not_counted_with_elder(self, default_weights):
+        """Elder dragons don't count toward soul threshold."""
+        game_stats = [{"barons": 0, "towers": 0, "inhibitors": 0}]
+        dragons = [
+            {"dragon_type": "infernal", "game_index": 0},
+            {"dragon_type": "mountain", "game_index": 0},
+            {"dragon_type": "ocean", "game_index": 0},
+            {"dragon_type": "elder", "game_index": 0},
+        ]
+        match_won = False
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        # Only 3 non-elder dragons → no soul
+        assert result["breakdown"]["soul"] == pytest.approx(0.0)
+
+    def test_dragon_soul_summed_across_games_not_averaged(self, default_weights):
+        """Dragon Soul is a binary per-game event, summed (not averaged)."""
+        game_stats = [
+            {"barons": 0, "towers": 0, "inhibitors": 0},
+            {"barons": 0, "towers": 0, "inhibitors": 0},
+        ]
+        dragons = [
+            # Game 0: 4 non-elder → soul
+            {"dragon_type": "infernal", "game_index": 0},
+            {"dragon_type": "mountain", "game_index": 0},
+            {"dragon_type": "ocean", "game_index": 0},
+            {"dragon_type": "cloud", "game_index": 0},
+            # Game 1: only 2 non-elder → no soul
+            {"dragon_type": "infernal", "game_index": 1},
+            {"dragon_type": "mountain", "game_index": 1},
+        ]
+        match_won = False
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        # 1 soul (from game 0 only), not averaged
+        assert result["breakdown"]["soul"] == pytest.approx(1 * 4.0)
+
+    def test_per_game_averaging_team_stats(self, default_weights):
+        """Team stats (barons, towers, inhibitors, dragons) averaged per game."""
+        game_stats = [
+            {"barons": 1, "towers": 6, "inhibitors": 1},
+            {"barons": 3, "towers": 10, "inhibitors": 3},
+        ]
+        dragons = [
+            {"dragon_type": "infernal", "game_index": 0},
+            {"dragon_type": "mountain", "game_index": 0},
+            {"dragon_type": "infernal", "game_index": 1},
+            {"dragon_type": "ocean", "game_index": 1},
+            {"dragon_type": "cloud", "game_index": 1},
+            {"dragon_type": "elder", "game_index": 1},
+        ]
+        match_won = False
+        match_swept = False
+
+        result = compute_team_score(
+            game_stats, dragons, match_won, match_swept, default_weights
+        )
+
+        # barons: (1+3)/2=2, towers: (6+10)/2=8, inhibitors: (1+3)/2=2
+        assert result["breakdown"]["baron"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["tower"] == pytest.approx(8 * 1.0)
+        assert result["breakdown"]["inhibitor"] == pytest.approx(2 * 2.0)
+        # dragons (non-elder): game0=2, game1=3, total=5, avg=2.5
+        assert result["breakdown"]["dragon"] == pytest.approx(2.5 * 1.0)
+        # elder: game0=0, game1=1, total=1, avg=0.5
+        assert result["breakdown"]["elder_dragon"] == pytest.approx(0.5 * 3.0)
+
+    def test_empty_game_stats_returns_zeros(self, default_weights):
+        """No games played should return 0 total."""
+        result = compute_team_score([], [], False, False, default_weights)
+
+        assert result["total"] == 0.0
+        assert result["breakdown"]["dragon"] == 0.0
+        assert result["breakdown"]["match_win"] == 0.0
