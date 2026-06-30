@@ -249,7 +249,7 @@ const statusColors: Record<string, string> = {
       v-else-if="activeTab === 'draft-order'"
       :league-id="leagueId"
       :draft-order="draftOrder"
-      :is-owner="isOwner"
+      :editable="isOwner && league?.status === 'pre-draft'"
       :loading="draftOrderLoading"
       :error="draftOrderError"
     />

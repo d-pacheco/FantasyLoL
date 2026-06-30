@@ -8,7 +8,7 @@ import { GripVertical } from 'lucide-vue-next'
 const props = defineProps<{
   leagueId: string
   draftOrder: DraftOrderEntry[]
-  isOwner: boolean
+  editable: boolean
   loading: boolean
   error: string
 }>()
@@ -49,7 +49,7 @@ async function save() {
     <template v-else>
       <!-- Owner: draggable -->
       <draggable
-        v-if="isOwner"
+        v-if="editable"
         v-model="localOrder"
         item-key="user_id"
         handle=".drag-handle"
@@ -84,8 +84,8 @@ async function save() {
         </div>
       </div>
 
-      <!-- Save button (owner only) -->
-      <div v-if="isOwner" class="flex items-center gap-3">
+      <!-- Save button (editable only) -->
+      <div v-if="editable" class="flex items-center gap-3">
         <button
           class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50"
           :disabled="saving"
