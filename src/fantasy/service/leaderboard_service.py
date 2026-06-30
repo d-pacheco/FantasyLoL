@@ -354,3 +354,199 @@ class LeaderboardService:
         base_score["total"] = sum(base_score["breakdown"].values())
 
         return base_score
+
+    def get_week_scores(
+        self, league_id: FantasyLeagueID, user_id: UserID, week: int
+    ) -> dict:
+        """Get detailed scoring breakdown for a specific week.
+
+        Returns per-member roster detail with points and per-category breakdown.
+        Past weeks are read from fantasy_scores (lazy-written if missing).
+        Current week is computed on-demand.
+        """
+        # Validate league exists and is in correct state
+        fantasy_league = self.fantasy_league_util.validate_league(
+            league_id, [FantasyLeagueStatus.ACTIVE, FantasyLeagueStatus.COMPLETED]
+        )
+
+        # Validate caller is a member
+        self.fantasy_league_util.validate_membership(user_id, league_id)
+
+        # Determine week range
+        start_week: int = fantasy_league.start_week or 1
+        riot_league_id: RiotLeagueID = fantasy_league.available_leagues[0]
+        current_week_result: int | None = self.fantasy_league_util.get_leagues_current_week(
+            riot_league_id
+        )
+        current_week: int = current_week_result if current_week_result is not None else start_week
+
+        # Validate requested week is in range
+        if week < start_week or week > current_week:
+            from fastapi import HTTPException
+            from http import HTTPStatus
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Week {week} is out of range. Valid range: {start_week} to {current_week}.",
+            )
+
+        # Get all accepted members
+        members = self.db.get_pending_and_accepted_members_for_league(league_id)
+        accepted_members: list[FantasyLeagueMembership] = [
+            m for m in members
+            if m.status == FantasyLeagueMembershipStatus.ACCEPTED
+        ]
+
+        # Get scoring settings
+        scoring_settings: FantasyLeagueScoringSettings | None = (
+            self.db.get_fantasy_league_scoring_settings_by_id(league_id)
+        )
+        if scoring_settings is None:
+            return {
+                "fantasy_league_id": league_id,
+                "week": week,
+                "members": [],
+            }
+
+        is_current_week: bool = (week == current_week)
+
+        # Try to read stored scores for past weeks
+        if not is_current_week:
+            stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
+            if stored_scores:
+                return self._build_week_response_from_stored(
+                    league_id, week, accepted_members, stored_scores
+                )
+
+        # Compute scores (current week or missing past week)
+        week_scores: dict[str, list[dict]] = self._compute_week_scores(
+            league_id, accepted_members, week, riot_league_id, scoring_settings
+        )
+
+        # Lazy-write past weeks
+        if not is_current_week:
+            for uid, slot_scores in week_scores.items():
+                for slot_data in slot_scores:
+                    self.db.put_fantasy_score({
+                        "fantasy_league_id": league_id,
+                        "user_id": uid,
+                        "week": week,
+                        "slot": slot_data["slot"],
+                        "player_id": slot_data.get("player_id"),
+                        "team_id": slot_data.get("team_id"),
+                        "points": slot_data["points"],
+                        "breakdown": slot_data["breakdown"],
+                    })
+
+        return self._build_week_response_from_computed(
+            league_id, week, accepted_members, week_scores
+        )
+
+    def _build_week_response_from_stored(
+        self,
+        league_id: FantasyLeagueID,
+        week: int,
+        members: list[FantasyLeagueMembership],
+        stored_scores: list,
+    ) -> dict:
+        """Build the week scores response from stored fantasy_scores rows."""
+        # Group scores by user
+        scores_by_user: dict[str, list] = {}
+        for score in stored_scores:
+            if score.user_id not in scores_by_user:
+                scores_by_user[score.user_id] = []
+            scores_by_user[score.user_id].append(score)
+
+        member_entries: list[dict] = []
+        for member in members:
+            user = self.db.get_user_by_id(member.user_id)
+            username: str = user.username if user else member.user_id
+            user_scores = scores_by_user.get(member.user_id, [])
+
+            roster: dict = {}
+            total_points: float = 0.0
+            for score in user_scores:
+                slot_entry: dict = {
+                    "points": score.points,
+                    "breakdown": score.breakdown,
+                }
+                if score.slot == "team":
+                    slot_entry["team_id"] = score.team_id
+                    slot_entry["team_name"] = self._resolve_team_name(score.team_id)
+                else:
+                    slot_entry["player_id"] = score.player_id
+                    slot_entry["summoner_name"] = self._resolve_player_name(score.player_id)
+                roster[score.slot] = slot_entry
+                total_points += score.points
+
+            member_entries.append({
+                "user_id": member.user_id,
+                "username": username,
+                "total_points": round(total_points, 2),
+                "roster": roster,
+            })
+
+        return {
+            "fantasy_league_id": league_id,
+            "week": week,
+            "members": member_entries,
+        }
+
+    def _build_week_response_from_computed(
+        self,
+        league_id: FantasyLeagueID,
+        week: int,
+        members: list[FantasyLeagueMembership],
+        week_scores: dict[str, list[dict]],
+    ) -> dict:
+        """Build the week scores response from freshly computed scores."""
+        member_entries: list[dict] = []
+        for member in members:
+            user = self.db.get_user_by_id(member.user_id)
+            username: str = user.username if user else member.user_id
+            slot_scores = week_scores.get(member.user_id, [])
+
+            roster: dict = {}
+            total_points: float = 0.0
+            for slot_data in slot_scores:
+                slot: str = slot_data["slot"]
+                slot_entry: dict = {
+                    "points": slot_data["points"],
+                    "breakdown": slot_data["breakdown"],
+                }
+                if slot == "team":
+                    slot_entry["team_id"] = slot_data.get("team_id")
+                    slot_entry["team_name"] = self._resolve_team_name(slot_data.get("team_id"))
+                else:
+                    slot_entry["player_id"] = slot_data.get("player_id")
+                    slot_entry["summoner_name"] = self._resolve_player_name(
+                        slot_data.get("player_id")
+                    )
+                roster[slot] = slot_entry
+                total_points += slot_data["points"]
+
+            member_entries.append({
+                "user_id": member.user_id,
+                "username": username,
+                "total_points": round(total_points, 2),
+                "roster": roster,
+            })
+
+        return {
+            "fantasy_league_id": league_id,
+            "week": week,
+            "members": member_entries,
+        }
+
+    def _resolve_player_name(self, player_id: str | None) -> str | None:
+        """Resolve a player ID to their summoner name."""
+        if player_id is None:
+            return None
+        player = self.db.get_player_by_id(ProPlayerID(player_id))
+        return player.summoner_name if player else None
+
+    def _resolve_team_name(self, team_id: str | None) -> str | None:
+        """Resolve a team ID to their name."""
+        if team_id is None:
+            return None
+        team = self.db.get_team_by_id(ProTeamID(team_id))
+        return team.name if team else None

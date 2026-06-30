@@ -239,3 +239,31 @@ class LeaderboardServiceIntegrationTest(TestBase):
 
         # Owner should be ranked higher
         assert owner_entry["position"] < user2_entry["position"]
+
+    def test_week_scores_returns_per_member_breakdown(self):
+        """Week scores should return roster detail with per-category breakdown."""
+        fantasy_league, owner, user2_id, player, team = self._setup_league_with_scores()
+
+        result = self.leaderboard_service.get_week_scores(fantasy_league.id, owner.id, 1)
+
+        assert result["fantasy_league_id"] == fantasy_league.id
+        assert result["week"] == 1
+        assert len(result["members"]) == 2
+
+        # Find owner's entry
+        owner_entry = next(m for m in result["members"] if m["user_id"] == owner.id)
+        assert owner_entry["total_points"] > 0
+
+        # Check roster has mid slot with Faker
+        assert "mid" in owner_entry["roster"]
+        mid_slot = owner_entry["roster"]["mid"]
+        assert mid_slot["player_id"] == player.id
+        assert mid_slot["summoner_name"] == "Faker"
+        assert mid_slot["points"] > 0
+        assert "kills" in mid_slot["breakdown"]
+
+        # Check team slot
+        assert "team" in owner_entry["roster"]
+        team_slot = owner_entry["roster"]["team"]
+        assert team_slot["team_id"] == team.id
+        assert team_slot["team_name"] == "T1"

@@ -45,3 +45,29 @@ class TestLeaderboardEndpoint:
         )
 
         assert response.status_code == 403
+
+
+class TestWeekScoresEndpoint:
+    def test_week_scores_route_is_mounted(self):
+        """The week scores endpoint should exist and not return 404."""
+        client, mock_db, headers = make_client()
+
+        response = client.get(
+            f"/api/v1/fantasy/leagues/{TEST_LEAGUE_ID}/scores?week=1",
+            headers=headers,
+        )
+
+        assert response.status_code != 404
+        assert response.status_code != 405
+
+    def test_week_scores_requires_auth(self):
+        """Unauthenticated requests should be rejected."""
+        mock_db = MagicMock(spec=DatabaseService)
+        app = create_app(mock_db)
+        client = TestClient(app, raise_server_exceptions=False)
+
+        response = client.get(
+            f"/api/v1/fantasy/leagues/{TEST_LEAGUE_ID}/scores?week=1",
+        )
+
+        assert response.status_code == 403
