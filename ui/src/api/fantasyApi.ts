@@ -92,3 +92,13 @@ export async function getAvailableTeams(leagueId: string): Promise<ProfessionalT
 export async function makePick(leagueId: string, request: PickRequest): Promise<void> {
   await api.post(`/fantasy/leagues/${leagueId}/draft/pick`, request)
 }
+
+export async function updateLeagueSettings(leagueId: string, settings: FantasyLeagueSettings): Promise<FantasyLeagueSettings> {
+  const res = await api.put<FantasyLeagueSettings>(`/fantasy/leagues/${leagueId}/settings`, settings)
+  return res.data
+}
+
+export async function updateLeagueScoringSettings(leagueId: string, scoring: FantasyLeagueScoringSettings): Promise<FantasyLeagueScoringSettings> {
+  const res = await api.put<FantasyLeagueScoringSettings>(`/fantasy/leagues/${leagueId}/scoring`, scoring)
+  return res.data
+}

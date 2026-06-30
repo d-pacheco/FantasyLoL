@@ -28,6 +28,8 @@ const auth = useAuthStore()
 const leagueId = route.params.id as string
 
 const league = ref<FantasyLeague | null>(null)
+const settingsTabRef = ref<InstanceType<typeof SettingsTab> | null>(null)
+const scoringTabRef = ref<InstanceType<typeof ScoringTab> | null>(null)
 
 const isOwner = computed(() => !!auth.userId && league.value?.owner_id === auth.userId)
 const acceptedCount = computed(() => members.value.filter(m => m.status === 'accepted').length)
@@ -82,6 +84,19 @@ onMounted(fetchAll)
 
 function onInvited(username: string) {
   members.value.push({ user_id: username, username, status: 'pending' })
+}
+
+function onSettingsUpdated(updated: FantasyLeagueSettings) {
+  settings.value = updated
+  if (league.value) {
+    league.value.name = updated.name
+    league.value.number_of_teams = updated.number_of_teams
+    league.value.available_leagues = updated.available_leagues
+  }
+}
+
+function onScoringUpdated(updated: FantasyLeagueScoringSettings) {
+  scoring.value = updated
 }
 
 async function onLeave() {
@@ -176,17 +191,26 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-1 p-1 rounded-lg bg-surface border border-border-subtle w-fit">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex gap-1 p-1 rounded-lg bg-surface border border-border-subtle w-fit">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          class="px-4 py-1.5 rounded-md text-xs font-medium transition-colors"
+          :class="activeTab === tab.key
+            ? 'bg-primary text-white'
+            : 'text-foreground-muted hover:text-foreground'"
+          @click="activeTab = tab.key"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
       <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        class="px-4 py-1.5 rounded-md text-xs font-medium transition-colors"
-        :class="activeTab === tab.key
-          ? 'bg-primary text-white'
-          : 'text-foreground-muted hover:text-foreground'"
-        @click="activeTab = tab.key"
+        v-if="isOwner && league?.status === 'pre-draft' && (activeTab === 'settings' || activeTab === 'scoring')"
+        class="px-4 py-1.5 rounded-lg text-sm font-medium bg-surface-elevated border border-border-subtle text-foreground hover:bg-primary hover:text-white transition-colors"
+        @click="activeTab === 'settings' ? settingsTabRef?.startEditing() : scoringTabRef?.startEditing()"
       >
-        {{ tab.label }}
+        Edit
       </button>
     </div>
 
@@ -195,7 +219,7 @@ const statusColors: Record<string, string> = {
       v-if="activeTab === 'members'"
       :league-id="leagueId"
       :members="members"
-      :is-owner="isOwner"
+      :editable="isOwner && league?.status === 'pre-draft'"
       :owner-id="league?.owner_id ?? ''"
       :loading="membersLoading"
       :error="membersError"
@@ -203,21 +227,29 @@ const statusColors: Record<string, string> = {
     />
     <SettingsTab
       v-else-if="activeTab === 'settings'"
+      ref="settingsTabRef"
       :settings="settings"
       :loading="settingsLoading"
       :error="settingsError"
+      :editable="isOwner && league?.status === 'pre-draft'"
+      :league-id="leagueId"
+      @updated="onSettingsUpdated"
     />
     <ScoringTab
       v-else-if="activeTab === 'scoring'"
+      ref="scoringTabRef"
       :scoring="scoring"
       :loading="scoringLoading"
       :error="scoringError"
+      :editable="isOwner && league?.status === 'pre-draft'"
+      :league-id="leagueId"
+      @updated="onScoringUpdated"
     />
     <DraftOrderTab
       v-else-if="activeTab === 'draft-order'"
       :league-id="leagueId"
       :draft-order="draftOrder"
-      :is-owner="isOwner"
+      :editable="isOwner && league?.status === 'pre-draft'"
       :loading="draftOrderLoading"
       :error="draftOrderError"
     />
