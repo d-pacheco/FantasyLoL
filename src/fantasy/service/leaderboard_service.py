@@ -80,28 +80,27 @@ class LeaderboardService:
         member_totals: dict[str, float] = {m.user_id: 0.0 for m in accepted_members}
 
         for week in range(start_week, current_week + 1):
-            is_current_week: bool = (week == current_week)
+            # Check for stored scores first
+            stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
+            if stored_scores:
+                for score in stored_scores:
+                    if score.user_id in member_totals:
+                        member_totals[score.user_id] += score.points
+                continue
 
-            if not is_current_week:
-                # Past week: check for stored scores
-                stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
-                if stored_scores:
-                    for score in stored_scores:
-                        if score.user_id in member_totals:
-                            member_totals[score.user_id] += score.points
-                    continue
-
-            # Compute scores for this week (either current week or missing past week)
+            # Compute scores for this week
             week_scores: dict[str, list[dict]] = self._compute_week_scores(
                 league_id, accepted_members, week, riot_league_id, scoring_settings
             )
+
+            # Determine if we should store (no in-progress matches for this week)
+            should_store: bool = not self._has_in_progress_matches(riot_league_id, week)
 
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:
                     member_totals[uid] += slot_data["points"]
 
-                    # Lazy-write past weeks
-                    if not is_current_week:
+                    if should_store:
                         self.db.put_fantasy_score({
                             "fantasy_league_id": league_id,
                             "user_id": uid,
@@ -207,6 +206,18 @@ class LeaderboardService:
             if m.block_name and m.block_name.lower() == week_block.lower()
             and m.state and m.state.value == "completed"
         ]
+
+    def _has_in_progress_matches(self, riot_league_id: RiotLeagueID, week: int) -> bool:
+        """Check if there are any in-progress matches for a given week."""
+        all_matches: list[Match] = self.db.get_matches_for_league_with_active_tournament(
+            riot_league_id
+        )
+        week_block: str = f"Week {week}"
+        return any(
+            m for m in all_matches
+            if m.block_name and m.block_name.lower() == week_block.lower()
+            and m.state and m.state.value == "inProgress"
+        )
 
     def _get_member_roster(
         self, league_id: FantasyLeagueID, user_id: UserID, week: int
@@ -409,21 +420,21 @@ class LeaderboardService:
 
         is_current_week: bool = (week == current_week)
 
-        # Try to read stored scores for past weeks
-        if not is_current_week:
-            stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
-            if stored_scores:
-                return self._build_week_response_from_stored(
-                    league_id, week, accepted_members, stored_scores
-                )
+        # Try to read stored scores
+        stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
+        if stored_scores:
+            return self._build_week_response_from_stored(
+                league_id, week, accepted_members, stored_scores
+            )
 
-        # Compute scores (current week or missing past week)
+        # Compute scores
         week_scores: dict[str, list[dict]] = self._compute_week_scores(
             league_id, accepted_members, week, riot_league_id, scoring_settings
         )
 
-        # Lazy-write past weeks
-        if not is_current_week:
+        # Store if no in-progress matches for this week
+        should_store: bool = not self._has_in_progress_matches(riot_league_id, week)
+        if should_store:
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:
                     self.db.put_fantasy_score({

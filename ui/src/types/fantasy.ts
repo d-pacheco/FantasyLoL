@@ -14,6 +14,7 @@ export interface FantasyLeague extends FantasyLeagueSettings {
   status: FantasyLeagueStatus
   current_week: number | null
   current_draft_position: number | null
+  start_week: number | null
 }
 
 export interface FantasyLeagueScoringSettings {
@@ -59,14 +60,6 @@ export interface RosterEntry {
   team_code: string
   points: number
   trend: 'up' | 'down' | 'neutral'
-}
-
-export interface LeaderboardEntry {
-  user_id: string
-  username: string
-  position: number
-  points: number
-  is_current_user: boolean
 }
 
 export interface LiveMatch {
@@ -118,6 +111,20 @@ export interface DraftState {
 export interface PickRequest {
   player_id?: string
   team_id?: string
+}
+
+export interface LeaderboardEntry {
+  user_id: string
+  username: string
+  total_points: number
+  position: number
+}
+
+export interface LeaderboardResponse {
+  fantasy_league_id: string
+  current_week: number
+  start_week: number
+  members: LeaderboardEntry[]
 }
 
 export interface PickMadeEvent {

@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { ChevronUp, ChevronDown, Minus } from 'lucide-vue-next'
-import type { LeaderboardEntry } from '../../types/fantasy'
 
-const entries: LeaderboardEntry[] = [
+interface DashboardLeaderboardEntry {
+  user_id: string
+  username: string
+  position: number
+  points: number
+  is_current_user: boolean
+}
+
+const entries: DashboardLeaderboardEntry[] = [
   { user_id: '1', username: 'ProGamer99', position: 1, points: 1247.5, is_current_user: false },
   { user_id: '2', username: 'Summoner42', position: 2, points: 1198.3, is_current_user: true },
   { user_id: '3', username: 'MidLaneMaster', position: 3, points: 1156.8, is_current_user: false },
