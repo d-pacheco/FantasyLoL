@@ -26,18 +26,18 @@ def compute_player_score(
         return {
             "total": 0.0,
             "breakdown": {
-                "kills": 0.0,
-                "deaths": 0.0,
-                "assists": 0.0,
-                "cspm": 0.0,
-                "wards_placed": 0.0,
-                "wards_destroyed": 0.0,
-                "kill_participation": 0.0,
-                "damage_percentage": 0.0,
-                "double_kill": 0.0,
-                "triple_kill": 0.0,
-                "quadra_kill": 0.0,
-                "penta_kill": 0.0,
+                "kills": {"value": 0.0, "points": 0.0},
+                "deaths": {"value": 0.0, "points": 0.0},
+                "assists": {"value": 0.0, "points": 0.0},
+                "cspm": {"value": 0.0, "points": 0.0},
+                "wards_placed": {"value": 0.0, "points": 0.0},
+                "wards_destroyed": {"value": 0.0, "points": 0.0},
+                "kill_participation": {"value": 0.0, "points": 0.0},
+                "damage_percentage": {"value": 0.0, "points": 0.0},
+                "double_kill": {"value": 0.0, "points": 0.0},
+                "triple_kill": {"value": 0.0, "points": 0.0},
+                "quadra_kill": {"value": 0.0, "points": 0.0},
+                "penta_kill": {"value": 0.0, "points": 0.0},
             },
         }
 
@@ -66,10 +66,7 @@ def compute_player_score(
         if duration > 0:
             duration_minutes = duration / 60
             cspm_values.append(g.get("creep_score", 0) / duration_minutes)
-    avg_cspm = sum(cspm_values) / num_games if num_games > 0 else 0.0
-    # If all games had 0 duration, cspm is 0
-    if len(cspm_values) == 0:
-        avg_cspm = 0.0
+    avg_cspm = sum(cspm_values) / len(cspm_values) if len(cspm_values) > 0 else 0.0
 
     # Multi-kills: count by type, then average per game
     multi_kill_counts = {"Double": 0, "Triple": 0, "Quadra": 0, "Penta": 0}
@@ -85,21 +82,21 @@ def compute_player_score(
 
     # Apply weights
     breakdown = {
-        "kills": avg_kills * weights.kills,
-        "deaths": avg_deaths * weights.deaths,
-        "assists": avg_assists * weights.assists,
-        "cspm": avg_cspm * weights.cspm,
-        "wards_placed": avg_wards_placed * weights.wards_placed,
-        "wards_destroyed": avg_wards_destroyed * weights.wards_destroyed,
-        "kill_participation": avg_kill_participation * weights.kill_participation,
-        "damage_percentage": avg_damage_share * weights.damage_percentage,
-        "double_kill": avg_double * weights.double_kill,
-        "triple_kill": avg_triple * weights.triple_kill,
-        "quadra_kill": avg_quadra * weights.quadra_kill,
-        "penta_kill": avg_penta * weights.penta_kill,
+        "kills": {"value": avg_kills, "points": avg_kills * weights.kills},
+        "deaths": {"value": avg_deaths, "points": avg_deaths * weights.deaths},
+        "assists": {"value": avg_assists, "points": avg_assists * weights.assists},
+        "cspm": {"value": avg_cspm, "points": avg_cspm * weights.cspm},
+        "wards_placed": {"value": avg_wards_placed, "points": avg_wards_placed * weights.wards_placed},
+        "wards_destroyed": {"value": avg_wards_destroyed, "points": avg_wards_destroyed * weights.wards_destroyed},
+        "kill_participation": {"value": avg_kill_participation, "points": avg_kill_participation * weights.kill_participation},
+        "damage_percentage": {"value": avg_damage_share, "points": avg_damage_share * weights.damage_percentage},
+        "double_kill": {"value": avg_double, "points": avg_double * weights.double_kill},
+        "triple_kill": {"value": avg_triple, "points": avg_triple * weights.triple_kill},
+        "quadra_kill": {"value": avg_quadra, "points": avg_quadra * weights.quadra_kill},
+        "penta_kill": {"value": avg_penta, "points": avg_penta * weights.penta_kill},
     }
 
-    total = sum(breakdown.values())
+    total = sum(entry["points"] for entry in breakdown.values())
 
     return {"total": total, "breakdown": breakdown}
 
@@ -131,14 +128,14 @@ def compute_team_score(
         return {
             "total": 0.0,
             "breakdown": {
-                "dragon": 0.0,
-                "elder_dragon": 0.0,
-                "baron": 0.0,
-                "tower": 0.0,
-                "inhibitor": 0.0,
-                "soul": 0.0,
-                "match_win": 0.0,
-                "match_sweep": 0.0,
+                "dragon": {"value": 0.0, "points": 0.0},
+                "elder_dragon": {"value": 0.0, "points": 0.0},
+                "baron": {"value": 0.0, "points": 0.0},
+                "tower": {"value": 0.0, "points": 0.0},
+                "inhibitor": {"value": 0.0, "points": 0.0},
+                "soul": {"value": 0.0, "points": 0.0},
+                "match_win": {"value": 0.0, "points": 0.0},
+                "match_sweep": {"value": 0.0, "points": 0.0},
             },
         }
 
@@ -178,16 +175,16 @@ def compute_team_score(
 
     # Apply weights
     breakdown = {
-        "dragon": avg_dragons * weights.dragon,
-        "elder_dragon": avg_elders * weights.elder_dragon,
-        "baron": avg_barons * weights.baron,
-        "tower": avg_towers * weights.tower,
-        "inhibitor": avg_inhibitors * weights.inhibitor,
-        "soul": soul_count * weights.soul,
-        "match_win": win_bonus * weights.match_win,
-        "match_sweep": sweep_bonus * weights.match_sweep,
+        "dragon": {"value": avg_dragons, "points": avg_dragons * weights.dragon},
+        "elder_dragon": {"value": avg_elders, "points": avg_elders * weights.elder_dragon},
+        "baron": {"value": avg_barons, "points": avg_barons * weights.baron},
+        "tower": {"value": avg_towers, "points": avg_towers * weights.tower},
+        "inhibitor": {"value": avg_inhibitors, "points": avg_inhibitors * weights.inhibitor},
+        "soul": {"value": soul_count, "points": soul_count * weights.soul},
+        "match_win": {"value": win_bonus, "points": win_bonus * weights.match_win},
+        "match_sweep": {"value": sweep_bonus, "points": sweep_bonus * weights.match_sweep},
     }
 
-    total = sum(breakdown.values())
+    total = sum(entry["points"] for entry in breakdown.values())
 
     return {"total": total, "breakdown": breakdown}

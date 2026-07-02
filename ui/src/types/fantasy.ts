@@ -127,6 +127,37 @@ export interface LeaderboardResponse {
   members: LeaderboardEntry[]
 }
 
+export interface BreakdownEntry {
+  value: number
+  points: number
+}
+
+export interface SlotBreakdown {
+  [category: string]: BreakdownEntry
+}
+
+export interface RosterSlotScore {
+  player_id?: string | null
+  team_id?: string | null
+  summoner_name?: string | null
+  team_name?: string | null
+  points: number
+  breakdown: SlotBreakdown
+}
+
+export interface WeekScoreMember {
+  user_id: string
+  username: string
+  total_points: number
+  roster: Record<string, RosterSlotScore>
+}
+
+export interface WeekScoresResponse {
+  fantasy_league_id: string
+  week: number
+  members: WeekScoreMember[]
+}
+
 export interface PickMadeEvent {
   event: 'pick_made'
   pick: DraftPick

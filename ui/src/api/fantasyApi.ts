@@ -1,5 +1,5 @@
 import { api } from './client'
-import type { FantasyLeague, FantasyLeagueSettings, FantasyLeagueScoringSettings, DraftState, PickRequest, LeaderboardResponse } from '../types/fantasy'
+import type { FantasyLeague, FantasyLeagueSettings, FantasyLeagueScoringSettings, DraftState, PickRequest, LeaderboardResponse, WeekScoresResponse } from '../types/fantasy'
 import type { ProfessionalPlayer, ProfessionalTeam } from '../types/riot'
 
 export interface MyLeaguesResponse {
@@ -105,5 +105,10 @@ export async function updateLeagueScoringSettings(leagueId: string, scoring: Fan
 
 export async function getLeaderboard(leagueId: string): Promise<LeaderboardResponse> {
   const res = await api.get<LeaderboardResponse>(`/fantasy/leagues/${leagueId}/leaderboard`)
+  return res.data
+}
+
+export async function getWeekScores(leagueId: string, week: number): Promise<WeekScoresResponse> {
+  const res = await api.get<WeekScoresResponse>(`/fantasy/leagues/${leagueId}/scores`, { params: { week } })
   return res.data
 }

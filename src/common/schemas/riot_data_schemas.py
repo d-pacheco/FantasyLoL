@@ -137,6 +137,12 @@ class GameState(str, Enum):
     UNNEEDED = "unneeded"
 
 
+class FramesStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    UNAVAILABLE = "unavailable"
+
+
 class LiveGameState(str, Enum):
     IN_GAME = "in_game"
     PAUSED = "paused"

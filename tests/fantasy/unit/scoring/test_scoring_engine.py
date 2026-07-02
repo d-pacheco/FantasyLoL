@@ -62,8 +62,9 @@ class TestComputePlayerScore:
             + 30 * 5      # damage_percentage
         , rel=1e-4)
         assert "kills" in result["breakdown"]
-        assert result["breakdown"]["kills"] == pytest.approx(24.0)
-        assert result["breakdown"]["deaths"] == pytest.approx(-2.0)
+        assert result["breakdown"]["kills"]["points"] == pytest.approx(24.0)
+        assert result["breakdown"]["kills"]["value"] == pytest.approx(8.0)
+        assert result["breakdown"]["deaths"]["points"] == pytest.approx(-2.0)
 
     def test_per_game_averaging_across_two_games(self, default_weights):
         """Stats should be summed then divided by number of games."""
@@ -88,10 +89,10 @@ class TestComputePlayerScore:
 
         # Averaged stats: kills=(6+10)/2=8, deaths=(2+4)/2=3, assists=(4+6)/2=5
         # cspm: game1=180/30=6, game2=220/40=5.5, avg=(6+5.5)/2=5.75
-        assert result["breakdown"]["kills"] == pytest.approx(8 * 3)
-        assert result["breakdown"]["deaths"] == pytest.approx(3 * -1)
-        assert result["breakdown"]["assists"] == pytest.approx(5 * 2)
-        assert result["breakdown"]["cspm"] == pytest.approx(5.75 * 1.0)
+        assert result["breakdown"]["kills"]["points"] == pytest.approx(8 * 3)
+        assert result["breakdown"]["deaths"]["points"] == pytest.approx(3 * -1)
+        assert result["breakdown"]["assists"]["points"] == pytest.approx(5 * 2)
+        assert result["breakdown"]["cspm"]["points"] == pytest.approx(5.75 * 1.0)
 
     def test_cspm_skipped_for_zero_duration(self, default_weights):
         """If game duration is 0, CSPM for that game should be excluded."""
@@ -108,7 +109,7 @@ class TestComputePlayerScore:
 
         result = compute_player_score(game_stats, game_durations, multi_kills, default_weights)
 
-        assert result["breakdown"]["cspm"] == 0.0
+        assert result["breakdown"]["cspm"]["points"] == 0.0
 
     def test_multi_kill_scoring(self, default_weights):
         """Multi-kills counted by type, averaged per game."""
@@ -130,10 +131,10 @@ class TestComputePlayerScore:
 
         result = compute_player_score(game_stats, game_durations, multi_kills, default_weights)
 
-        assert result["breakdown"]["double_kill"] == pytest.approx(2 * 1.0)
-        assert result["breakdown"]["triple_kill"] == pytest.approx(1 * 2.0)
-        assert result["breakdown"]["penta_kill"] == pytest.approx(1 * 10.0)
-        assert result["breakdown"]["quadra_kill"] == pytest.approx(0.0)
+        assert result["breakdown"]["double_kill"]["points"] == pytest.approx(2 * 1.0)
+        assert result["breakdown"]["triple_kill"]["points"] == pytest.approx(1 * 2.0)
+        assert result["breakdown"]["penta_kill"]["points"] == pytest.approx(1 * 10.0)
+        assert result["breakdown"]["quadra_kill"]["points"] == pytest.approx(0.0)
 
     def test_multi_kills_averaged_across_games(self, default_weights):
         """Multi-kills across multiple games should be averaged per game."""
@@ -155,15 +156,15 @@ class TestComputePlayerScore:
         result = compute_player_score(game_stats, game_durations, multi_kills, default_weights)
 
         # 3 doubles across 2 games → avg 1.5 per game → 1.5 × 1.0 = 1.5
-        assert result["breakdown"]["double_kill"] == pytest.approx(1.5 * 1.0)
+        assert result["breakdown"]["double_kill"]["points"] == pytest.approx(1.5 * 1.0)
 
     def test_empty_game_stats_returns_zeros(self, default_weights):
         """No games played should return 0 total and all-zero breakdown."""
         result = compute_player_score([], [], [], default_weights)
 
         assert result["total"] == 0.0
-        assert result["breakdown"]["kills"] == 0.0
-        assert result["breakdown"]["cspm"] == 0.0
+        assert result["breakdown"]["kills"]["points"] == 0.0
+        assert result["breakdown"]["cspm"]["points"] == 0.0
 
 
 from src.fantasy.scoring.engine import compute_team_score
@@ -189,13 +190,13 @@ class TestComputeTeamScore:
             game_stats, dragons, match_won, match_swept, default_weights
         )
 
-        assert result["breakdown"]["baron"] == pytest.approx(2 * 2.0)
-        assert result["breakdown"]["tower"] == pytest.approx(8 * 1.0)
-        assert result["breakdown"]["inhibitor"] == pytest.approx(2 * 2.0)
-        assert result["breakdown"]["dragon"] == pytest.approx(3 * 1.0)
-        assert result["breakdown"]["elder_dragon"] == pytest.approx(1 * 3.0)
-        assert result["breakdown"]["match_win"] == pytest.approx(5.0)
-        assert result["breakdown"]["match_sweep"] == pytest.approx(0.0)
+        assert result["breakdown"]["baron"]["points"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["tower"]["points"] == pytest.approx(8 * 1.0)
+        assert result["breakdown"]["inhibitor"]["points"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["dragon"]["points"] == pytest.approx(3 * 1.0)
+        assert result["breakdown"]["elder_dragon"]["points"] == pytest.approx(1 * 3.0)
+        assert result["breakdown"]["match_win"]["points"] == pytest.approx(5.0)
+        assert result["breakdown"]["match_sweep"]["points"] == pytest.approx(0.0)
 
     def test_match_sweep_stacks_with_win(self, default_weights):
         """Sweep awards both match_win and match_sweep."""
@@ -208,8 +209,8 @@ class TestComputeTeamScore:
             game_stats, dragons, match_won, match_swept, default_weights
         )
 
-        assert result["breakdown"]["match_win"] == pytest.approx(5.0)
-        assert result["breakdown"]["match_sweep"] == pytest.approx(5.0)
+        assert result["breakdown"]["match_win"]["points"] == pytest.approx(5.0)
+        assert result["breakdown"]["match_sweep"]["points"] == pytest.approx(5.0)
 
     def test_no_win_no_sweep(self, default_weights):
         """Lost match: no win or sweep bonus."""
@@ -222,8 +223,8 @@ class TestComputeTeamScore:
             game_stats, dragons, match_won, match_swept, default_weights
         )
 
-        assert result["breakdown"]["match_win"] == pytest.approx(0.0)
-        assert result["breakdown"]["match_sweep"] == pytest.approx(0.0)
+        assert result["breakdown"]["match_win"]["points"] == pytest.approx(0.0)
+        assert result["breakdown"]["match_sweep"]["points"] == pytest.approx(0.0)
 
     def test_dragon_soul_detected(self, default_weights):
         """4+ non-elder dragons in a single game awards Dragon Soul."""
@@ -241,8 +242,8 @@ class TestComputeTeamScore:
             game_stats, dragons, match_won, match_swept, default_weights
         )
 
-        assert result["breakdown"]["soul"] == pytest.approx(1 * 4.0)
-        assert result["breakdown"]["dragon"] == pytest.approx(4 * 1.0)
+        assert result["breakdown"]["soul"]["points"] == pytest.approx(1 * 4.0)
+        assert result["breakdown"]["dragon"]["points"] == pytest.approx(4 * 1.0)
 
     def test_dragon_soul_not_counted_with_elder(self, default_weights):
         """Elder dragons don't count toward soul threshold."""
@@ -261,7 +262,7 @@ class TestComputeTeamScore:
         )
 
         # Only 3 non-elder dragons → no soul
-        assert result["breakdown"]["soul"] == pytest.approx(0.0)
+        assert result["breakdown"]["soul"]["points"] == pytest.approx(0.0)
 
     def test_dragon_soul_summed_across_games_not_averaged(self, default_weights):
         """Dragon Soul is a binary per-game event, summed (not averaged)."""
@@ -287,7 +288,7 @@ class TestComputeTeamScore:
         )
 
         # 1 soul (from game 0 only), not averaged
-        assert result["breakdown"]["soul"] == pytest.approx(1 * 4.0)
+        assert result["breakdown"]["soul"]["points"] == pytest.approx(1 * 4.0)
 
     def test_per_game_averaging_team_stats(self, default_weights):
         """Team stats (barons, towers, inhibitors, dragons) averaged per game."""
@@ -311,18 +312,18 @@ class TestComputeTeamScore:
         )
 
         # barons: (1+3)/2=2, towers: (6+10)/2=8, inhibitors: (1+3)/2=2
-        assert result["breakdown"]["baron"] == pytest.approx(2 * 2.0)
-        assert result["breakdown"]["tower"] == pytest.approx(8 * 1.0)
-        assert result["breakdown"]["inhibitor"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["baron"]["points"] == pytest.approx(2 * 2.0)
+        assert result["breakdown"]["tower"]["points"] == pytest.approx(8 * 1.0)
+        assert result["breakdown"]["inhibitor"]["points"] == pytest.approx(2 * 2.0)
         # dragons (non-elder): game0=2, game1=3, total=5, avg=2.5
-        assert result["breakdown"]["dragon"] == pytest.approx(2.5 * 1.0)
+        assert result["breakdown"]["dragon"]["points"] == pytest.approx(2.5 * 1.0)
         # elder: game0=0, game1=1, total=1, avg=0.5
-        assert result["breakdown"]["elder_dragon"] == pytest.approx(0.5 * 3.0)
+        assert result["breakdown"]["elder_dragon"]["points"] == pytest.approx(0.5 * 3.0)
 
     def test_empty_game_stats_returns_zeros(self, default_weights):
         """No games played should return 0 total."""
         result = compute_team_score([], [], False, False, default_weights)
 
         assert result["total"] == 0.0
-        assert result["breakdown"]["dragon"] == 0.0
-        assert result["breakdown"]["match_win"] == 0.0
+        assert result["breakdown"]["dragon"]["points"] == 0.0
+        assert result["breakdown"]["match_win"]["points"] == 0.0

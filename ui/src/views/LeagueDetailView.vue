@@ -21,6 +21,7 @@ import SettingsTab from '../components/leagues/SettingsTab.vue'
 import ScoringTab from '../components/leagues/ScoringTab.vue'
 import DraftOrderTab from '../components/leagues/DraftOrderTab.vue'
 import LeaderboardTab from '../components/leagues/LeaderboardTab.vue'
+import WeekScoresTab from '../components/leagues/WeekScoresTab.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -231,6 +232,12 @@ const statusColors: Record<string, string> = {
     <LeaderboardTab
       v-if="activeTab === 'standings'"
       :league-id="leagueId"
+    />
+    <WeekScoresTab
+      v-if="activeTab === 'scores'"
+      :league-id="leagueId"
+      :current-week="league?.current_week ?? 1"
+      :start-week="league?.start_week ?? 1"
     />
     <MembersTab
       v-if="activeTab === 'members'"

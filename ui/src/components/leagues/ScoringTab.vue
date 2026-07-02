@@ -43,7 +43,7 @@ const teamLabels: { key: keyof FantasyLeagueScoringSettings; label: string }[] =
 
 const allFields = [...playerLabels, ...teamLabels]
 
-const integerFields = new Set<string>(['kills', 'deaths', 'kill_participation', 'damage_percentage'])
+const integerFields = new Set<string>(['kills', 'deaths'])
 
 const editing = ref(false)
 const saving = ref(false)
@@ -76,8 +76,8 @@ async function save() {
       cspm: Number(editValues.cspm),
       wards_placed: Number(editValues.wards_placed),
       wards_destroyed: Number(editValues.wards_destroyed),
-      kill_participation: Math.round(Number(editValues.kill_participation)),
-      damage_percentage: Math.round(Number(editValues.damage_percentage)),
+      kill_participation: Number(editValues.kill_participation),
+      damage_percentage: Number(editValues.damage_percentage),
       double_kill: Number(editValues.double_kill),
       triple_kill: Number(editValues.triple_kill),
       quadra_kill: Number(editValues.quadra_kill),

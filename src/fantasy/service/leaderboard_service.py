@@ -93,8 +93,7 @@ class LeaderboardService:
                 league_id, accepted_members, week, riot_league_id, scoring_settings
             )
 
-            # Determine if we should store (no in-progress matches for this week)
-            should_store: bool = not self._has_in_progress_matches(riot_league_id, week)
+            should_store: bool = self._week_scores_are_final(riot_league_id, week)
 
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:
@@ -197,6 +196,8 @@ class LeaderboardService:
 
     def _get_matches_for_week(self, riot_league_id: RiotLeagueID, week: int) -> list[Match]:
         """Get all completed matches for a given week in the league's active tournament."""
+        from src.common.schemas.riot_data_schemas import MatchState
+
         all_matches: list[Match] = self.db.get_matches_for_league_with_active_tournament(
             riot_league_id
         )
@@ -204,20 +205,45 @@ class LeaderboardService:
         return [
             m for m in all_matches
             if m.block_name and m.block_name.lower() == week_block.lower()
-            and m.state and m.state.value == "completed"
+            and m.state == MatchState.COMPLETED
         ]
 
-    def _has_in_progress_matches(self, riot_league_id: RiotLeagueID, week: int) -> bool:
-        """Check if there are any in-progress matches for a given week."""
+    def _week_scores_are_final(self, riot_league_id: RiotLeagueID, week: int) -> bool:
+        """Check if a week's scores are final and safe to cache.
+
+        Scores are final when:
+        - No matches are unstarted or inProgress
+        - No games have pending frames_status (game analysis incomplete)
+        """
+        from src.common.schemas.riot_data_schemas import MatchState, GameState
+
         all_matches: list[Match] = self.db.get_matches_for_league_with_active_tournament(
             riot_league_id
         )
         week_block: str = f"Week {week}"
-        return any(
+        week_matches = [
             m for m in all_matches
             if m.block_name and m.block_name.lower() == week_block.lower()
-            and m.state and m.state.value == "inProgress"
+        ]
+
+        # Check for unstarted or in-progress matches
+        has_incomplete_matches = any(
+            m for m in week_matches
+            if m.state in (MatchState.INPROGRESS, MatchState.UNSTARTED)
         )
+        if has_incomplete_matches:
+            return False
+
+        # Check for pending game analysis
+        for match in week_matches:
+            games: list[dict] = self.db.get_games_for_match(match.id)
+            for game in games:
+                if game.get("state") == GameState.COMPLETED.value:
+                    game_id = game["id"]
+                    if self.db.game_has_pending_frames(game_id):
+                        return False
+
+        return True
 
     def _get_member_roster(
         self, league_id: FantasyLeagueID, user_id: UserID, week: int
@@ -325,44 +351,53 @@ class LeaderboardService:
                         "game_index": game_idx,
                     })
 
-            if game_stats_for_match:
-                # Determine match outcome
-                match_won: bool = False
-                match_swept: bool = False
-                if hasattr(match, "winning_team") and match.winning_team:
-                    team = self.db.get_team_by_id(team_id)
-                    if team and team.name == match.winning_team:
-                        match_won = True
+            # Determine match outcome (check even without team stats for win/sweep)
+            match_won: bool = False
+            match_swept: bool = False
+            if hasattr(match, "winning_team") and match.winning_team:
+                team = self.db.get_team_by_id(team_id)
+                if team and team.name == match.winning_team:
+                    match_won = True
+                    if game_stats_for_match:
                         total_games: int = len(games)
                         team_games_played: int = len(game_stats_for_match)
                         opponent_wins: int = total_games - team_games_played
                         if opponent_wins == 0 and total_games > 1:
                             match_swept = True
+                    else:
+                        # No team stats but we know they won — can't determine sweep
+                        pass
 
-                match_score: dict = compute_team_score(
-                    game_stats_for_match, dragons_for_match,
-                    match_won, match_swept, scoring_settings
-                )
-
+            if game_stats_for_match:
                 all_game_stats.extend(game_stats_for_match)
                 all_dragons.extend(dragons_for_match)
-                total_match_wins += (1 if match_won else 0)
-                total_match_sweeps += (1 if match_swept else 0)
 
-        if not all_game_stats:
+            total_match_wins += (1 if match_won else 0)
+            total_match_sweeps += (1 if match_swept else 0)
+
+        if not all_game_stats and total_match_wins == 0:
             return {"total": 0.0, "breakdown": {}}
 
         # Compute base score with all games across the week (per-game averaged)
         # but without match bonuses (those are per-match, not per-game)
-        base_score: dict = compute_team_score(
-            all_game_stats, all_dragons, False, False, scoring_settings
-        )
+        if all_game_stats:
+            base_score: dict = compute_team_score(
+                all_game_stats, all_dragons, False, False, scoring_settings
+            )
+        else:
+            base_score = compute_team_score([], [], False, False, scoring_settings)
         # Override match bonuses with accumulated per-match values
-        base_score["breakdown"]["match_win"] = total_match_wins * scoring_settings.match_win
-        base_score["breakdown"]["match_sweep"] = (
-            total_match_sweeps * scoring_settings.match_sweep
+        base_score["breakdown"]["match_win"] = {
+            "value": total_match_wins,
+            "points": total_match_wins * scoring_settings.match_win,
+        }
+        base_score["breakdown"]["match_sweep"] = {
+            "value": total_match_sweeps,
+            "points": total_match_sweeps * scoring_settings.match_sweep,
+        }
+        base_score["total"] = sum(
+            entry["points"] for entry in base_score["breakdown"].values()
         )
-        base_score["total"] = sum(base_score["breakdown"].values())
 
         return base_score
 
@@ -432,8 +467,8 @@ class LeaderboardService:
             league_id, accepted_members, week, riot_league_id, scoring_settings
         )
 
-        # Store if no in-progress matches for this week
-        should_store: bool = not self._has_in_progress_matches(riot_league_id, week)
+        # Store if week scores are final
+        should_store: bool = self._week_scores_are_final(riot_league_id, week)
         if should_store:
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:

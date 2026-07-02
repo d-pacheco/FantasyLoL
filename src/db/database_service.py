@@ -563,9 +563,20 @@ class DatabaseService:
             )
             return rows
 
+    def game_has_pending_frames(self, game_id: RiotGameID) -> bool:
+        """Check if a game has pending frames_status (game analysis not complete)."""
+        from src.db.models import GameModel
+        from src.common.schemas.riot_data_schemas import FramesStatus
+        with self.connection_provider.get_db() as db:
+            game = db.query(GameModel).filter(GameModel.id == game_id).first()
+            if game is None:
+                return False
+            return game.frames_status == FramesStatus.PENDING
+
     def put_fantasy_score(self, score) -> None:
-        """Store a computed fantasy score."""
+        """Store a computed fantasy score. Silently ignores duplicates from concurrent requests."""
         from src.db.models import FantasyScoreModel
+        from sqlalchemy.exc import IntegrityError
         with self.connection_provider.get_db() as db:
             row = FantasyScoreModel(
                 fantasy_league_id=score["fantasy_league_id"],
@@ -577,8 +588,11 @@ class DatabaseService:
                 points=score["points"],
                 breakdown=score["breakdown"],
             )
-            db.merge(row)
-            db.commit()
+            try:
+                db.merge(row)
+                db.commit()
+            except IntegrityError:
+                db.rollback()
 
     def put_fantasy_team(self, fantasy_team: FantasyTeam) -> None:
         with self.connection_provider.get_db() as db:
