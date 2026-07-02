@@ -1,6 +1,5 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pytest
 
 from src.common.schemas.riot_data_schemas import RiotGameID, ProTeamID
 from src.riot_scraper.scrapers.game_stats_scraper import RiotGameStatsScraper
@@ -8,10 +7,8 @@ from src.riot_scraper.riot_api.schemas.get_live_window import (
     GetLiveWindowResponse,
     GameMetaData,
     TeamMetaData,
-    ParticipantMetadata,
     WindowFrame,
     TeamWindowFrame,
-    ParticipantWindowFrame,
 )
 from src.common.schemas.riot_data_schemas import LiveGameState
 

@@ -15,7 +15,6 @@ from src.common.schemas.riot_data_schemas import (
     ProTeamID,
     RiotGameID,
     RiotLeagueID,
-    RiotMatchID,
 )
 from src.db.database_service import DatabaseService
 from src.fantasy.scoring.engine import compute_player_score, compute_team_score
@@ -449,8 +448,6 @@ class LeaderboardService:
                 "week": week,
                 "members": [],
             }
-
-        is_current_week: bool = week == current_week
 
         # Try to read stored scores
         stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)

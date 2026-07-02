@@ -10,7 +10,6 @@ from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
-    FantasyLeagueID,
     FantasyLeagueStatus,
     FantasyLeagueMembershipStatus,
     FantasyLeagueMembership,
@@ -23,15 +22,8 @@ from src.common.schemas.riot_data_schemas import (
     PlayerRole,
     ProPlayerID,
     ProTeamID,
-    Match,
-    Game,
-    GameState,
-    MatchState,
     RiotGameID,
     RiotMatchID,
-    PlayerGameStats,
-    TeamGameStats,
-    GameDragons,
     Tournament,
 )
 from src.fantasy.service.leaderboard_service import LeaderboardService
