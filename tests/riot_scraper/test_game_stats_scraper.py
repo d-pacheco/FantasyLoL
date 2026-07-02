@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 
-from src.common.schemas.riot_data_schemas import RiotGameID, ProTeamID
+from src.common.schemas.riot_data_schemas import RiotGameID, ProTeamID, RiotMatchID
 from src.riot_scraper.scrapers.game_stats_scraper import RiotGameStatsScraper
 from src.riot_scraper.riot_api.schemas.get_live_window import (
     GetLiveWindowResponse,
@@ -27,7 +27,7 @@ def make_window_response(
 ) -> GetLiveWindowResponse:
     return GetLiveWindowResponse(
         esportsGameId=RiotGameID("game-1"),
-        esportsMatchId="match-1",
+        esportsMatchId=RiotMatchID("match-1"),
         gameMetadata=GameMetaData(
             patchVersion="14.1",
             blueTeamMetadata=TeamMetaData(
