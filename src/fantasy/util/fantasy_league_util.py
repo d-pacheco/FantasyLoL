@@ -134,10 +134,12 @@ class FantasyLeagueUtil:
     def get_leagues_current_week(self, riot_league_id: RiotLeagueID) -> int | None:
         non_week_blocks = [
             "playoffs",
+            "knockouts",
             "groups",
             "finals",
             "swiss",
-            "play-ins" "play in knockouts",
+            "play-ins",
+            "play in knockouts",
             "play in groups",
         ]
 

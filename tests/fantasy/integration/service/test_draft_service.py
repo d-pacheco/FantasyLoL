@@ -409,6 +409,32 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertEqual(FantasyLeagueStatus.ACTIVE, db_league.status)
         self.assertEqual(1, db_league.current_week)
 
+    def test_draft_completes_sets_start_week(self):
+        """start_week should be set when draft completes and league transitions to ACTIVE."""
+        # Arrange — 4 users × 6 picks = 24 total picks
+        league, user_ids = self.setup_draft_league()
+        self.advance_draft(league, user_ids, 23)
+
+        # Act — make the 24th (final) pick
+        final_team = ProfessionalTeam(
+            id=ProTeamID("start-week-team"),
+            slug="sw",
+            name="Start Week Team",
+            code="SW",
+            image="http://img.png",
+            status="active",
+            home_league_name=riot_fixtures.league_1_fixture.name,
+        )
+        self.db.put_team(final_team)
+        self.draft_service.make_pick(league.id, user_ids[0], team_id=final_team.id)
+
+        # Assert
+        db_league = self.db.get_fantasy_league_by_id(league.id)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_league.status)
+        # start_week should be set (1 since no active tournament matches exist)
+        self.assertIsNotNone(db_league.start_week)
+        self.assertEqual(1, db_league.start_week)
+
     # --------------------------------------------------
     # --------------- get_draft_state ------------------
     # --------------------------------------------------

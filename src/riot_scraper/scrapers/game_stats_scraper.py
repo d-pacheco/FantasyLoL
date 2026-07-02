@@ -165,8 +165,8 @@ class RiotGameStatsScraper:
         )
         red_team_stats = get_team_stats_from_frame(
             game_id,
-            window_response.gameMetadata.blueTeamMetadata.esportsTeamId,
-            last_frame.blueTeam,
+            window_response.gameMetadata.redTeamMetadata.esportsTeamId,
+            last_frame.redTeam,
         )
 
         return [blue_team_stats, red_team_stats]

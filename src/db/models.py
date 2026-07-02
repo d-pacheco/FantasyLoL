@@ -285,6 +285,7 @@ class FantasyLeagueModel(Base):  # type: ignore
     current_week = Column(Integer, nullable=True)
     current_draft_position = Column(Integer, nullable=True)
     available_leagues = Column(JSON)
+    start_week = Column(Integer, nullable=True)
 
 
 class FantasyLeagueMembershipModel(Base):  # type: ignore
@@ -307,8 +308,8 @@ class FantasyLeagueScoringSettingModel(Base):  # type: ignore
     cspm = Column(Float, nullable=False)
     wards_placed = Column(Float, nullable=False)
     wards_destroyed = Column(Float, nullable=False)
-    kill_participation = Column(Integer, nullable=False)
-    damage_percentage = Column(Integer, nullable=False)
+    kill_participation = Column(Float, nullable=False)
+    damage_percentage = Column(Float, nullable=False)
     double_kill = Column(Float, nullable=False)
     triple_kill = Column(Float, nullable=False)
     quadra_kill = Column(Float, nullable=False)
@@ -360,3 +361,20 @@ class DraftPickModel(Base):  # type: ignore
     team_id = Column(String, nullable=True)
 
     __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "pick_number"),)
+
+
+class FantasyScoreModel(Base):  # type: ignore
+    __tablename__ = "fantasy_scores"
+
+    fantasy_league_id = Column(
+        String, ForeignKey("fantasy_leagues.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id = Column(String, primary_key=True, nullable=False)
+    week = Column(Integer, primary_key=True, nullable=False)
+    slot = Column(String, primary_key=True, nullable=False)
+    player_id = Column(String, nullable=True)
+    team_id = Column(String, nullable=True)
+    points = Column(Float, nullable=False)
+    breakdown = Column(JSON, nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id", "week", "slot"),)

@@ -20,6 +20,8 @@ import MembersTab from '../components/leagues/MembersTab.vue'
 import SettingsTab from '../components/leagues/SettingsTab.vue'
 import ScoringTab from '../components/leagues/ScoringTab.vue'
 import DraftOrderTab from '../components/leagues/DraftOrderTab.vue'
+import LeaderboardTab from '../components/leagues/LeaderboardTab.vue'
+import WeekScoresTab from '../components/leagues/WeekScoresTab.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,14 +37,21 @@ const isOwner = computed(() => !!auth.userId && league.value?.owner_id === auth.
 const acceptedCount = computed(() => members.value.filter(m => m.status === 'accepted').length)
 const isFull = computed(() => !!league.value && acceptedCount.value >= league.value.number_of_teams)
 
-type Tab = 'members' | 'settings' | 'scoring' | 'draft-order'
+type Tab = 'standings' | 'scores' | 'members' | 'settings' | 'scoring' | 'draft-order'
 const activeTab = ref<Tab>('members')
-const tabs: { key: Tab; label: string }[] = [
-  { key: 'members', label: 'Members' },
-  { key: 'settings', label: 'Settings' },
-  { key: 'scoring', label: 'Scoring' },
-  { key: 'draft-order', label: 'Draft Order' },
-]
+const tabs = computed(() => {
+  const isActive = league.value?.status === 'active' || league.value?.status === 'completed'
+  const base: { key: Tab; label: string }[] = []
+  if (isActive) {
+    base.push({ key: 'standings', label: 'Standings' })
+    base.push({ key: 'scores', label: 'Scores' })
+  }
+  base.push({ key: 'members', label: 'Members' })
+  base.push({ key: 'settings', label: 'Settings' })
+  base.push({ key: 'scoring', label: 'Scoring' })
+  base.push({ key: 'draft-order', label: 'Draft Order' })
+  return base
+})
 
 // Per-tab data
 const members = ref<LeagueMember[]>([])
@@ -78,6 +87,11 @@ async function fetchAll() {
     getLeagueScoringSettings(leagueId).then(d => { scoring.value = d }).catch(() => { scoringError.value = 'Unable to load scoring.' }).finally(() => { scoringLoading.value = false }),
     getDraftOrder(leagueId).then(d => { draftOrder.value = d }).catch(() => { draftOrderError.value = 'Unable to load draft order.' }).finally(() => { draftOrderLoading.value = false }),
   ])
+
+  // Default to standings tab when league is active/completed
+  if (league.value?.status === 'active' || league.value?.status === 'completed') {
+    activeTab.value = 'standings'
+  }
 }
 
 onMounted(fetchAll)
@@ -215,6 +229,16 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Tab content -->
+    <LeaderboardTab
+      v-if="activeTab === 'standings'"
+      :league-id="leagueId"
+    />
+    <WeekScoresTab
+      v-if="activeTab === 'scores'"
+      :league-id="leagueId"
+      :current-week="league?.current_week ?? 1"
+      :start-week="league?.start_week ?? 1"
+    />
     <MembersTab
       v-if="activeTab === 'members'"
       :league-id="leagueId"

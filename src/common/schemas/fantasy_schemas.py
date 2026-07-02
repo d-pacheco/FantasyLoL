@@ -76,18 +76,18 @@ class FantasyLeagueScoringSettings(BaseModel):
         examples=["aaaaaaaa-1111-bbbb-2222-cccccccccccc"],
         default=None,
     )
-    kills: int = Field(default=2)
+    kills: int = Field(default=3)
     deaths: int = Field(default=-1)
-    assists: float = Field(default=0.5)
-    cspm: float = Field(default=1.0)
+    assists: float = Field(default=1.5)
+    cspm: float = Field(default=0.5)
     wards_placed: float = Field(default=0.1)
     wards_destroyed: float = Field(default=0.1)
-    kill_participation: int = Field(default=10)
-    damage_percentage: int = Field(default=5)
-    double_kill: float = Field(default=1.0)
-    triple_kill: float = Field(default=2.0)
-    quadra_kill: float = Field(default=4.0)
-    penta_kill: float = Field(default=10.0)
+    kill_participation: float = Field(default=0.2)
+    damage_percentage: float = Field(default=0.1)
+    double_kill: float = Field(default=2.0)
+    triple_kill: float = Field(default=5.0)
+    quadra_kill: float = Field(default=10.0)
+    penta_kill: float = Field(default=25.0)
     match_win: float = Field(default=5.0)
     match_sweep: float = Field(default=5.0)
     dragon: float = Field(default=1.0)
@@ -137,6 +137,7 @@ class FantasyLeague(FantasyLeagueSettings):
     status: FantasyLeagueStatus
     current_week: int | None = None
     current_draft_position: int | None = None
+    start_week: int | None = None
 
 
 class FantasyLeagueMembershipStatus(str, Enum):
@@ -269,3 +270,16 @@ class DraftCompletedEvent(DraftEvent):
 class PickRequest(BaseModel):
     player_id: ProPlayerID | None = None
     team_id: ProTeamID | None = None
+
+
+class FantasyScore(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fantasy_league_id: FantasyLeagueID
+    user_id: UserID
+    week: int
+    slot: str
+    player_id: ProPlayerID | None = None
+    team_id: ProTeamID | None = None
+    points: float
+    breakdown: dict

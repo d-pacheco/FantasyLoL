@@ -17,6 +17,7 @@ from src.fantasy.endpoints import (
     UserEndpointV1,
 )
 from src.fantasy.endpoints.draft_websocket import create_draft_ws_router
+from src.fantasy.endpoints.leaderboard_endpoint_v1 import LeaderboardEndpoint
 from src.fantasy.service import (
     DraftConnectionManager,
     DraftService,
@@ -24,6 +25,7 @@ from src.fantasy.service import (
     FantasyTeamService,
     UserService,
 )
+from src.fantasy.service.leaderboard_service import LeaderboardService
 from src.riot.endpoints import (
     AdminEndpoint,
     GameEndpoint,
@@ -85,6 +87,7 @@ def create_app(database_service: DatabaseService) -> FastAPI:
     fantasy_team_service = FantasyTeamService(database_service)
     draft_service = DraftService(database_service)
     connection_manager = DraftConnectionManager()
+    leaderboard_service = LeaderboardService(database_service)
 
     app.include_router(UserEndpointV1(user_service).router, prefix="/api/v1")
     app.include_router(
@@ -94,6 +97,7 @@ def create_app(database_service: DatabaseService) -> FastAPI:
     app.include_router(
         DraftEndpoint(draft_service, connection_manager).router, prefix="/api/v1/fantasy"
     )
+    app.include_router(LeaderboardEndpoint(leaderboard_service).router, prefix="/api/v1/fantasy")
     app.include_router(
         create_draft_ws_router(database_service, connection_manager),
         prefix="/api/v1/fantasy",

@@ -113,11 +113,11 @@ class TestCrudFantasyLeague(TestBase):
         )
 
         # Assert new field defaults
-        self.assertEqual(1.0, result.cspm)
-        self.assertEqual(1.0, result.double_kill)
-        self.assertEqual(2.0, result.triple_kill)
-        self.assertEqual(4.0, result.quadra_kill)
-        self.assertEqual(10.0, result.penta_kill)
+        self.assertEqual(0.5, result.cspm)
+        self.assertEqual(2.0, result.double_kill)
+        self.assertEqual(5.0, result.triple_kill)
+        self.assertEqual(10.0, result.quadra_kill)
+        self.assertEqual(25.0, result.penta_kill)
         self.assertEqual(5.0, result.match_win)
         self.assertEqual(5.0, result.match_sweep)
         self.assertEqual(1.0, result.dragon)
