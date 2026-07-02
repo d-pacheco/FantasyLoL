@@ -32,9 +32,7 @@ class LeaderboardService:
         self.db = database_service
         self.fantasy_league_util = FantasyLeagueUtil(database_service)
 
-    def get_leaderboard(
-        self, league_id: FantasyLeagueID, user_id: UserID
-    ) -> dict:
+    def get_leaderboard(self, league_id: FantasyLeagueID, user_id: UserID) -> dict:
         """Get the leaderboard for a fantasy league.
 
         Returns ranked members with total points from start_week to current_week.
@@ -52,8 +50,7 @@ class LeaderboardService:
         # Get all accepted members
         members = self.db.get_pending_and_accepted_members_for_league(league_id)
         accepted_members: list[FantasyLeagueMembership] = [
-            m for m in members
-            if m.status == FantasyLeagueMembershipStatus.ACCEPTED
+            m for m in members if m.status == FantasyLeagueMembershipStatus.ACCEPTED
         ]
 
         # Determine week range
@@ -100,27 +97,31 @@ class LeaderboardService:
                     member_totals[uid] += slot_data["points"]
 
                     if should_store:
-                        self.db.put_fantasy_score({
-                            "fantasy_league_id": league_id,
-                            "user_id": uid,
-                            "week": week,
-                            "slot": slot_data["slot"],
-                            "player_id": slot_data.get("player_id"),
-                            "team_id": slot_data.get("team_id"),
-                            "points": slot_data["points"],
-                            "breakdown": slot_data["breakdown"],
-                        })
+                        self.db.put_fantasy_score(
+                            {
+                                "fantasy_league_id": league_id,
+                                "user_id": uid,
+                                "week": week,
+                                "slot": slot_data["slot"],
+                                "player_id": slot_data.get("player_id"),
+                                "team_id": slot_data.get("team_id"),
+                                "points": slot_data["points"],
+                                "breakdown": slot_data["breakdown"],
+                            }
+                        )
 
         # Build ranked response
         ranked_members: list[dict] = []
         for member in accepted_members:
             user = self.db.get_user_by_id(member.user_id)
             username: str = user.username if user else member.user_id
-            ranked_members.append({
-                "user_id": member.user_id,
-                "username": username,
-                "total_points": round(member_totals[member.user_id], 2),
-            })
+            ranked_members.append(
+                {
+                    "user_id": member.user_id,
+                    "username": username,
+                    "total_points": round(member_totals[member.user_id], 2),
+                }
+            )
 
         ranked_members.sort(key=lambda m: m["total_points"], reverse=True)
         for i, member_entry in enumerate(ranked_members):
@@ -150,45 +151,45 @@ class LeaderboardService:
         result: dict[str, list[dict]] = {}
 
         for member in members:
-            roster: FantasyTeam | None = self._get_member_roster(
-                league_id, member.user_id, week
-            )
+            roster: FantasyTeam | None = self._get_member_roster(league_id, member.user_id, week)
             slot_scores: list[dict] = []
 
             for slot in PLAYER_SLOTS:
                 player_id: ProPlayerID | None = self._get_roster_player_id(roster, slot)
                 if player_id is None:
-                    slot_scores.append({
-                        "slot": slot, "player_id": None, "points": 0.0, "breakdown": {}
-                    })
+                    slot_scores.append(
+                        {"slot": slot, "player_id": None, "points": 0.0, "breakdown": {}}
+                    )
                     continue
 
-                score: dict = self._compute_player_week_score(
-                    player_id, matches, scoring_settings
+                score: dict = self._compute_player_week_score(player_id, matches, scoring_settings)
+                slot_scores.append(
+                    {
+                        "slot": slot,
+                        "player_id": player_id,
+                        "points": score["total"],
+                        "breakdown": score["breakdown"],
+                    }
                 )
-                slot_scores.append({
-                    "slot": slot,
-                    "player_id": player_id,
-                    "points": score["total"],
-                    "breakdown": score["breakdown"],
-                })
 
             # Team slot
-            team_id: ProTeamID | None = ProTeamID(roster.team_id) if roster and roster.team_id else None
+            team_id: ProTeamID | None = (
+                ProTeamID(roster.team_id) if roster and roster.team_id else None
+            )
             if team_id is None:
-                slot_scores.append({
-                    "slot": "team", "team_id": None, "points": 0.0, "breakdown": {}
-                })
-            else:
-                score = self._compute_team_week_score(
-                    team_id, matches, scoring_settings
+                slot_scores.append(
+                    {"slot": "team", "team_id": None, "points": 0.0, "breakdown": {}}
                 )
-                slot_scores.append({
-                    "slot": "team",
-                    "team_id": team_id,
-                    "points": score["total"],
-                    "breakdown": score["breakdown"],
-                })
+            else:
+                score = self._compute_team_week_score(team_id, matches, scoring_settings)
+                slot_scores.append(
+                    {
+                        "slot": "team",
+                        "team_id": team_id,
+                        "points": score["total"],
+                        "breakdown": score["breakdown"],
+                    }
+                )
 
             result[member.user_id] = slot_scores
 
@@ -203,8 +204,10 @@ class LeaderboardService:
         )
         week_block: str = f"Week {week}"
         return [
-            m for m in all_matches
-            if m.block_name and m.block_name.lower() == week_block.lower()
+            m
+            for m in all_matches
+            if m.block_name
+            and m.block_name.lower() == week_block.lower()
             and m.state == MatchState.COMPLETED
         ]
 
@@ -222,14 +225,12 @@ class LeaderboardService:
         )
         week_block: str = f"Week {week}"
         week_matches = [
-            m for m in all_matches
-            if m.block_name and m.block_name.lower() == week_block.lower()
+            m for m in all_matches if m.block_name and m.block_name.lower() == week_block.lower()
         ]
 
         # Check for unstarted or in-progress matches
         has_incomplete_matches = any(
-            m for m in week_matches
-            if m.state in (MatchState.INPROGRESS, MatchState.UNSTARTED)
+            m for m in week_matches if m.state in (MatchState.INPROGRESS, MatchState.UNSTARTED)
         )
         if has_incomplete_matches:
             return False
@@ -295,15 +296,15 @@ class LeaderboardService:
                 game_stats_for_match.append(stats)
                 durations_for_match.append(game.get("duration_seconds") or 0)
 
-                mks: list[dict] = self.db.get_multi_kills_for_game_and_player(
-                    game_id, player_id
-                )
+                mks: list[dict] = self.db.get_multi_kills_for_game_and_player(game_id, player_id)
                 game_idx: int = len(game_stats_for_match) - 1
                 for mk in mks:
-                    multi_kills_for_match.append({
-                        "kill_type": mk["kill_type"],
-                        "game_index": game_idx,
-                    })
+                    multi_kills_for_match.append(
+                        {
+                            "kill_type": mk["kill_type"],
+                            "game_index": game_idx,
+                        }
+                    )
 
             if game_stats_for_match:
                 all_game_stats.extend(game_stats_for_match)
@@ -341,15 +342,15 @@ class LeaderboardService:
                     continue
                 game_stats_for_match.append(stats)
 
-                game_dragons: list[dict] = self.db.get_dragons_for_game_and_team(
-                    game_id, team_id
-                )
+                game_dragons: list[dict] = self.db.get_dragons_for_game_and_team(game_id, team_id)
                 game_idx: int = len(game_stats_for_match) - 1
                 for d in game_dragons:
-                    dragons_for_match.append({
-                        "dragon_type": d["dragon_type"],
-                        "game_index": game_idx,
-                    })
+                    dragons_for_match.append(
+                        {
+                            "dragon_type": d["dragon_type"],
+                            "game_index": game_idx,
+                        }
+                    )
 
             # Determine match outcome (check even without team stats for win/sweep)
             match_won: bool = False
@@ -372,8 +373,8 @@ class LeaderboardService:
                 all_game_stats.extend(game_stats_for_match)
                 all_dragons.extend(dragons_for_match)
 
-            total_match_wins += (1 if match_won else 0)
-            total_match_sweeps += (1 if match_swept else 0)
+            total_match_wins += 1 if match_won else 0
+            total_match_sweeps += 1 if match_swept else 0
 
         if not all_game_stats and total_match_wins == 0:
             return {"total": 0.0, "breakdown": {}}
@@ -395,15 +396,11 @@ class LeaderboardService:
             "value": total_match_sweeps,
             "points": total_match_sweeps * scoring_settings.match_sweep,
         }
-        base_score["total"] = sum(
-            entry["points"] for entry in base_score["breakdown"].values()
-        )
+        base_score["total"] = sum(entry["points"] for entry in base_score["breakdown"].values())
 
         return base_score
 
-    def get_week_scores(
-        self, league_id: FantasyLeagueID, user_id: UserID, week: int
-    ) -> dict:
+    def get_week_scores(self, league_id: FantasyLeagueID, user_id: UserID, week: int) -> dict:
         """Get detailed scoring breakdown for a specific week.
 
         Returns per-member roster detail with points and per-category breakdown.
@@ -430,6 +427,7 @@ class LeaderboardService:
         if week < start_week or week > current_week:
             from fastapi import HTTPException
             from http import HTTPStatus
+
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"Week {week} is out of range. Valid range: {start_week} to {current_week}.",
@@ -438,8 +436,7 @@ class LeaderboardService:
         # Get all accepted members
         members = self.db.get_pending_and_accepted_members_for_league(league_id)
         accepted_members: list[FantasyLeagueMembership] = [
-            m for m in members
-            if m.status == FantasyLeagueMembershipStatus.ACCEPTED
+            m for m in members if m.status == FantasyLeagueMembershipStatus.ACCEPTED
         ]
 
         # Get scoring settings
@@ -453,7 +450,7 @@ class LeaderboardService:
                 "members": [],
             }
 
-        is_current_week: bool = (week == current_week)
+        is_current_week: bool = week == current_week
 
         # Try to read stored scores
         stored_scores = self.db.get_fantasy_scores_for_week(league_id, week)
@@ -472,16 +469,18 @@ class LeaderboardService:
         if should_store:
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:
-                    self.db.put_fantasy_score({
-                        "fantasy_league_id": league_id,
-                        "user_id": uid,
-                        "week": week,
-                        "slot": slot_data["slot"],
-                        "player_id": slot_data.get("player_id"),
-                        "team_id": slot_data.get("team_id"),
-                        "points": slot_data["points"],
-                        "breakdown": slot_data["breakdown"],
-                    })
+                    self.db.put_fantasy_score(
+                        {
+                            "fantasy_league_id": league_id,
+                            "user_id": uid,
+                            "week": week,
+                            "slot": slot_data["slot"],
+                            "player_id": slot_data.get("player_id"),
+                            "team_id": slot_data.get("team_id"),
+                            "points": slot_data["points"],
+                            "breakdown": slot_data["breakdown"],
+                        }
+                    )
 
         return self._build_week_response_from_computed(
             league_id, week, accepted_members, week_scores
@@ -524,12 +523,14 @@ class LeaderboardService:
                 roster[score.slot] = slot_entry
                 total_points += score.points
 
-            member_entries.append({
-                "user_id": member.user_id,
-                "username": username,
-                "total_points": round(total_points, 2),
-                "roster": roster,
-            })
+            member_entries.append(
+                {
+                    "user_id": member.user_id,
+                    "username": username,
+                    "total_points": round(total_points, 2),
+                    "roster": roster,
+                }
+            )
 
         return {
             "fantasy_league_id": league_id,
@@ -570,12 +571,14 @@ class LeaderboardService:
                 roster[slot] = slot_entry
                 total_points += slot_data["points"]
 
-            member_entries.append({
-                "user_id": member.user_id,
-                "username": username,
-                "total_points": round(total_points, 2),
-                "roster": roster,
-            })
+            member_entries.append(
+                {
+                    "user_id": member.user_id,
+                    "username": username,
+                    "total_points": round(total_points, 2),
+                    "roster": roster,
+                }
+            )
 
         return {
             "fantasy_league_id": league_id,

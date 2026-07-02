@@ -22,9 +22,7 @@ class LeaderboardEndpoint(Routable):
         fantasy_league_id: FantasyLeagueID,
         principal: AuthPrincipal = Depends(JWTBearer([Permissions.FANTASY_READ])),
     ) -> dict:
-        return self.__leaderboard_service.get_leaderboard(
-            fantasy_league_id, principal.user_id
-        )
+        return self.__leaderboard_service.get_leaderboard(fantasy_league_id, principal.user_id)
 
     @get(
         path="/leagues/{fantasy_league_id}/scores",

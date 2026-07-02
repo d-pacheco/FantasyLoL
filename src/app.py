@@ -97,9 +97,7 @@ def create_app(database_service: DatabaseService) -> FastAPI:
     app.include_router(
         DraftEndpoint(draft_service, connection_manager).router, prefix="/api/v1/fantasy"
     )
-    app.include_router(
-        LeaderboardEndpoint(leaderboard_service).router, prefix="/api/v1/fantasy"
-    )
+    app.include_router(LeaderboardEndpoint(leaderboard_service).router, prefix="/api/v1/fantasy")
     app.include_router(
         create_draft_ws_router(database_service, connection_manager),
         prefix="/api/v1/fantasy",

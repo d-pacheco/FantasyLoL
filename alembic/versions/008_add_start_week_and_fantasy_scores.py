@@ -32,9 +32,7 @@ def upgrade() -> None:
         sa.Column("points", sa.Float(), nullable=False),
         sa.Column("breakdown", sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint("fantasy_league_id", "user_id", "week", "slot"),
-        sa.ForeignKeyConstraint(
-            ["fantasy_league_id"], ["fantasy_leagues.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["fantasy_league_id"], ["fantasy_leagues.id"], ondelete="CASCADE"),
     )
 
 

@@ -377,6 +377,4 @@ class FantasyScoreModel(Base):  # type: ignore
     points = Column(Float, nullable=False)
     breakdown = Column(JSON, nullable=False)
 
-    __table_args__ = (
-        PrimaryKeyConstraint("fantasy_league_id", "user_id", "week", "slot"),
-    )
+    __table_args__ = (PrimaryKeyConstraint("fantasy_league_id", "user_id", "week", "slot"),)

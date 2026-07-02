@@ -52,15 +52,16 @@ class TestComputePlayerScore:
         result = compute_player_score(game_stats, game_durations, multi_kills, default_weights)
 
         assert result["total"] == pytest.approx(
-            8 * 3          # kills
-            + 2 * -1       # deaths
-            + 5 * 2        # assists
+            8 * 3  # kills
+            + 2 * -1  # deaths
+            + 5 * 2  # assists
             + (200 / 30) * 1.0  # cspm
-            + 10 * 0.1    # wards_placed
-            + 5 * 0.2     # wards_destroyed
-            + 70 * 10     # kill_participation
-            + 30 * 5      # damage_percentage
-        , rel=1e-4)
+            + 10 * 0.1  # wards_placed
+            + 5 * 0.2  # wards_destroyed
+            + 70 * 10  # kill_participation
+            + 30 * 5,  # damage_percentage
+            rel=1e-4,
+        )
         assert "kills" in result["breakdown"]
         assert result["breakdown"]["kills"]["points"] == pytest.approx(24.0)
         assert result["breakdown"]["kills"]["value"] == pytest.approx(8.0)
@@ -70,15 +71,23 @@ class TestComputePlayerScore:
         """Stats should be summed then divided by number of games."""
         game_stats = [
             {
-                "kills": 6, "deaths": 2, "assists": 4,
-                "creep_score": 180, "wards_placed": 8,
-                "wards_destroyed": 4, "kill_participation": 60,
+                "kills": 6,
+                "deaths": 2,
+                "assists": 4,
+                "creep_score": 180,
+                "wards_placed": 8,
+                "wards_destroyed": 4,
+                "kill_participation": 60,
                 "champion_damage_share": 25,
             },
             {
-                "kills": 10, "deaths": 4, "assists": 6,
-                "creep_score": 220, "wards_placed": 12,
-                "wards_destroyed": 6, "kill_participation": 80,
+                "kills": 10,
+                "deaths": 4,
+                "assists": 6,
+                "creep_score": 220,
+                "wards_placed": 12,
+                "wards_destroyed": 6,
+                "kill_participation": 80,
                 "champion_damage_share": 35,
             },
         ]
@@ -98,9 +107,13 @@ class TestComputePlayerScore:
         """If game duration is 0, CSPM for that game should be excluded."""
         game_stats = [
             {
-                "kills": 5, "deaths": 1, "assists": 3,
-                "creep_score": 200, "wards_placed": 5,
-                "wards_destroyed": 2, "kill_participation": 50,
+                "kills": 5,
+                "deaths": 1,
+                "assists": 3,
+                "creep_score": 200,
+                "wards_placed": 5,
+                "wards_destroyed": 2,
+                "kill_participation": 50,
                 "champion_damage_share": 20,
             },
         ]
@@ -115,9 +128,13 @@ class TestComputePlayerScore:
         """Multi-kills counted by type, averaged per game."""
         game_stats = [
             {
-                "kills": 10, "deaths": 0, "assists": 0,
-                "creep_score": 0, "wards_placed": 0,
-                "wards_destroyed": 0, "kill_participation": 0,
+                "kills": 10,
+                "deaths": 0,
+                "assists": 0,
+                "creep_score": 0,
+                "wards_placed": 0,
+                "wards_destroyed": 0,
+                "kill_participation": 0,
                 "champion_damage_share": 0,
             },
         ]
@@ -139,12 +156,26 @@ class TestComputePlayerScore:
     def test_multi_kills_averaged_across_games(self, default_weights):
         """Multi-kills across multiple games should be averaged per game."""
         game_stats = [
-            {"kills": 5, "deaths": 0, "assists": 0, "creep_score": 0,
-             "wards_placed": 0, "wards_destroyed": 0, "kill_participation": 0,
-             "champion_damage_share": 0},
-            {"kills": 5, "deaths": 0, "assists": 0, "creep_score": 0,
-             "wards_placed": 0, "wards_destroyed": 0, "kill_participation": 0,
-             "champion_damage_share": 0},
+            {
+                "kills": 5,
+                "deaths": 0,
+                "assists": 0,
+                "creep_score": 0,
+                "wards_placed": 0,
+                "wards_destroyed": 0,
+                "kill_participation": 0,
+                "champion_damage_share": 0,
+            },
+            {
+                "kills": 5,
+                "deaths": 0,
+                "assists": 0,
+                "creep_score": 0,
+                "wards_placed": 0,
+                "wards_destroyed": 0,
+                "kill_participation": 0,
+                "champion_damage_share": 0,
+            },
         ]
         game_durations = [1800, 1800]
         multi_kills = [
@@ -186,9 +217,7 @@ class TestComputeTeamScore:
         match_won = True
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         assert result["breakdown"]["baron"]["points"] == pytest.approx(2 * 2.0)
         assert result["breakdown"]["tower"]["points"] == pytest.approx(8 * 1.0)
@@ -205,9 +234,7 @@ class TestComputeTeamScore:
         match_won = True
         match_swept = True
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         assert result["breakdown"]["match_win"]["points"] == pytest.approx(5.0)
         assert result["breakdown"]["match_sweep"]["points"] == pytest.approx(5.0)
@@ -219,9 +246,7 @@ class TestComputeTeamScore:
         match_won = False
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         assert result["breakdown"]["match_win"]["points"] == pytest.approx(0.0)
         assert result["breakdown"]["match_sweep"]["points"] == pytest.approx(0.0)
@@ -238,9 +263,7 @@ class TestComputeTeamScore:
         match_won = False
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         assert result["breakdown"]["soul"]["points"] == pytest.approx(1 * 4.0)
         assert result["breakdown"]["dragon"]["points"] == pytest.approx(4 * 1.0)
@@ -257,9 +280,7 @@ class TestComputeTeamScore:
         match_won = False
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         # Only 3 non-elder dragons → no soul
         assert result["breakdown"]["soul"]["points"] == pytest.approx(0.0)
@@ -283,9 +304,7 @@ class TestComputeTeamScore:
         match_won = False
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         # 1 soul (from game 0 only), not averaged
         assert result["breakdown"]["soul"]["points"] == pytest.approx(1 * 4.0)
@@ -307,9 +326,7 @@ class TestComputeTeamScore:
         match_won = False
         match_swept = False
 
-        result = compute_team_score(
-            game_stats, dragons, match_won, match_swept, default_weights
-        )
+        result = compute_team_score(game_stats, dragons, match_won, match_swept, default_weights)
 
         # barons: (1+3)/2=2, towers: (6+10)/2=8, inhibitors: (1+3)/2=2
         assert result["breakdown"]["baron"]["points"] == pytest.approx(2 * 2.0)

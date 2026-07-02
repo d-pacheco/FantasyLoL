@@ -1,4 +1,5 @@
 """Integration test for LeaderboardService with real database."""
+
 import uuid
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -90,6 +91,7 @@ class LeaderboardServiceIntegrationTest(TestBase):
 
         # Create scoring settings with defaults
         from src.common.schemas.fantasy_schemas import FantasyLeagueScoringSettings
+
         scoring = FantasyLeagueScoringSettings(fantasy_league_id=fantasy_league.id)
         self.db.put_fantasy_league_scoring_settings(scoring)
 
@@ -128,93 +130,112 @@ class LeaderboardServiceIntegrationTest(TestBase):
         match_id = RiotMatchID("match-wk1-1")
         match_start = (now - timedelta(days=5)).isoformat()
         from src.db.models import MatchModel
+
         with self.db_provider.get_db() as db:
-            db.merge(MatchModel(
-                id=match_id,
-                start_time=match_start,
-                block_name="Week 1",
-                league_slug=riot_league.slug,
-                strategy_type="bestOf",
-                strategy_count=3,
-                tournament_id=tournament.id,
-                state="completed",
-                has_games=True,
-            ))
+            db.merge(
+                MatchModel(
+                    id=match_id,
+                    start_time=match_start,
+                    block_name="Week 1",
+                    league_slug=riot_league.slug,
+                    strategy_type="bestOf",
+                    strategy_count=3,
+                    tournament_id=tournament.id,
+                    state="completed",
+                    has_games=True,
+                )
+            )
             db.commit()
 
         # Create a game for the match
         game_id = RiotGameID("game-wk1-1-g1")
         from src.db.models import GameModel
+
         with self.db_provider.get_db() as db:
-            db.merge(GameModel(
-                id=game_id,
-                state="completed",
-                number=1,
-                match_id=match_id,
-                duration_seconds=1800,  # 30 minutes
-            ))
+            db.merge(
+                GameModel(
+                    id=game_id,
+                    state="completed",
+                    number=1,
+                    match_id=match_id,
+                    duration_seconds=1800,  # 30 minutes
+                )
+            )
             db.commit()
 
         # Create player game metadata + stats (Faker: 8 kills, 2 deaths, 5 assists)
         from src.db.models import PlayerGameMetadataModel, PlayerGameStatsModel
+
         with self.db_provider.get_db() as db:
-            db.merge(PlayerGameMetadataModel(
-                game_id=game_id,
-                player_id=player.id,
-                participant_id=1,
-                champion_id="Azir",
-                role="mid",
-            ))
-            db.merge(PlayerGameStatsModel(
-                game_id=game_id,
-                participant_id=1,
-                kills=8,
-                deaths=2,
-                assists=5,
-                total_gold=15000,
-                creep_score=200,
-                kill_participation=70,
-                champion_damage_share=30,
-                wards_placed=10,
-                wards_destroyed=5,
-            ))
+            db.merge(
+                PlayerGameMetadataModel(
+                    game_id=game_id,
+                    player_id=player.id,
+                    participant_id=1,
+                    champion_id="Azir",
+                    role="mid",
+                )
+            )
+            db.merge(
+                PlayerGameStatsModel(
+                    game_id=game_id,
+                    participant_id=1,
+                    kills=8,
+                    deaths=2,
+                    assists=5,
+                    total_gold=15000,
+                    creep_score=200,
+                    kill_participation=70,
+                    champion_damage_share=30,
+                    wards_placed=10,
+                    wards_destroyed=5,
+                )
+            )
             db.commit()
 
         # Create team game stats
         from src.db.models import TeamGameStatsModel
+
         with self.db_provider.get_db() as db:
-            db.merge(TeamGameStatsModel(
-                game_id=game_id,
-                team_id=team.id,
-                total_gold=60000,
-                inhibitors=2,
-                towers=8,
-                barons=1,
-                total_kills=20,
-            ))
+            db.merge(
+                TeamGameStatsModel(
+                    game_id=game_id,
+                    team_id=team.id,
+                    total_gold=60000,
+                    inhibitors=2,
+                    towers=8,
+                    barons=1,
+                    total_kills=20,
+                )
+            )
             db.commit()
 
         # Create match view data (need event_teams for the view)
         from src.db.models import EventTeamsModel
+
         with self.db_provider.get_db() as db:
-            db.merge(EventTeamsModel(
-                match_id=match_id,
-                side=1,
-                team_code="T1",
-                team_name="T1",
-                team_image="http://img.png",
-                game_wins=2,
-                outcome="win",
-            ))
-            db.merge(EventTeamsModel(
-                match_id=match_id,
-                side=2,
-                team_code="GEN",
-                team_name="GEN",
-                team_image="http://img.png",
-                game_wins=0,
-                outcome="loss",
-            ))
+            db.merge(
+                EventTeamsModel(
+                    match_id=match_id,
+                    side=1,
+                    team_code="T1",
+                    team_name="T1",
+                    team_image="http://img.png",
+                    game_wins=2,
+                    outcome="win",
+                )
+            )
+            db.merge(
+                EventTeamsModel(
+                    match_id=match_id,
+                    side=2,
+                    team_code="GEN",
+                    team_name="GEN",
+                    team_image="http://img.png",
+                    game_wins=0,
+                    outcome="loss",
+                )
+            )
             db.commit()
 
         return fantasy_league, owner, user2_id, player, team

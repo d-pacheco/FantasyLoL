@@ -441,6 +441,7 @@ class DatabaseService:
     def get_games_for_match(self, match_id: RiotMatchID) -> list:
         """Get all games for a given match."""
         from src.db.models import GameModel
+
         with self.connection_provider.get_db() as db:
             rows = db.query(GameModel).filter(GameModel.match_id == match_id).all()
             return [
@@ -456,6 +457,7 @@ class DatabaseService:
     def get_player_stats_for_game(self, game_id: RiotGameID, player_id) -> dict | None:
         """Get player stats for a specific player in a specific game."""
         from src.db.models import PlayerGameMetadataModel, PlayerGameStatsModel
+
         with self.connection_provider.get_db() as db:
             metadata = (
                 db.query(PlayerGameMetadataModel)
@@ -491,6 +493,7 @@ class DatabaseService:
     def get_team_stats_for_game(self, game_id: RiotGameID, team_id) -> dict | None:
         """Get team stats for a specific team in a specific game."""
         from src.db.models import TeamGameStatsModel
+
         with self.connection_provider.get_db() as db:
             stats = (
                 db.query(TeamGameStatsModel)
@@ -511,6 +514,7 @@ class DatabaseService:
     def get_dragons_for_game_and_team(self, game_id: RiotGameID, team_id) -> list[dict]:
         """Get dragons taken by a specific team in a specific game."""
         from src.db.models import GameDragonsModel
+
         with self.connection_provider.get_db() as db:
             rows = (
                 db.query(GameDragonsModel)
@@ -525,6 +529,7 @@ class DatabaseService:
     def get_multi_kills_for_game_and_player(self, game_id: RiotGameID, player_id) -> list[dict]:
         """Get multi-kills for a specific player in a specific game."""
         from src.db.models import GameMultiKillsModel, PlayerGameMetadataModel
+
         with self.connection_provider.get_db() as db:
             # First get participant_id for this player in this game
             metadata = (
@@ -547,11 +552,10 @@ class DatabaseService:
             )
             return [{"kill_type": r.kill_type} for r in rows]
 
-    def get_fantasy_scores_for_week(
-        self, fantasy_league_id: FantasyLeagueID, week: int
-    ) -> list:
+    def get_fantasy_scores_for_week(self, fantasy_league_id: FantasyLeagueID, week: int) -> list:
         """Get stored fantasy scores for a specific week."""
         from src.db.models import FantasyScoreModel
+
         with self.connection_provider.get_db() as db:
             rows = (
                 db.query(FantasyScoreModel)
@@ -567,6 +571,7 @@ class DatabaseService:
         """Check if a game has pending frames_status (game analysis not complete)."""
         from src.db.models import GameModel
         from src.common.schemas.riot_data_schemas import FramesStatus
+
         with self.connection_provider.get_db() as db:
             game = db.query(GameModel).filter(GameModel.id == game_id).first()
             if game is None:
@@ -577,6 +582,7 @@ class DatabaseService:
         """Store a computed fantasy score. Silently ignores duplicates from concurrent requests."""
         from src.db.models import FantasyScoreModel
         from sqlalchemy.exc import IntegrityError
+
         with self.connection_provider.get_db() as db:
             row = FantasyScoreModel(
                 fantasy_league_id=score["fantasy_league_id"],

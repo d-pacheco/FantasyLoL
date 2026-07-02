@@ -86,10 +86,22 @@ def compute_player_score(
         "deaths": {"value": avg_deaths, "points": avg_deaths * weights.deaths},
         "assists": {"value": avg_assists, "points": avg_assists * weights.assists},
         "cspm": {"value": avg_cspm, "points": avg_cspm * weights.cspm},
-        "wards_placed": {"value": avg_wards_placed, "points": avg_wards_placed * weights.wards_placed},
-        "wards_destroyed": {"value": avg_wards_destroyed, "points": avg_wards_destroyed * weights.wards_destroyed},
-        "kill_participation": {"value": avg_kill_participation, "points": avg_kill_participation * weights.kill_participation},
-        "damage_percentage": {"value": avg_damage_share, "points": avg_damage_share * weights.damage_percentage},
+        "wards_placed": {
+            "value": avg_wards_placed,
+            "points": avg_wards_placed * weights.wards_placed,
+        },
+        "wards_destroyed": {
+            "value": avg_wards_destroyed,
+            "points": avg_wards_destroyed * weights.wards_destroyed,
+        },
+        "kill_participation": {
+            "value": avg_kill_participation,
+            "points": avg_kill_participation * weights.kill_participation,
+        },
+        "damage_percentage": {
+            "value": avg_damage_share,
+            "points": avg_damage_share * weights.damage_percentage,
+        },
         "double_kill": {"value": avg_double, "points": avg_double * weights.double_kill},
         "triple_kill": {"value": avg_triple, "points": avg_triple * weights.triple_kill},
         "quadra_kill": {"value": avg_quadra, "points": avg_quadra * weights.quadra_kill},
