@@ -1,11 +1,11 @@
 import logging
 
-from sqlalchemy import text, select, func, cast, Date
+from sqlalchemy import text, select
 
 from src.common.schemas.riot_data_schemas import (
     Match,
     RiotMatchID,
-    RiotLeagueID,
+    RiotTournamentID,
     ScheduleMatch,
     MatchDetails,
 )
@@ -14,7 +14,6 @@ from src.db.models import (
     EventTeamsModel,
     GameModel,
     LeagueModel,
-    TournamentModel,
     ProfessionalTeamModel,
 )
 from src.db.views import MatchView
@@ -265,39 +264,7 @@ def update_match_has_games(session, match_id: RiotMatchID, new_has_games: bool) 
     session.commit()
 
 
-def get_matches_for_league_with_active_tournament(session, league_id: RiotLeagueID) -> list[Match]:
-    query = select(MatchView).where(
-        MatchView.tournament_id.in_(
-            select(TournamentModel.id).where(
-                TournamentModel.league_id == league_id,
-                func.current_date().between(
-                    cast(TournamentModel.start_date, Date),
-                    cast(TournamentModel.end_date, Date),
-                ),
-            )
-        ),
-        func.substr(MatchView.start_time, 1, 10).between(
-            select(TournamentModel.start_date)
-            .where(
-                TournamentModel.league_id == league_id,
-                func.current_date().between(
-                    cast(TournamentModel.start_date, Date),
-                    cast(TournamentModel.end_date, Date),
-                ),
-            )
-            .correlate(None)
-            .scalar_subquery(),
-            select(TournamentModel.end_date)
-            .where(
-                TournamentModel.league_id == league_id,
-                func.current_date().between(
-                    cast(TournamentModel.start_date, Date),
-                    cast(TournamentModel.end_date, Date),
-                ),
-            )
-            .correlate(None)
-            .scalar_subquery(),
-        ),
-    )
+def get_matches_for_tournament(session, tournament_id: RiotTournamentID) -> list[Match]:
+    query = select(MatchView).where(MatchView.tournament_id == tournament_id)
     match_models = session.execute(query).scalars().all()
     return [Match.model_validate(match_model) for match_model in match_models]

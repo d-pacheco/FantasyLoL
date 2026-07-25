@@ -144,7 +144,7 @@ class FantasyLeagueUtil:
                     draft_position, draft_position.position - 1
                 )
 
-    def get_leagues_current_week(self, riot_league_id: RiotLeagueID) -> int | None:
+    def get_tournament_current_week(self, tournament_id: RiotTournamentID) -> int | None:
         non_week_blocks = [
             "playoffs",
             "knockouts",
@@ -157,7 +157,7 @@ class FantasyLeagueUtil:
         ]
 
         utc_now = datetime.now(pytz.utc)
-        matches = self.db.get_matches_for_league_with_active_tournament(riot_league_id)
+        matches = self.db.get_matches_for_tournament(tournament_id)
         matches.sort(key=lambda x: parse_match_time(x.start_time))
 
         if len(matches) == 0:

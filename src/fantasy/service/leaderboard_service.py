@@ -14,7 +14,7 @@ from src.common.schemas.riot_data_schemas import (
     ProPlayerID,
     ProTeamID,
     RiotGameID,
-    RiotLeagueID,
+    RiotTournamentID,
 )
 from src.db.database_service import DatabaseService
 from src.fantasy.scoring.engine import compute_player_score, compute_team_score
@@ -54,9 +54,9 @@ class LeaderboardService:
 
         # Determine week range
         start_week: int = fantasy_league.start_week or 1
-        riot_league_id: RiotLeagueID = fantasy_league.available_leagues[0]
-        current_week_result: int | None = self.fantasy_league_util.get_leagues_current_week(
-            riot_league_id
+        tournament_id: RiotTournamentID = fantasy_league.tournament_id
+        current_week_result: int | None = self.fantasy_league_util.get_tournament_current_week(
+            tournament_id
         )
         current_week: int = current_week_result if current_week_result is not None else start_week
 
@@ -86,10 +86,10 @@ class LeaderboardService:
 
             # Compute scores for this week
             week_scores: dict[str, list[dict]] = self._compute_week_scores(
-                league_id, accepted_members, week, riot_league_id, scoring_settings
+                league_id, accepted_members, week, tournament_id, scoring_settings
             )
 
-            should_store: bool = self._week_scores_are_final(riot_league_id, week)
+            should_store: bool = self._week_scores_are_final(tournament_id, week)
 
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:
@@ -138,14 +138,14 @@ class LeaderboardService:
         league_id: FantasyLeagueID,
         members: list[FantasyLeagueMembership],
         week: int,
-        riot_league_id: RiotLeagueID,
+        tournament_id: RiotTournamentID,
         scoring_settings: FantasyLeagueScoringSettings,
     ) -> dict[str, list[dict]]:
         """Compute scores for all members for a given week.
 
         Returns dict[user_id -> list of slot score dicts].
         """
-        matches: list[Match] = self._get_matches_for_week(riot_league_id, week)
+        matches: list[Match] = self._get_matches_for_week(tournament_id, week)
 
         result: dict[str, list[dict]] = {}
 
@@ -194,13 +194,11 @@ class LeaderboardService:
 
         return result
 
-    def _get_matches_for_week(self, riot_league_id: RiotLeagueID, week: int) -> list[Match]:
-        """Get all completed matches for a given week in the league's active tournament."""
+    def _get_matches_for_week(self, tournament_id: RiotTournamentID, week: int) -> list[Match]:
+        """Get all completed matches for a given week in the fantasy league's tournament."""
         from src.common.schemas.riot_data_schemas import MatchState
 
-        all_matches: list[Match] = self.db.get_matches_for_league_with_active_tournament(
-            riot_league_id
-        )
+        all_matches: list[Match] = self.db.get_matches_for_tournament(tournament_id)
         week_block: str = f"Week {week}"
         return [
             m
@@ -210,7 +208,7 @@ class LeaderboardService:
             and m.state == MatchState.COMPLETED
         ]
 
-    def _week_scores_are_final(self, riot_league_id: RiotLeagueID, week: int) -> bool:
+    def _week_scores_are_final(self, tournament_id: RiotTournamentID, week: int) -> bool:
         """Check if a week's scores are final and safe to cache.
 
         Scores are final when:
@@ -219,9 +217,7 @@ class LeaderboardService:
         """
         from src.common.schemas.riot_data_schemas import MatchState, GameState
 
-        all_matches: list[Match] = self.db.get_matches_for_league_with_active_tournament(
-            riot_league_id
-        )
+        all_matches: list[Match] = self.db.get_matches_for_tournament(tournament_id)
         week_block: str = f"Week {week}"
         week_matches = [
             m for m in all_matches if m.block_name and m.block_name.lower() == week_block.lower()
@@ -416,9 +412,9 @@ class LeaderboardService:
 
         # Determine week range
         start_week: int = fantasy_league.start_week or 1
-        riot_league_id: RiotLeagueID = fantasy_league.available_leagues[0]
-        current_week_result: int | None = self.fantasy_league_util.get_leagues_current_week(
-            riot_league_id
+        tournament_id: RiotTournamentID = fantasy_league.tournament_id
+        current_week_result: int | None = self.fantasy_league_util.get_tournament_current_week(
+            tournament_id
         )
         current_week: int = current_week_result if current_week_result is not None else start_week
 
@@ -458,11 +454,11 @@ class LeaderboardService:
 
         # Compute scores
         week_scores: dict[str, list[dict]] = self._compute_week_scores(
-            league_id, accepted_members, week, riot_league_id, scoring_settings
+            league_id, accepted_members, week, tournament_id, scoring_settings
         )
 
         # Store if week scores are final
-        should_store: bool = self._week_scores_are_final(riot_league_id, week)
+        should_store: bool = self._week_scores_are_final(tournament_id, week)
         if should_store:
             for uid, slot_scores in week_scores.items():
                 for slot_data in slot_scores:

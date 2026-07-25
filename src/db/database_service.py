@@ -153,9 +153,9 @@ class DatabaseService:
         with self.connection_provider.get_db() as db:
             match_dao.update_match_has_games(db, match_id, new_has_games)
 
-    def get_matches_for_league_with_active_tournament(self, league_id: RiotLeagueID) -> list[Match]:
+    def get_matches_for_tournament(self, tournament_id: RiotTournamentID) -> list[Match]:
         with self.connection_provider.get_db() as db:
-            return match_dao.get_matches_for_league_with_active_tournament(db, league_id)
+            return match_dao.get_matches_for_tournament(db, tournament_id)
 
     def put_player(self, player: ProfessionalPlayer) -> None:
         with self.connection_provider.get_db() as db:

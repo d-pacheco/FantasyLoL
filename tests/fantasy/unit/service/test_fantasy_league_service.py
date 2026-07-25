@@ -3,7 +3,7 @@ import uuid
 import copy
 
 from tests.test_base import TestBase
-from tests.test_util import fantasy_fixtures
+from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -47,6 +47,9 @@ class TestFantasyLeagueService(TestBase):
             tournament_id=fantasy_league_settings.tournament_id,
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = expected_fantasy_league
+        self.mock_db_service.get_tournament_by_id.return_value = (
+            riot_fixtures.active_tournament_fixture
+        )
         mock_generate_new_valid_id.return_value = fantasy_league_id
 
         # Act
@@ -140,6 +143,9 @@ class TestFantasyLeagueService(TestBase):
 
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league
         self.mock_db_service.update_fantasy_league_settings.return_value = expected_updated_league
+        self.mock_db_service.get_tournament_by_id.return_value = (
+            riot_fixtures.active_tournament_fixture
+        )
 
         # Act
         updated_settings = self.fantasy_league_service.update_fantasy_league_settings(
