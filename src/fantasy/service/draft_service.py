@@ -73,6 +73,8 @@ class DraftService:
         if fantasy_league.owner_id != owner_id:
             raise ForbiddenException()
 
+        self.fantasy_league_util.validate_tournament(fantasy_league.tournament_id)
+
         pending_and_accepted_memberships = self.db.get_pending_and_accepted_members_for_league(
             league_id
         )
