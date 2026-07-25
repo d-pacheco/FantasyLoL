@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { createLeague } from '../../api/fantasyApi'
-import { getRiotLeagues } from '../../api/riotApi'
+import { getRiotLeagues, getTournaments } from '../../api/riotApi'
+import { formatTournamentSlug, isActiveOrUpcoming } from '../../utils/tournament'
 import type { FantasyLeague } from '../../types/fantasy'
-import type { League } from '../../types/riot'
+import type { League, Tournament } from '../../types/riot'
 
 const emit = defineEmits<{
   created: [league: FantasyLeague]
@@ -15,16 +16,35 @@ const TEAM_COUNTS = [4, 6, 8, 10]
 const name = ref('')
 const teamCount = ref(6)
 const selectedLeagueId = ref('')
+const selectedTournamentId = ref('')
 const riotLeagues = ref<League[]>([])
+const tournaments = ref<Tournament[]>([])
 const submitting = ref(false)
 const error = ref('')
 
-const isValid = computed(() => name.value.trim() !== '' && selectedLeagueId.value !== '')
+const isValid = computed(
+  () => name.value.trim() !== '' && selectedLeagueId.value !== '' && selectedTournamentId.value !== ''
+)
+
+const availableTournaments = computed(() =>
+  tournaments.value.filter(
+    (t) => t.league_id === selectedLeagueId.value && isActiveOrUpcoming(t)
+  )
+)
+
+function selectLeague(leagueId: string) {
+  selectedLeagueId.value = leagueId
+  selectedTournamentId.value = ''
+}
 
 onMounted(async () => {
   try {
-    const res = await getRiotLeagues(true)
-    riotLeagues.value = res.items
+    const [leaguesRes, tournamentsRes] = await Promise.all([
+      getRiotLeagues(true),
+      getTournaments({ size: 100 }),
+    ])
+    riotLeagues.value = leaguesRes.items
+    tournaments.value = tournamentsRes.items
   } catch {
     // non-blocking; user will see empty list
   }
@@ -39,6 +59,7 @@ async function submit() {
       name: name.value.trim(),
       number_of_teams: teamCount.value,
       available_leagues: [selectedLeagueId.value],
+      tournament_id: selectedTournamentId.value,
     })
     emit('created', league)
   } catch {
@@ -107,7 +128,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               :class="selectedLeagueId === league.id
                 ? 'bg-primary/10 text-primary'
                 : 'bg-surface hover:bg-surface-elevated text-foreground'"
-              @click="selectedLeagueId = league.id"
+              @click="selectLeague(league.id)"
             >
               <img v-if="league.image" :src="league.image" :alt="league.name" class="w-5 h-5 object-contain" />
               <span>{{ league.name }}</span>
@@ -115,6 +136,27 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             </button>
             <p v-if="riotLeagues.length === 0" class="px-4 py-3 text-sm text-foreground-muted">
               No leagues available.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tournament -->
+        <div v-if="selectedLeagueId">
+          <label class="block text-xs font-medium text-foreground-muted mb-1">Select Tournament</label>
+          <div class="flex flex-col gap-1 max-h-40 overflow-y-auto rounded-lg border border-border-subtle">
+            <button
+              v-for="tournament in availableTournaments"
+              :key="tournament.id"
+              class="flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors"
+              :class="selectedTournamentId === tournament.id
+                ? 'bg-primary/10 text-primary'
+                : 'bg-surface hover:bg-surface-elevated text-foreground'"
+              @click="selectedTournamentId = tournament.id"
+            >
+              <span>{{ formatTournamentSlug(tournament.slug) }}</span>
+            </button>
+            <p v-if="availableTournaments.length === 0" class="px-4 py-3 text-sm text-foreground-muted">
+              No active or upcoming tournaments available for this league.
             </p>
           </div>
         </div>
