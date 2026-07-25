@@ -41,6 +41,8 @@ class FantasyLeagueService:
         if len(league_settings.available_leagues) > 0:
             self.fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 
+        self.fantasy_league_util.validate_tournament(league_settings.tournament_id)
+
         fantasy_league_id = self.generate_new_valid_id()
         new_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
@@ -138,6 +140,8 @@ class FantasyLeagueService:
             self.fantasy_league_util.validate_available_leagues(
                 updated_league_settings.available_leagues
             )
+
+        self.fantasy_league_util.validate_tournament(updated_league_settings.tournament_id)
 
         updated_fantasy_league = self.db.update_fantasy_league_settings(
             league_id, updated_league_settings

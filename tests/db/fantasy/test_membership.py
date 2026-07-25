@@ -12,6 +12,10 @@ from src.common.schemas.fantasy_schemas import (
 
 
 class TestCrudFantasyLeagueMembership(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.seed_tournament_prerequisites()
+
     def test_create_fantasy_league_membership(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture

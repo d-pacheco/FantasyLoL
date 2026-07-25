@@ -33,8 +33,7 @@ class LeaderboardServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
         self.leaderboard_service = LeaderboardService(self.db)
-
-    def _setup_league_with_scores(self):
+        self.seed_tournament_prerequisites()
         """Set up a complete league in ACTIVE state with match data for scoring."""
         # Create Riot league and tournament
         riot_league = deepcopy(riot_fixtures.league_1_fixture)

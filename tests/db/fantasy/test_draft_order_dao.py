@@ -7,6 +7,10 @@ from src.common.schemas.fantasy_schemas import FantasyLeagueDraftOrder
 
 
 class TestCrudFantasyLeagueDraftOrder(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.seed_tournament_prerequisites()
+
     def test_create_and_get_fantasy_league_draft_order(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture

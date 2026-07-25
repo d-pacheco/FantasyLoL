@@ -35,6 +35,7 @@ class DraftServiceIntegrationTest(TestBase):
         super().setUp()
         self.draft_service = DraftService(self.db)
         self._player_counter = 0
+        self.seed_tournament_prerequisites()
 
     def create_membership(self, league_id, user_id, status):
         self.db.create_fantasy_league_membership(

@@ -48,6 +48,7 @@ pro_player_2_fixture = ProfessionalPlayer(
 class FantasyTeamServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
+        self.seed_tournament_prerequisites()
         for player in [pro_player_fixture, pro_player_2_fixture]:
             self.db.put_team(
                 ProfessionalTeam(

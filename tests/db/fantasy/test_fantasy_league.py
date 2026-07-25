@@ -12,6 +12,10 @@ from src.common.schemas.riot_data_schemas import RiotLeagueID
 
 
 class TestCrudFantasyLeague(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.seed_tournament_prerequisites()
+
     def test_create_fantasy_league(self):
         # Arrange
         fantasy_league = fantasy_fixtures.fantasy_league_fixture

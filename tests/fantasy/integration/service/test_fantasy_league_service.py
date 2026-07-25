@@ -18,6 +18,7 @@ from src.common.schemas.fantasy_schemas import (
     UserID,
 )
 from src.common.exceptions import LeagueNotFoundException
+from src.common.schemas.riot_data_schemas import RiotTournamentID
 from src.fantasy.exceptions import (
     DraftOrderException,
     FantasyLeagueInviteException,
@@ -28,6 +29,7 @@ from src.fantasy.exceptions import (
     ForbiddenException,
     UserNotFoundException,
 )
+from src.riot.exceptions import TournamentNotFoundException
 from src.fantasy.service import FantasyLeagueService
 
 
@@ -35,6 +37,7 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
         self.fantasy_league_service = FantasyLeagueService(self.db)
+        self.seed_tournament_prerequisites()
 
     # --------------------------------------------------
     # ------------- Create Fantasy League  -------------
@@ -155,6 +158,98 @@ class FantasyLeagueServiceIntegrationTest(TestBase):
             self.fantasy_league_service.create_fantasy_league(user.id, fantasy_league_settings)
         self.assertFalse(riot_fixtures.league_1_fixture.fantasy_available)
         self.assertTrue(riot_fixtures.league_2_fixture.fantasy_available)
+
+    def test_create_fantasy_league_nonexistent_tournament_raises_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        settings.tournament_id = RiotTournamentID("nonexistent-tournament-id")
+
+        # Act and Assert
+        with self.assertRaises(TournamentNotFoundException):
+            self.fantasy_league_service.create_fantasy_league(user.id, settings)
+
+    def test_create_fantasy_league_completed_tournament_raises_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)  # end_date in the past
+        settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        settings.tournament_id = riot_fixtures.tournament_fixture.id
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueSettingsException):
+            self.fantasy_league_service.create_fantasy_league(user.id, settings)
+
+    def test_create_fantasy_league_active_tournament_succeeds(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        settings.tournament_id = riot_fixtures.active_tournament_fixture.id
+
+        # Act
+        league = self.fantasy_league_service.create_fantasy_league(user.id, settings)
+
+        # Assert
+        self.assertEqual(riot_fixtures.active_tournament_fixture.id, league.tournament_id)
+
+    def test_create_fantasy_league_upcoming_tournament_succeeds(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
+        settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        settings.tournament_id = riot_fixtures.future_tournament_fixture.id
+
+        # Act
+        league = self.fantasy_league_service.create_fantasy_league(user.id, settings)
+
+        # Assert
+        self.assertEqual(riot_fixtures.future_tournament_fixture.id, league.tournament_id)
+
+    def test_update_fantasy_league_settings_completed_tournament_raises_exception(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        self.db.put_tournament(riot_fixtures.tournament_fixture)  # end_date in the past
+        updated_settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        updated_settings.tournament_id = riot_fixtures.tournament_fixture.id
+
+        # Act and Assert
+        with self.assertRaises(FantasyLeagueSettingsException):
+            self.fantasy_league_service.update_fantasy_league_settings(
+                user.id, fantasy_fixtures.fantasy_league_fixture.id, updated_settings
+            )
+
+    def test_update_fantasy_league_settings_valid_tournament_succeeds(self):
+        # Arrange
+        user = fantasy_fixtures.user_fixture
+        self.db.create_user(user)
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
+        self.db.create_fantasy_league(fantasy_fixtures.fantasy_league_fixture)
+        updated_settings = deepcopy(fantasy_fixtures.fantasy_league_settings_fixture)
+        updated_settings.tournament_id = riot_fixtures.future_tournament_fixture.id
+
+        # Act
+        returned_settings = self.fantasy_league_service.update_fantasy_league_settings(
+            user.id, fantasy_fixtures.fantasy_league_fixture.id, updated_settings
+        )
+
+        # Assert
+        self.assertEqual(
+            riot_fixtures.future_tournament_fixture.id, returned_settings.tournament_id
+        )
 
     # --------------------------------------------------
     # ----------- Get Fantasy League Settings ----------
