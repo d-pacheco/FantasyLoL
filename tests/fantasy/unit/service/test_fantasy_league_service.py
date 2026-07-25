@@ -44,6 +44,7 @@ class TestFantasyLeagueService(TestBase):
             owner_id=owner_id,
             status=FantasyLeagueStatus.PRE_DRAFT,
             name=fantasy_league_settings.name,
+            tournament_id=fantasy_league_settings.tournament_id,
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = expected_fantasy_league
         mock_generate_new_valid_id.return_value = fantasy_league_id
@@ -129,7 +130,9 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         expected_updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league", number_of_teams=10
+            name="Update fantasy league",
+            number_of_teams=10,
+            tournament_id=fantasy_league.tournament_id,
         )
         expected_updated_league = copy.deepcopy(fantasy_league)
         expected_updated_league.name = expected_updated_league_settings.name
@@ -157,7 +160,9 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league", number_of_teams=10
+            name="Update fantasy league",
+            number_of_teams=10,
+            tournament_id=fantasy_league.tournament_id,
         )
         self.mock_db_service.get_fantasy_league_by_id.return_value = None
 
@@ -176,7 +181,9 @@ class TestFantasyLeagueService(TestBase):
         league_id = fantasy_league.id
 
         updated_league_settings = FantasyLeagueSettings(
-            name="Update fantasy league", number_of_teams=10
+            name="Update fantasy league",
+            number_of_teams=10,
+            tournament_id=fantasy_league.tournament_id,
         )
 
         self.mock_db_service.get_fantasy_league_by_id.return_value = fantasy_league

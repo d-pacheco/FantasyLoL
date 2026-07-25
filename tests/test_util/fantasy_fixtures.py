@@ -2,6 +2,7 @@ import uuid
 import bcrypt
 from random import randint
 
+from tests.test_util import riot_fixtures
 from src.auth.permissions import Permissions
 from src.common.schemas.fantasy_schemas import (
     FantasyLeague,
@@ -67,7 +68,10 @@ user_4_fixture: User = User(
 )
 
 fantasy_league_settings_fixture: FantasyLeagueSettings = FantasyLeagueSettings(
-    name="Fantasy League 1", number_of_teams=6, available_leagues=[]
+    name="Fantasy League 1",
+    number_of_teams=6,
+    available_leagues=[],
+    tournament_id=riot_fixtures.active_tournament_fixture.id,
 )
 
 fantasy_league_fixture: FantasyLeague = FantasyLeague(
@@ -77,6 +81,19 @@ fantasy_league_fixture: FantasyLeague = FantasyLeague(
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams,
     available_leagues=fantasy_league_settings_fixture.available_leagues,
+    tournament_id=fantasy_league_settings_fixture.tournament_id,
+    current_week=None,
+)
+
+# Alias: a fixture that explicitly has a tournament set (same as fixture, kept for clarity in tests)
+fantasy_league_fixture_with_tournament: FantasyLeague = FantasyLeague(
+    id=FantasyLeagueID(str(uuid.uuid4())),
+    owner_id=user_fixture.id,
+    status=FantasyLeagueStatus.PRE_DRAFT,
+    name="Fantasy League With Tournament",
+    number_of_teams=6,
+    available_leagues=[],
+    tournament_id=riot_fixtures.active_tournament_fixture.id,
     current_week=None,
 )
 
@@ -87,6 +104,7 @@ fantasy_league_draft_fixture: FantasyLeague = FantasyLeague(
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams,
     available_leagues=fantasy_league_settings_fixture.available_leagues,
+    tournament_id=fantasy_league_settings_fixture.tournament_id,
     current_draft_position=1,
     current_week=0,
 )
@@ -98,6 +116,7 @@ fantasy_league_active_fixture: FantasyLeague = FantasyLeague(
     name=fantasy_league_settings_fixture.name,
     number_of_teams=fantasy_league_settings_fixture.number_of_teams,
     available_leagues=fantasy_league_settings_fixture.available_leagues,
+    tournament_id=fantasy_league_settings_fixture.tournament_id,
     current_week=1,
 )
 

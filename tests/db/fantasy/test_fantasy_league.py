@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 
 from tests.test_base import TestBase
-from tests.test_util import fantasy_fixtures
+from tests.test_util import fantasy_fixtures, riot_fixtures
 
 from src.common.schemas.fantasy_schemas import (
     FantasyLeagueID,
@@ -22,6 +22,20 @@ class TestCrudFantasyLeague(TestBase):
         self.db.create_fantasy_league(fantasy_league)
         fantasy_league_after_create = self.db.get_fantasy_league_by_id(fantasy_league.id)
         self.assertEqual(fantasy_league, fantasy_league_after_create)
+
+    def test_create_fantasy_league_stores_tournament_id(self):
+        # Arrange
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+        fantasy_league = fantasy_fixtures.fantasy_league_fixture_with_tournament
+
+        # Act
+        self.db.create_fantasy_league(fantasy_league)
+        retrieved = self.db.get_fantasy_league_by_id(fantasy_league.id)
+
+        # Assert
+        self.assertIsNotNone(retrieved)
+        self.assertEqual(riot_fixtures.active_tournament_fixture.id, retrieved.tournament_id)
 
     def test_create_fantasy_league_with_an_existing_id(self):
         # Arrange
