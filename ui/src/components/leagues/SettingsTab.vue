@@ -77,6 +77,7 @@ async function save() {
       name: editName.value.trim(),
       number_of_teams: editTeamCount.value,
       available_leagues: editLeagueId.value ? [editLeagueId.value] : [],
+      tournament_id: props.settings?.tournament_id ?? '',
     })
     emit('updated', updated)
     editing.value = false

@@ -2,7 +2,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
 from typing import NewType, Literal
 
-from .riot_data_schemas import RiotLeagueID, ProPlayerID, ProTeamID, PlayerRole  # type: ignore
+from .riot_data_schemas import RiotLeagueID, RiotTournamentID, ProPlayerID, ProTeamID, PlayerRole  # type: ignore
 
 UserID = NewType("UserID", str)
 FantasyLeagueID = NewType("FantasyLeagueID", str)
@@ -110,6 +110,10 @@ class FantasyLeagueSettings(BaseModel):
         default=[],
         description="The IDs for the riot leagues available for drafting players from",
         examples=[["98767991310872058"]],
+    )
+    tournament_id: RiotTournamentID = Field(
+        description="The ID of the tournament this fantasy league is scoped to",
+        examples=["110852926142971547"],
     )
 
     @field_validator("number_of_teams")

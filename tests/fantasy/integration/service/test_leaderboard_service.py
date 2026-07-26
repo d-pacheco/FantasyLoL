@@ -33,6 +33,7 @@ class LeaderboardServiceIntegrationTest(TestBase):
     def setUp(self):
         super().setUp()
         self.leaderboard_service = LeaderboardService(self.db)
+        self.seed_tournament_prerequisites()
 
     def _setup_league_with_scores(self):
         """Set up a complete league in ACTIVE state with match data for scoring."""
@@ -76,6 +77,7 @@ class LeaderboardServiceIntegrationTest(TestBase):
         fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
         fantasy_league.status = FantasyLeagueStatus.ACTIVE
         fantasy_league.available_leagues = [riot_league.id]
+        fantasy_league.tournament_id = tournament.id
         fantasy_league.start_week = 1
         fantasy_league.current_week = 1
         fantasy_league.number_of_teams = 4
@@ -280,3 +282,98 @@ class LeaderboardServiceIntegrationTest(TestBase):
         team_slot = owner_entry["roster"]["team"]
         assert team_slot["team_id"] == team.id
         assert team_slot["team_name"] == "T1"
+
+    def test_leaderboard_ignores_matches_from_other_tournaments_with_overlapping_dates(self):
+        """Scoring must be scoped to the league's tournament_id, not just any tournament
+        whose date range covers today. A decoy tournament in the same Riot league with
+        overlapping dates and its own Week 1 match must not contribute points."""
+        fantasy_league, owner, user2_id, player, team = self._setup_league_with_scores()
+
+        # Create a second tournament for the same riot league with an overlapping date range
+        now = datetime.now(pytz.utc)
+        decoy_tournament = Tournament(
+            id="decoy-tournament",
+            slug="decoy-split-2026",
+            start_date=(now - timedelta(days=30)).strftime("%Y-%m-%d"),
+            end_date=(now + timedelta(days=30)).strftime("%Y-%m-%d"),
+            league_id=riot_fixtures.league_1_fixture.id,
+        )
+        self.db.put_tournament(decoy_tournament)
+
+        # Decoy match in Week 1 of the decoy tournament, involving the same player's team,
+        # with a huge kill count that would inflate the score if it leaked in
+        from src.db.models import (
+            MatchModel,
+            GameModel,
+            PlayerGameMetadataModel,
+            PlayerGameStatsModel,
+        )
+
+        decoy_match_id = RiotMatchID("decoy-match-wk1")
+        decoy_game_id = RiotGameID("decoy-game-wk1-g1")
+        with self.db_provider.get_db() as db:
+            db.merge(
+                MatchModel(
+                    id=decoy_match_id,
+                    start_time=(now - timedelta(days=5)).isoformat(),
+                    block_name="Week 1",
+                    league_slug=riot_fixtures.league_1_fixture.slug,
+                    strategy_type="bestOf",
+                    strategy_count=3,
+                    tournament_id=decoy_tournament.id,
+                    state="completed",
+                    has_games=True,
+                )
+            )
+            db.commit()
+
+        with self.db_provider.get_db() as db:
+            db.merge(
+                GameModel(
+                    id=decoy_game_id,
+                    state="completed",
+                    number=1,
+                    match_id=decoy_match_id,
+                    duration_seconds=1800,
+                )
+            )
+            db.commit()
+
+        with self.db_provider.get_db() as db:
+            db.merge(
+                PlayerGameMetadataModel(
+                    game_id=decoy_game_id,
+                    player_id=player.id,
+                    participant_id=1,
+                    champion_id="Azir",
+                    role="mid",
+                )
+            )
+            db.merge(
+                PlayerGameStatsModel(
+                    game_id=decoy_game_id,
+                    participant_id=1,
+                    kills=999,
+                    deaths=0,
+                    assists=999,
+                    total_gold=99999,
+                    creep_score=999,
+                    kill_participation=100,
+                    champion_damage_share=100,
+                    wards_placed=99,
+                    wards_destroyed=99,
+                )
+            )
+            db.commit()
+
+        result = self.leaderboard_service.get_leaderboard(fantasy_league.id, owner.id)
+
+        owner_entry = next(m for m in result["members"] if m["user_id"] == owner.id)
+        week_result = self.leaderboard_service.get_week_scores(fantasy_league.id, owner.id, 1)
+        owner_week_entry = next(m for m in week_result["members"] if m["user_id"] == owner.id)
+        mid_slot = owner_week_entry["roster"]["mid"]
+
+        # The decoy match's 999 kills must not be included — only the real tournament's
+        # match (8 kills) should count.
+        assert mid_slot["breakdown"]["kills"]["value"] == 8
+        assert owner_entry["total_points"] == owner_week_entry["total_points"]

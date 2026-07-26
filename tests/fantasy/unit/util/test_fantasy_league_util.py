@@ -679,86 +679,74 @@ class TestFantasyLeagueUtil(TestBase):
         self.mock_db_service.delete_fantasy_league_draft_order.assert_not_called()
         self.mock_db_service.update_fantasy_league_draft_order_position.assert_not_called()
 
-    def test_get_leagues_current_week_returns_week_1_if_not_started_yet(self):
+    def test_get_tournament_current_week_returns_week_1_if_not_started_yet(self):
         # Arrange
-        league_id = RiotLeagueID("123456789")
+        tournament_id = RiotTournamentID("tournament-1")
         expected_current_week = 1
         matches = generate_matches(3, 3, 0)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+        self.mock_db_service.get_matches_for_tournament.return_value = matches
 
         # Act
-        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+        curr_week = self.fantasy_league_util.get_tournament_current_week(tournament_id)
 
         # Assert
         self.assertEqual(curr_week, expected_current_week)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.assert_called_once_with(
-            league_id
-        )
+        self.mock_db_service.get_matches_for_tournament.assert_called_once_with(tournament_id)
 
-    def test_get_leagues_current_week_returns_correct_week(self):
+    def test_get_tournament_current_week_returns_correct_week(self):
         # Arrange
-        league_id = RiotLeagueID("123456789")
+        tournament_id = RiotTournamentID("tournament-1")
         num_weeks = 3
         for week_num in range(1, num_weeks + 1):
             matches = generate_matches(num_weeks, 3, week_num)
             self.mock_db_service.reset_mock()
-            self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = (
-                matches
-            )
+            self.mock_db_service.get_matches_for_tournament.return_value = matches
 
             # Act
-            curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+            curr_week = self.fantasy_league_util.get_tournament_current_week(tournament_id)
 
             # Assert
             self.assertEqual(curr_week, week_num)
-            self.mock_db_service.get_matches_for_league_with_active_tournament.assert_called_once_with(
-                league_id
-            )
+            self.mock_db_service.get_matches_for_tournament.assert_called_once_with(tournament_id)
 
-    def test_get_leagues_current_week_returns_last_valid_week_if_in_past(self):
+    def test_get_tournament_current_week_returns_last_valid_week_if_in_past(self):
         # Arrange
-        league_id = RiotLeagueID("123456789")
+        tournament_id = RiotTournamentID("tournament-1")
         num_weeks = 3
         matches = generate_matches(num_weeks, 3, num_weeks + 1)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+        self.mock_db_service.get_matches_for_tournament.return_value = matches
 
         # Act
-        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+        curr_week = self.fantasy_league_util.get_tournament_current_week(tournament_id)
 
         # Assert
         self.assertEqual(curr_week, num_weeks)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.assert_called_once_with(
-            league_id
-        )
+        self.mock_db_service.get_matches_for_tournament.assert_called_once_with(tournament_id)
 
-    def test_get_leagues_current_week_groups_returns_none(self):
+    def test_get_tournament_current_week_groups_returns_none(self):
         # Arrange
-        league_id = RiotLeagueID("123456789")
+        tournament_id = RiotTournamentID("tournament-1")
         matches = generate_matches(3, 3, 3, False)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = matches
+        self.mock_db_service.get_matches_for_tournament.return_value = matches
 
         # Act
-        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+        curr_week = self.fantasy_league_util.get_tournament_current_week(tournament_id)
 
         # Assert
         self.assertIsNone(curr_week)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.assert_called_once_with(
-            league_id
-        )
+        self.mock_db_service.get_matches_for_tournament.assert_called_once_with(tournament_id)
 
-    def test_get_leagues_current_week_no_matches_returns_none(self):
+    def test_get_tournament_current_week_no_matches_returns_none(self):
         # Arrange
-        league_id = RiotLeagueID("123456789")
-        self.mock_db_service.get_matches_for_league_with_active_tournament.return_value = []
+        tournament_id = RiotTournamentID("tournament-1")
+        self.mock_db_service.get_matches_for_tournament.return_value = []
 
         # Act
-        curr_week = self.fantasy_league_util.get_leagues_current_week(league_id)
+        curr_week = self.fantasy_league_util.get_tournament_current_week(tournament_id)
 
         # Assert
         self.assertIsNone(curr_week)
-        self.mock_db_service.get_matches_for_league_with_active_tournament.assert_called_once_with(
-            league_id
-        )
+        self.mock_db_service.get_matches_for_tournament.assert_called_once_with(tournament_id)
 
 
 def generate_matches(

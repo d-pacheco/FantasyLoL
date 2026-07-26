@@ -73,6 +73,8 @@ class DraftService:
         if fantasy_league.owner_id != owner_id:
             raise ForbiddenException()
 
+        self.fantasy_league_util.validate_tournament(fantasy_league.tournament_id)
+
         pending_and_accepted_memberships = self.db.get_pending_and_accepted_members_for_league(
             league_id
         )
@@ -164,8 +166,9 @@ class DraftService:
             self.db.update_fantasy_league_current_week(league_id, 1)
 
             # Determine start_week from the current tournament week
-            riot_league_id = fantasy_league.available_leagues[0]
-            current_week = self.fantasy_league_util.get_leagues_current_week(riot_league_id)
+            current_week = self.fantasy_league_util.get_tournament_current_week(
+                fantasy_league.tournament_id
+            )
             start_week = current_week if current_week is not None else 1
             self.db.update_fantasy_league_start_week(league_id, start_week)
         else:

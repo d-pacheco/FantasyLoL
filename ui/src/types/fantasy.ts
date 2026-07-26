@@ -6,6 +6,7 @@ export interface FantasyLeagueSettings {
   name: string
   number_of_teams: number
   available_leagues: string[]
+  tournament_id: string
 }
 
 export interface FantasyLeague extends FantasyLeagueSettings {

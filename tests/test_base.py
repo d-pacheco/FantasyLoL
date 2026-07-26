@@ -74,6 +74,18 @@ class TestBase(unittest.TestCase):
         logging.disable()
         models.Base.metadata.create_all(bind=self.db_provider.engine)
 
+    def seed_tournament_prerequisites(self) -> None:
+        """Seed the league and tournament required by all fantasy league fixtures.
+
+        All FantasyLeague fixtures reference active_tournament_fixture.id as their tournament_id.
+        The tournament FK requires the parent league to exist first.
+        Call this in setUp of any test class that creates fantasy league fixtures.
+        """
+        from tests.test_util import riot_fixtures
+
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        self.db.put_tournament(riot_fixtures.active_tournament_fixture)
+
     def tearDown(self):
         engine = self.db_provider.engine
         metadata = MetaData()

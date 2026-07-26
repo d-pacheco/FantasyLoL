@@ -143,6 +143,32 @@ class TestCrudRiotMatch(TestBase):
         self.assertIsInstance(matches_from_db, list)
         self.assertEqual(0, len(matches_from_db))
 
+    def test_get_matches_for_tournament_returns_matching_matches(self):
+        # Arrange
+        match_in_tournament = riot_fixtures.match_fixture
+        self.db.put_match(match_in_tournament)
+
+        other_tournament = riot_fixtures.active_tournament_fixture
+        self.db.put_tournament(other_tournament)
+        match_in_other_tournament = riot_fixtures.completed_match_fixture.model_copy(
+            update={"tournament_id": other_tournament.id}
+        )
+        self.db.put_match(match_in_other_tournament)
+
+        # Act
+        matches_from_db = self.db.get_matches_for_tournament(match_in_tournament.tournament_id)
+
+        # Assert
+        self.assertEqual(1, len(matches_from_db))
+        self.assertEqual(match_in_tournament.id, matches_from_db[0].id)
+
+    def test_get_matches_for_tournament_no_matches_returns_empty_list(self):
+        # Act
+        matches_from_db = self.db.get_matches_for_tournament(riot_fixtures.tournament_fixture.id)
+
+        # Assert
+        self.assertEqual([], matches_from_db)
+
     def test_get_match_by_id_existing_match(self):
         # Arrange
         expected_match = riot_fixtures.match_fixture

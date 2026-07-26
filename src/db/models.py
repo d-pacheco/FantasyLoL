@@ -286,6 +286,7 @@ class FantasyLeagueModel(Base):  # type: ignore
     current_draft_position = Column(Integer, nullable=True)
     available_leagues = Column(JSON)
     start_week = Column(Integer, nullable=True)
+    tournament_id = Column(String, ForeignKey("tournaments.id", ondelete="RESTRICT"), nullable=True)
 
 
 class FantasyLeagueMembershipModel(Base):  # type: ignore

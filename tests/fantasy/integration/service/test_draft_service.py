@@ -1,5 +1,8 @@
 import uuid
 from copy import deepcopy
+from datetime import datetime, timedelta
+
+import pytz
 
 from tests.test_base import TestBase
 from tests.test_util import fantasy_fixtures, riot_fixtures
@@ -14,15 +17,18 @@ from src.common.schemas.fantasy_schemas import (
     UserID,
 )
 from src.common.schemas.riot_data_schemas import (
+    Match,
     ProfessionalPlayer,
     ProfessionalTeam,
     PlayerRole,
     ProPlayerID,
     ProTeamID,
+    RiotMatchID,
 )
 from src.fantasy.exceptions import (
     FantasyDraftException,
     FantasyLeagueNotFoundException,
+    FantasyLeagueSettingsException,
     FantasyLeagueStartDraftException,
     FantasyLeagueInvalidRequiredStateException,
     ForbiddenException,
@@ -35,6 +41,7 @@ class DraftServiceIntegrationTest(TestBase):
         super().setUp()
         self.draft_service = DraftService(self.db)
         self._player_counter = 0
+        self.seed_tournament_prerequisites()
 
     def create_membership(self, league_id, user_id, status):
         self.db.create_fantasy_league_membership(
@@ -212,6 +219,53 @@ class DraftServiceIntegrationTest(TestBase):
         # Act & Assert
         with self.assertRaises(FantasyLeagueStartDraftException):
             self.draft_service.start_draft(fantasy_league.id, user.id)
+
+    def test_start_draft_rejects_completed_tournament(self):
+        # Arrange
+        self.db.put_tournament(riot_fixtures.tournament_fixture)
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        fantasy_league.tournament_id = riot_fixtures.tournament_fixture.id
+        self.db.create_fantasy_league(fantasy_league)
+        self.db.create_user(user)
+
+        for _ in range(fantasy_league.number_of_teams - 1):
+            self.create_membership(
+                fantasy_league.id,
+                UserID(str(uuid.uuid4())),
+                FantasyLeagueMembershipStatus.ACCEPTED,
+            )
+        self.create_membership(fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED)
+
+        # Act & Assert
+        with self.assertRaises(FantasyLeagueSettingsException):
+            self.draft_service.start_draft(fantasy_league.id, user.id)
+
+    def test_start_draft_allows_upcoming_tournament(self):
+        # Arrange
+        self.db.put_tournament(riot_fixtures.future_tournament_fixture)
+        user = fantasy_fixtures.user_fixture
+        fantasy_league = deepcopy(fantasy_fixtures.fantasy_league_fixture)
+        fantasy_league.available_leagues = ["someRiotLeagueId"]
+        fantasy_league.tournament_id = riot_fixtures.future_tournament_fixture.id
+        self.db.create_fantasy_league(fantasy_league)
+        self.db.create_user(user)
+
+        for _ in range(fantasy_league.number_of_teams - 1):
+            self.create_membership(
+                fantasy_league.id,
+                UserID(str(uuid.uuid4())),
+                FantasyLeagueMembershipStatus.ACCEPTED,
+            )
+        self.create_membership(fantasy_league.id, user.id, FantasyLeagueMembershipStatus.ACCEPTED)
+
+        # Act
+        self.draft_service.start_draft(fantasy_league.id, user.id)
+
+        # Assert
+        db_league = self.db.get_fantasy_league_by_id(fantasy_league.id)
+        self.assertEqual(FantasyLeagueStatus.DRAFT, db_league.status)
 
     def test_start_draft_rejects_non_pre_draft_status(self):
         # Arrange
@@ -410,7 +464,7 @@ class DraftServiceIntegrationTest(TestBase):
         self.assertEqual(1, db_league.current_week)
 
     def test_draft_completes_sets_start_week(self):
-        """start_week should be set when draft completes and league transitions to ACTIVE."""
+        """start_week should default to 1 when the tournament has no matches yet."""
         # Arrange — 4 users × 6 picks = 24 total picks
         league, user_ids = self.setup_draft_league()
         self.advance_draft(league, user_ids, 23)
@@ -434,6 +488,61 @@ class DraftServiceIntegrationTest(TestBase):
         # start_week should be set (1 since no active tournament matches exist)
         self.assertIsNotNone(db_league.start_week)
         self.assertEqual(1, db_league.start_week)
+
+    def test_draft_completes_sets_start_week_from_tournament_current_week(self):
+        """start_week should be derived from the league's tournament_id, using whichever
+        week block is currently underway according to that tournament's own matches —
+        not a hardcoded fallback and not any other tournament's matches."""
+        # Arrange — 4 users × 6 picks = 24 total picks
+        league, user_ids = self.setup_draft_league()
+        self.assertEqual(riot_fixtures.active_tournament_fixture.id, league.tournament_id)
+
+        now = datetime.now(pytz.utc)
+        self.db.put_match(
+            Match(
+                id=RiotMatchID("draft-week1-match"),
+                start_time=(now - timedelta(days=10)).isoformat(),
+                block_name="Week 1",
+                league_slug=riot_fixtures.league_1_fixture.slug,
+                strategy_type="bestOf",
+                strategy_count=3,
+                tournament_id=league.tournament_id,
+                state="completed",
+                has_games=True,
+            )
+        )
+        self.db.put_match(
+            Match(
+                id=RiotMatchID("draft-week2-match"),
+                start_time=(now - timedelta(days=2)).isoformat(),
+                block_name="Week 2",
+                league_slug=riot_fixtures.league_1_fixture.slug,
+                strategy_type="bestOf",
+                strategy_count=3,
+                tournament_id=league.tournament_id,
+                state="completed",
+                has_games=True,
+            )
+        )
+        self.advance_draft(league, user_ids, 23)
+
+        # Act — make the 24th (final) pick
+        final_team = ProfessionalTeam(
+            id=ProTeamID("start-week-team-2"),
+            slug="sw2",
+            name="Start Week Team 2",
+            code="SW2",
+            image="http://img.png",
+            status="active",
+            home_league_name=riot_fixtures.league_1_fixture.name,
+        )
+        self.db.put_team(final_team)
+        self.draft_service.make_pick(league.id, user_ids[0], team_id=final_team.id)
+
+        # Assert — Week 2 is the current week since "now" falls after its start
+        db_league = self.db.get_fantasy_league_by_id(league.id)
+        self.assertEqual(FantasyLeagueStatus.ACTIVE, db_league.status)
+        self.assertEqual(2, db_league.start_week)
 
     # --------------------------------------------------
     # --------------- get_draft_state ------------------

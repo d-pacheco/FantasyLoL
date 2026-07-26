@@ -33,6 +33,7 @@ const defaultSettings = {
   name: 'My League',
   number_of_teams: 6,
   available_leagues: ['riot-league-lcs'],
+  tournament_id: 'tournament-1',
 }
 
 const defaultProps = {
@@ -149,7 +150,12 @@ describe('SettingsTab', () => {
   })
 
   it('successful save calls API and emits updated event', async () => {
-    const updatedSettings = { name: 'New Name', number_of_teams: 6, available_leagues: ['riot-league-lcs'] }
+    const updatedSettings = {
+      name: 'New Name',
+      number_of_teams: 6,
+      available_leagues: ['riot-league-lcs'],
+      tournament_id: 'tournament-1',
+    }
     mockUpdateLeagueSettings.mockResolvedValue(updatedSettings)
 
     const wrapper = mount(SettingsTab, {
@@ -174,6 +180,7 @@ describe('SettingsTab', () => {
       name: 'New Name',
       number_of_teams: 6,
       available_leagues: ['riot-league-lcs'],
+      tournament_id: 'tournament-1',
     })
     expect(wrapper.emitted('updated')).toBeTruthy()
     expect(wrapper.emitted('updated')![0]).toEqual([updatedSettings])

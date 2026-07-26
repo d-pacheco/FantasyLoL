@@ -57,6 +57,7 @@ def update_fantasy_league_settings(
     db_fantasy_league.name = settings.name
     db_fantasy_league.number_of_teams = settings.number_of_teams
     db_fantasy_league.available_leagues = settings.available_leagues
+    db_fantasy_league.tournament_id = settings.tournament_id
 
     session.commit()
     session.refresh(db_fantasy_league)

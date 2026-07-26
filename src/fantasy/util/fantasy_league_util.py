@@ -11,17 +11,19 @@ from src.common.schemas.fantasy_schemas import (
     FantasyLeagueStatus,
     UserID,
 )
-from src.common.schemas.riot_data_schemas import RiotLeagueID
+from src.common.schemas.riot_data_schemas import RiotLeagueID, RiotTournamentID
 
 from src.db.database_service import DatabaseService
 
 from src.fantasy.exceptions import (
     FantasyLeagueNotFoundException,
     FantasyLeagueInvalidRequiredStateException,
+    FantasyLeagueSettingsException,
     FantasyUnavailableException,
     DraftOrderException,
     ForbiddenException,
 )
+from src.riot.exceptions import TournamentNotFoundException
 
 
 class FantasyLeagueUtil:
@@ -57,6 +59,17 @@ class FantasyLeagueUtil:
                 raise LeagueNotFoundException(league_id)
             if not league_dict[league_id].fantasy_available:
                 raise FantasyUnavailableException(league_id)
+
+    def validate_tournament(self, tournament_id: RiotTournamentID) -> None:
+        tournament = self.db.get_tournament_by_id(tournament_id)
+        if tournament is None:
+            raise TournamentNotFoundException()
+        current_date = datetime.now(pytz.utc).strftime("%Y-%m-%d")
+        if tournament.end_date < current_date:
+            raise FantasyLeagueSettingsException(
+                f"Tournament {tournament_id} is already completed and cannot be used "
+                f"for a new fantasy league."
+            )
 
     def update_fantasy_leagues_current_draft_position(self, fantasy_league: FantasyLeague) -> None:
         assert fantasy_league.current_draft_position is not None
@@ -131,7 +144,7 @@ class FantasyLeagueUtil:
                     draft_position, draft_position.position - 1
                 )
 
-    def get_leagues_current_week(self, riot_league_id: RiotLeagueID) -> int | None:
+    def get_tournament_current_week(self, tournament_id: RiotTournamentID) -> int | None:
         non_week_blocks = [
             "playoffs",
             "knockouts",
@@ -144,7 +157,7 @@ class FantasyLeagueUtil:
         ]
 
         utc_now = datetime.now(pytz.utc)
-        matches = self.db.get_matches_for_league_with_active_tournament(riot_league_id)
+        matches = self.db.get_matches_for_tournament(tournament_id)
         matches.sort(key=lambda x: parse_match_time(x.start_time))
 
         if len(matches) == 0:

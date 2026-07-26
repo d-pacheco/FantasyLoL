@@ -41,6 +41,8 @@ class FantasyLeagueService:
         if len(league_settings.available_leagues) > 0:
             self.fantasy_league_util.validate_available_leagues(league_settings.available_leagues)
 
+        self.fantasy_league_util.validate_tournament(league_settings.tournament_id)
+
         fantasy_league_id = self.generate_new_valid_id()
         new_fantasy_league = FantasyLeague(
             id=fantasy_league_id,
@@ -49,6 +51,7 @@ class FantasyLeagueService:
             name=league_settings.name,
             number_of_teams=league_settings.number_of_teams,
             available_leagues=league_settings.available_leagues,
+            tournament_id=league_settings.tournament_id,
         )
         self.db.create_fantasy_league(new_fantasy_league)
 
@@ -107,6 +110,7 @@ class FantasyLeagueService:
             name=fantasy_league_model.name,
             number_of_teams=fantasy_league_model.number_of_teams,
             available_leagues=fantasy_league_model.available_leagues,
+            tournament_id=fantasy_league_model.tournament_id,
         )
 
     def update_fantasy_league_settings(
@@ -137,6 +141,8 @@ class FantasyLeagueService:
                 updated_league_settings.available_leagues
             )
 
+        self.fantasy_league_util.validate_tournament(updated_league_settings.tournament_id)
+
         updated_fantasy_league = self.db.update_fantasy_league_settings(
             league_id, updated_league_settings
         )
@@ -144,6 +150,7 @@ class FantasyLeagueService:
             name=updated_fantasy_league.name,
             number_of_teams=updated_fantasy_league.number_of_teams,
             available_leagues=updated_league_settings.available_leagues,
+            tournament_id=updated_fantasy_league.tournament_id,
         )
         return updated_fantasy_league_settings
 
