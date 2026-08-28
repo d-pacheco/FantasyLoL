@@ -32,7 +32,7 @@ class RiotMatchService:
     def get_schedule(self) -> dict[str, list[Match]]:
         all_matches = self.db.get_fantasy_schedule_matches()
         now = datetime.now(timezone.utc)
-        cutoff = now - timedelta(hours=48)
+        cutoff = now - timedelta(days=10)
         cutoff_str = cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         live = []

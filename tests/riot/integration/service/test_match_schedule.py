@@ -63,14 +63,20 @@ class TestMatchSchedule(TestBase):
         self._create_match("live-001", MatchState.INPROGRESS, "2020-01-01T12:00:00Z")
         # Upcoming match
         self._create_match("upcoming-001", MatchState.UNSTARTED, "2099-01-01T12:00:00Z")
-        # Recent match (completed, within 48h — use a time we know is recent)
+        # Recent match (completed, within 10 days — use a time we know is recent)
         from datetime import datetime, timezone, timedelta
 
         recent_time = (datetime.now(timezone.utc) - timedelta(hours=6)).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
         self._create_match("recent-001", MatchState.COMPLETED, recent_time)
-        # Old completed match (>48h ago — should NOT appear)
+        # Recent match (completed ~8 days ago — within the 10-day window, but
+        # outside the old 48-hour window; guards against regressions)
+        eight_days_ago = (datetime.now(timezone.utc) - timedelta(days=8)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        self._create_match("recent-8days-001", MatchState.COMPLETED, eight_days_ago)
+        # Old completed match (>10 days ago — should NOT appear)
         self._create_match("old-001", MatchState.COMPLETED, "2020-01-01T12:00:00Z")
 
         schedule = self.match_service.get_schedule()
@@ -82,4 +88,5 @@ class TestMatchSchedule(TestBase):
         self.assertIn(RiotMatchID("live-001"), live_ids)
         self.assertIn(RiotMatchID("upcoming-001"), upcoming_ids)
         self.assertIn(RiotMatchID("recent-001"), recent_ids)
+        self.assertIn(RiotMatchID("recent-8days-001"), recent_ids)
         self.assertNotIn(RiotMatchID("old-001"), recent_ids)
