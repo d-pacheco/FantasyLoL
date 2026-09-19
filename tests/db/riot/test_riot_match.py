@@ -422,6 +422,66 @@ class TestCrudRiotMatch(TestBase):
         self.assertEqual("New Team 1", result.team_1_name)
         self.assertEqual("New Team 2", result.team_2_name)
 
+    def test_save_from_schedule_handles_two_tbd_teams(self):
+        # Regression: undetermined upcoming matches return both teams as "TBD".
+        # With the (match_id, side) primary key this must not collide/crash.
+        schedule_match = ScheduleMatch(
+            id=RiotMatchID("sched-tbd"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Playoffs",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=5,
+            state=MatchState.UNSTARTED,
+            teams=[
+                ScheduleTeam(side=1, team_code="TBD", team_name="TBD"),
+                ScheduleTeam(side=2, team_code="TBD", team_name="TBD"),
+            ],
+        )
+
+        # Should not raise a duplicate-key error
+        self.db.save_from_schedule(schedule_match)
+
+        result = self.db.get_match_by_id(RiotMatchID("sched-tbd"))
+        self.assertIsNotNone(result)
+        self.assertEqual("TBD", result.team_1_name)
+        self.assertEqual("TBD", result.team_2_name)
+
+    def test_save_from_schedule_replaces_placeholder_when_teams_determined(self):
+        # Regression: a match saved with a "TBD" placeholder then re-synced with the
+        # real team on the same side must update in place (no stale duplicate rows,
+        # which previously caused match_view to emit duplicate matches).
+        placeholder = ScheduleMatch(
+            id=RiotMatchID("sched-tbd-2"),
+            start_time="2024-01-01T12:00:00Z",
+            block_name="Playoffs",
+            league_slug="test-league",
+            strategy_type="bestOf",
+            strategy_count=5,
+            state=MatchState.UNSTARTED,
+            teams=[
+                ScheduleTeam(side=1, team_code="TBD", team_name="TBD"),
+                ScheduleTeam(side=2, team_code="C9", team_name="Cloud9"),
+            ],
+        )
+        self.db.save_from_schedule(placeholder)
+
+        determined = placeholder.model_copy(deep=True)
+        determined.teams[0].team_code = "FLY"
+        determined.teams[0].team_name = "FlyQuest"
+        self.db.save_from_schedule(determined)
+
+        # Exactly one row per side should remain, with the real team on side 1
+        with self.db_provider.get_db() as db:
+            rows = db.query(EventTeamsModel).filter(EventTeamsModel.match_id == "sched-tbd-2").all()
+            self.assertEqual(2, len(rows))
+            side_1 = next(r for r in rows if r.side == 1)
+            self.assertEqual("FLY", side_1.team_code)
+
+        result = self.db.get_match_by_id(RiotMatchID("sched-tbd-2"))
+        self.assertEqual("FlyQuest", result.team_1_name)
+        self.assertEqual("Cloud9", result.team_2_name)
+
     def test_save_from_schedule_sets_league_id_when_league_exists(self):
         # Arrange - create a league first
         league = riot_fixtures.league_1_fixture.model_copy(deep=True)
