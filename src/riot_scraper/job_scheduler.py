@@ -5,6 +5,7 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler  # type: ignore
 from apscheduler.triggers.cron import CronTrigger  # type: ignore
 from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
+from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_MISSED  # type: ignore
 
 from src.common import app_config
 from src.common.config import ScheduleConfig
@@ -24,8 +25,21 @@ class JobScheduler:
         self.game_analysis_service = kwargs.get("game_analysis_service")
 
         self.scheduler = BackgroundScheduler()
+        # Surface job exceptions/misses in the scraper logs. APScheduler logs these
+        # under the "apscheduler.*" logger tree, which has no handlers configured, so
+        # without this listener a failing job (e.g. the match sync) dies silently.
+        self.scheduler.add_listener(self._on_job_event, EVENT_JOB_ERROR | EVENT_JOB_MISSED)
         self.scheduler.start()
         atexit.register(self.shutdown_jobs)
+
+    def _on_job_event(self, event):
+        if getattr(event, "exception", None):
+            logger.error(f"Job '{event.job_id}' raised an exception:\n{event.traceback}")
+        else:
+            logger.warning(
+                f"Job '{event.job_id}' missed its scheduled run "
+                f"(scheduled: {getattr(event, 'scheduled_run_time', 'unknown')})"
+            )
 
     def trigger_league_service_job(self):
         job = self.scheduler.get_job("league_service_job")
@@ -66,9 +80,17 @@ class JobScheduler:
         self.scheduler.print_jobs()
 
     def _run_match_jobs(self):
-        self.riot_match_service.sync_schedule()
-        self.riot_match_service.backfill_event_details()
-        self.riot_match_service.refresh_stale_events()
+        # Each step is isolated so a failure in one (e.g. schedule sync hitting a
+        # bad API response) is logged and does not silently skip the others.
+        for step_name, step in (
+            ("sync_schedule", self.riot_match_service.sync_schedule),
+            ("backfill_event_details", self.riot_match_service.backfill_event_details),
+            ("refresh_stale_events", self.riot_match_service.refresh_stale_events),
+        ):
+            try:
+                step()
+            except Exception:
+                logger.exception(f"Match job step '{step_name}' failed")
 
     def schedule_all_jobs(self):
         logger.info("Scheduling jobs")
