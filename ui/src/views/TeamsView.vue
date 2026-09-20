@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getTeams } from '../api/riotApi'
 import { usePaginatedQuery } from '../composables/usePaginatedQuery'
 
 const route = useRoute()
+const router = useRouter()
 
 const search = ref((route.query.search as string) || '')
 
@@ -21,6 +22,10 @@ function goToPage(page: number) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
+}
+
+function goToTeam(id: string) {
+  router.push({ name: 'team-detail', params: { id } })
 }
 
 const visiblePages = computed(() => {
@@ -76,7 +81,7 @@ const visiblePages = computed(() => {
           </tr>
         </thead>
         <tbody class="divide-y divide-border-subtle">
-          <tr v-for="team in teams" :key="team.id" class="bg-surface hover:bg-surface-elevated transition-colors">
+          <tr v-for="team in teams" :key="team.id" class="bg-surface hover:bg-surface-elevated transition-colors cursor-pointer" @click="goToTeam(team.id)">
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
                 <img

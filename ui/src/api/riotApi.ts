@@ -7,6 +7,8 @@ import type {
   Tournament,
   PlayerMatchHistoryEntry,
   PlayerCareerSummary,
+  TeamMatchHistoryEntry,
+  TeamSummary,
 } from '../types/riot'
 
 export interface PlayerParams {
@@ -70,6 +72,37 @@ export async function getPlayerCareerSummary(playerId: string): Promise<PlayerCa
 
 export async function getTeams(params: TeamParams = {}): Promise<PaginatedResponse<ProfessionalTeam>> {
   const res = await api.get<PaginatedResponse<ProfessionalTeam>>('/riot/professional-team', { params })
+  return res.data
+}
+
+export async function getTeamById(teamId: string): Promise<ProfessionalTeam> {
+  const res = await api.get<ProfessionalTeam>(`/riot/professional-team/${teamId}`)
+  return res.data
+}
+
+export async function getTeamRoster(teamId: string): Promise<ProfessionalPlayer[]> {
+  const res = await api.get<ProfessionalPlayer[]>(`/riot/professional-team/${teamId}/roster`)
+  return res.data
+}
+
+export interface TeamMatchHistoryParams {
+  page?: number
+  size?: number
+}
+
+export async function getTeamMatchHistory(
+  teamId: string,
+  params: TeamMatchHistoryParams = {},
+): Promise<PaginatedResponse<TeamMatchHistoryEntry>> {
+  const res = await api.get<PaginatedResponse<TeamMatchHistoryEntry>>(
+    `/riot/professional-team/${teamId}/match-history`,
+    { params },
+  )
+  return res.data
+}
+
+export async function getTeamSummary(teamId: string): Promise<TeamSummary> {
+  const res = await api.get<TeamSummary>(`/riot/professional-team/${teamId}/summary`)
   return res.data
 }
 

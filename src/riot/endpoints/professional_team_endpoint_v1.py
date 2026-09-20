@@ -3,7 +3,13 @@ from fastapi import Query, Depends
 from fastapi_pagination import paginate, Page
 
 from src.auth import JWTBearer, Permissions
-from src.common.schemas.riot_data_schemas import ProfessionalTeam, ProTeamID
+from src.common.schemas.riot_data_schemas import (
+    ProfessionalTeam,
+    ProTeamID,
+    ProfessionalPlayer,
+    TeamMatchHistoryEntry,
+    TeamSummary,
+)
 from src.common.schemas.search_parameters import TeamSearchParameters
 from src.riot.service import RiotProfessionalTeamService
 
@@ -65,3 +71,63 @@ class ProfessionalTeamEndpoint(Routable):
     )
     def get_professional_team_by_id(self, professional_team_id: ProTeamID) -> ProfessionalTeam:
         return self.__team_service.get_team_by_id(professional_team_id)
+
+    @get(
+        path="/professional-team/{professional_team_id}/roster",
+        description="Get the roster (players) for a professional team",
+        tags=["Professional Teams"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+        response_model=list[ProfessionalPlayer],
+        responses={
+            200: {"model": list[ProfessionalPlayer]},
+            404: {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {"example": {"detail": "Professional Team not found"}}
+                },
+            },
+        },
+    )
+    def get_team_roster(self, professional_team_id: ProTeamID) -> list[ProfessionalPlayer]:
+        return self.__team_service.get_team_roster(professional_team_id)
+
+    @get(
+        path="/professional-team/{professional_team_id}/match-history",
+        description="Get a professional team's match (series) history",
+        tags=["Professional Teams"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+        response_model=Page[TeamMatchHistoryEntry],
+        responses={
+            200: {"model": Page[TeamMatchHistoryEntry]},
+            404: {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {"example": {"detail": "Professional Team not found"}}
+                },
+            },
+        },
+    )
+    def get_team_match_history(
+        self, professional_team_id: ProTeamID
+    ) -> Page[TeamMatchHistoryEntry]:
+        history = self.__team_service.get_team_match_history(professional_team_id)
+        return paginate(history)
+
+    @get(
+        path="/professional-team/{professional_team_id}/summary",
+        description="Get a professional team's aggregate record and per-game averages",
+        tags=["Professional Teams"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+        response_model=TeamSummary,
+        responses={
+            200: {"model": TeamSummary},
+            404: {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {"example": {"detail": "Professional Team not found"}}
+                },
+            },
+        },
+    )
+    def get_team_summary(self, professional_team_id: ProTeamID) -> TeamSummary:
+        return self.__team_service.get_team_summary(professional_team_id)

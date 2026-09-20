@@ -34,6 +34,7 @@ from src.common.schemas.riot_data_schemas import (
     ScheduleMatch,
     MatchDetails,
     TeamGameStats,
+    TeamMatchHistoryEntry,
     GameMetadata,
     GameParticipantPerks,
     GameDragons,
@@ -324,6 +325,14 @@ class DatabaseService:
     def get_team_by_id(self, team_id: ProTeamID) -> ProfessionalTeam | None:
         with self.connection_provider.get_db() as db:
             return team_dao.get_team_by_id(db, team_id)
+
+    def get_team_match_history(self, team_id: ProTeamID) -> list[TeamMatchHistoryEntry]:
+        with self.connection_provider.get_db() as db:
+            return team_dao.get_team_match_history(db, team_id)
+
+    def get_team_game_stat_lines(self, team_id: ProTeamID) -> list[dict]:
+        with self.connection_provider.get_db() as db:
+            return team_stats_dao.get_team_game_stat_lines(db, team_id)
 
     def get_team_ids_with_players(self) -> list[str]:
         with self.connection_provider.get_db() as db:
