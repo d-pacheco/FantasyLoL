@@ -7,6 +7,8 @@ from src.common.schemas.riot_data_schemas import (
     ProfessionalPlayer,
     PlayerRole,
     ProPlayerID,
+    PlayerMatchHistoryEntry,
+    PlayerCareerSummary,
 )
 from src.common.schemas.search_parameters import PlayerSearchParameters
 from src.riot.service import RiotProfessionalPlayerService
@@ -69,3 +71,44 @@ class ProfessionalPlayerEndpoint(Routable):
         self, professional_player_id: ProPlayerID
     ) -> ProfessionalPlayer:
         return self.__player_service.get_player_by_id(professional_player_id)
+
+    @get(
+        path="/professional-player/{professional_player_id}/match-history",
+        description="Get a professional player's enriched game-by-game match history",
+        tags=["Professional Players"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+        response_model=Page[PlayerMatchHistoryEntry],
+        responses={
+            200: {"model": Page[PlayerMatchHistoryEntry]},
+            404: {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {"example": {"detail": "Professional Player not found"}}
+                },
+            },
+        },
+    )
+    def get_player_match_history(
+        self, professional_player_id: ProPlayerID
+    ) -> Page[PlayerMatchHistoryEntry]:
+        history = self.__player_service.get_player_match_history(professional_player_id)
+        return paginate(history)
+
+    @get(
+        path="/professional-player/{professional_player_id}/summary",
+        description="Get a professional player's aggregate career summary across all games",
+        tags=["Professional Players"],
+        dependencies=[Depends(JWTBearer([Permissions.RIOT_READ]))],
+        response_model=PlayerCareerSummary,
+        responses={
+            200: {"model": PlayerCareerSummary},
+            404: {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {"example": {"detail": "Professional Player not found"}}
+                },
+            },
+        },
+    )
+    def get_player_career_summary(self, professional_player_id: ProPlayerID) -> PlayerCareerSummary:
+        return self.__player_service.get_player_career_summary(professional_player_id)

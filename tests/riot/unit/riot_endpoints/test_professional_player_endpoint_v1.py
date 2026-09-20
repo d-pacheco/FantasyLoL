@@ -58,3 +58,61 @@ class TestProfessionalPlayerEndpointV1:
         response = client.get(f"{PLAYER_BASE_URL}/{player.id}")
 
         assert response.status_code == HTTPStatus.NOT_FOUND
+
+    def test_get_player_match_history_success(self, create_endpoint_client):
+        from src.common.schemas.riot_data_schemas import PlayerMatchHistoryEntry
+
+        client, mock = create_endpoint_client(ProfessionalPlayerEndpoint)
+        player = fixtures.player_1_fixture
+        entry = PlayerMatchHistoryEntry(
+            game_id="g1",
+            player_id=player.id,
+            kills=4,
+            deaths=2,
+            assists=6,
+            opponent_code="T2",
+            win=True,
+            multi_kills=["double"],
+        )
+        mock.get_player_match_history.return_value = [entry]
+
+        response = client.get(f"{PLAYER_BASE_URL}/{player.id}/match-history")
+
+        assert response.status_code == HTTPStatus.OK
+        body = response.json()
+        assert body["items"] == [entry.model_dump()]
+        mock.get_player_match_history.assert_called_once_with(player.id)
+
+    def test_get_player_match_history_not_found(self, create_endpoint_client):
+        client, mock = create_endpoint_client(ProfessionalPlayerEndpoint)
+        player = fixtures.player_1_fixture
+        mock.get_player_match_history.side_effect = ProfessionalPlayerNotFoundException()
+
+        response = client.get(f"{PLAYER_BASE_URL}/{player.id}/match-history")
+
+        assert response.status_code == HTTPStatus.NOT_FOUND
+
+    def test_get_player_summary_success(self, create_endpoint_client):
+        from src.common.schemas.riot_data_schemas import PlayerCareerSummary
+
+        client, mock = create_endpoint_client(ProfessionalPlayerEndpoint)
+        player = fixtures.player_1_fixture
+        summary = PlayerCareerSummary(
+            player_id=player.id, games_played=3, kda_ratio=4.5, win_rate=66.67
+        )
+        mock.get_player_career_summary.return_value = summary
+
+        response = client.get(f"{PLAYER_BASE_URL}/{player.id}/summary")
+
+        assert response.status_code == HTTPStatus.OK
+        assert response.json() == summary.model_dump()
+        mock.get_player_career_summary.assert_called_once_with(player.id)
+
+    def test_get_player_summary_not_found(self, create_endpoint_client):
+        client, mock = create_endpoint_client(ProfessionalPlayerEndpoint)
+        player = fixtures.player_1_fixture
+        mock.get_player_career_summary.side_effect = ProfessionalPlayerNotFoundException()
+
+        response = client.get(f"{PLAYER_BASE_URL}/{player.id}/summary")
+
+        assert response.status_code == HTTPStatus.NOT_FOUND

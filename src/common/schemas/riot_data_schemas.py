@@ -365,6 +365,69 @@ class PlayerGameData(BaseModel):
     )
 
 
+class PlayerMatchHistoryEntry(BaseModel):
+    """A single game in a player's match history, enriched with match context,
+    opponent, match-level result, per-minute stats and multi-kill tags."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    game_id: RiotGameID
+    player_id: ProPlayerID
+    match_id: RiotMatchID | None = None
+    participant_id: int | None = None
+    champion_id: str | None = None
+    role: PlayerRole | None = None
+    kills: int = 0
+    deaths: int = 0
+    assists: int = 0
+    total_gold: int = 0
+    creep_score: int = 0
+    kill_participation: int = 0
+    champion_damage_share: int = 0
+    wards_placed: int = 0
+    wards_destroyed: int = 0
+    # Match / game context (from the enriched view)
+    start_time: str | None = None
+    block_name: str | None = None
+    league_slug: str | None = None
+    patch_version: str | None = None
+    duration_seconds: int | None = None
+    side: str | None = None
+    # Enriched in the service/DAO layer
+    opponent_code: str | None = None
+    opponent_name: str | None = None
+    win: bool | None = None
+    multi_kills: list[str] = Field(default_factory=list)
+    cs_per_min: float | None = None
+    gold_per_min: float | None = None
+
+
+class PlayerCareerSummary(BaseModel):
+    """Aggregate performance for a player across all recorded games."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    player_id: ProPlayerID
+    games_played: int = 0
+    avg_kills: float = 0.0
+    avg_deaths: float = 0.0
+    avg_assists: float = 0.0
+    kda_ratio: float = 0.0
+    avg_creep_score: float = 0.0
+    cs_per_min: float = 0.0
+    avg_total_gold: float = 0.0
+    gold_per_min: float = 0.0
+    avg_kill_participation: float = 0.0
+    avg_damage_share: float = 0.0
+    avg_wards_placed: float = 0.0
+    avg_wards_destroyed: float = 0.0
+    win_rate: float = 0.0
+    double_kills: int = 0
+    triple_kills: int = 0
+    quadra_kills: int = 0
+    penta_kills: int = 0
+
+
 class TeamGameStats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

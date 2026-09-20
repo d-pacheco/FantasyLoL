@@ -1,5 +1,13 @@
 import { api, type PaginatedResponse } from './client'
-import type { League, ProfessionalPlayer, ProfessionalTeam, Match, Tournament } from '../types/riot'
+import type {
+  League,
+  ProfessionalPlayer,
+  ProfessionalTeam,
+  Match,
+  Tournament,
+  PlayerMatchHistoryEntry,
+  PlayerCareerSummary,
+} from '../types/riot'
 
 export interface PlayerParams {
   page?: number
@@ -31,6 +39,32 @@ export interface MatchParams {
 
 export async function getPlayers(params: PlayerParams = {}): Promise<PaginatedResponse<ProfessionalPlayer>> {
   const res = await api.get<PaginatedResponse<ProfessionalPlayer>>('/riot/professional-player', { params })
+  return res.data
+}
+
+export async function getPlayerById(playerId: string): Promise<ProfessionalPlayer> {
+  const res = await api.get<ProfessionalPlayer>(`/riot/professional-player/${playerId}`)
+  return res.data
+}
+
+export interface PlayerMatchHistoryParams {
+  page?: number
+  size?: number
+}
+
+export async function getPlayerMatchHistory(
+  playerId: string,
+  params: PlayerMatchHistoryParams = {},
+): Promise<PaginatedResponse<PlayerMatchHistoryEntry>> {
+  const res = await api.get<PaginatedResponse<PlayerMatchHistoryEntry>>(
+    `/riot/professional-player/${playerId}/match-history`,
+    { params },
+  )
+  return res.data
+}
+
+export async function getPlayerCareerSummary(playerId: string): Promise<PlayerCareerSummary> {
+  const res = await api.get<PlayerCareerSummary>(`/riot/professional-player/${playerId}/summary`)
   return res.data
 }
 
