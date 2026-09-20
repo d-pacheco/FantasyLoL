@@ -30,6 +30,7 @@ from src.common.schemas.riot_data_schemas import (
     PlayerGameMetadata,
     PlayerGameData,
     PlayerGameStats,
+    PlayerMatchHistoryEntry,
     ScheduleMatch,
     MatchDetails,
     TeamGameStats,
@@ -198,6 +199,10 @@ class DatabaseService:
     def get_player_game_stats(self, filters: list | None = None) -> list[PlayerGameData]:
         with self.connection_provider.get_db() as db:
             return player_stats_dao.get_player_game_stats(db, filters)
+
+    def get_player_match_history(self, player_id: ProPlayerID) -> list[PlayerMatchHistoryEntry]:
+        with self.connection_provider.get_db() as db:
+            return player_stats_dao.get_player_match_history(db, player_id)
 
     def put_team_stats(self, team_stats: TeamGameStats) -> None:
         with self.connection_provider.get_db() as db:

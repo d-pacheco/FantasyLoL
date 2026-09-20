@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getPlayers } from '../api/riotApi'
 import { usePaginatedQuery } from '../composables/usePaginatedQuery'
 
 const route = useRoute()
+const router = useRouter()
 
 const roles: { label: string; value: string }[] = [
   { label: 'All', value: '' },
@@ -38,6 +39,10 @@ const { data: players, loading, error, totalPages, currentPage } = usePaginatedQ
 
 function setRole(value: string) {
   roleFilter.value = value
+}
+
+function goToPlayer(id: string) {
+  router.push({ name: 'player-detail', params: { id } })
 }
 
 function goToPage(page: number) {
@@ -122,7 +127,7 @@ const visiblePages = computed(() => {
           </tr>
         </thead>
         <tbody class="divide-y divide-border-subtle">
-          <tr v-for="player in players" :key="player.id" class="bg-surface hover:bg-surface-elevated transition-colors">
+          <tr v-for="player in players" :key="player.id" class="bg-surface hover:bg-surface-elevated transition-colors cursor-pointer" @click="goToPlayer(player.id)">
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
                 <img

@@ -24,6 +24,13 @@ class PlayerGameView(Base):  # type: ignore
     champion_damage_share = Column(Integer)
     wards_placed = Column(Integer)
     wards_destroyed = Column(Integer)
+    match_id = Column(String)
+    duration_seconds = Column(Integer)
+    start_time = Column(String)
+    block_name = Column(String)
+    league_slug = Column(String)
+    patch_version = Column(String)
+    side = Column(String)
 
     __table_args__ = (PrimaryKeyConstraint("game_id", "player_id"),)
 
@@ -44,11 +51,21 @@ create_player_game_view_query = text("""
         s.kill_participation,
         s.champion_damage_share,
         s.wards_placed,
-        s.wards_destroyed
+        s.wards_destroyed,
+        g.match_id,
+        g.duration_seconds,
+        mt.start_time,
+        mt.block_name,
+        mt.league_slug,
+        gm.patch_version,
+        CASE WHEN m.participant_id BETWEEN 1 AND 5 THEN 'blue' ELSE 'red' END AS side
     FROM
         player_game_metadata m
     JOIN
         player_game_stats s ON m.game_id = s.game_id AND m.participant_id = s.participant_id
+    LEFT JOIN games g ON m.game_id = g.id
+    LEFT JOIN matches mt ON g.match_id = mt.id
+    LEFT JOIN game_metadata gm ON m.game_id = gm.game_id
 """)
 
 
