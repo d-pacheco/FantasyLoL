@@ -428,6 +428,43 @@ class PlayerCareerSummary(BaseModel):
     penta_kills: int = 0
 
 
+class TeamMatchHistoryEntry(BaseModel):
+    """A single match (series) in a team's match history, with opponent and result."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    match_id: RiotMatchID
+    start_time: str | None = None
+    league_slug: str | None = None
+    block_name: str | None = None
+    strategy_type: str | None = None
+    strategy_count: int | None = None
+    opponent_code: str | None = None
+    opponent_name: str | None = None
+    win: bool | None = None
+    team_score: int | None = None
+    opponent_score: int | None = None
+
+
+class TeamSummary(BaseModel):
+    """Aggregate record and per-game averages for a team."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    team_id: ProTeamID
+    matches_played: int = 0
+    wins: int = 0
+    losses: int = 0
+    win_rate: float = 0.0
+    games_counted: int = 0
+    avg_kills: float = 0.0
+    avg_gold: float = 0.0
+    avg_towers: float = 0.0
+    avg_barons: float = 0.0
+    avg_inhibitors: float = 0.0
+    avg_dragons: float = 0.0
+
+
 class TeamGameStats(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

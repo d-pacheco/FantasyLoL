@@ -50,6 +50,35 @@ export interface ProfessionalTeam {
   home_league_region: string | null
 }
 
+export interface TeamMatchHistoryEntry {
+  match_id: string
+  start_time: string | null
+  league_slug: string | null
+  block_name: string | null
+  strategy_type: string | null
+  strategy_count: number | null
+  opponent_code: string | null
+  opponent_name: string | null
+  win: boolean | null
+  team_score: number | null
+  opponent_score: number | null
+}
+
+export interface TeamSummary {
+  team_id: string
+  matches_played: number
+  wins: number
+  losses: number
+  win_rate: number
+  games_counted: number
+  avg_kills: number
+  avg_gold: number
+  avg_towers: number
+  avg_barons: number
+  avg_inhibitors: number
+  avg_dragons: number
+}
+
 export type PlayerRole = 'top' | 'jungle' | 'mid' | 'bottom' | 'support' | 'none'
 
 export interface ProfessionalPlayer {
