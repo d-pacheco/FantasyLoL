@@ -15,34 +15,42 @@ const emit = defineEmits<{
   updated: [scoring: FantasyLeagueScoringSettings]
 }>()
 
-const playerLabels: { key: keyof FantasyLeagueScoringSettings; label: string }[] = [
-  { key: 'kills', label: 'Kills' },
-  { key: 'deaths', label: 'Deaths' },
-  { key: 'assists', label: 'Assists' },
-  { key: 'cspm', label: 'CS Per Minute' },
-  { key: 'wards_placed', label: 'Wards Placed' },
-  { key: 'wards_destroyed', label: 'Wards Destroyed' },
-  { key: 'kill_participation', label: 'Kill Participation' },
-  { key: 'damage_percentage', label: 'Damage %' },
-  { key: 'double_kill', label: 'Double Kill' },
-  { key: 'triple_kill', label: 'Triple Kill' },
-  { key: 'quadra_kill', label: 'Quadra Kill' },
-  { key: 'penta_kill', label: 'Penta Kill' },
+type Key = keyof FantasyLeagueScoringSettings
+
+const labelFor: Record<string, string> = {
+  kills: 'Kills',
+  deaths: 'Deaths',
+  assists: 'Assists',
+  cspm: 'CS Per Minute',
+  wards_placed: 'Wards Placed',
+  wards_destroyed: 'Wards Destroyed',
+  kill_participation: 'Kill Participation',
+  damage_percentage: 'Damage %',
+  double_kill: 'Double Kill',
+  triple_kill: 'Triple Kill',
+  quadra_kill: 'Quadra Kill',
+  penta_kill: 'Penta Kill',
+  match_win: 'Match Win',
+  match_sweep: 'Match Sweep',
+  dragon: 'Dragon',
+  elder_dragon: 'Elder Dragon',
+  baron: 'Baron',
+  tower: 'Tower',
+  inhibitor: 'Inhibitor',
+  soul: 'Dragon Soul',
+}
+
+// Grouping drives BOTH the read and edit layouts.
+// NOTE: 'kills' must remain the first field of the first group — tests target inputs[0].
+type Group = { title: string; color: string; keys: Key[] }
+const groups: Group[] = [
+  { title: 'Combat', color: '#3b82f6', keys: ['kills', 'deaths', 'assists', 'kill_participation', 'damage_percentage'] },
+  { title: 'Vision & Farm', color: '#06b6d4', keys: ['cspm', 'wards_placed', 'wards_destroyed'] },
+  { title: 'Multikills', color: '#f59e0b', keys: ['double_kill', 'triple_kill', 'quadra_kill', 'penta_kill'] },
+  { title: 'Objectives', color: '#22c55e', keys: ['match_win', 'match_sweep', 'dragon', 'elder_dragon', 'baron', 'tower', 'inhibitor', 'soul'] },
 ]
 
-const teamLabels: { key: keyof FantasyLeagueScoringSettings; label: string }[] = [
-  { key: 'match_win', label: 'Match Win' },
-  { key: 'match_sweep', label: 'Match Sweep' },
-  { key: 'dragon', label: 'Dragon' },
-  { key: 'elder_dragon', label: 'Elder Dragon' },
-  { key: 'baron', label: 'Baron' },
-  { key: 'tower', label: 'Tower' },
-  { key: 'inhibitor', label: 'Inhibitor' },
-  { key: 'soul', label: 'Dragon Soul' },
-]
-
-const allFields = [...playerLabels, ...teamLabels]
-
+const allKeys: Key[] = groups.flatMap((g) => g.keys)
 const integerFields = new Set<string>(['kills', 'deaths'])
 
 const editing = ref(false)
@@ -52,8 +60,8 @@ const editValues = reactive<Record<string, number>>({})
 
 function startEditing() {
   if (!props.scoring) return
-  for (const field of allFields) {
-    editValues[field.key] = props.scoring[field.key] as number
+  for (const key of allKeys) {
+    editValues[key] = props.scoring[key] as number
   }
   saveError.value = ''
   editing.value = true
@@ -116,113 +124,62 @@ defineExpose({ startEditing })
     </div>
     <div v-else-if="error" class="text-sm text-danger">{{ error }}</div>
     <div v-else-if="scoring" class="flex flex-col gap-4">
-      <!-- Read-only view -->
-      <template v-if="!editing">
-        <div class="rounded-xl border border-border-subtle overflow-hidden">
-          <div class="bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
-            Player Scoring
-          </div>
-          <table class="w-full">
-            <thead>
-              <tr class="bg-surface-elevated text-xs text-foreground-muted uppercase tracking-wider">
-                <th class="px-4 py-3 text-left">Stat</th>
-                <th class="px-4 py-3 text-right">Points</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border-subtle">
-              <tr v-for="row in playerLabels" :key="row.key" class="bg-surface">
-                <td class="px-4 py-3 text-sm text-foreground">{{ row.label }}</td>
-                <td class="px-4 py-3 text-sm text-foreground text-right font-mono">
-                  {{ scoring[row.key] }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <!-- Optional edit hint -->
+      <p v-if="editing" class="text-xs text-foreground-muted">
+        Adjust the points awarded for each stat, then save your changes.
+      </p>
 
-        <div class="rounded-xl border border-border-subtle overflow-hidden">
-          <div class="bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
-            Team Scoring
+      <!-- Grouped category cards (shared layout for read + edit) -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div
+          v-for="group in groups"
+          :key="group.title"
+          class="rounded-2xl border bg-surface p-5 transition-colors"
+          :class="editing ? 'border-primary/30' : 'border-border-subtle'"
+        >
+          <div class="flex items-center gap-2 mb-4">
+            <span
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+              :style="{ background: `${group.color}1a`, color: group.color }"
+            >
+              {{ group.title.slice(0, 1) }}
+            </span>
+            <h3 class="text-sm font-semibold text-foreground">{{ group.title }}</h3>
           </div>
-          <table class="w-full">
-            <thead>
-              <tr class="bg-surface-elevated text-xs text-foreground-muted uppercase tracking-wider">
-                <th class="px-4 py-3 text-left">Stat</th>
-                <th class="px-4 py-3 text-right">Points</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border-subtle">
-              <tr v-for="row in teamLabels" :key="row.key" class="bg-surface">
-                <td class="px-4 py-3 text-sm text-foreground">{{ row.label }}</td>
-                <td class="px-4 py-3 text-sm text-foreground text-right font-mono">
-                  {{ scoring[row.key] }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </template>
 
-      <!-- Edit form -->
-      <template v-else>
-        <div class="rounded-xl border border-border-subtle overflow-hidden">
-          <div class="bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
-            Player Scoring
+          <div class="flex flex-col">
+            <div
+              v-for="key in group.keys"
+              :key="key"
+              class="flex items-center justify-between gap-3 py-2 border-b border-border-subtle/50 last:border-0"
+            >
+              <span class="text-sm text-foreground-muted">{{ labelFor[key] }}</span>
+
+              <!-- Read: static value -->
+              <span
+                v-if="!editing"
+                class="text-sm font-bold tabular-nums"
+                :class="(scoring[key] as number) < 0 ? 'text-danger' : 'text-foreground'"
+              >
+                {{ scoring[key] }}
+              </span>
+
+              <!-- Edit: inline number input -->
+              <input
+                v-else
+                v-model.number="editValues[key]"
+                type="number"
+                :step="integerFields.has(key) ? '1' : 'any'"
+                class="w-20 rounded-md bg-surface-elevated border border-border-subtle px-2 py-1 text-sm text-foreground text-right font-mono tabular-nums focus:outline-none focus:border-primary"
+              />
+            </div>
           </div>
-          <table class="w-full">
-            <thead>
-              <tr class="bg-surface-elevated text-xs text-foreground-muted uppercase tracking-wider">
-                <th class="px-4 py-3 text-left">Stat</th>
-                <th class="px-4 py-3 text-right">Points</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border-subtle">
-              <tr v-for="row in playerLabels" :key="row.key" class="bg-surface">
-                <td class="px-4 py-3 text-sm text-foreground">{{ row.label }}</td>
-                <td class="px-4 py-3 text-right">
-                  <input
-                    v-model.number="editValues[row.key]"
-                    type="number"
-                    :step="integerFields.has(row.key) ? '1' : 'any'"
-                    class="w-20 rounded-md bg-surface-elevated border border-border-subtle px-2 py-1 text-sm text-foreground text-right font-mono focus:outline-none focus:border-primary"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
+      </div>
 
-        <div class="rounded-xl border border-border-subtle overflow-hidden">
-          <div class="bg-surface-elevated px-4 py-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
-            Team Scoring
-          </div>
-          <table class="w-full">
-            <thead>
-              <tr class="bg-surface-elevated text-xs text-foreground-muted uppercase tracking-wider">
-                <th class="px-4 py-3 text-left">Stat</th>
-                <th class="px-4 py-3 text-right">Points</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border-subtle">
-              <tr v-for="row in teamLabels" :key="row.key" class="bg-surface">
-                <td class="px-4 py-3 text-sm text-foreground">{{ row.label }}</td>
-                <td class="px-4 py-3 text-right">
-                  <input
-                    v-model.number="editValues[row.key]"
-                    type="number"
-                    :step="integerFields.has(row.key) ? '1' : 'any'"
-                    class="w-20 rounded-md bg-surface-elevated border border-border-subtle px-2 py-1 text-sm text-foreground text-right font-mono focus:outline-none focus:border-primary"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Error -->
+      <!-- Edit actions -->
+      <template v-if="editing">
         <p v-if="saveError" class="text-xs text-danger">{{ saveError }}</p>
-
-        <!-- Actions -->
         <div class="flex justify-end gap-3">
           <button
             type="button"

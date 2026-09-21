@@ -8,6 +8,7 @@ import {
   getLeagueSettings,
   getLeagueScoringSettings,
   getDraftOrder,
+  getLeaderboard,
   leaveLeague,
   startDraft,
 } from '../api/fantasyApi'
@@ -15,13 +16,21 @@ import type {
   LeagueMember,
   DraftOrderEntry,
 } from '../api/fantasyApi'
-import type { FantasyLeague, FantasyLeagueSettings, FantasyLeagueScoringSettings } from '../types/fantasy'
+import type {
+  FantasyLeague,
+  FantasyLeagueSettings,
+  FantasyLeagueScoringSettings,
+  LeaderboardResponse,
+} from '../types/fantasy'
+import LeagueHero from '../components/leagues/LeagueHero.vue'
 import MembersTab from '../components/leagues/MembersTab.vue'
 import SettingsTab from '../components/leagues/SettingsTab.vue'
 import ScoringTab from '../components/leagues/ScoringTab.vue'
 import DraftOrderTab from '../components/leagues/DraftOrderTab.vue'
 import LeaderboardTab from '../components/leagues/LeaderboardTab.vue'
 import WeekScoresTab from '../components/leagues/WeekScoresTab.vue'
+import MyRosterTab from '../components/leagues/MyRosterTab.vue'
+import InviteMemberModal from '../components/leagues/InviteMemberModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,17 +43,16 @@ const settingsTabRef = ref<InstanceType<typeof SettingsTab> | null>(null)
 const scoringTabRef = ref<InstanceType<typeof ScoringTab> | null>(null)
 
 const isOwner = computed(() => !!auth.userId && league.value?.owner_id === auth.userId)
-const acceptedCount = computed(() => members.value.filter(m => m.status === 'accepted').length)
-const isFull = computed(() => !!league.value && acceptedCount.value >= league.value.number_of_teams)
+const isActive = computed(() => league.value?.status === 'active' || league.value?.status === 'completed')
 
-type Tab = 'standings' | 'scores' | 'members' | 'settings' | 'scoring' | 'draft-order'
+type Tab = 'standings' | 'scores' | 'roster' | 'members' | 'settings' | 'scoring' | 'draft-order'
 const activeTab = ref<Tab>('members')
 const tabs = computed(() => {
-  const isActive = league.value?.status === 'active' || league.value?.status === 'completed'
   const base: { key: Tab; label: string }[] = []
-  if (isActive) {
+  if (isActive.value) {
     base.push({ key: 'standings', label: 'Standings' })
     base.push({ key: 'scores', label: 'Scores' })
+    base.push({ key: 'roster', label: 'My Roster' })
   }
   base.push({ key: 'members', label: 'Members' })
   base.push({ key: 'settings', label: 'Settings' })
@@ -52,6 +60,10 @@ const tabs = computed(() => {
   base.push({ key: 'draft-order', label: 'Draft Order' })
   return base
 })
+
+const canEditActiveTab = computed(
+  () => isOwner.value && league.value?.status === 'pre-draft' && (activeTab.value === 'settings' || activeTab.value === 'scoring'),
+)
 
 // Per-tab data
 const members = ref<LeagueMember[]>([])
@@ -70,9 +82,27 @@ const draftOrder = ref<DraftOrderEntry[]>([])
 const draftOrderLoading = ref(false)
 const draftOrderError = ref('')
 
+const leaderboard = ref<LeaderboardResponse | null>(null)
+
 const startingDraft = ref(false)
 const startDraftError = ref('')
 const leavingLeague = ref(false)
+const showInviteModal = ref(false)
+
+// Hero stats: only meaningful once the season is under way (active/completed).
+const heroStats = computed(() => {
+  const lb = leaderboard.value
+  if (!lb || !isActive.value) return null
+  const me = lb.members.find((m) => m.user_id === auth.userId)
+  if (!me) return null
+  const second = lb.members.find((m) => m.position === 2)
+  const leader = lb.members.find((m) => m.position === 1) ?? lb.members[0]
+  const pointsBehind =
+    me.position === 1
+      ? me.total_points - (second?.total_points ?? me.total_points)
+      : (leader?.total_points ?? me.total_points) - me.total_points
+  return { rank: me.position, points: me.total_points, pointsBehind, week: lb.current_week }
+})
 
 async function fetchAll() {
   membersLoading.value = true
@@ -88,9 +118,14 @@ async function fetchAll() {
     getDraftOrder(leagueId).then(d => { draftOrder.value = d }).catch(() => { draftOrderError.value = 'Unable to load draft order.' }).finally(() => { draftOrderLoading.value = false }),
   ])
 
-  // Default to standings tab when league is active/completed
-  if (league.value?.status === 'active' || league.value?.status === 'completed') {
+  // Standings/Scores + hero stats only apply once active/completed.
+  if (isActive.value) {
     activeTab.value = 'standings'
+    try {
+      leaderboard.value = await getLeaderboard(leagueId)
+    } catch {
+      // stats simply stay hidden
+    }
   }
 }
 
@@ -135,97 +170,71 @@ async function onStartDraft() {
   }
 }
 
-const statusColors: Record<string, string> = {
-  'pre-draft': '#f59e0b',
-  draft: '#3b82f6',
-  active: '#22c55e',
-  completed: '#64748b',
+function onJoinDraft() {
+  router.push({ name: 'league-draft', params: { id: leagueId } })
+}
+
+function onInviteShortcut() {
+  showInviteModal.value = true
+}
+
+function triggerEdit() {
+  if (activeTab.value === 'settings') settingsTabRef.value?.startEditing()
+  else if (activeTab.value === 'scoring') scoringTabRef.value?.startEditing()
 }
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
-    <!-- Header -->
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <h2 class="text-lg font-semibold text-foreground">{{ league?.name ?? 'League' }}</h2>
-        <div class="flex items-center gap-3 mt-1">
-          <span
-            v-if="league"
-            class="text-xs font-bold px-2 py-0.5 rounded-md capitalize"
-            :style="{
-              background: `${statusColors[league.status] ?? '#64748b'}1a`,
-              color: statusColors[league.status] ?? '#64748b',
-            }"
-          >
-            {{ league.status }}
-          </span>
-          <span class="text-sm text-foreground-muted">
-            {{ acceptedCount }}/{{ league?.number_of_teams ?? '?' }} members
-          </span>
-        </div>
-      </div>
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-foreground-muted">
+      <RouterLink :to="{ name: 'leagues' }" class="hover:text-foreground transition-colors">My Leagues</RouterLink>
+      <span class="opacity-50">/</span>
+      <span class="text-foreground font-medium">{{ league?.name ?? 'League' }}</span>
+    </nav>
 
-      <div class="flex flex-col items-end gap-1">
-        <!-- Anyone: Join Draft (when league is in draft) -->
-        <button
-          v-if="league?.status === 'draft'"
-          class="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary-hover transition-colors"
-          @click="router.push({ name: 'league-draft', params: { id: leagueId } })"
-        >
-          Join Draft
-        </button>
-        <!-- Owner: Start Draft (only during pre-draft) -->
-        <template v-else-if="isOwner && league?.status === 'pre-draft'">
-          <button
-            class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-            :class="isFull
-              ? 'bg-primary text-white hover:bg-primary-hover'
-              : 'bg-surface border border-border-subtle text-foreground-muted cursor-not-allowed'"
-            :disabled="!isFull || startingDraft"
-            @click="onStartDraft"
-          >
-            {{ startingDraft ? 'Starting…' : 'Start Draft' }}
-          </button>
-          <p v-if="startDraftError" class="text-xs text-danger">{{ startDraftError }}</p>
-          <p v-if="!isFull" class="text-xs text-foreground-muted">
-            Need {{ (league?.number_of_teams ?? 0) - acceptedCount }} more member(s) to start
-          </p>
-        </template>
-        <!-- Non-owner: Leave (only during pre-draft) -->
-        <button
-          v-else-if="!isOwner && league?.status === 'pre-draft'"
-          class="px-4 py-2 rounded-lg border border-border-subtle text-sm text-foreground-muted hover:text-foreground transition-colors"
-          :disabled="leavingLeague"
-          @click="onLeave"
-        >
-          {{ leavingLeague ? 'Leaving…' : 'Leave League' }}
-        </button>
-      </div>
-    </div>
+    <!-- Hero -->
+    <LeagueHero
+      :league="league"
+      :members="members"
+      :is-owner="isOwner"
+      :current-user-id="auth.userId ?? ''"
+      :starting="startingDraft"
+      :leaving="leavingLeague"
+      :start-error="startDraftError"
+      :stats="heroStats"
+      @start-draft="onStartDraft"
+      @leave="onLeave"
+      @join-draft="onJoinDraft"
+      @invite="onInviteShortcut"
+    />
 
     <!-- Tabs -->
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex gap-1 p-1 rounded-lg bg-surface border border-border-subtle w-fit">
+    <div class="sticky top-0 z-20 -mx-1 px-1 py-2 bg-background/80 backdrop-blur border-b border-border-subtle">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-1 overflow-x-auto">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            data-testid="league-tab"
+            class="relative px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+            :class="activeTab === tab.key
+              ? 'text-foreground bg-surface'
+              : 'text-foreground-muted hover:text-foreground hover:bg-surface/50'"
+            @click="activeTab = tab.key"
+          >
+            {{ tab.label }}
+            <span v-if="activeTab === tab.key" class="absolute left-3 right-3 -bottom-2 h-0.5 rounded-full bg-primary" />
+          </button>
+        </div>
         <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="px-4 py-1.5 rounded-md text-xs font-medium transition-colors"
-          :class="activeTab === tab.key
-            ? 'bg-primary text-white'
-            : 'text-foreground-muted hover:text-foreground'"
-          @click="activeTab = tab.key"
+          v-if="canEditActiveTab"
+          class="shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium bg-surface-elevated border border-border-subtle text-foreground hover:bg-primary hover:text-white transition-colors"
+          @click="triggerEdit"
         >
-          {{ tab.label }}
+          Edit
         </button>
       </div>
-      <button
-        v-if="isOwner && league?.status === 'pre-draft' && (activeTab === 'settings' || activeTab === 'scoring')"
-        class="px-4 py-1.5 rounded-lg text-sm font-medium bg-surface-elevated border border-border-subtle text-foreground hover:bg-primary hover:text-white transition-colors"
-        @click="activeTab === 'settings' ? settingsTabRef?.startEditing() : scoringTabRef?.startEditing()"
-      >
-        Edit
-      </button>
     </div>
 
     <!-- Tab content -->
@@ -239,15 +248,17 @@ const statusColors: Record<string, string> = {
       :current-week="league?.current_week ?? 1"
       :start-week="league?.start_week ?? 1"
     />
+    <MyRosterTab
+      v-if="activeTab === 'roster'"
+      :league-id="leagueId"
+      :current-week="league?.current_week ?? 1"
+    />
     <MembersTab
       v-if="activeTab === 'members'"
-      :league-id="leagueId"
       :members="members"
-      :editable="isOwner && league?.status === 'pre-draft'"
       :owner-id="league?.owner_id ?? ''"
       :loading="membersLoading"
       :error="membersError"
-      @invited="onInvited"
     />
     <SettingsTab
       v-else-if="activeTab === 'settings'"
@@ -276,6 +287,14 @@ const statusColors: Record<string, string> = {
       :editable="isOwner && league?.status === 'pre-draft'"
       :loading="draftOrderLoading"
       :error="draftOrderError"
+    />
+
+    <!-- Invite modal -->
+    <InviteMemberModal
+      v-if="showInviteModal"
+      :league-id="leagueId"
+      @invited="onInvited"
+      @close="showInviteModal = false"
     />
   </div>
 </template>

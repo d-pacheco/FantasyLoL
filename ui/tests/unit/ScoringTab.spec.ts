@@ -56,6 +56,15 @@ describe('ScoringTab', () => {
     expect(wrapper.text()).toContain('-1')
   })
 
+  it('groups scoring into readable categories in read-only mode', () => {
+    const wrapper = mount(ScoringTab, { props: defaultProps })
+    const text = wrapper.text()
+    expect(text).toContain('Combat')
+    expect(text).toContain('Vision')
+    expect(text).toContain('Multikills')
+    expect(text).toContain('Objectives')
+  })
+
   it('exposes startEditing and shows numeric inputs when called', async () => {
     const wrapper = mount(ScoringTab, {
       props: { ...defaultProps, editable: true },

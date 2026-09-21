@@ -1,41 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { inviteToLeague } from '../../api/fantasyApi'
+import { computed } from 'vue'
 import type { LeagueMember } from '../../api/fantasyApi'
 
 const props = defineProps<{
-  leagueId: string
   members: LeagueMember[]
-  editable: boolean
   ownerId: string
   loading: boolean
   error: string
 }>()
 
-const emit = defineEmits<{
-  invited: [username: string]
-}>()
+const acceptedCount = computed(() => props.members.filter((m) => m.status === 'accepted').length)
 
-const inviteUsername = ref('')
-const inviteError = ref('')
-const inviting = ref(false)
-
-async function sendInvite() {
-  if (!inviteUsername.value.trim()) return
-  inviting.value = true
-  inviteError.value = ''
-  try {
-    await inviteToLeague(props.leagueId, inviteUsername.value.trim())
-    emit('invited', inviteUsername.value.trim())
-    inviteUsername.value = ''
-  } catch (e: unknown) {
-    const status = (e as { response?: { status: number } })?.response?.status
-    if (status === 404) inviteError.value = 'User not found.'
-    else if (status === 409) inviteError.value = 'User already invited or league is full.'
-    else inviteError.value = 'Failed to send invite.'
-  } finally {
-    inviting.value = false
-  }
+const AVATAR_COLORS = ['#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#06b6d4', '#ef4444', '#ec4899', '#14b8a6', '#eab308', '#8b5cf6']
+function avatarColor(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % AVATAR_COLORS.length
+  return AVATAR_COLORS[h]
+}
+function initials(name: string): string {
+  return name.slice(0, 2).toUpperCase()
 }
 </script>
 
@@ -48,65 +31,57 @@ async function sendInvite() {
     <div v-else-if="error" class="text-sm text-danger">{{ error }}</div>
 
     <template v-else>
-      <!-- Accepted -->
-      <div>
-        <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-2">Members</h3>
-        <div class="flex flex-col divide-y divide-border-subtle rounded-xl border border-border-subtle overflow-hidden">
-          <div
-            v-for="m in members.filter(m => m.status === 'accepted')"
-            :key="m.user_id"
-            class="flex items-center gap-3 px-4 py-3 bg-surface"
-          >
-            <div class="w-7 h-7 rounded-full bg-surface-elevated flex items-center justify-center text-xs font-bold text-foreground-muted">
-              {{ m.username.slice(0, 2).toUpperCase() }}
-            </div>
-            <span class="text-sm text-foreground">{{ m.username }}</span>
-            <span v-if="m.user_id === ownerId" class="ml-auto text-xs text-foreground-muted">owner</span>
-          </div>
-          <div v-if="members.filter(m => m.status === 'accepted').length === 0" class="px-4 py-3 text-sm text-foreground-muted bg-surface">
-            No members yet.
-          </div>
-        </div>
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-semibold text-foreground">
+          Members
+          <span class="text-foreground-muted font-normal">({{ acceptedCount }})</span>
+        </h3>
       </div>
 
-      <!-- Pending -->
-      <div v-if="members.filter(m => m.status === 'pending').length > 0">
-        <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-2">Pending Invites</h3>
-        <div class="flex flex-col divide-y divide-border-subtle rounded-xl border border-border-subtle overflow-hidden">
+      <!-- Member cards -->
+      <div v-if="members.length > 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div
+          v-for="m in members"
+          :key="m.user_id"
+          data-testid="member-card"
+          class="rounded-xl border border-border-subtle bg-surface p-4 flex items-center gap-3"
+        >
           <div
-            v-for="m in members.filter(m => m.status === 'pending')"
-            :key="m.user_id"
-            class="flex items-center gap-3 px-4 py-3 bg-surface"
+            class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
+            :style="{ background: avatarColor(m.username) }"
           >
-            <div class="w-7 h-7 rounded-full bg-surface-elevated flex items-center justify-center text-xs font-bold text-foreground-muted">
-              {{ m.username.slice(0, 2).toUpperCase() }}
-            </div>
-            <span class="text-sm text-foreground">{{ m.username }}</span>
-            <span class="ml-auto text-xs text-foreground-muted">pending</span>
+            {{ initials(m.username) }}
           </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-foreground truncate flex items-center gap-1.5">
+              {{ m.username }}
+              <svg
+                v-if="m.user_id === ownerId"
+                data-testid="owner-badge"
+                class="w-3.5 h-3.5 text-accent"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-label="Owner"
+              >
+                <title>Owner</title>
+                <path d="M5 16L3 6l5.5 4L12 4l3.5 6L21 6l-2 10H5z" />
+              </svg>
+            </p>
+            <p class="text-xs text-foreground-muted">{{ m.user_id === ownerId ? 'Commissioner' : 'Manager' }}</p>
+          </div>
+          <span
+            class="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide shrink-0"
+            :style="m.status === 'accepted'
+              ? { background: 'rgba(34,197,94,0.12)', color: '#22c55e' }
+              : { background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }"
+          >
+            {{ m.status }}
+          </span>
         </div>
       </div>
-
-      <!-- Invite (editable only) -->
-      <div v-if="editable">
-        <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-2">Invite Player</h3>
-        <div class="flex gap-2">
-          <input
-            v-model="inviteUsername"
-            type="text"
-            placeholder="Enter username..."
-            class="flex-1 rounded-lg bg-surface border border-border-subtle px-4 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-primary"
-            @keydown.enter="sendInvite"
-          />
-          <button
-            class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50"
-            :disabled="!inviteUsername.trim() || inviting"
-            @click="sendInvite"
-          >
-            {{ inviting ? 'Sending…' : 'Send Invite' }}
-          </button>
-        </div>
-        <p v-if="inviteError" class="mt-1.5 text-xs text-danger">{{ inviteError }}</p>
+      <div v-else class="rounded-xl border border-border-subtle bg-surface px-4 py-3 text-sm text-foreground-muted">
+        No members yet.
       </div>
     </template>
   </div>

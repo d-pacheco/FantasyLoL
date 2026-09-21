@@ -63,4 +63,13 @@ describe('DraftOrderTab', () => {
       { user_id: 'u3', username: 'Charlie', position: 3 },
     ])
   })
+
+  it('shows snake-draft context and position numbers', () => {
+    const wrapper = mount(DraftOrderTab, { props: defaultProps })
+    expect(wrapper.text().toLowerCase()).toContain('snake')
+    const text = wrapper.text()
+    expect(text).toContain('1')
+    expect(text).toContain('2')
+    expect(text).toContain('3')
+  })
 })

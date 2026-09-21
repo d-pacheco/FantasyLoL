@@ -101,42 +101,51 @@ async function save() {
     </div>
     <div v-else-if="error" class="text-sm text-danger">{{ error }}</div>
     <div v-else-if="settings" class="flex flex-col gap-4">
-      <!-- Read-only view -->
-      <div v-if="!editing" class="rounded-xl border border-border-subtle overflow-hidden">
-        <table class="w-full">
-          <tbody class="divide-y divide-border-subtle">
-            <tr class="bg-surface">
-              <td class="px-4 py-3 text-xs font-medium text-foreground-muted w-40">League Name</td>
-              <td class="px-4 py-3 text-sm text-foreground">{{ settings.name }}</td>
-            </tr>
-            <tr class="bg-surface">
-              <td class="px-4 py-3 text-xs font-medium text-foreground-muted">Number of Teams</td>
-              <td class="px-4 py-3 text-sm text-foreground">{{ settings.number_of_teams }}</td>
-            </tr>
-            <tr class="bg-surface">
-              <td class="px-4 py-3 text-xs font-medium text-foreground-muted">Available Leagues</td>
-              <td class="px-4 py-3 text-sm text-foreground">
-                <template v-if="resolvedLeagues.length === 0">—</template>
-                <span
-                  v-for="league in resolvedLeagues"
-                  :key="league.id"
-                  class="inline-flex items-center gap-1.5 mr-2 px-2 py-0.5 rounded-md bg-surface-elevated border border-border-subtle"
-                >
-                  <img
-                    v-if="league.image"
-                    :src="league.image"
-                    :alt="league.name"
-                    class="w-4 h-4 object-contain"
-                  />
-                  <span>{{ league.name }}</span>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Read-only view: labelled rows -->
+      <div v-if="!editing" class="rounded-2xl border border-border-subtle bg-surface divide-y divide-border-subtle/60">
+        <div class="flex items-center justify-between gap-4 px-5 py-4">
+          <div>
+            <p class="text-sm font-medium text-foreground">League Name</p>
+            <p class="text-xs text-foreground-muted mt-0.5">Displayed across the app</p>
+          </div>
+          <span class="text-sm font-semibold text-foreground text-right">{{ settings.name }}</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 px-5 py-4">
+          <div>
+            <p class="text-sm font-medium text-foreground">Number of Teams</p>
+            <p class="text-xs text-foreground-muted mt-0.5">Managers in this league</p>
+          </div>
+          <span class="text-sm font-semibold text-foreground text-right">{{ settings.number_of_teams }}</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 px-5 py-4">
+          <div>
+            <p class="text-sm font-medium text-foreground">Available Leagues</p>
+            <p class="text-xs text-foreground-muted mt-0.5">Regions players can be drafted from</p>
+          </div>
+          <div class="flex flex-wrap justify-end gap-2">
+            <template v-if="resolvedLeagues.length === 0">
+              <span class="text-sm text-foreground-muted">—</span>
+            </template>
+            <span
+              v-for="league in resolvedLeagues"
+              :key="league.id"
+              class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-elevated border border-border-subtle text-sm text-foreground"
+            >
+              <img
+                v-if="league.image"
+                :src="league.image"
+                :alt="league.name"
+                class="w-4 h-4 object-contain"
+              />
+              <span>{{ league.name }}</span>
+            </span>
+          </div>
+        </div>
       </div>
 
-      <!-- Edit form -->
+      <!-- Edit form (unchanged) -->
       <div v-else class="flex flex-col gap-4">
         <!-- Name -->
         <div>
