@@ -37,3 +37,28 @@ class TestTimestampUtil:
         result = TimestampUtil.round_to_10_seconds("2024-01-01T12:34:59.999999Z")
         parsed = datetime.strptime(result, "%Y-%m-%dT%H:%M:%S.%fZ")
         assert 0 <= parsed.second <= 59
+
+    def test_round_to_10_seconds_without_fractional_seconds(self):
+        """Riot sometimes omits fractional seconds; parsing must not crash."""
+        result = TimestampUtil.round_to_10_seconds("2024-01-01T00:00:57Z")
+        assert result == "2024-01-01T00:00:50.000000Z"
+
+    def test_add_10_seconds_without_fractional_seconds(self):
+        result = TimestampUtil.add_10_seconds("2024-01-01T00:00:05Z")
+        assert result == "2024-01-01T00:00:15.000000Z"
+
+    def test_add_10_seconds_with_fractional_seconds(self):
+        result = TimestampUtil.add_10_seconds("2024-01-01T00:00:05.500000Z")
+        assert result == "2024-01-01T00:00:15.500000Z"
+
+    def test_parse_iso8601_accepts_both_formats(self):
+        with_frac = TimestampUtil.parse_iso8601("2024-01-01T00:00:05.250000Z")
+        without_frac = TimestampUtil.parse_iso8601("2024-01-01T00:00:05Z")
+        assert with_frac.microsecond == 250000
+        assert without_frac.microsecond == 0
+
+    def test_parse_rejects_unsupported_format(self):
+        import pytest
+
+        with pytest.raises(ValueError):
+            TimestampUtil.round_to_10_seconds("not-a-timestamp")
