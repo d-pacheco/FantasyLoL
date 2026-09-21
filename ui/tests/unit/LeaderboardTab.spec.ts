@@ -79,4 +79,37 @@ describe('LeaderboardTab', () => {
 
     expect(wrapper.text()).toContain('Unable to load standings')
   })
+
+  it('renders a podium for the top 3 members', async () => {
+    const wrapper = mount(LeaderboardTab, { props: defaultProps })
+    await flushPromises()
+
+    const podium = wrapper.findAll('[data-testid="podium-spot"]')
+    expect(podium.length).toBe(3)
+    // Top spot is the rank-1 member
+    expect(podium.some(p => p.text().includes('ProGamer99'))).toBe(true)
+    expect(podium.some(p => p.text().includes('Summoner42'))).toBe(true)
+    expect(podium.some(p => p.text().includes('MidLaneMaster'))).toBe(true)
+  })
+
+  it('still lists every member in the standings table', async () => {
+    const wrapper = mount(LeaderboardTab, { props: defaultProps })
+    await flushPromises()
+
+    const rows = wrapper.findAll('[data-testid="leaderboard-row"]')
+    expect(rows.length).toBe(4)
+  })
+
+  it('does not render a podium when there are fewer than 3 members', async () => {
+    mockGetLeaderboard.mockResolvedValue({
+      ...leaderboardData,
+      members: leaderboardData.members.slice(0, 2),
+    })
+    const wrapper = mount(LeaderboardTab, { props: defaultProps })
+    await flushPromises()
+
+    expect(wrapper.findAll('[data-testid="podium-spot"]').length).toBe(0)
+    // table still shows the 2 members
+    expect(wrapper.findAll('[data-testid="leaderboard-row"]').length).toBe(2)
+  })
 })

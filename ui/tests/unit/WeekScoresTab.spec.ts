@@ -82,6 +82,12 @@ describe('WeekScoresTab', () => {
     expect(mockGetWeekScores).toHaveBeenCalledWith('league-1', 5)
   })
 
+  it('shows a Weekly Scores heading', async () => {
+    const wrapper = mount(WeekScoresTab, { props: defaultProps })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Weekly Scores')
+  })
+
   it('navigates to previous week on left arrow click', async () => {
     const wrapper = mount(WeekScoresTab, { props: defaultProps })
     await flushPromises()

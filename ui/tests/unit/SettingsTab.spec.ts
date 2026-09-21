@@ -57,6 +57,15 @@ describe('SettingsTab', () => {
     expect(wrapper.text()).not.toContain('riot-league-lcs')
   })
 
+  it('renders settings as labelled rows including team count', async () => {
+    const wrapper = mount(SettingsTab, { props: defaultProps })
+    await flushPromises()
+    expect(wrapper.text()).toContain('League Name')
+    expect(wrapper.text()).toContain('Number of Teams')
+    expect(wrapper.text()).toContain('6')
+    expect(wrapper.text()).toContain('Available Leagues')
+  })
+
   it('displays league icon alongside name', async () => {
     const wrapper = mount(SettingsTab, { props: defaultProps })
     await flushPromises()

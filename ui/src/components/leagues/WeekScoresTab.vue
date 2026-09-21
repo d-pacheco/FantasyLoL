@@ -105,37 +105,40 @@ function getSlotName(slot: RosterSlotScore): string {
       <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
     <div v-else-if="error" class="text-sm text-danger">{{ error }}</div>
-    <div v-else-if="weekData" class="flex flex-col gap-4">
-      <!-- Week navigation -->
-      <div class="flex items-center gap-3">
-        <button
-          data-testid="prev-week"
-          class="w-8 h-8 rounded-lg bg-surface-elevated border border-border-subtle flex items-center justify-center text-foreground-muted hover:text-foreground transition-colors disabled:opacity-30"
-          :disabled="selectedWeek <= actualStartWeek"
-          @click="prevWeek"
-        >
-          ◀
-        </button>
-        <span class="text-sm font-semibold text-foreground">Week {{ selectedWeek }}</span>
-        <button
-          data-testid="next-week"
-          class="w-8 h-8 rounded-lg bg-surface-elevated border border-border-subtle flex items-center justify-center text-foreground-muted hover:text-foreground transition-colors disabled:opacity-30"
-          :disabled="selectedWeek >= actualCurrentWeek"
-          @click="nextWeek"
-        >
-          ▶
-        </button>
+    <div v-else-if="weekData" class="flex flex-col gap-5">
+      <!-- Header + week navigation -->
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="text-base font-semibold text-foreground">Weekly Scores</h2>
+        <div class="flex items-center gap-1 rounded-lg bg-surface border border-border-subtle p-1">
+          <button
+            data-testid="prev-week"
+            class="w-8 h-8 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            :disabled="selectedWeek <= actualStartWeek"
+            @click="prevWeek"
+          >
+            ◀
+          </button>
+          <span class="px-3 text-sm font-semibold text-foreground w-20 text-center">Week {{ selectedWeek }}</span>
+          <button
+            data-testid="next-week"
+            class="w-8 h-8 rounded-md flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            :disabled="selectedWeek >= actualCurrentWeek"
+            @click="nextWeek"
+          >
+            ▶
+          </button>
+        </div>
       </div>
 
       <!-- Member cards -->
       <div
         v-for="member in weekData.members"
         :key="member.user_id"
-        class="rounded-xl border overflow-hidden"
+        class="rounded-2xl border overflow-hidden"
         :class="member.user_id === auth.userId ? 'border-primary/40 bg-primary/5' : 'border-border-subtle bg-surface'"
       >
         <!-- Member header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-border-subtle">
           <span class="text-sm font-semibold text-foreground">
             {{ member.username }}
             <span v-if="member.user_id === auth.userId" class="text-xs text-foreground-muted ml-1">(You)</span>
@@ -153,7 +156,7 @@ function getSlotName(slot: RosterSlotScore): string {
           >
             <div
               data-testid="roster-row"
-              class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-surface-elevated transition-colors"
+              class="flex items-center gap-3 px-5 py-2.5 cursor-pointer hover:bg-surface-elevated transition-colors"
               @click="toggleSlot(member.user_id, slot)"
             >
               <!-- Role badge -->
@@ -175,26 +178,46 @@ function getSlotName(slot: RosterSlotScore): string {
               </span>
 
               <!-- Expand indicator -->
-              <span class="text-xs text-foreground-muted shrink-0">
-                {{ isExpanded(member.user_id, slot) ? '▾' : '▸' }}
-              </span>
+              <svg
+                class="w-4 h-4 text-foreground-muted shrink-0 transition-transform"
+                :class="isExpanded(member.user_id, slot) ? 'rotate-180' : ''"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
             </div>
 
             <!-- Expanded breakdown -->
             <div
               v-if="isExpanded(member.user_id, slot) && member.roster[slot] && Object.keys(member.roster[slot].breakdown).length > 0"
-              class="px-4 py-2 bg-surface-elevated border-t border-border-subtle"
+              class="px-5 pt-1 pb-3 bg-background/40 border-t border-border-subtle"
             >
-              <div class="flex flex-wrap gap-x-4 gap-y-1">
-                <span
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-foreground-muted py-2">
+                Points Breakdown
+              </p>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div
                   v-for="(entry, category) in member.roster[slot].breakdown"
                   :key="category"
-                  class="text-xs text-foreground-muted"
+                  class="flex items-center justify-between gap-2 rounded-lg bg-surface border border-border-subtle/60 px-3 py-2"
                 >
-                  <span class="font-medium text-foreground">{{ category }}</span>:
-                  <span class="text-foreground">{{ typeof entry === 'object' ? Number(entry.value).toFixed(1) : '' }}</span>
-                  <span :class="(typeof entry === 'object' ? entry.points : Number(entry)) < 0 ? 'text-danger' : 'text-success'">({{ typeof entry === 'object' ? Number(entry.points).toFixed(1) : Number(entry).toFixed(1) }} pts)</span>
-                </span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-medium text-foreground capitalize truncate">{{ category }}</p>
+                    <p class="text-[11px] text-foreground-muted tabular-nums">
+                      {{ typeof entry === 'object' ? Number(entry.value).toFixed(1) : '' }}
+                    </p>
+                  </div>
+                  <span
+                    class="text-xs font-bold tabular-nums shrink-0"
+                    :class="(typeof entry === 'object' ? entry.points : Number(entry)) < 0 ? 'text-danger' : 'text-success'"
+                  >
+                    {{ (typeof entry === 'object' ? entry.points : Number(entry)) > 0 ? '+' : '' }}{{ typeof entry === 'object' ? Number(entry.points).toFixed(1) : Number(entry).toFixed(1) }} pts
+                  </span>
+                </div>
               </div>
             </div>
           </div>
