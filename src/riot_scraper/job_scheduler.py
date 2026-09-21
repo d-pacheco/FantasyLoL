@@ -33,13 +33,43 @@ class JobScheduler:
         atexit.register(self.shutdown_jobs)
 
     def _on_job_event(self, event):
-        if getattr(event, "exception", None):
-            logger.error(f"Job '{event.job_id}' raised an exception:\n{event.traceback}")
+        exc = getattr(event, "exception", None)
+        if exc:
+            logger.error(
+                "Job '%s' raised an exception:\n%s\n%s",
+                event.job_id,
+                self._summarize_exception(exc),
+                event.traceback,
+            )
         else:
             logger.warning(
                 f"Job '{event.job_id}' missed its scheduled run "
                 f"(scheduled: {getattr(event, 'scheduled_run_time', 'unknown')})"
             )
+
+    @staticmethod
+    def _summarize_exception(exc: BaseException) -> str:
+        """Build a concise, high-signal summary of an exception.
+
+        The full ``event.traceback`` can be very long (SQLAlchemy embeds the SQL
+        statement and bound parameters), and long multi-line messages sometimes get
+        truncated by the log pipeline before the terminal exception line is reached.
+        Emitting this summary first guarantees the real cause is visible. For database
+        errors the driver exception (``.orig``) carries the Postgres ``DETAIL`` line
+        (e.g. which key violated a unique constraint), so it is surfaced explicitly.
+        """
+        lines = [f"{type(exc).__name__}: {exc}"]
+
+        # SQLAlchemy wraps the underlying DBAPI error on `.orig`.
+        orig = getattr(exc, "orig", None)
+        if orig is not None and orig is not exc:
+            lines.append(f"Driver error: {type(orig).__name__}: {orig}")
+
+        cause = exc.__cause__ or exc.__context__
+        if cause is not None and cause is not exc and cause is not orig:
+            lines.append(f"Caused by: {type(cause).__name__}: {cause}")
+
+        return "\n".join(lines)
 
     def trigger_league_service_job(self):
         job = self.scheduler.get_job("league_service_job")
