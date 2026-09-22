@@ -198,3 +198,56 @@ class TestCrudRiotPlayer(TestBase):
 
         # Assert
         self.assertIsNone(player_from_db)
+
+    def test_get_player_by_id_prefers_active_team_over_archived(self):
+        # Arrange: a player associated (same id) with both an active team and an
+        # archived team (players have a composite (id, team_id) primary key, so a
+        # single player id can map to many team rows).
+        archived_team = riot_fixtures.team_2_fixture.model_copy(deep=True)
+        archived_team.id = "000000000000000001"
+        archived_team.code = "ARCH"
+        archived_team.status = "archived"
+        archived_team.home_league_name = "Some Archived League"
+        self.db.put_team(archived_team)
+
+        active_player = riot_fixtures.player_1_fixture  # team_1_fixture (active)
+        archived_player = active_player.model_copy(deep=True)
+        archived_player.team_id = archived_team.id
+
+        # Insert the archived association first to bias an unordered .first().
+        self.db.put_player(archived_player)
+        self.db.put_player(active_player)
+
+        # Act
+        player_from_db = self.db.get_player_by_id(active_player.id)
+
+        # Assert: the active team wins.
+        self.assertIsNotNone(player_from_db)
+        self.assertEqual(riot_fixtures.team_1_fixture.id, player_from_db.team_id)
+        self.assertEqual(riot_fixtures.team_1_fixture.code, player_from_db.team_code)
+
+    def test_get_player_by_id_prefers_team_with_matching_league_when_multiple_active(self):
+        # Arrange: two active teams for the same player, but only one maps to a
+        # real league (the other is an event/all-star team with no league match).
+        event_team = riot_fixtures.team_2_fixture.model_copy(deep=True)
+        event_team.id = "000000000000000002"
+        event_team.code = "EVNT"
+        event_team.status = "active"
+        event_team.home_league_name = "Nonexistent Showmatch League"
+        self.db.put_team(event_team)
+
+        pro_player = riot_fixtures.player_1_fixture  # team_1_fixture -> league_1 (exists)
+        event_player = pro_player.model_copy(deep=True)
+        event_player.team_id = event_team.id
+
+        # Insert the event association first to bias an unordered .first().
+        self.db.put_player(event_player)
+        self.db.put_player(pro_player)
+
+        # Act
+        player_from_db = self.db.get_player_by_id(pro_player.id)
+
+        # Assert: the team that maps to a real league wins.
+        self.assertIsNotNone(player_from_db)
+        self.assertEqual(riot_fixtures.team_1_fixture.id, player_from_db.team_id)
+        self.assertEqual(riot_fixtures.team_1_fixture.code, player_from_db.team_code)

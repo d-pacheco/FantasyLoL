@@ -49,7 +49,21 @@ def get_players(session, filters: list | None = None) -> list[ProfessionalPlayer
 
 
 def get_player_by_id(session, player_id: ProPlayerID) -> ProfessionalPlayer | None:
-    row = _player_query(session).filter(ProfessionalPlayerModel.id == player_id).first()
+    # A player has a composite (id, team_id) primary key, so a single player id can map
+    # to many team rows (real team, academy, all-star / showmatch rosters, archived teams).
+    # Prefer the player's real competitive team: an active team that maps to a known league
+    # (favouring fantasy-available leagues) over event/archived associations.
+    row = (
+        _player_query(session)
+        .filter(ProfessionalPlayerModel.id == player_id)
+        .order_by(
+            (ProfessionalTeamModel.status == "active").desc(),
+            LeagueModel.name.isnot(None).desc(),
+            (LeagueModel.fantasy_available.is_(True)).desc(),
+            ProfessionalTeamModel.id,
+        )
+        .first()
+    )
     if row is None:
         return None
     return ProfessionalPlayer.model_validate(row)
