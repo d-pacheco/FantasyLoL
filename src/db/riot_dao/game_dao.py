@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import text
 
 from src.common.schemas.riot_data_schemas import Game, RiotGameID, GameState
-from src.db.models import GameModel, GameTeamsModel
+from src.db.models import GameModel, GameTeamsModel, ProfessionalTeamModel
 from src.db.views import GameView
 
 logger = logging.getLogger("api.db")
@@ -21,9 +21,18 @@ def put_game(session, game: Game) -> None:
     session.flush()
 
     for team_id, side in [(game.red_team, "red"), (game.blue_team, "blue")]:
-        if team_id:
-            gt = GameTeamsModel(game_id=game.id, team_id=team_id, side=side)
-            session.merge(gt)
+        if not team_id:
+            continue
+        # Skip teams we haven't scraped yet (FK to professional_teams). The match is
+        # re-fetched on later runs until every game has its game_teams rows.
+        if session.get(ProfessionalTeamModel, team_id) is None:
+            logger.warning(
+                f"Team {team_id} not in professional_teams, skipping {side} side "
+                f"for game {game.id}"
+            )
+            continue
+        gt = GameTeamsModel(game_id=game.id, team_id=team_id, side=side)
+        session.merge(gt)
 
     session.commit()
 
