@@ -231,6 +231,25 @@ class TestCrudRiotMatch(TestBase):
         self.assertEqual(1, len(match_ids))
         self.assertEqual(match.id, match_ids[0])
 
+    def test_get_match_ids_without_games_matches_with_one_game_team(self):
+        # Arrange - game vs a TBD opponent: only the known team's side is saved
+        self.db.put_league(riot_fixtures.league_1_fixture)
+        match = riot_fixtures.match_fixture.model_copy(deep=True)
+        match.has_games = True
+        self.db.put_match(match)
+        self.db.put_team(riot_fixtures.team_1_fixture)
+
+        game_one_side = riot_fixtures.game_1_fixture_completed.model_copy(deep=True)
+        game_one_side.match_id = match.id
+        game_one_side.red_team = None
+        self.db.put_game(game_one_side)
+
+        # Act
+        match_ids = self.db.get_match_ids_without_games()
+
+        # Assert - match must still be re-fetched so the other side gets filled in
+        self.assertEqual([match.id], match_ids)
+
     def test_get_match_ids_without_games_matches_with_games(self):
         # Arrange - create a match with a game that HAS team assignments
         match = riot_fixtures.match_fixture.model_copy(deep=True)

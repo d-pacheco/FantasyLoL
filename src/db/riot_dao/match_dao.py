@@ -242,14 +242,19 @@ def get_match_by_id(session, match_id: RiotMatchID) -> Match | None:
 
 
 def get_match_ids_without_games(session) -> list[RiotMatchID]:
+    # A match needs (re)fetching if it has no games, or any game is missing a red or
+    # blue team. Games against an undecided (TBD) opponent are saved with only the
+    # known side, so they must keep being re-fetched until Riot fills in the other.
     sql_query = """
         SELECT DISTINCT matches.id
         FROM matches
         JOIN leagues ON matches.league_id = leagues.id
         LEFT JOIN games ON matches.id = games.match_id
-        LEFT JOIN game_teams ON games.id = game_teams.game_id
         WHERE leagues.scrape_enabled = true
-        AND (games.match_id IS NULL OR game_teams.game_id IS NULL);
+        AND (
+            games.id IS NULL
+            OR (SELECT COUNT(*) FROM game_teams WHERE game_teams.game_id = games.id) < 2
+        );
     """
     result = session.execute(text(sql_query))
     rows = result.fetchall()

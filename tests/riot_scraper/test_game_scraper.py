@@ -125,3 +125,48 @@ def test_put_game_skips_team_not_in_professional_teams(db):
     assert saved is not None
     assert saved.blue_team == riot_fixtures.team_1_fixture.id
     assert saved.red_team is None
+
+
+def test_tbd_game_is_refetched_until_opponent_is_known(db):
+    # Real DB, real scraper: first fetch has a TBD opponent, later fetch has it resolved.
+    known = riot_fixtures.team_1_fixture
+    opponent = riot_fixtures.team_2_fixture
+    match = riot_fixtures.match_fixture
+    db.put_league(riot_fixtures.league_1_fixture)
+    db.put_team(known)
+    db.put_team(opponent)
+    db.put_tournament(riot_fixtures.tournament_fixture)
+    db.put_match(match)
+
+    def details(red_id: str, red_side: str | None) -> EventDetailsResponse:
+        response = make_event_details(
+            [
+                {
+                    "id": "tbd-game-1",
+                    "number": 1,
+                    "state": "unstarted",
+                    "teams": [{"id": known.id, "side": "blue"}, {"id": red_id, "side": red_side}],
+                }
+            ]
+        )
+        response.data.event.id = match.id
+        return response
+
+    api = MagicMock()
+    scraper = RiotGameScraper(db, api, MagicMock())
+
+    # Run 1: opponent undecided
+    api.get_event_details.return_value = details("0", None)
+    scraper.process_batch_match_ids([match.id])
+    game = db.get_game_by_id(RiotGameID("tbd-game-1"))
+    assert game is not None
+    assert (game.blue_team, game.red_team) == (known.id, None)
+    assert match.id in db.get_match_ids_without_games()
+
+    # Run 2: Riot now knows the opponent
+    api.get_event_details.return_value = details(opponent.id, "red")
+    scraper.process_batch_match_ids([match.id])
+    game = db.get_game_by_id(RiotGameID("tbd-game-1"))
+    assert game is not None
+    assert (game.blue_team, game.red_team) == (known.id, opponent.id)
+    assert match.id not in db.get_match_ids_without_games()
