@@ -7,6 +7,9 @@ from src.riot_scraper.job_runner import JobRunner
 
 logger = logging.getLogger("scraper.game")
 
+# Placeholder team id Riot uses for an opponent that hasn't been determined yet.
+TBD_TEAM_ID = "0"
+
 
 class RiotGameScraper:
     def __init__(
@@ -43,25 +46,24 @@ class RiotGameScraper:
                 continue
 
             for game in get_event_details_response.data.event.match.games:
-                teams = game.teams
-                if not teams or len(teams) < 2 or not teams[0].side:
-                    new_game = Game(
-                        id=game.id,
-                        state=GameState(game.state),
-                        number=game.number,
-                        match_id=match_id,
-                    )
-                else:
-                    red_team_id = teams[0].id if teams[0].side == "red" else teams[1].id
-                    blue_team_id = teams[0].id if teams[0].side == "blue" else teams[1].id
-                    new_game = Game(
-                        id=game.id,
-                        state=GameState(game.state),
-                        number=game.number,
-                        red_team=ProTeamID(red_team_id),
-                        blue_team=ProTeamID(blue_team_id),
-                        match_id=match_id,
-                    )
+                # Riot represents an undecided opponent (e.g. winner of a match that
+                # hasn't been played yet) as team id "0" / code "TBD" with no side.
+                # Only map teams that are real and have a side assigned; the match will
+                # be re-fetched on later runs (it still has games without game_teams)
+                # and the missing side filled in once Riot knows who is playing.
+                side_to_team = {
+                    team.side: ProTeamID(team.id)
+                    for team in game.teams or []
+                    if team.side in ("red", "blue") and team.id and team.id != TBD_TEAM_ID
+                }
+                new_game = Game(
+                    id=game.id,
+                    state=GameState(game.state),
+                    number=game.number,
+                    red_team=side_to_team.get("red"),
+                    blue_team=side_to_team.get("blue"),
+                    match_id=match_id,
+                )
                 all_fetched_games.append(new_game)
         self.db.bulk_save_games(all_fetched_games)
 
